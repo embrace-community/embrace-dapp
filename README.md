@@ -1,1 +1,3 @@
-# embrace-dapp
+# Embrace
+
+This is a mono-repo which will include both the contracts and frontend...
