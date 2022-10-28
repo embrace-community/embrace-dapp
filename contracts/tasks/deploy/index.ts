@@ -1,1 +1,2 @@
+import "./embraceApps";
 import "./greeter";

@@ -6,6 +6,25 @@
     "name": "Paul Razvan Berg",
     "url": "https://github.com/paulrberg"
   },
+  "scripts": {
+    "node": "hardhat node",
+    "clean": "shx rm -rf ./artifacts ./cache ./coverage ./types ./coverage.json && yarn typechain",
+    "commit": "git-cz",
+    "compile": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat compile",
+    "coverage": "hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles \"test/**/*.ts\" && yarn typechain",
+    "deploy": "hardhat deploy:EmbraceApps",
+    "deploy:cro:test": "hardhat deploy:EmbraceApps --network cro_test",
+    "lint": "yarn lint:sol && yarn lint:ts && yarn prettier:check",
+    "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",
+    "lint:ts": "eslint --config ./.eslintrc.yml --ignore-path ./.eslintignore --ext .js,.ts .",
+    "postinstall": "husky install && DOTENV_CONFIG_PATH=./.env.example yarn typechain",
+    "postpublish": "pinst --enable",
+    "prepublishOnly": "pinst --disable",
+    "prettier": "prettier --config ./.prettierrc.yml --write \"**/*.{js,json,md,sol,ts,yml}\"",
+    "prettier:check": "prettier --check --config ./.prettierrc.yml \"**/*.{js,json,md,sol,ts,yml}\"",
+    "test": "hardhat test",
+    "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain"
+  },
   "devDependencies": {
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
@@ -75,23 +94,5 @@
   "packageManager": "yarn@3.2.1",
   "publishConfig": {
     "access": "public"
-  },
-  "scripts": {
-    "node": "hardhat node",
-    "clean": "shx rm -rf ./artifacts ./cache ./coverage ./types ./coverage.json && yarn typechain",
-    "commit": "git-cz",
-    "compile": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat compile",
-    "coverage": "hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles \"test/**/*.ts\" && yarn typechain",
-    "deploy": "hardhat deploy:Greeter",
-    "lint": "yarn lint:sol && yarn lint:ts && yarn prettier:check",
-    "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",
-    "lint:ts": "eslint --config ./.eslintrc.yml --ignore-path ./.eslintignore --ext .js,.ts .",
-    "postinstall": "husky install && DOTENV_CONFIG_PATH=./.env.example yarn typechain",
-    "postpublish": "pinst --enable",
-    "prepublishOnly": "pinst --disable",
-    "prettier": "prettier --config ./.prettierrc.yml --write \"**/*.{js,json,md,sol,ts,yml}\"",
-    "prettier:check": "prettier --check --config ./.prettierrc.yml \"**/*.{js,json,md,sol,ts,yml}\"",
-    "test": "hardhat test",
-    "typechain": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat typechain"
   }
 }

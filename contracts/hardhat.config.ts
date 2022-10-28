@@ -35,10 +35,10 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
   let jsonRpcUrl: string;
   switch (chain) {
     case "cro_main":
-      jsonRpcUrl = "https://evm.cronos.org/:8545";
+      jsonRpcUrl = "https://evm.cronos.org/";
       break;
     case "cro_test":
-      jsonRpcUrl = "https://evm-t3.cronos.org/:8545";
+      jsonRpcUrl = "https://evm-t3.cronos.org/";
       break;
     default:
       jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
@@ -58,6 +58,8 @@ const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   etherscan: {
     apiKey: {
+      cro_test: process.env.ETHERSCAN_API_KEY || "",
+      cro_main: process.env.ETHERSCAN_API_KEY || "",
       goerli: process.env.ETHERSCAN_API_KEY || "",
       mainnet: process.env.ETHERSCAN_API_KEY || "",
     },
@@ -70,24 +72,11 @@ const config: HardhatUserConfig = {
   },
   networks: {
     hardhat: {
-      accounts: {
-        mnemonic,
-      },
+      accounts: { mnemonic },
       chainId: chainIds.hardhat,
-      // accounts: privateKey !== undefined ? [privateKey] : [],
     },
-    development: {
-      url: "http://127.0.0.1:8545",
-      // provider: new HDWalletProvider(getHDWallet(), "http://127.0.0.1:8545"), // TODO
-      // network_id: "*", // Any network (default: none)
-      accounts: privateKey !== undefined ? [privateKey] : [],
-    },
-    cro_test:  getChainConfig("cro_test"),
+    cro_test: getChainConfig("cro_test"),
     cro_main: getChainConfig("cro_main"),
-
-    // provider: new HDWalletProvider(getHDWallet(), "https://evm-t3.cronos.org/:8545"), // TODO
-    // network_id: "*",
-    // skipDryRun: true,
     goerli: getChainConfig("goerli"),
     mainnet: getChainConfig("mainnet"),
   },
