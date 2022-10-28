@@ -9,8 +9,8 @@ if (!process.env.NEXT_PUBLIC_PROJECT_ID)
 // Configure web3modal
 const modalConfig = {
   projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
-  theme: "dark" as const,
-  accentColor: "default" as const,
+  theme: "light" as const,
+  accentColor: "blue" as const,
   ethereum: {
     appName: "web3Modal",
     autoConnect: true,
