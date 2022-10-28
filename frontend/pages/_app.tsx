@@ -1,6 +1,7 @@
 import { chains, providers } from "@web3modal/ethereum";
 import { Web3Modal } from "@web3modal/react";
 import type { AppProps } from "next/app";
+import "../styles/globals.css";
 
 if (!process.env.NEXT_PUBLIC_PROJECT_ID)
   throw new Error("You need to provide NEXT_PUBLIC_PROJECT_ID env variable");
