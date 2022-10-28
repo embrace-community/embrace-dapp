@@ -1,6 +1,10 @@
+import { ApolloProvider } from "@apollo/client";
 import { chains, providers } from "@web3modal/ethereum";
 import { Web3Modal } from "@web3modal/react";
 import type { AppProps } from "next/app";
+import ClientOnlyWrapper from "../components/ClientOnlyWrapper";
+import { apolloClient } from "../lib/ApolloClient";
+import { CeramicContext, composeDbClient } from "../lib/CeramicContext";
 import "../styles/globals.css";
 
 if (!process.env.NEXT_PUBLIC_PROJECT_ID)
@@ -31,8 +35,14 @@ const modalConfig = {
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <>
-      <Component {...pageProps} />
-      <Web3Modal config={modalConfig} />
+      <ApolloProvider client={apolloClient}>
+        <CeramicContext.Provider value={composeDbClient}>
+          <ClientOnlyWrapper>
+            <Component {...pageProps} />
+          </ClientOnlyWrapper>
+          <Web3Modal config={modalConfig} />
+        </CeramicContext.Provider>
+      </ApolloProvider>
     </>
   );
 }
