@@ -1,0 +1,27 @@
+{
+  "name": "react-example",
+  "version": "2.0.0-beta.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build; next export",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@web3modal/ethereum": "2.0.0-beta.1",
+    "@web3modal/react": "2.0.0-beta.1",
+    "ethers": "^5.7.2",
+    "next": "13.0.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.11.7",
+    "@types/react": "18.0.24",
+    "@types/react-dom": "18.0.8",
+    "eslint": "8.26.0",
+    "eslint-config-next": "13.0.0",
+    "typescript": "4.8.4"
+  }
+}
