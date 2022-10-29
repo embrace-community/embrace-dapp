@@ -18,3 +18,9 @@ export interface Signers {
   admin: SignerWithAddress;
   other?: SignerWithAddress;
 }
+
+export enum Visibility {
+  PUBLIC,
+  PRIVATE,
+  ANONYMOUS,
+}

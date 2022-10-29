@@ -16,13 +16,16 @@ contract EmbraceSpaces {
         uint256[] apps;
         string metadata;
         address founder;
+        bytes32 passcode;
     }
 
     uint256 private spaceIndex = 0;
     Space[] public spaces;
 
     mapping(uint256 => mapping(address => bool)) public spaceMembers;
+    mapping(uint256 => uint256) public spaceMemberLength;
     mapping(uint256 => mapping(address => bool)) public spaceAdmins;
+    mapping(uint256 => uint256) public spaceAdminLength;
 
     mapping(bytes32 => uint256) public spaceHandles;
 
@@ -40,7 +43,8 @@ contract EmbraceSpaces {
         bytes32 _handle,
         Visibility _visibility,
         uint256[] memory _apps,
-        string memory _metadata
+        string memory _metadata,
+        string memory _passstring
     ) public {
         if (spaceHandles[_handle] != 0) {
             revert("Handle already exists");
@@ -51,7 +55,11 @@ contract EmbraceSpaces {
             visibility: _visibility,
             founder: msg.sender,
             apps: _apps,
-            metadata: _metadata
+            metadata: _metadata,
+            // TODO: This is just a temporary (unsecure) version
+            // which will be replaced with another mechanism
+            // like DAO membership etc.
+            passcode: keccak256(abi.encodePacked(_passstring))
         });
 
         spaces.push(space);
@@ -59,6 +67,26 @@ contract EmbraceSpaces {
         // Add Handle
         spaceHandles[_handle] = spaceIndex;
         spaceIndex++;
+    }
+
+    function joinPublicSpace(uint256 _spaceIndex) public returns (bool) {
+        Space memory space = spaces[_spaceIndex];
+
+        if (space.visibility != Visibility.PUBLIC) revert("Cannot join restricted space without passcode");
+
+        spaceMembers[_spaceIndex][msg.sender] = true;
+        spaceMemberLength[_spaceIndex]++;
+
+        return true;
+    }
+
+    function joinRestrictedSpace(uint256 _spaceIndex, string memory _passstring) public  {
+        Space memory space = spaces[_spaceIndex];
+
+        if (space.passcode != keccak256(abi.encodePacked(_passstring))) revert("Wrong passcode provided");
+
+        spaceMembers[_spaceIndex][msg.sender] = true;
+        spaceMemberLength[_spaceIndex]++;
     }
 
     function getSpaces() public view returns (Space[] memory) {
