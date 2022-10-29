@@ -28,9 +28,8 @@ export default function SpaceViewPage() {
           router.query.handle as string
         );
         const response = await MyContract.getIdFromHandle(handleBytes32);
-        if (response._hex) {
-          console.log(response);
-          console.log("PARSE", response.toString());
+        if (response.toString() !== "0") {
+          setSpaceId(response.toString());
         }
       } catch (err) {
         console.log(err);
@@ -43,9 +42,16 @@ export default function SpaceViewPage() {
   return (
     <>
       <AppLayout title="Get Space Name from Handle">
-        <h1>Space View # {spaceId}</h1>
-
-        <Discussion />
+        {spaceId !== -1 ? (
+          <>
+            <h1>Space View # {spaceId}</h1>
+            <Discussion />
+          </>
+        ) : (
+          <h1 className="text-red-800">
+            Space cannot be found - please check the handle
+          </h1>
+        )}
       </AppLayout>
     </>
   );
