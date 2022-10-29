@@ -36,7 +36,6 @@ export default function HomePage() {
                 inline-flex
                 items-center
                 rounded-full
-                border
                 border-violet-500
                 border-2
                 bg-transparent
