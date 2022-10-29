@@ -23,11 +23,19 @@ export default function SpaceViewPage() {
   const spaceIdFromHandle = 99999;
   setSpaceId(spaceIdFromHandle);
 
+  console.log("Data", data);
+  console.error("Error", error);
+
+  if (!spaceId) {
+    <>Space could not be found</>;
+  }
   return (
     <>
       <AppLayout title="Get Space Name from Handle">
         <h1>Space View # {spaceId}</h1>
-
+        {isLoading && <p>Loading...</p>}
+        {error && <p>Error...</p>}
+        {data && <p>data</p>}
         <Discussion />
       </AppLayout>
     </>
