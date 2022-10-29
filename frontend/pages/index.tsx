@@ -31,7 +31,6 @@ export default function HomePage() {
     functionName: "getSpaces",
     args: [],
   });
-  console.log("spaces", spaces);
 
   useEffect(() => {
     const getSpaceMembers = async () => {
@@ -66,8 +65,6 @@ export default function HomePage() {
     if (!spaces) return [];
 
     return (spaces as EmbraceSpace[]).filter((_, i) => {
-      console.dir(spaceIdsUserIsMember);
-
       if (!Array.isArray(spaceIdsUserIsMember)) return false;
 
       return !spaceIdsUserIsMember?.includes(+i);

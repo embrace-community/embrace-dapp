@@ -17,7 +17,7 @@ async function main() {
     throw new Error("Space handle needs to be specified.");
   }
 
-  const metadata = process.argv[3];
+  const metadata = process.argv[4];
   if (!metadata) {
     throw new Error("Space metadata needs to be specified.");
   }

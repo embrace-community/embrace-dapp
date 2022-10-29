@@ -18,6 +18,7 @@ export default function SpaceCollection({
       const jsonContents: string[] = [];
 
       for (const item of collection) {
+        console.dir(item);
         const jsonContent = (await getIpfsJsonContent(
           item?.metadata
         )) as string;
@@ -27,6 +28,9 @@ export default function SpaceCollection({
 
       setJsonMetadata(jsonContents);
     }
+
+    console.log("runrun");
+
     loadMetadataJson();
   }, [collection]);
 
