@@ -1,17 +1,17 @@
-import { chains } from '@web3modal/ethereum'
-import { useContractWrite, useWaitForTransaction } from '@web3modal/react'
-import wagmigotchiABI from '../data/wagmigotchiAbi.json'
+import { chains } from "@web3modal/ethereum";
+import { useContractWrite, useWaitForTransaction } from "@web3modal/react";
+import wagmigotchiABI from "../data/wagmigotchiAbi.json";
 
 export default function UseContractWrite() {
   const config = {
-    address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
+    address: "0xecb504d39723b0be0e3a9aa33d646642d1051ee1",
     abi: wagmigotchiABI,
-    functionName: 'feed',
-    chainId: chains.mainnet.id
-  }
+    functionName: "feed",
+    chainId: chains.mainnet.id,
+  };
 
-  const { data, error, isLoading, write } = useContractWrite(config)
-  const { receipt, isWaiting } = useWaitForTransaction({ hash: data?.hash })
+  const { data, error, isLoading, write } = useContractWrite(config);
+  const { receipt, isWaiting } = useWaitForTransaction({ hash: data?.hash });
 
   return (
     <section>
@@ -34,16 +34,18 @@ export default function UseContractWrite() {
           Contract write Config: <span>{JSON.stringify(config)}</span>
         </li>
         <li>
-          Write Data: <span>{isLoading ? 'Loading...' : JSON.stringify(data)}</span>
+          Write Data:{" "}
+          <span>{isLoading ? "Loading..." : JSON.stringify(data)}</span>
         </li>
         <li>
-          Receipt Data: <span>{isWaiting ? 'Waiting...' : JSON.stringify(receipt)}</span>
+          Receipt Data:{" "}
+          <span>{isWaiting ? "Waiting..." : JSON.stringify(receipt)}</span>
         </li>
         <li>
-          Error: <span>{error ? error.message : 'No Error'}</span>
+          Error: <span>{error ? error.message : "No Error"}</span>
         </li>
       </ul>
       <button onClick={async () => write()}>Write to contract</button>
     </section>
-  )
+  );
 }

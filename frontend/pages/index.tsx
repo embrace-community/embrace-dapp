@@ -1,12 +1,37 @@
 import { PlusIcon as PlusIconMini } from "@heroicons/react/20/solid";
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+} from "@web3modal/react";
 import Link from "next/link";
 import AppLayout from "../components/AppLayout";
-import useEmbraceContracts from "../hooks/useEmbraceContracts";
+import EmbraceAccountsJSON from "../data/contractArtifacts/EmbraceAccounts.json";
 
 export default function HomePage() {
-  const { spacesContract } = useEmbraceContracts();
+  const { account } = useAccount();
+  console.log(account);
+  const {
+    data: readData,
+    error: readError,
+    isLoading: readIsLoading,
+  } = useContractRead({
+    address: process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
+    abi: EmbraceAccountsJSON.abi,
+    functionName: "getAddress",
+    args: ["0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"],
+  });
 
-  // console.log(spacesContract);
+  console.log("useContractRead", readData, readError, readIsLoading);
+
+  // const { data, error, isLoading } = useContractWrite({
+  //   address: process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
+  //   abi: EmbraceAccountsJSON.abi,
+  //   functionName: "addAccount",
+  //   args: ["martin"],
+  // });
+
+  // console.log("useContractWrite", data, error, isLoading);
 
   return (
     <>

@@ -39,7 +39,8 @@ const modalConfig = {
     appName: "web3Modal",
     autoConnect: true,
     chains: [
-      cronosTest,
+      // cronosTest,
+      chains.localhost,
       chains.mainnet,
       chains.avalanche,
       chains.polygon,
