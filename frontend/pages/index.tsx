@@ -1,8 +1,13 @@
-import AppLayout from "../components/AppLayout";
 import { PlusIcon as PlusIconMini } from "@heroicons/react/20/solid";
 import Link from "next/link";
+import AppLayout from "../components/AppLayout";
+import useEmbraceContracts from "../hooks/useEmbraceContracts";
 
 export default function HomePage() {
+  const { spacesContract } = useEmbraceContracts();
+
+  console.log(spacesContract);
+
   return (
     <>
       <AppLayout title="Home">
