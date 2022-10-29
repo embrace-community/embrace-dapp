@@ -1,14 +1,12 @@
-import { PlusIcon as PlusIconMini } from "@heroicons/react/20/solid";
 import {
   useAccount,
   useContractRead,
   useContractWrite,
 } from "@web3modal/react";
 import Link from "next/link";
-import { useEffect } from "react";
 import AppLayout from "../components/AppLayout";
 import EmbraceAccountsJSON from "../data/contractArtifacts/EmbraceAccounts.json";
-import useEmbraceContracts from "../hooks/useEmbraceContracts";
+import SpaceCollection from "../components/SpaceCollection";
 
 export default function HomePage() {
   const {
@@ -33,20 +31,60 @@ export default function HomePage() {
 
   // console.log("useContractWrite", data, error, isLoading);
 
+  const spacecollection1 = [
+    {
+      img: "https://cdn-icons-png.flaticon.com/512/168/168726.png",
+      name: "1nametest",
+    },
+    {
+      img: "https://img.freepik.com/free-vector/random-square-halftone-pattern_1409-1062.jpg?w=2000",
+      name: "2nametest",
+    },
+  ];
+  const spacecollection2 = [
+    {
+      img: "test",
+      name: "1nametest_col2",
+    },
+    {
+      img: "test",
+      name: "2nametest_col2",
+    },
+  ];
+
   return (
-    <>
+    <div className="min-h-screen">
       <AppLayout title="Home">
-        <Link href="/space/create">
-          <button
-            type="button"
-            className="inline-flex items-center rounded-lg border border-transparent bg-indigo-600 p-3 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-          >
-            <PlusIconMini className="h-5 w-5" aria-hidden="true" /> Create Space
-          </button>
-        </Link>
-        <hr />
-        List users spaces / List all spaces
+        <div className="test">
+          <Link href="/space/create">
+            <button
+              type="button"
+              className="
+                inline-flex
+                items-center
+                rounded-full
+                border-violet-500
+                border-2
+                bg-transparent
+                py-4
+                px-12
+                text-violet-500
+                shadow-sm
+                focus:outline-none
+                focus:ring-none
+                mb-11
+                font-semibold"
+            >
+              + new space
+            </button>
+          </Link>
+          <SpaceCollection title="your spaces" collection={spacecollection1} />
+          <SpaceCollection
+            title="public spaces"
+            collection={spacecollection2}
+          />
+        </div>
       </AppLayout>
-    </>
+    </div>
   );
 }
