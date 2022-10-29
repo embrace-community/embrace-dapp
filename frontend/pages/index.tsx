@@ -1,8 +1,38 @@
-import AppLayout from "../components/AppLayout";
 import { PlusIcon as PlusIconMini } from "@heroicons/react/20/solid";
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+} from "@web3modal/react";
 import Link from "next/link";
+import { useEffect } from "react";
+import AppLayout from "../components/AppLayout";
+import EmbraceAccountsJSON from "../data/contractArtifacts/EmbraceAccounts.json";
+import useEmbraceContracts from "../hooks/useEmbraceContracts";
 
 export default function HomePage() {
+  const {
+    data: readData,
+    error: readError,
+    isLoading: readIsLoading,
+  } = useContractRead({
+    address: process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
+    abi: EmbraceAccountsJSON.abi,
+    functionName: "getAddress",
+    args: ["0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"],
+  });
+
+  console.log("useContractRead", readData, readError?.message, readIsLoading);
+
+  // const { data, error, isLoading } = useContractWrite({
+  //   address: process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
+  //   abi: EmbraceAccountsJSON.abi,
+  //   functionName: "addAccount",
+  //   args: ["buidler"],
+  // });
+
+  // console.log("useContractWrite", data, error, isLoading);
+
   return (
     <>
       <AppLayout title="Home">
