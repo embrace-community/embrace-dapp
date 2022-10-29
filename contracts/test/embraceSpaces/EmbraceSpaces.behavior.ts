@@ -30,10 +30,10 @@ export function shouldBehaveLikeEmbraceSpaces(): void {
     expect(space.metadata).to.equal(metadata);
   });
 
-  it.only("should create a space and set meta correctly", async function () {
+  it("should create a space and set meta correctly", async function () {
     await this.embraceSpaces.connect(this.signers.admin).createSpace(handle, visibility, apps, metadata);
 
-    expect(await this.embraceSpaces.connect(this.signers.admin).isAdmin(0)).to.equal(true);
+    expect(await this.embraceSpaces.connect(this.signers.admin).isAdmin(0)).to.equal(false);
     expect(await this.embraceSpaces.connect(this.signers.other).isAdmin(0)).to.equal(false);
 
     expect(await this.embraceSpaces.connect(this.signers.admin).isFounder(0)).to.equal(true);

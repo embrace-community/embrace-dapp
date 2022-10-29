@@ -11,7 +11,7 @@ describe("Unit tests", function () {
     this.signers = {} as Signers;
 
     const signers: SignerWithAddress[] = await ethers.getSigners();
-    console.log('signers', signers)
+
     this.signers.admin = signers[0];
     this.signers.other = signers[1];
 
