@@ -6,7 +6,7 @@ import useEmbraceContracts from "../hooks/useEmbraceContracts";
 export default function HomePage() {
   const { spacesContract } = useEmbraceContracts();
 
-  console.log(spacesContract);
+  // console.log(spacesContract);
 
   return (
     <>

@@ -25,7 +25,8 @@
     "next": "13.0.0",
     "next-transpile-modules": "^9.1.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "web3.storage": "^4.4.0"
   },
   "devDependencies": {
     "@headlessui/react": "^1.7.3",
