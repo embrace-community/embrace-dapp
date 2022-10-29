@@ -1,3 +1,68 @@
 // This is an auto-generated file, do not edit manually
-import type { RuntimeCompositeDefinition } from '@composedb/types'
-export const definition: RuntimeCompositeDefinition = {"models":{"DemoAddressBook":{"id":"kjzl6hvfrbw6c5xko1avj8gzn3x8py8dkm887mc8fw4fh0t91hihe8abelu55bf","accountRelation":{"type":"list"}},"DemoAddressBookEntry":{"id":"kjzl6hvfrbw6c90qk8c3745ue3lziwq3nlo0v7cdxkslp8hvb7l9v7hmh2bncd0","accountRelation":{"type":"list"}}},"objects":{"DemoAddressBook":{"addressBookName":{"type":"string","required":true}},"DemoAddressBookEntryWalletAdresses":{"address":{"type":"string","required":true},"blockchainNetwork":{"type":"string","required":true}},"DemoAddressBookEntry":{"entryName":{"type":"string","required":true},"addressBook":{"type":"streamid","required":true},"walletAdresses":{"type":"list","required":false,"item":{"type":"reference","refType":"object","refName":"DemoAddressBookEntryWalletAdresses","required":false}},"book":{"type":"view","viewType":"relation","relation":{"source":"document","model":"kjzl6hvfrbw6c5xko1avj8gzn3x8py8dkm887mc8fw4fh0t91hihe8abelu55bf","property":"addressBook"}}}},"enums":{},"accountData":{"demoAddressBookList":{"type":"connection","name":"DemoAddressBook"},"demoAddressBookEntryList":{"type":"connection","name":"DemoAddressBookEntry"}}}
+import type { RuntimeCompositeDefinition } from "@composedb/types";
+export const definition: RuntimeCompositeDefinition = {
+  models: {
+    DiscussionTopic: {
+      id: "kjzl6hvfrbw6c76kvqxy53q10bxymmyfzrjy2v4vb153eg8yz0r9vyyu6gfnvwg",
+      accountRelation: { type: "list" },
+    },
+    DiscussionTopicComment: {
+      id: "kjzl6hvfrbw6c95thytuxisa92hyhzbnyoert80dz2m4j85eiq79iqer4c4jss1",
+      accountRelation: { type: "list" },
+    },
+  },
+  objects: {
+    DiscussionTopicLitEncryption: {
+      accessConditions: { type: "string", required: true },
+      encryptedSymmetricKey: { type: "string", required: true },
+    },
+    DiscussionTopic: {
+      title: { type: "string", required: true },
+      author: { type: "did", required: false },
+      address: { type: "string", required: true },
+      content: { type: "string", required: true },
+      spaceId: { type: "integer", required: true },
+      litencryption: {
+        type: "reference",
+        refType: "object",
+        refName: "DiscussionTopicLitEncryption",
+        required: false,
+      },
+    },
+    DiscussionTopicCommentLitEncryption: {
+      accessConditions: { type: "string", required: true },
+      encryptedSymmetricKey: { type: "string", required: true },
+    },
+    DiscussionTopicComment: {
+      author: { type: "did", required: false },
+      address: { type: "string", required: true },
+      content: { type: "string", required: true },
+      spaceId: { type: "integer", required: true },
+      litencryption: {
+        type: "reference",
+        refType: "object",
+        refName: "DiscussionTopicCommentLitEncryption",
+        required: false,
+      },
+      discussionTopicId: { type: "streamid", required: true },
+      discussionTopic: {
+        type: "view",
+        viewType: "relation",
+        relation: {
+          source: "document",
+          model:
+            "kjzl6hvfrbw6c76kvqxy53q10bxymmyfzrjy2v4vb153eg8yz0r9vyyu6gfnvwg",
+          property: "discussionTopicId",
+        },
+      },
+    },
+  },
+  enums: {},
+  accountData: {
+    discussionTopicList: { type: "connection", name: "DiscussionTopic" },
+    discussionTopicCommentList: {
+      type: "connection",
+      name: "DiscussionTopicComment",
+    },
+  },
+};

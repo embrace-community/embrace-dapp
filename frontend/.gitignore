@@ -31,8 +31,6 @@ yarn-error.log*
 # vercel
 .vercel
 data
-pages/example.tsx
-examples
 
 # typescript
 *.tsbuildinfo
