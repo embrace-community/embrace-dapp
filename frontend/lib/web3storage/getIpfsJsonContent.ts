@@ -1,35 +1,33 @@
-import getFileContent from "./getFileContent"
-import getWeb3StorageClient from "./client"
-import { Web3File } from "web3.storage"
+import getFileContent from "./getFileContent";
+import getWeb3StorageClient from "./client";
+import { Web3File } from "web3.storage";
 
-const web3StorageClient = getWeb3StorageClient()
+const web3StorageClient = getWeb3StorageClient();
 
 async function getIpfsJsonContent(
   cid: string,
   readAs: string = "readAsText"
-): Promise<string | Web3File | undefined> {
+): Promise<string | Web3File | undefined | Record<string, any>> {
   try {
-    let res = await web3StorageClient.get(cid)
+    let res = await web3StorageClient.get(cid);
     if (res?.ok) {
-      let files = await res.files()
+      let files = await res.files();
 
-      console.log('cid', cid) 
+      const file = files[0];
+      if (readAs === "none") return file;
 
-      console.log('files', files)
+      let fileContent: string | Record<string, any> = await getFileContent(
+        file,
+        readAs
+      );
 
+      if (readAs === "readAsText") fileContent = JSON.parse(fileContent);
 
-      const file = files[0]
-      if (readAs === "none") return file
-
-      let fileContent = await getFileContent(file, readAs)
-
-      if (readAs === "readAsText") fileContent = JSON.parse(fileContent)
-
-      return fileContent
+      return fileContent;
     }
   } catch (error) {
-    console.error(error)
+    console.error(error);
   }
 }
 
-export default getIpfsJsonContent
+export default getIpfsJsonContent;
