@@ -48,9 +48,7 @@ export default function SpaceViewPage() {
             <Discussion />
           </>
         ) : (
-          <h1 className="text-red-800">
-            Space cannot be found - please check the handle
-          </h1>
+          <></>
         )}
       </AppLayout>
     </>
