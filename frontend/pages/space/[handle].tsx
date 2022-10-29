@@ -4,6 +4,7 @@ import AppLayout from "../../components/AppLayout";
 import { useRouter } from "next/router";
 import { useContext } from "react";
 import { SpaceContext } from "../../lib/SpaceContext";
+import Discussion from "../../components/app/discussion";
 
 export default function SpaceViewPage() {
   const [spaceId, setSpaceId] = useContext(SpaceContext);
@@ -18,8 +19,7 @@ export default function SpaceViewPage() {
       <AppLayout title="Get Space Name from Handle">
         <h1>Space View # {spaceId}</h1>
 
-        <DiscussionTopics />
-        <DiscussionTopicComments />
+        <Discussion />
       </AppLayout>
     </>
   );
