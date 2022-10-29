@@ -18,7 +18,6 @@ export default function SpaceCollection({
       const jsonContents: string[] = [];
 
       for (const item of collection) {
-        console.dir(item);
         const jsonContent = (await getIpfsJsonContent(
           item?.metadata
         )) as string;
@@ -28,8 +27,6 @@ export default function SpaceCollection({
 
       setJsonMetadata(jsonContents);
     }
-
-    console.log("runrun");
 
     loadMetadataJson();
   }, [collection]);
@@ -46,7 +43,7 @@ export default function SpaceCollection({
         "no title"
       )}
       <div className="flex flex-row">
-        {collection ? (
+        {collection &&
           collection.map((collectionItem, i) => {
             return (
               <Link
@@ -66,10 +63,7 @@ export default function SpaceCollection({
                 </div>
               </Link>
             );
-          })
-        ) : (
-          <></>
-        )}
+          })}
       </div>
     </div>
   );
