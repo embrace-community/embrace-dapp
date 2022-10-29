@@ -36,7 +36,7 @@ export default function DiscussionTopics() {
   return (
     <>
       {loading && <div>Loading...</div>}
-      {error && <div>Error...</div>}
+      {error && <div>Error check daemon...</div>}
       {data && (
         <div>
           <ul>
