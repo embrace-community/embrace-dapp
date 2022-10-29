@@ -46,11 +46,21 @@ export default function SpaceViewPage() {
       image: imageCid,
     };
 
-    const cid = (await saveToIpfs(
-      data,
-      `${data.name.replaceAll(" ", "_")}.json`
-    )) as string;
-    if (!cid) throw Error("Failed to save post to IPFS");
+    try {
+      setIsLoading(true);
+
+      const cid = (await saveToIpfs(
+        data,
+        `${data.name.replaceAll(" ", "_")}.json`
+      )) as string;
+
+      if (!cid) console.error("Failed to save post to IPFS");
+      else console.log("Uploaded json to ipfs, CID: ", cid);
+    } catch (error) {
+      console.error("Failed to save post to IPFS");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (

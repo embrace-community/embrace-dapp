@@ -1,12 +1,13 @@
 import getFileContent from "./getFileContent"
 import getWeb3StorageClient from "./client"
+import { Web3File } from "web3.storage"
 
 const web3StorageClient = getWeb3StorageClient()
 
 async function getIpfsJsonContent(
   cid: string,
   readAs: string = "readAsText"
-): Promise<any> {
+): Promise<string | Web3File | undefined> {
   try {
     let res = await web3StorageClient.get(cid)
     if (res?.ok) {
