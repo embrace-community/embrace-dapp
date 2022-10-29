@@ -11,7 +11,7 @@ async function main() {
   }
 
   const whichAddress = process.argv[3];
-  if (!contractAddress) {
+  if (!whichAddress) {
     throw new Error("Address to get handle needs to be specified.");
   }
   const network = process.argv[4] || "localhost";
