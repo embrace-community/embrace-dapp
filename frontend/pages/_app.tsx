@@ -8,6 +8,7 @@ import { apolloClient } from "../lib/ApolloClient";
 import { CeramicContext, composeDbClient } from "../lib/CeramicContext";
 import { SpaceContext } from "../lib/SpaceContext";
 import "../styles/globals.css";
+import "../styles/extrastyles.css";
 
 if (!process.env.NEXT_PUBLIC_PROJECT_ID)
   throw new Error("You need to provide NEXT_PUBLIC_PROJECT_ID env variable");
