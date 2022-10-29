@@ -1,15 +1,15 @@
-import { chains } from '@web3modal/ethereum'
-import { useContractRead } from '@web3modal/react'
-import wagmigotchiAbi from '../data/wagmigotchiAbi.json'
+import { chains } from "@web3modal/ethereum";
+import { useContractRead } from "@web3modal/react";
+import wagmigotchiAbi from "../data/wagmigotchiAbi.json";
 
 export default function UseContractRead() {
   const config = {
-    address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
+    address: "0xecb504d39723b0be0e3a9aa33d646642d1051ee1",
     abi: wagmigotchiAbi,
-    functionName: 'getHunger',
-    chainId: chains.mainnet.id
-  }
-  const { data, error, isLoading, refetch } = useContractRead(config)
+    functionName: "getHunger",
+    chainId: chains.mainnet.id,
+  };
+  const { data, error, isLoading, refetch } = useContractRead(config);
 
   return (
     <section>
@@ -32,13 +32,14 @@ export default function UseContractRead() {
           Contract read config: <span>{JSON.stringify(config)}</span>
         </li>
         <li>
-          Returned data: <span>{isLoading ? 'Loading...' : JSON.stringify(data)}</span>
+          Returned data:{" "}
+          <span>{isLoading ? "Loading..." : JSON.stringify(data)}</span>
         </li>
         <li>
-          Error: <span>{error ? error.message : 'No Error'}</span>
+          Error: <span>{error ? error.message : "No Error"}</span>
         </li>
       </ul>
       <button onClick={async () => refetch()}>Refetch data</button>
     </section>
-  )
+  );
 }
