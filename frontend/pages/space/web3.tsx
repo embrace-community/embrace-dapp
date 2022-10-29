@@ -67,6 +67,9 @@ export default function SpaceViewPage() {
     <>
       <AppLayout title="Create Space">
         <h1>Space Create</h1>
+
+        {isLoading && <div>I am a spinner</div>}
+
         <input type="text" onChange={(e) => setName(e.target.value)} />
         <input type="text" onChange={(e) => setDescription(e.target.value)} />
 

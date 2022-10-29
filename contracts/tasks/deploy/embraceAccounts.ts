@@ -10,7 +10,9 @@ task("deploy:EmbraceAccounts").setAction(async function (_taskArguments: TaskArg
   const embraceAccountsFactory: EmbraceAccounts__factory = <EmbraceAccounts__factory>(
     await ethers.getContractFactory("EmbraceAccounts")
   );
+
   const embraceAccounts: EmbraceAccounts = <EmbraceAccounts>await embraceAccountsFactory.connect(signers[0]).deploy();
   await embraceAccounts.deployed();
+
   console.log("EmbraceAccounts deployed to: ", embraceAccounts.address);
 });
