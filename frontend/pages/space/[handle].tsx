@@ -43,7 +43,6 @@ export default function SpaceViewPage() {
     if (!contract || !routerIsReady || spaceId == -1) return;
 
     async function getSpace(MyContract): Promise<void> {
-      alert("spaceId: " + spaceId);
       try {
         console.log("SPACE", spaceId);
         const response = await MyContract.getSpace(3);
