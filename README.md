@@ -4,6 +4,18 @@ This is a mono-repo which will include both the contracts and frontend...
 
 ## Contracts
 
+### Goerli
+
+#### deployments
+
+```
+EmbraceApps deployed to:  0x148B94D622c2Ac3abfb550AEaF48F25F105EA18b
+
+EmbraceSpaces deployed to:  0x3706a43642eC170E9E5e57fa3929FAD854A8fC4E
+
+EmbraceAccounts deployed to:  0x53D4D0FFf2d9c62Ac51f15856eaB323802845A6b
+```
+
 ### Cronos
 
 #### deployments

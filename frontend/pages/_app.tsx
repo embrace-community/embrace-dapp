@@ -10,7 +10,25 @@ import { SpaceContext } from "../lib/SpaceContext";
 import "../styles/globals.css";
 
 if (!process.env.NEXT_PUBLIC_PROJECT_ID)
-  throw new Error("You need to provide NEXT_PUBLIC_PROJECT_ID env variable");
+  throw new Error(
+    "You need to provide NEXT_PUBLIC_PROJECT_ID env variable, it comes from walletconnect"
+  );
+
+// const cronosTest = {
+//   id: 338,
+//   /** Human-readable name */
+//   name: "Cronos testnet",
+//   /** Internal network name */
+//   network: "Cronos Testnet",
+//   /** Currency used by chain */
+//   nativeCurrency: "CRO",
+//   /** Collection of RPC endpoints */
+//   rpcUrls: ["https://evm-t3.cronos.org/"],
+//   /** Collection of block explorers */
+//   blockExplorers: ["https://testnet.cronoscan.com/"],
+//   /** Flag for test networks */
+//   testnet: true,
+// };
 
 // Configure web3modal
 const modalConfig = {
@@ -21,15 +39,21 @@ const modalConfig = {
     appName: "web3Modal",
     autoConnect: true,
     chains: [
-      chains.mainnet,
-      chains.avalanche,
-      chains.polygon,
-      chains.binanceSmartChain,
+      // cronosTest,
+      chains.hardhat,
+      chains.goerli,
+      // chains.mainnet,
     ],
     providers: [
       providers.walletConnectProvider({
         projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
       }),
+      providers.jsonRpcProvider({
+        rpc: () => ({ http: "http://localhost:8545" }),
+      }),
+      // providers.jsonRpcProvider({
+      //   rpc: () => ({ http: cronosTest.rpcUrls[0] }),
+      // }),
     ],
   },
 };
