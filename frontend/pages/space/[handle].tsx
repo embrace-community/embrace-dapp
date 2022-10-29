@@ -29,7 +29,7 @@ export default function SpaceViewPage() {
         );
         const response = await MyContract.getIdFromHandle(handleBytes32);
         if (response.toString() !== "0") {
-          setSpaceId(response.toString());
+          setSpaceId(Number(response.toString()));
         }
       } catch (err) {
         console.log(err);
@@ -38,6 +38,23 @@ export default function SpaceViewPage() {
 
     getSpaceId(contract);
   }, [contract, routerIsReady]);
+
+  useEffect((): void => {
+    if (!contract || !routerIsReady || spaceId == -1) return;
+
+    async function getSpace(MyContract): Promise<void> {
+      alert("spaceId: " + spaceId);
+      try {
+        console.log("SPACE", spaceId);
+        const response = await MyContract.getSpace(3);
+        console.log("GET SPACE", response);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    getSpace(contract);
+  }, [contract, routerIsReady, spaceId]);
 
   return (
     <>
