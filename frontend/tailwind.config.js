@@ -5,7 +5,16 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    fontFamily: {
+      sans: ['Poppins', 'sans-serif'],
+      serif: ['Poppins', 'serif'],
+    },
+    extend: {
+      colors: {
+      'embracebg': '#F7F6E8',
+      'embracedark': '#35281E'
+      }
+    },
   },
   plugins: [require("@tailwindcss/forms")],
 };
