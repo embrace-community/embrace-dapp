@@ -1,62 +1,78 @@
-import { useContractRead } from "@web3modal/react";
+import { useContractRead, useSigner } from "@web3modal/react";
+import { ethers } from "ethers";
 import Link from "next/link";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
-import EmbraceAccountsJSON from "../data/contractArtifacts/EmbraceAccounts.json";
-import { Visibility } from "../utils/types";
+import Spinner from "../components/Spinner";
+import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
+import { EmbraceSpace, Visibility } from "../utils/types";
 
 export default function HomePage() {
+  const { data: signer } = useSigner();
+
+  const [spaceIdsUserIsMember, setSpaceIdsUserIsMember] = useState<number[]>(
+    []
+  );
+
+  const contract = new ethers.Contract(
+    process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
+    EmbraceSpaces.abi,
+    signer
+  );
+
   const {
-    data: readData,
-    error: readError,
-    isLoading: readIsLoading,
+    data: spaces,
+    error: spacesError,
+    isLoading: isSpacesLoading,
   } = useContractRead({
-    address: process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
-    abi: EmbraceAccountsJSON.abi,
-    functionName: "getAddress",
-    args: ["0x5B38Da6a701c568545dCfcB03FcB875f56beddC4"],
+    address: process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
+    abi: EmbraceSpaces.abi,
+    functionName: "getSpaces",
+    args: [],
   });
-  console.log("useContractRead", readData, readError?.message, readIsLoading);
+  console.log("spaces", spaces);
 
-  const embraceSpaces = [];
+  useEffect(() => {
+    const getSpaceMembers = async () => {
+      if (!spaces) return [];
 
-  const spacecollection1 = [
-    {
-      handle: "1nametest",
-      visibility: Visibility.PUBLIC,
-      apps: [],
-      metadata: "https://cdn-icons-png.flaticon.com/512/168/168726.png",
-      founder: "",
-      passcode: "",
-    },
-    {
-      handle: "2nametest",
-      visibility: Visibility.PUBLIC,
-      apps: [],
-      metadata:
-        "https://img.freepik.com/free-vector/random-square-halftone-pattern_1409-1062.jpg?w=2000",
-      founder: "",
-      passcode: "",
-    },
-  ];
-  const spacecollection2 = [
-    {
-      handle: "1nametest_col2",
-      visibility: Visibility.PUBLIC,
-      apps: [],
-      metadata: "test",
-      founder: "",
-      passcode: "",
-    },
-    {
-      handle: "2nametest_col2",
-      visibility: Visibility.PUBLIC,
-      apps: [],
-      metadata: "test",
-      founder: "",
-      passcode: "",
-    },
-  ];
+      const spaceIdsIsMember: number[] = [];
+      const userAddress = await signer?.getAddress();
+
+      for (const i of Object.keys(spaces as EmbraceSpace[])) {
+        const isMember: boolean = await contract.spaceMembers(i, userAddress);
+
+        if (isMember) spaceIdsIsMember.push(+i);
+      }
+
+      setSpaceIdsUserIsMember(spaceIdsIsMember);
+    };
+
+    getSpaceMembers();
+  }, [spaces]);
+
+  const mySpaces = useMemo(() => {
+    if (!spaces) return [];
+
+    return (spaces as EmbraceSpace[]).filter((_, i) => {
+      if (!Array.isArray(spaceIdsUserIsMember)) return false;
+
+      return spaceIdsUserIsMember?.includes(+i);
+    });
+  }, [spaces, spaceIdsUserIsMember]);
+
+  const allSpaces = useMemo(() => {
+    if (!spaces) return [];
+
+    return (spaces as EmbraceSpace[]).filter((_, i) => {
+      console.dir(spaceIdsUserIsMember);
+
+      if (!Array.isArray(spaceIdsUserIsMember)) return false;
+
+      return !spaceIdsUserIsMember?.includes(+i);
+    });
+  }, [spaces, spaceIdsUserIsMember]);
 
   return (
     <div className="min-h-screen">
@@ -85,12 +101,15 @@ export default function HomePage() {
             </button>
           </Link>
 
-          <SpaceCollection title="your spaces" collection={spacecollection1} />
+          {isSpacesLoading && <Spinner />}
 
-          <SpaceCollection
-            title="public spaces"
-            collection={spacecollection2}
-          />
+          {!isSpacesLoading && (
+            <>
+              <SpaceCollection title="your spaces" collection={mySpaces} />
+
+              <SpaceCollection title="public spaces" collection={allSpaces} />
+            </>
+          )}
         </div>
       </AppLayout>
     </div>

@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { useEffect, useMemo, useState } from "react";
+import getIpfsJsonContent from "../lib/web3storage/getIpfsJsonContent";
+
 import { EmbraceSpace } from "../utils/types";
 
 export default function SpaceCollection({
@@ -9,7 +11,27 @@ export default function SpaceCollection({
   title: string;
   collection: EmbraceSpace[];
 }) {
-  const router = useRouter();
+  const [jsonMetadata, setJsonMetadata] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function loadMetadataJson() {
+      const jsonContents: string[] = [];
+
+      for (const item of collection) {
+        const jsonContent = (await getIpfsJsonContent(
+          item?.metadata
+        )) as string;
+
+        jsonContents.push(jsonContent);
+      }
+
+      setJsonMetadata(jsonContents);
+    }
+    loadMetadataJson();
+  }, [collection]);
+
+  console.dir(jsonMetadata);
+
   return (
     <div className="w-full border-t-2 border-embracedark border-opacity-5 pb-14 flex flex-col">
       {title ? (
@@ -21,10 +43,10 @@ export default function SpaceCollection({
       )}
       <div className="flex flex-row">
         {collection ? (
-          collection.map((collectionItem) => {
+          collection.map((collectionItem, i) => {
             return (
               <Link
-                key={collectionItem.handle}
+                key={collectionItem.handle + i}
                 href={`/space/${collectionItem.handle}`}
               >
                 <div className="w-48 flex flex-col items-center">
