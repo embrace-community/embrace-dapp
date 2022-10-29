@@ -19,7 +19,7 @@ contract EmbraceSpaces {
         bytes32 passcode;
     }
 
-    uint256 private spaceIndex = 0;
+    uint256 private spaceIndex = 1;
     Space[] public spaces;
 
     mapping(uint256 => mapping(address => bool)) public spaceMembers;

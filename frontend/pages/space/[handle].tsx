@@ -1,41 +1,50 @@
 import AppLayout from "../../components/AppLayout";
 import { useRouter } from "next/router";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SpaceContext } from "../../lib/SpaceContext";
 import Discussion from "../../components/app/discussion";
-import { chains } from "@web3modal/ethereum";
-import { useContractRead } from "@web3modal/react";
+import { ethers } from "ethers";
 import embraceSpacesContract from "../../data/contractArtifacts/EmbraceSpaces.json";
+import { useSigner } from "@web3modal/react";
 
 export default function SpaceViewPage() {
   const [spaceId, setSpaceId] = useContext(SpaceContext);
-  const handle = useRouter().query.handle;
+  const { data: signer } = useSigner();
+  const router = useRouter();
+  const routerIsReady = router.isReady;
 
-  const config = {
-    address: process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-    abi: embraceSpacesContract.abi,
-    functionName: "getIdFromHandle",
-    chainId: chains.goerli.id,
-  };
-  const { data, error, isLoading, refetch } = useContractRead(config);
+  const contract = new ethers.Contract(
+    process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
+    embraceSpacesContract.abi,
+    signer
+  );
 
-  // use handle to get spaceId from contract
-  const spaceIdFromHandle = 99999;
-  setSpaceId(spaceIdFromHandle);
+  useEffect((): void => {
+    if (!contract || !routerIsReady) return;
 
-  console.log("Data", data);
-  console.error("Error", error);
+    async function getSpaceId(MyContract): Promise<void> {
+      try {
+        const handleBytes32 = ethers.utils.formatBytes32String(
+          router.query.handle as string
+        );
+        const response = await MyContract.getIdFromHandle(handleBytes32);
+        if (response._hex) {
+          console.log(response);
+          console.log("PARSE", response.toString());
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
 
-  if (!spaceId) {
-    <>Space could not be found</>;
-  }
+    getSpaceId(contract);
+  }, [contract, routerIsReady]);
+
   return (
     <>
       <AppLayout title="Get Space Name from Handle">
         <h1>Space View # {spaceId}</h1>
-        {isLoading && <p>Loading...</p>}
-        {error && <p>Error...</p>}
-        {data && <p>data</p>}
+
         <Discussion />
       </AppLayout>
     </>
