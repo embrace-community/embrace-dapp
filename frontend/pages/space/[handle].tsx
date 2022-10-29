@@ -11,7 +11,7 @@ export default function SpaceViewPage() {
 
   // use handle to get spaceId from contract
   const spaceIdFromHandle = 99999;
-  console.log(spaceId, setSpaceId);
+  setSpaceId(spaceIdFromHandle);
 
   return (
     <>
