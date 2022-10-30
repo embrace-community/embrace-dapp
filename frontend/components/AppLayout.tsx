@@ -9,7 +9,7 @@ export default function AppLayout({ children, title }: any) {
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <Nav />
-      <div className="min-h-full w-full extrastyles-homepage">
+      <div className="min-h-full w-full">
         <main>
           <div className="w-full">
             {children}

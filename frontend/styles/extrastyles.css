@@ -2,7 +2,7 @@
   width: 184px;
 }
 
-.extrastyles-homepage {
+.extrastyles-specialpadding {
   padding: 30px 0 0 6.8vw;
 }
 
@@ -14,5 +14,7 @@
 .extrastyles-border-radius {
   border-radius: 50%;
 }
-
+.extrastyles-negmarg  {
+  margin-bottom: -13px;
+}
 textarea { resize: none; }
