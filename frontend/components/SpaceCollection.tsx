@@ -12,7 +12,7 @@ export default function SpaceCollection({
   title: string;
   collection: EmbraceSpace[];
 }) {
-  const [jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
+  const [_jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
   const [metadataImg, setMetadataImg] = useState<string[]>([]);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export default function SpaceCollection({
       ) : (
         "no title"
       )}
-      <div className="flex flex-row">
+      <div className="flex flex-row flex-wrap">
         {collection &&
           collection.map((collectionItem, i) => {
             const handleString = collectionItem.handle

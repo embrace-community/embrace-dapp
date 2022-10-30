@@ -13,7 +13,7 @@ contract EmbraceSpaces {
     struct Space {
         bytes32 handle;
         Visibility visibility;
-        uint256[] apps;
+        uint128[] apps;
         string metadata;
         address founder;
         bytes32 passcode;
