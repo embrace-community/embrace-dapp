@@ -87,6 +87,25 @@ export default function DiscussionTopics() {
     <>
       {loading && <div>Loading...</div>}
       {error && <div>Error check daemon...</div>}
+      <button
+        onClick={() => createNewDiscussionTopic()}
+        className="
+                        rounded-full
+                        border-violet-500
+                        border-2
+                        bg-transparent
+                        py-4
+                        px-12
+                        text-violet-500
+                        shadow-sm
+                        focus:outline-none
+                        focus:ring-none
+                        mb-7
+                        font-semibold
+                        text-xl"
+      >
+        Create Discussion
+      </button>
       {data && (
         <div>
           <ul>
@@ -105,13 +124,6 @@ export default function DiscussionTopics() {
           </ul>
         </div>
       )}
-
-      <button
-        onClick={() => createNewDiscussionTopic()}
-        className="h-8 px-4 m-2 text-sm text-indigo-100 transition-colors duration-150 bg-indigo-700 rounded-lg focus:shadow-outline hover:bg-indigo-800"
-      >
-        Create Discussion
-      </button>
     </>
   );
 }

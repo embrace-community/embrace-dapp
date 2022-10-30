@@ -3,6 +3,8 @@ import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { useSigner } from "wagmi";
 import Discussion from "../../components/app/discussion";
+import DiscussionTopicComments from "../../components/app/discussion/DiscussionTopicComments";
+import DiscussionTopics from "../../components/app/discussion/DiscussionTopics";
 import AppLayout from "../../components/AppLayout";
 import ClientOnlyWrapper from "../../components/ClientOnlyWrapper";
 import embraceSpacesContract from "../../data/contractArtifacts/EmbraceSpaces.json";
@@ -217,28 +219,21 @@ export default function SpaceViewPage() {
                       className={openTab === 2 ? "block" : "hidden"}
                       id="link2"
                     >
-                      <p>
-                        Completely synergize resource taxing relationships via
-                        premier niche markets. Professionally cultivate
-                        one-to-one customer service with robust ideas.
-                        <br />
-                        <br />
-                        Dynamically innovate resource-leveling customer service
-                        for state of the art customer service.
-                      </p>
+                      <div className="flex flex-col w-full pl-32 pt-14 justify-start items-start">
+                        <p>
+                          <DiscussionTopics />
+                        </p>
+
+                        <p>
+                          <DiscussionTopicComments />
+                        </p>
+                      </div>
                     </div>
                     <div
                       className={openTab === 3 ? "block" : "hidden"}
                       id="link3"
                     >
-                      <p>
-                        Efficiently unleash cross-media information without
-                        cross-media value. Quickly maximize timely deliverables
-                        for real-time schemas.
-                        <br />
-                        <br /> Dramatically maintain clicks-and-mortar solutions
-                        without functional solutions.
-                      </p>
+                      <p></p>
                     </div>
                   </div>
                 </div>
