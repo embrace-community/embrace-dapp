@@ -6,10 +6,9 @@ export default function DiscussionTopicComment({
 }) {
   return (
     <>
-      <div>
-        <span>Comment</span>
-        <span>{id}</span>
-        <span>{spaceId}</span>
+      <div className="flex flex-col mb-10">
+        <span className="font-bold text-violet-500">{id}</span>
+        <span>Space #{spaceId}</span>
         <span>{address}</span>
         <span>{content}</span>
       </div>
