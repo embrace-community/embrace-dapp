@@ -92,7 +92,9 @@ export default function HomePage() {
                 focus:outline-none
                 focus:ring-none
                 mb-11
-                font-semibold"
+                font-semibold
+                text-xl
+                mt-5"
             >
               + new space
             </button>

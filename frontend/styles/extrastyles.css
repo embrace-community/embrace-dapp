@@ -3,9 +3,11 @@
 }
 
 .extrastyles-specialpadding {
+  padding: 30px 0 10vh 6.8vw;
+}
+.extrastyles-specialpadding2 {
   padding: 30px 0 0 6.8vw;
 }
-
 
 .extrastyles-collectionitem-img {
   border-radius: 50%;

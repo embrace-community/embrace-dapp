@@ -8,7 +8,7 @@ export default function Nav() {
   const { disconnect } = useDisconnect();
 
   return (
-    <div className="w-full p-0 flex flex-row px-10 py-5 items-center">
+    <div className="w-full p-0 flex flex-row px-10 py-5 items-center bg-embracebg">
       <Link key="Home" href="/" className="homelink">
         <Icons.Logo />
       </Link>
