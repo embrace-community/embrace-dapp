@@ -12,7 +12,7 @@ export default function SpaceCollection({
   title: string;
   collection: EmbraceSpace[];
 }) {
-  const [jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
+  const [_jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
   const [metadataImg, setMetadataImg] = useState<string[]>([]);
 
   useEffect(() => {

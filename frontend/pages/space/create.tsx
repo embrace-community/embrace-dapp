@@ -1,7 +1,11 @@
+import { useSigner } from "@web3modal/react";
+import { ethers } from "ethers";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { ChangeEvent, useState } from "react";
 import AppLayout from "../../components/AppLayout";
 import Spinner from "../../components/Spinner";
+import EmbraceSpaces from "../../data/contractArtifacts/EmbraceSpaces.json";
 import getWeb3StorageClient from "../../lib/web3storage/client";
 import saveToIpfs from "../../lib/web3storage/saveToIpfs";
 
@@ -16,6 +20,8 @@ export default function SpaceViewPage() {
   const [apps, setApps] = useState([1]);
   const [image, setImage] = useState<null | File>(null);
   const [imageCid, setImageCid] = useState("");
+
+  const [metadataCid, setMetadataCid] = useState("");
 
   const visOptions = [
     { id: "public", title: "Public" },
@@ -46,6 +52,33 @@ export default function SpaceViewPage() {
   }
 
   async function sendMetadataToIpfs() {
+    const data = {
+      name,
+      description,
+      image: imageCid,
+      handle,
+    };
+
+    try {
+      const cid = (await saveToIpfs(
+        data,
+        `${data.name.replaceAll(" ", "_")}.json`
+      )) as string;
+
+      if (!cid) console.error("Failed to save post to IPFS");
+      else {
+        console.log("Uploaded json to ipfs, CID: ", cid);
+        setMetadataCid(cid);
+      }
+    } catch (err: any) {
+      console.error(`Failed to save post to IPFS, ${err.message}`);
+    }
+  }
+
+  const { data: signer } = useSigner();
+  const router = useRouter();
+
+  async function onSubmit() {
     if (!name || !description || !handle || !imageCid) {
       setError(
         "Please give your space a name, a handle, an avatar and a description/about"
@@ -53,24 +86,28 @@ export default function SpaceViewPage() {
       return;
     }
 
-    const data = {
-      name,
-      description,
-      image: imageCid,
-    };
+    setIsLoading(true);
 
     try {
-      setIsLoading(true);
+      await sendMetadataToIpfs();
 
-      const cid = (await saveToIpfs(
-        data,
-        `${data.name.replaceAll(" ", "_")}.json`
-      )) as string;
+      const contract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
+        EmbraceSpaces.abi,
+        signer
+      );
 
-      if (!cid) console.error("Failed to save post to IPFS");
-      else console.log("Uploaded json to ipfs, CID: ", cid);
-    } catch (error) {
-      console.error("Failed to save post to IPFS");
+      await contract.createSpace(
+        ethers.utils.formatBytes32String(handle),
+        visibility,
+        [],
+        "",
+        ""
+      );
+
+      router.push("/");
+    } catch (err: any) {
+      console.error(`Failed to create space ${err.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -373,9 +410,9 @@ export default function SpaceViewPage() {
             font-semibold
             disabled:opacity-30"
                 disabled={!name || !description || !handle || !imageCid}
-                onClick={() => sendMetadataToIpfs()}
+                onClick={() => onSubmit()}
               >
-                create space!
+                {isLoading ? <Spinner /> : "create space!"}
               </button>
             </div>
           </div>
