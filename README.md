@@ -1,24 +1,42 @@
 # Embrace
 
-This is a mono-repo which will include both the contracts and frontend...
+This is a mono-repo which includes both the contracts and frontend.
+
+## Presentation
+
+[Google Slides](https://docs.google.com/presentation/d/1S9ExAmx9alB77exgWNN5q_Pj4qTKXJ5-44fDco_qy-s)
+
+## Design
+
+[Figma Design](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
+
+## Frontend
+
+[Deployed Frontend](embrace-community.vercel.app)
+
+### Run
+
+`cd frontend && cp .env.example .env.local` - fill envs
+
+`cd frontend && yarn` - install deps
+
+`cd frontend && yarn dev` - run frontend in dev mode
 
 ## Contracts
 
-### Goerli
+#### Deployments
 
-#### deployments
+#### Goerli
 
 ```
-EmbraceApps deployed to:  0x148B94D622c2Ac3abfb550AEaF48F25F105EA18b
+EmbraceApps deployed to:  0x98F535f286Db7b425266E6432c9A11989aFdCbfc
 
-EmbraceSpaces deployed to:  0x3706a43642eC170E9E5e57fa3929FAD854A8fC4E
+EmbraceSpaces deployed to:  0x23A21A1572288d0DFF9E8005cEeaF657F9bBdcad
 
 EmbraceAccounts deployed to:  0x53D4D0FFf2d9c62Ac51f15856eaB323802845A6b
 ```
 
-### Cronos
-
-#### deployments
+#### Cronos
 
 ```
 EmbraceApps deployed to:  0x148B94D622c2Ac3abfb550AEaF48F25F105EA18b
@@ -28,13 +46,11 @@ EmbraceSpaces deployed to:  0x53D4D0FFf2d9c62Ac51f15856eaB323802845A6b
 EmbraceAccounts deployed to:  0x3706a43642eC170E9E5e57fa3929FAD854A8fC4E
 ```
 
-#### deps
+### Run
 
-`cd contracts && yarn`
+`cd contracts && yarn` - install deps
 
-#### tests
-
-`cd contracts && yarn test`
+`cd contracts && yarn test` - run tests
 
 #### deploy
 
