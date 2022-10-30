@@ -1,4 +1,4 @@
-import { useContractRead, useSigner } from "@web3modal/react";
+import { useContractRead, useSigner } from "wagmi";
 import { ethers } from "ethers";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -9,7 +9,7 @@ import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
 import { EmbraceSpace, Visibility } from "../utils/types";
 
 export default function HomePage() {
-  const { data: signer } = useSigner();
+  const { data: signer, isError, isLoading } = useSigner();
 
   const [spaceIdsUserIsMember, setSpaceIdsUserIsMember] = useState<number[]>(
     []
