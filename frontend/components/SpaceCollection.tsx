@@ -54,7 +54,7 @@ export default function SpaceCollection({
       ) : (
         "no title"
       )}
-      <div className="flex flex-row">
+      <div className="flex flex-row flex-wrap">
         {collection &&
           collection.map((collectionItem, i) => {
             const handleString = collectionItem.handle
