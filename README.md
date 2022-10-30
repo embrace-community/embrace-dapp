@@ -2,17 +2,29 @@
 
 This is a mono-repo which includes both the contracts and frontend.
 
-## Presentation
+## Presentation & Design
 
 [Google Slides](https://docs.google.com/presentation/d/1S9ExAmx9alB77exgWNN5q_Pj4qTKXJ5-44fDco_qy-s)
 
-## Design
-
 [Figma Design](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
+
+## Team
+
+Martin <martin@openskydevelopment.co.uk>
+Ben <info@bennisan.be>
+Tobias <caruso33@web.de>
+
+## Bounties
+
+- IPFS / FileCoin
+  - web3.storage - Community Space & Discussion metadata - [Link to implementation example](https://github.com/embrace-community/embrace-dapp/blob/main/frontend/pages/space/create.tsx#L92)
+  - Ceramic - Discussion data - [Link to implementation example](https://github.com/embrace-community/embrace-dapp/blob/main/frontend/components/app/discussion/DiscussionTopicComments.tsx#L49)
+- WalletConnect - Connection - [Link to implementation example](https://github.com/embrace-community/embrace-dapp/blob/cb548f65a461ea185a93b17856cac7d4a4dbd2ae/frontend/components/Nav.tsx#L48) (unfortunately later had to be replaced because of issues with cronos & goerli networks - `Error: underlying network changed`)
+- Cronos - Deployment - [Link to implementation example](https://github.com/embrace-community/embrace-dapp/blob/52a85b467531a8981903eb8aedee7b2278cf2efe/contracts/hardhat.config.ts#L40) (unfortunately had to be replaced later because of wallet connection & deployment issues to cronos)
 
 ## Frontend
 
-[Deployed Frontend](embrace-community.vercel.app)
+[Deployed Frontend](https://embrace-community.vercel.app)
 
 ### Run
 
