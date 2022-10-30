@@ -17,7 +17,7 @@ export default function HomePage() {
 
   const {
     data: spaces,
-    error: spacesError,
+    error: _spacesError,
     isLoading: isSpacesLoading,
   } = useContractRead({
     address: process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
@@ -25,6 +25,7 @@ export default function HomePage() {
     functionName: "getSpaces",
     args: [],
   });
+  console.dir(spaces)
 
   useEffect(() => {
     const getSpaceMembers = async () => {
@@ -76,7 +77,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       <AppLayout title="Home">
-        <div>
+        <div className="extrastyles-specialpadding">
           <Link href="/space/create">
             <button
               type="button"
@@ -94,7 +95,9 @@ export default function HomePage() {
                 focus:outline-none
                 focus:ring-none
                 mb-11
-                font-semibold"
+                font-semibold
+                text-xl
+                mt-5"
             >
               + new space
             </button>
