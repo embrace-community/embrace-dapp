@@ -77,7 +77,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       <AppLayout title="Home">
-        <div>
+        <div className="extrastyles-specialpadding">
           <Link href="/space/create">
             <button
               type="button"

@@ -116,12 +116,11 @@ export default function SpaceViewPage() {
   return (
     <>
       <AppLayout title="Create Space">
-        <div className="flex flex-col pb-28">
+        <div className="flex flex-col pb-28 extrastyles-specialpadding">
           <div className="w-full border-t-2 border-embracedark border-opacity-5 mb-6 flex flex-row align-middle">
             <h1 className="text-embracedark text-opacity-20 text-sm mt-2 mb-8">
               creating a new space
             </h1>
-
             <a
               className="text-sm text-embracedark text-opacity-70 mt-2 ml-6 underline"
               href="/"
