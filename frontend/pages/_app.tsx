@@ -66,9 +66,7 @@ export default function App({ Component, pageProps }: AppProps) {
       <ApolloProvider client={apolloClient}>
         <CeramicContext.Provider value={composeDbClient}>
           <SpaceContext.Provider value={space}>
-            <ClientOnlyWrapper>
-              <Component {...pageProps} />
-            </ClientOnlyWrapper>
+            <Component {...pageProps} />
           </SpaceContext.Provider>
           <Web3Modal config={modalConfig} />
         </CeramicContext.Provider>

@@ -4,34 +4,27 @@
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { useAccount, useDisconnect, Web3Button } from "@web3modal/react";
-import Icons from '../assets/Icons';
-
-const navigation = [
-  { name: "Home", routes: ["/"], href: "/" },
-  // { name: "Space", routes: ["/space/create"], href: "/space/create" },
-];
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
+import Icons from "../assets/Icons";
 
 export default function Nav() {
   const currentRoute = useRouter().pathname;
   const { account } = useAccount();
   const disconnect = useDisconnect();
   return (
-
     <div className="w-full p-0 flex flex-row px-10 py-5 items-center">
-      <Link
-        key="Home"
-        href="/"
-        className="homelink">
-          <Icons.Logo />
+      <Link key="Home" href="/" className="homelink">
+        <Icons.Logo />
       </Link>
       <div className="flex-1"></div>
       <>
         {account.isConnected ? (
-          <div className="flex flex-row items-center ">
+          <div className="flex flex-row items-center">
+            <small
+              className="pr-2 underline cursor-pointer"
+              onClick={() => disconnect()}
+            >
+              disconnect
+            </small>
             <span className="text-violet-500 font-semibold">
               {account?.address.slice(0, 6) +
                 "..." +
@@ -48,8 +41,6 @@ export default function Nav() {
           <Web3Button />
         )}
       </>
-
     </div>
-
   );
 }
