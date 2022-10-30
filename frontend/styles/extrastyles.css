@@ -3,10 +3,16 @@
 }
 
 .extrastyles-homepage {
-  padding: 50px 0 0 6.8vw;
+  padding: 30px 0 0 6.8vw;
 }
 
 
 .extrastyles-collectionitem-img {
   border-radius: 50%;
 }
+
+.extrastyles-border-radius {
+  border-radius: 50%;
+}
+
+textarea { resize: none; }

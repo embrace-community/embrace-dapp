@@ -19,7 +19,7 @@ contract EmbraceSpaces {
         bytes32 passcode;
     }
 
-    uint256 private spaceIndex = 0;
+    uint256 private spaceIndex = 1;
     Space[] public spaces;
 
     mapping(uint256 => mapping(address => bool)) public spaceMembers;
@@ -80,7 +80,7 @@ contract EmbraceSpaces {
         return true;
     }
 
-    function joinRestrictedSpace(uint256 _spaceIndex, string memory _passstring) public  {
+    function joinRestrictedSpace(uint256 _spaceIndex, string memory _passstring) public {
         Space memory space = spaces[_spaceIndex];
 
         if (space.passcode != keccak256(abi.encodePacked(_passstring))) revert("Wrong passcode provided");
@@ -95,6 +95,10 @@ contract EmbraceSpaces {
 
     function getSpace(uint256 _spaceIndex) public view returns (Space memory) {
         return spaces[_spaceIndex];
+    }
+
+    function getIdFromHandle(bytes32 _handle) public view returns (uint256) {
+        return spaceHandles[_handle];
     }
 
     function isAdmin(uint256 _spaceIndex) public view returns (bool) {

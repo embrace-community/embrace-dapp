@@ -11,7 +11,7 @@ contract EmbraceApps {
         bool enabled;
     }
 
-    uint256 private appIndex = 0;
+    uint256 private appIndex = 1;
     App[] public apps;
 
     address public owner;
