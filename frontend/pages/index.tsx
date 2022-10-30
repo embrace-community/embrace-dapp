@@ -15,12 +15,6 @@ export default function HomePage() {
     []
   );
 
-  const contract = new ethers.Contract(
-    process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-    EmbraceSpaces.abi,
-    signer
-  );
-
   const {
     data: spaces,
     error: spacesError,
@@ -36,20 +30,28 @@ export default function HomePage() {
     const getSpaceMembers = async () => {
       if (!spaces) return [];
 
-      const spaceIdsIsMember: number[] = [];
-      const userAddress = await signer?.getAddress();
+      if (signer) {
+        const contract = new ethers.Contract(
+          process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
+          EmbraceSpaces.abi,
+          signer
+        );
 
-      for (const i of Object.keys(spaces as EmbraceSpace[])) {
-        const isMember: boolean = await contract.spaceMembers(i, userAddress);
+        const spaceIdsIsMember: number[] = [];
+        const userAddress = await signer.getAddress();
 
-        if (isMember) spaceIdsIsMember.push(+i);
+        for (const i of Object.keys(spaces as EmbraceSpace[])) {
+          const isMember: boolean = await contract.spaceMembers(i, userAddress);
+
+          if (isMember) spaceIdsIsMember.push(+i);
+        }
+
+        setSpaceIdsUserIsMember(spaceIdsIsMember);
       }
-
-      setSpaceIdsUserIsMember(spaceIdsIsMember);
     };
 
     getSpaceMembers();
-  }, [spaces]);
+  }, [spaces, signer]);
 
   const mySpaces = useMemo(() => {
     if (!spaces) return [];
