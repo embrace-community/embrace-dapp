@@ -5,10 +5,12 @@ import { SpaceContext } from "../../lib/SpaceContext";
 import Discussion from "../../components/app/discussion";
 import { ethers } from "ethers";
 import embraceSpacesContract from "../../data/contractArtifacts/EmbraceSpaces.json";
-import { useSigner } from "@web3modal/react";
+import { useSigner } from "wagmi";
+import ClientOnlyWrapper from "../../components/ClientOnlyWrapper";
 
 export default function SpaceViewPage() {
   const [spaceId, setSpaceId] = useContext(SpaceContext);
+  const [spaceData, setSpaceData] = useState<any>(null);
   const { data: signer } = useSigner();
   const router = useRouter();
   const routerIsReady = router.isReady;
@@ -42,18 +44,22 @@ export default function SpaceViewPage() {
   useEffect((): void => {
     if (!contract || !routerIsReady || spaceId == -1) return;
 
+    console.log(contract, routerIsReady, spaceId);
+
     async function getSpace(MyContract): Promise<void> {
       try {
-        console.log("SPACE", spaceId);
-        const response = await MyContract.getSpace(3);
-        console.log("GET SPACE", response);
+        const response = await MyContract.getSpace(spaceId);
+        // Now we have the space data, we need to get the metadata from IPFS
+        // and merge with the response
+        console.log(response);
+        setSpaceData(response);
       } catch (err) {
         console.log(err);
       }
     }
 
     getSpace(contract);
-  }, [contract, routerIsReady, spaceId]);
+  }, [spaceId]);
 
   return (
     <>
@@ -61,7 +67,17 @@ export default function SpaceViewPage() {
         {spaceId !== -1 ? (
           <>
             <h1>Space View # {spaceId}</h1>
-            <Discussion />
+            <ClientOnlyWrapper>
+              <Discussion />
+            </ClientOnlyWrapper>
+            {spaceData && (
+              <>
+                <h2>Handle: {spaceData.handle}</h2>
+                <h2>Description: {spaceData.metadata}</h2>
+                <h2>Visibility: {spaceData.visibility}</h2>
+                <h2>Founder: {spaceData.founder}</h2>
+              </>
+            )}
           </>
         ) : (
           <></>
