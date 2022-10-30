@@ -1,15 +1,12 @@
-// import { Fragment } from "react";
-// import { Disclosure, Menu, Transition } from "@headlessui/react";
-// import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { useRouter } from "next/router";
 import Link from "next/link";
-import { useAccount, useDisconnect, Web3Button } from "@web3modal/react";
+import { useAccount, useDisconnect } from "wagmi";
 import Icons from "../assets/Icons";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 export default function Nav() {
-  const currentRoute = useRouter().pathname;
-  const { account } = useAccount();
-  const disconnect = useDisconnect();
+  const { address, isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
+
   return (
     <div className="w-full p-0 flex flex-row px-10 py-5 items-center">
       <Link key="Home" href="/" className="homelink">
@@ -17,7 +14,7 @@ export default function Nav() {
       </Link>
       <div className="flex-1"></div>
       <>
-        {account.isConnected ? (
+        {isConnected ? (
           <div className="flex flex-row items-center">
             <small
               className="pr-2 underline cursor-pointer"
@@ -26,9 +23,7 @@ export default function Nav() {
               disconnect
             </small>
             <span className="text-violet-500 font-semibold">
-              {account?.address.slice(0, 6) +
-                "..." +
-                account?.address.slice(-4)}
+              {address?.slice(0, 6) + "..." + address?.slice(-4)}
             </span>
 
             <img
@@ -38,7 +33,7 @@ export default function Nav() {
             />
           </div>
         ) : (
-          <Web3Button />
+          <ConnectButton />
         )}
       </>
     </div>

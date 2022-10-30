@@ -5,7 +5,7 @@ import { SpaceContext } from "../../lib/SpaceContext";
 import Discussion from "../../components/app/discussion";
 import { ethers } from "ethers";
 import embraceSpacesContract from "../../data/contractArtifacts/EmbraceSpaces.json";
-import { useSigner } from "@web3modal/react";
+import { useSigner } from "wagmi";
 import ClientOnlyWrapper from "../../components/ClientOnlyWrapper";
 
 export default function SpaceViewPage() {
@@ -44,6 +44,8 @@ export default function SpaceViewPage() {
   useEffect((): void => {
     if (!contract || !routerIsReady || spaceId == -1) return;
 
+    console.log(contract, routerIsReady, spaceId);
+
     async function getSpace(MyContract): Promise<void> {
       try {
         const response = await MyContract.getSpace(spaceId);
@@ -57,7 +59,7 @@ export default function SpaceViewPage() {
     }
 
     getSpace(contract);
-  }, [contract, routerIsReady, spaceId]);
+  }, [spaceId]);
 
   return (
     <>
