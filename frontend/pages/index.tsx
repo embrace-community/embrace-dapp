@@ -18,6 +18,8 @@ export default function HomePage() {
   );
   const [accountSpaces, setAccountSpaces] = useState<number[]>([]);
   const [accountsContract, setAccountsContract] = useState<Contract>();
+  const [accountSpacesLoading, setAccountSpacesLoading] =
+    useState<boolean>(true);
 
   const {
     data: spaces,
@@ -88,9 +90,8 @@ export default function HomePage() {
             spaceIdsIsMember.push(spaceIndex);
           }
 
-          console.log(accountSpaces, "accountSpaces", spaceIdsIsMember);
-
           setSpaceIdsUserIsMember(spaceIdsIsMember);
+          setAccountSpacesLoading(false);
         }
       }
     };
@@ -151,9 +152,9 @@ export default function HomePage() {
             </button>
           </Link>
 
-          {isSpacesLoading && <Spinner />}
+          {(isSpacesLoading || accountSpacesLoading) && <Spinner />}
 
-          {!isSpacesLoading && (
+          {!isSpacesLoading && !accountSpacesLoading && (
             <>
               <SpaceCollection title="your spaces" collection={mySpaces} />
 
