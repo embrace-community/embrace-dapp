@@ -57,8 +57,6 @@ export default function HomePage() {
           console.log(address, spaceIds);
           setAccountSpaces(spaceIds);
         }
-
-        setAccountSpaces(response);
       } catch (err) {
         console.log(err);
       }
@@ -118,7 +116,7 @@ export default function HomePage() {
 
     return (spaces as EmbraceSpace[]).filter((_, i) => {
       if (!Array.isArray(spaceIdsUserIsMember)) return false;
-      let spaceId: number = Number(i) + 1;
+      let spaceId: number = spaces[i].index.toNumber();
 
       return !spaceIdsUserIsMember?.includes(spaceId);
     });
