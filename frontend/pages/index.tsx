@@ -56,7 +56,7 @@ export default function HomePage() {
           const spaceIds = response.map((spaceId) =>
             BigNumber.from(spaceId).toNumber()
           );
-          console.log(address, spaceIds);
+
           setAccountSpaces(spaceIds);
         }
       } catch (err) {
@@ -70,8 +70,6 @@ export default function HomePage() {
   useEffect(() => {
     const getSpaceMembers = async () => {
       if (!spaces) return [];
-
-      console.log(spaces, "SPACES!!!");
 
       if (signer) {
         const contract = new ethers.Contract(
@@ -105,8 +103,6 @@ export default function HomePage() {
     return (spaces as EmbraceSpace[]).filter((_, i) => {
       if (!Array.isArray(spaceIdsUserIsMember)) return false;
       let spaceId: number = spaces[i].index.toNumber();
-
-      console.log(spaceId, "spaceId", spaceIdsUserIsMember);
 
       return spaceIdsUserIsMember?.includes(spaceId);
     });
