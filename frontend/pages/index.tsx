@@ -1,11 +1,13 @@
 import { useContractRead, useSigner } from "wagmi";
-import { ethers } from "ethers";
+import { BigNumber, Contract, ethers } from "ethers";
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
 import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
+import EmbraceAccounts from "../data/contractArtifacts/EmbraceAccounts.json";
+
 import { EmbraceSpace, Visibility } from "../utils/types";
 
 export default function HomePage() {
@@ -14,6 +16,10 @@ export default function HomePage() {
   const [spaceIdsUserIsMember, setSpaceIdsUserIsMember] = useState<number[]>(
     []
   );
+  const [accountSpaces, setAccountSpaces] = useState<number[]>([]);
+  const [accountsContract, setAccountsContract] = useState<Contract>();
+  const [accountSpacesLoading, setAccountSpacesLoading] =
+    useState<boolean>(true);
 
   const {
     data: spaces,
@@ -25,7 +31,41 @@ export default function HomePage() {
     functionName: "getSpaces",
     args: [],
   });
-  console.dir(spaces)
+
+  useEffect(() => {
+    if (signer) {
+      const accountsContract = new ethers.Contract(
+        process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
+        EmbraceAccounts.abi,
+        signer
+      );
+
+      setAccountsContract(accountsContract);
+    }
+  }, [signer]);
+
+  useEffect((): void => {
+    if (!accountsContract) return;
+
+    async function getAccountSpaces(MyContract): Promise<void> {
+      try {
+        const address = await signer?.getAddress();
+
+        const response = await MyContract.getSpaces(address);
+        if (response.length > 0) {
+          const spaceIds = response.map((spaceId) =>
+            BigNumber.from(spaceId).toNumber()
+          );
+
+          setAccountSpaces(spaceIds);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    getAccountSpaces(accountsContract);
+  }, [accountsContract, signer]);
 
   useEffect(() => {
     const getSpaceMembers = async () => {
@@ -39,28 +79,32 @@ export default function HomePage() {
         );
 
         const spaceIdsIsMember: number[] = [];
-        const userAddress = await signer.getAddress();
 
-        for (const i of Object.keys(spaces as EmbraceSpace[])) {
-          const isMember: boolean = await contract.spaceMembers(i, userAddress);
+        for (let i in spaces) {
+          const space = spaces[i] as EmbraceSpace;
+          const spaceIndex = BigNumber.from(space.index).toNumber();
 
-          if (isMember) spaceIdsIsMember.push(+i);
+          if (accountSpaces.includes(spaceIndex)) {
+            spaceIdsIsMember.push(spaceIndex);
+          }
+
+          setSpaceIdsUserIsMember(spaceIdsIsMember);
+          setAccountSpacesLoading(false);
         }
-
-        setSpaceIdsUserIsMember(spaceIdsIsMember);
       }
     };
 
     getSpaceMembers();
-  }, [spaces, signer]);
+  }, [spaces, signer, accountSpaces]);
 
   const mySpaces = useMemo(() => {
     if (!spaces) return [];
 
     return (spaces as EmbraceSpace[]).filter((_, i) => {
       if (!Array.isArray(spaceIdsUserIsMember)) return false;
+      let spaceId: number = spaces[i].index.toNumber();
 
-      return spaceIdsUserIsMember?.includes(+i);
+      return spaceIdsUserIsMember?.includes(spaceId);
     });
   }, [spaces, spaceIdsUserIsMember]);
 
@@ -69,8 +113,9 @@ export default function HomePage() {
 
     return (spaces as EmbraceSpace[]).filter((_, i) => {
       if (!Array.isArray(spaceIdsUserIsMember)) return false;
+      let spaceId: number = spaces[i].index.toNumber();
 
-      return !spaceIdsUserIsMember?.includes(+i);
+      return !spaceIdsUserIsMember?.includes(spaceId);
     });
   }, [spaces, spaceIdsUserIsMember]);
 
@@ -103,9 +148,9 @@ export default function HomePage() {
             </button>
           </Link>
 
-          {isSpacesLoading && <Spinner />}
+          {(isSpacesLoading || accountSpacesLoading) && <Spinner />}
 
-          {!isSpacesLoading && (
+          {!isSpacesLoading && !accountSpacesLoading && (
             <>
               <SpaceCollection title="your spaces" collection={mySpaces} />
 

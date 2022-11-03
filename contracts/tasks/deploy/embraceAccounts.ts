@@ -7,11 +7,15 @@ import type { EmbraceAccounts__factory } from "../../types/factories/EmbraceAcco
 
 task("deploy:EmbraceAccounts").setAction(async function (_taskArguments: TaskArguments, { ethers }) {
   const signers: SignerWithAddress[] = await ethers.getSigners();
+  const deployer: SignerWithAddress = signers[3];
+
+  console.log(deployer.address);
+
   const embraceAccountsFactory: EmbraceAccounts__factory = <EmbraceAccounts__factory>(
     await ethers.getContractFactory("EmbraceAccounts")
   );
 
-  const embraceAccounts: EmbraceAccounts = <EmbraceAccounts>await embraceAccountsFactory.connect(signers[0]).deploy();
+  const embraceAccounts: EmbraceAccounts = <EmbraceAccounts>await embraceAccountsFactory.connect(deployer).deploy();
   await embraceAccounts.deployed();
 
   console.log("EmbraceAccounts deployed to: ", embraceAccounts.address);

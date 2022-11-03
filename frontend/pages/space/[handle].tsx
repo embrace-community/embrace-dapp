@@ -1,4 +1,4 @@
-import { ethers, Signer } from "ethers";
+import { BigNumber, ethers, Signer } from "ethers";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { useSigner } from "wagmi";
@@ -6,7 +6,6 @@ import Discussion from "../../components/app/discussion";
 import DiscussionTopicComments from "../../components/app/discussion/DiscussionTopicComments";
 import DiscussionTopics from "../../components/app/discussion/DiscussionTopics";
 import AppLayout from "../../components/AppLayout";
-import ClientOnlyWrapper from "../../components/ClientOnlyWrapper";
 import embraceSpacesContract from "../../data/contractArtifacts/EmbraceSpaces.json";
 import { SpaceContext } from "../../lib/SpaceContext";
 
@@ -33,9 +32,7 @@ export default function SpaceViewPage() {
           router.query.handle as string
         );
         const response = await MyContract.getIdFromHandle(handleBytes32);
-        if (response.toString() !== "0") {
-          setSpaceId(Number(response.toString()));
-        }
+        setSpaceId(BigNumber.from(response).toNumber());
       } catch (err) {
         console.log(err);
       }
