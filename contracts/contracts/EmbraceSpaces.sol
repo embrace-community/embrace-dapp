@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.17;
 
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
+import "./EmbraceAccounts.sol";
 
 contract EmbraceSpaces {
     enum Visibility {
@@ -11,16 +12,17 @@ contract EmbraceSpaces {
     }
 
     struct Space {
-        bytes32 handle;
+        uint256 index;
+        bytes32 handle; // acts as spaceId
         Visibility visibility;
         uint128[] apps;
         string metadata;
         address founder;
-        bytes32 passcode;
     }
 
-    uint256 private spaceIndex = 1;
+    uint256 private spaceIndex = 0;
     Space[] public spaces;
+    EmbraceAccounts accounts;
 
     mapping(uint256 => mapping(address => bool)) public spaceMembers;
     mapping(uint256 => uint256) public spaceMemberLength;
@@ -39,33 +41,36 @@ contract EmbraceSpaces {
         _;
     }
 
+    constructor(address _accountsAddress) {
+        accounts = EmbraceAccounts(_accountsAddress);
+    }
+
     function createSpace(
         bytes32 _handle,
         Visibility _visibility,
-        uint256[] memory _apps,
-        string memory _metadata,
-        string memory _passstring
+        uint128[] memory _apps,
+        string memory _metadata
     ) public {
         if (spaceHandles[_handle] != 0) {
             revert("Handle already exists");
         }
 
         Space memory space = Space({
+            index: spaceIndex,
             handle: _handle,
             visibility: _visibility,
             founder: msg.sender,
             apps: _apps,
-            metadata: _metadata,
-            // TODO: This is just a temporary (unsecure) version
-            // which will be replaced with another mechanism
-            // like DAO membership etc.
-            passcode: keccak256(abi.encodePacked(_passstring))
+            metadata: _metadata
         });
 
         spaces.push(space);
 
         // Add Handle
         spaceHandles[_handle] = spaceIndex;
+
+        // Add space to founder's account
+        accounts.addSpace(spaceIndex, msg.sender);
         spaceIndex++;
     }
 
@@ -77,16 +82,10 @@ contract EmbraceSpaces {
         spaceMembers[_spaceIndex][msg.sender] = true;
         spaceMemberLength[_spaceIndex]++;
 
+        // Add space to account
+        accounts.addSpace(spaceIndex, msg.sender);
+
         return true;
-    }
-
-    function joinRestrictedSpace(uint256 _spaceIndex, string memory _passstring) public {
-        Space memory space = spaces[_spaceIndex];
-
-        if (space.passcode != keccak256(abi.encodePacked(_passstring))) revert("Wrong passcode provided");
-
-        spaceMembers[_spaceIndex][msg.sender] = true;
-        spaceMemberLength[_spaceIndex]++;
     }
 
     function getSpaces() public view returns (Space[] memory) {
@@ -123,7 +122,7 @@ contract EmbraceSpaces {
         spaceMembers[_spaceIndex][_member] = true;
     }
 
-    function addApp(uint256 _spaceIndex, uint256 _appIndex) public onlySpaceAdmin(_spaceIndex) {
+    function addApp(uint256 _spaceIndex, uint128 _appIndex) public onlySpaceAdmin(_spaceIndex) {
         Space storage space = spaces[_spaceIndex];
 
         if (space.apps[_appIndex] == 0) {

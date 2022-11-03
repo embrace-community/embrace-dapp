@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { useSigner } from "wagmi";
@@ -33,9 +33,7 @@ export default function SpaceViewPage() {
           router.query.handle as string
         );
         const response = await MyContract.getIdFromHandle(handleBytes32);
-        if (response.toString() !== "0") {
-          setSpaceId(Number(response.toString()));
-        }
+        setSpaceId(BigNumber.from(response).toNumber());
       } catch (err) {
         console.log(err);
       }

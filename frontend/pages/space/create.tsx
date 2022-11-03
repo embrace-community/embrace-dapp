@@ -1,4 +1,4 @@
-import { useSigner } from "@web3modal/react";
+import { useSigner } from "wagmi";
 import { ethers } from "ethers";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -89,23 +89,26 @@ export default function SpaceViewPage() {
     setIsLoading(true);
 
     try {
-      await sendMetadataToIpfs();
+      if (signer) {
+        await sendMetadataToIpfs();
 
-      const contract = new ethers.Contract(
-        process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-        EmbraceSpaces.abi,
-        signer
-      );
+        const contract = new ethers.Contract(
+          process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
+          EmbraceSpaces.abi,
+          signer
+        );
 
-      await contract.createSpace(
-        ethers.utils.formatBytes32String(handle),
-        visibility,
-        [],
-        "",
-        ""
-      );
+        await contract.createSpace(
+          ethers.utils.formatBytes32String(handle),
+          visibility,
+          [],
+          metadataCid
+        );
 
-      router.push("/");
+        router.push("/");
+      } else {
+        console.error("No signer found");
+      }
     } catch (err: any) {
       console.error(`Failed to create space ${err.message}`);
     } finally {
