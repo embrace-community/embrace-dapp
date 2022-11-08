@@ -35,6 +35,9 @@ export default function SpaceCollection({
           )) as string;
 
           images.push(image);
+        } else {
+          // So that images array maps correctly to collection of spaces otherwise images will not match up
+          images.push("");
         }
       }
 

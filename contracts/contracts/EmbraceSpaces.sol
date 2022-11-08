@@ -20,14 +20,18 @@ contract EmbraceSpaces {
         address founder;
     }
 
+    struct Member {
+        bool isAdmin;
+        bool active;
+    }
+
     uint256 private spaceIndex = 0;
     Space[] public spaces;
+
     EmbraceAccounts accounts;
 
-    mapping(uint256 => mapping(address => bool)) public spaceMembers;
+    mapping(uint256 => mapping(address => Member)) public spaceMembers;
     mapping(uint256 => uint256) public spaceMemberLength;
-    mapping(uint256 => mapping(address => bool)) public spaceAdmins;
-    mapping(uint256 => uint256) public spaceAdminLength;
 
     mapping(bytes32 => uint256) public spaceHandles;
 
@@ -70,20 +74,27 @@ contract EmbraceSpaces {
         spaceHandles[_handle] = spaceIndex;
 
         // Add space to founder's account
-        accounts.addSpace(spaceIndex, msg.sender);
+        accounts.addSpace(msg.sender, spaceIndex);
+
+        // Set founder as the first admin member
+        spaceMemberLength[spaceIndex]++;
+        spaceMembers[spaceIndex][msg.sender] = Member({ isAdmin: true, active: true });
+
         spaceIndex++;
     }
 
     function joinPublicSpace(uint256 _spaceIndex) public returns (bool) {
         Space memory space = spaces[_spaceIndex];
 
-        if (space.visibility != Visibility.PUBLIC) revert("Cannot join restricted space without passcode");
+        if (space.visibility != Visibility.PUBLIC) revert("Cannot join restricted space without permission");
 
-        spaceMembers[_spaceIndex][msg.sender] = true;
+        Member memory member = Member({ isAdmin: false, active: true });
+
+        spaceMembers[_spaceIndex][msg.sender] = member;
         spaceMemberLength[_spaceIndex]++;
 
         // Add space to account
-        accounts.addSpace(spaceIndex, msg.sender);
+        accounts.addSpace(msg.sender, spaceIndex);
 
         return true;
     }
@@ -100,8 +111,12 @@ contract EmbraceSpaces {
         return spaceHandles[_handle];
     }
 
+    function getMemberCount(uint256 _spaceIndex) public view returns (uint256) {
+        return spaceMemberLength[_spaceIndex];
+    }
+
     function isAdmin(uint256 _spaceIndex) public view returns (bool) {
-        if (spaceAdmins[_spaceIndex][msg.sender] == true) {
+        if (spaceMembers[_spaceIndex][msg.sender].isAdmin == true) {
             return true;
         }
 
@@ -114,12 +129,36 @@ contract EmbraceSpaces {
         return space.founder == msg.sender;
     }
 
-    function addSpaceAdmin(uint256 _spaceIndex, address _admin) public onlySpaceFounder(_spaceIndex) {
-        spaceAdmins[_spaceIndex][_admin] = true;
+    function addAdmin(uint256 _spaceIndex, address _address) public onlySpaceFounder(_spaceIndex) {
+        // If address is already an active member then just make them an admin
+        if (spaceMembers[_spaceIndex][_address].active == true) {
+            spaceMembers[_spaceIndex][_address].isAdmin = true;
+        } else {
+            // Otherwise add them as a new member and increment the member count
+            Member memory member = Member({ isAdmin: true, active: true });
+            spaceMembers[_spaceIndex][_address] = member;
+            spaceMemberLength[_spaceIndex]++;
+        }
     }
 
-    function addSpaceMember(uint256 _spaceIndex, address _member) public onlySpaceAdmin(_spaceIndex) {
-        spaceMembers[_spaceIndex][_member] = true;
+    function addMember(uint256 _spaceIndex, address _address) public onlySpaceAdmin(_spaceIndex) {
+        if (spaceMembers[_spaceIndex][_address].active == true) {
+            revert("Member already exists");
+        }
+
+        Member memory member = Member({ isAdmin: false, active: true });
+        spaceMembers[_spaceIndex][_address] = member;
+        spaceMemberLength[_spaceIndex]++;
+    }
+
+    function removeMember(uint256 _spaceIndex, address _member) public onlySpaceAdmin(_spaceIndex) {
+        if (spaceMembers[_spaceIndex][_member].active == false) {
+            revert("Member does not exist");
+        }
+
+        Member memory member = Member({ isAdmin: false, active: false });
+        spaceMembers[_spaceIndex][_member] = member;
+        spaceMemberLength[_spaceIndex]--;
     }
 
     function addApp(uint256 _spaceIndex, uint128 _appIndex) public onlySpaceAdmin(_spaceIndex) {

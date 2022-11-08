@@ -1,5 +1,5 @@
 import { useContractRead, useSigner } from "wagmi";
-import { BigNumber, Contract, ethers } from "ethers";
+import { BigNumber, Contract, Signer } from "ethers";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import AppLayout from "../components/AppLayout";
@@ -7,20 +7,19 @@ import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
 import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
 import EmbraceAccounts from "../data/contractArtifacts/EmbraceAccounts.json";
-
 import { EmbraceSpace, Visibility } from "../utils/types";
 
 export default function HomePage() {
-  const { data: signer, isError, isLoading } = useSigner();
+  const { data: signer, isLoading: isSignerLoading } = useSigner();
 
   const [spaceIdsUserIsMember, setSpaceIdsUserIsMember] = useState<number[]>(
     []
   );
   const [accountSpaces, setAccountSpaces] = useState<number[]>([]);
   const [accountsContract, setAccountsContract] = useState<Contract>();
-  const [accountSpacesLoading, setAccountSpacesLoading] =
-    useState<boolean>(true);
+  const [yourSpacesLoading, setYourSpacesLoading] = useState<boolean>(true);
 
+  // Wagmi hook to load all community spaces
   const {
     data: spaces,
     error: _spacesError,
@@ -32,25 +31,35 @@ export default function HomePage() {
     args: [],
   });
 
+  // If no account is connected, then this will stop loading to display the public spaces
   useEffect(() => {
-    if (signer) {
-      const accountsContract = new ethers.Contract(
+    if (!isSignerLoading && !signer) {
+      setYourSpacesLoading(false);
+    }
+  }, [signer, isSignerLoading]);
+
+  // Once the signer is loaded, initialize the accounts contract
+  useEffect(() => {
+    if (!isSignerLoading) {
+      const accountsContract = new Contract(
         process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
         EmbraceAccounts.abi,
-        signer
+        signer as Signer
       );
 
       setAccountsContract(accountsContract);
     }
-  }, [signer]);
+  }, [signer, isSignerLoading]);
 
+  // Once accounts contract initialized, set the your spaces array if signer is connected
   useEffect((): void => {
-    if (!accountsContract) return;
+    if (!accountsContract || isSignerLoading || !signer) return;
 
     async function getAccountSpaces(MyContract): Promise<void> {
       try {
         const address = await signer?.getAddress();
 
+        // Gets spaces for the current account in account contract
         const response = await MyContract.getSpaces(address);
         if (response.length > 0) {
           const spaceIds = response.map((spaceId) =>
@@ -60,24 +69,21 @@ export default function HomePage() {
           setAccountSpaces(spaceIds);
         }
       } catch (err) {
-        console.log(err);
+        console.log("getAccountSpaces", err);
+      } finally {
+        setYourSpacesLoading(false);
       }
     }
 
     getAccountSpaces(accountsContract);
-  }, [accountsContract, signer]);
+  }, [accountsContract, signer, isSignerLoading]);
 
+  // Only run if there is a signer and the account spaces are loaded
   useEffect(() => {
-    const getSpaceMembers = async () => {
+    const getYourSpaces = async () => {
       if (!spaces) return [];
 
       if (signer) {
-        const contract = new ethers.Contract(
-          process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-          EmbraceSpaces.abi,
-          signer
-        );
-
         const spaceIdsIsMember: number[] = [];
 
         for (let i in spaces) {
@@ -89,15 +95,15 @@ export default function HomePage() {
           }
 
           setSpaceIdsUserIsMember(spaceIdsIsMember);
-          setAccountSpacesLoading(false);
+          setYourSpacesLoading(false);
         }
       }
     };
 
-    getSpaceMembers();
+    getYourSpaces();
   }, [spaces, signer, accountSpaces]);
 
-  const mySpaces = useMemo(() => {
+  const yourSpaces = useMemo(() => {
     if (!spaces) return [];
 
     return (spaces as EmbraceSpace[]).filter((_, i) => {
@@ -123,10 +129,11 @@ export default function HomePage() {
     <div className="min-h-screen">
       <AppLayout title="Home">
         <div className="extrastyles-specialpadding">
-          <Link href="/space/create">
-            <button
-              type="button"
-              className="
+          {signer && (
+            <Link href="/space/create">
+              <button
+                type="button"
+                className="
                 inline-flex
                 items-center
                 rounded-full
@@ -143,16 +150,19 @@ export default function HomePage() {
                 font-semibold
                 text-xl
                 mt-5"
-            >
-              + new space
-            </button>
-          </Link>
+              >
+                + new space
+              </button>
+            </Link>
+          )}
 
-          {(isSpacesLoading || accountSpacesLoading) && <Spinner />}
+          {(isSpacesLoading || yourSpacesLoading) && <Spinner />}
 
-          {!isSpacesLoading && !accountSpacesLoading && (
+          {!isSpacesLoading && !yourSpacesLoading && (
             <>
-              <SpaceCollection title="your spaces" collection={mySpaces} />
+              {signer && (
+                <SpaceCollection title="your spaces" collection={yourSpaces} />
+              )}
 
               <SpaceCollection title="public spaces" collection={allSpaces} />
             </>

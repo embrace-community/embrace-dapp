@@ -9,7 +9,7 @@ task("deploy:EmbraceSpaces")
   .addParam("accountsAddress")
   .setAction(async function (_taskArguments: TaskArguments, { ethers }) {
     const signers: SignerWithAddress[] = await ethers.getSigners();
-    const deployer: SignerWithAddress = signers[3];
+    const deployer: SignerWithAddress = signers[0];
 
     const embraceSpacesFactory: EmbraceSpaces__factory = <EmbraceSpaces__factory>(
       await ethers.getContractFactory("EmbraceSpaces")

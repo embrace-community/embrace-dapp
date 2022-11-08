@@ -1,60 +1,73 @@
-import { BigNumber, ethers, Signer } from "ethers";
+import { BigNumber, Contract, ethers, Signer } from "ethers";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
-import { useSigner } from "wagmi";
+import { useProvider, useSigner } from "wagmi";
 import Discussion from "../../components/app/discussion";
 import DiscussionTopicComments from "../../components/app/discussion/DiscussionTopicComments";
 import DiscussionTopics from "../../components/app/discussion/DiscussionTopics";
 import AppLayout from "../../components/AppLayout";
 import embraceSpacesContract from "../../data/contractArtifacts/EmbraceSpaces.json";
 import { SpaceContext } from "../../lib/SpaceContext";
+import Spinner from "../../components/Spinner";
 
 export default function SpaceViewPage() {
   const [spaceId, setSpaceId] = useContext(SpaceContext);
   const [spaceData, setSpaceData] = useState<any>(null);
-  const { data: signer } = useSigner();
+  const [contract, setContract] = useState<any>(null);
+  const [openTab, setOpenTab] = useState(1);
+  const { data: signer, isLoading: isSignerLoading } = useSigner();
   const router = useRouter();
   const routerIsReady = router.isReady;
 
-  const contract = new ethers.Contract(
-    process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-    embraceSpacesContract.abi,
-    signer as Signer
-  );
-  const [openTab, setOpenTab] = useState(1);
+  // Once router is ready and signer is loaded then initialize the contract
+  useEffect(() => {
+    if (!routerIsReady || isSignerLoading) return;
 
+    const contract = new Contract(
+      process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
+      embraceSpacesContract.abi,
+      (signer as Signer) ||
+        new ethers.providers.Web3Provider((window as any).ethereum)
+    );
+
+    setContract(contract);
+  }, [routerIsReady, signer, isSignerLoading]);
+
+  // Once contract is initialized then get the space Id from the router handle
   useEffect((): void => {
     if (!contract || !routerIsReady) return;
 
-    async function getSpaceId(MyContract): Promise<void> {
+    async function getSpaceId(MyContract: Contract): Promise<void> {
       try {
         const handleBytes32 = ethers.utils.formatBytes32String(
           router.query.handle as string
         );
         const response = await MyContract.getIdFromHandle(handleBytes32);
+
         setSpaceId(BigNumber.from(response).toNumber());
+        console.log(contract);
       } catch (err) {
-        console.log(err);
+        console.log("getSpaceId", err, contract, router.query.handle);
       }
     }
 
     getSpaceId(contract);
-  }, [contract, routerIsReady]);
+  }, [contract]);
 
+  // Once space Id is set then get the space data
   useEffect((): void => {
     if (!contract || !routerIsReady || spaceId == -1) return;
 
-    console.log(contract, routerIsReady, spaceId);
-
-    async function getSpace(MyContract): Promise<void> {
+    async function getSpace(MyContract: Contract): Promise<void> {
       try {
-        const response = await MyContract.getSpace(spaceId);
+        const spaceDetails = await MyContract.getSpace(spaceId);
+        const memberCount = await MyContract.getMemberCount(spaceId);
         // Now we have the space data, we need to get the metadata from IPFS
         // and merge with the response
-        console.log(response);
-        setSpaceData(response);
+        console.log("Space details", spaceDetails, "Member count", memberCount);
+        setSpaceData(spaceDetails);
       } catch (err) {
-        console.log(err);
+        console.log("getSpace", err);
       }
     }
 
@@ -82,24 +95,28 @@ export default function SpaceViewPage() {
 
   const jimmysdummies = [
     {
+      id: 1,
       title: "Sed suscipit, nulla id tempus dapibus?",
       descr:
         "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
       poster: "0x405B353dff19b63C3c2C851f832C006d68b4Cc63",
     },
     {
+      id: 2,
       title: "Sed suscipit, nulla id tempus dapibus?",
       descr:
         "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
       poster: "0x405B353dff19b63C3c2C851f832C006d68b4Cc63",
     },
     {
+      id: 3,
       title: "Sed suscipit, nulla id tempus dapibus?",
       descr:
         "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
       poster: "0x405B353dff19b63C3c2C851f832C006d68b4Cc63",
     },
     {
+      id: 4,
       title: "Sed suscipit, nulla id tempus dapibus?",
       descr:
         "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
@@ -151,7 +168,10 @@ export default function SpaceViewPage() {
                 >
                   {jimmystabs.map((app) => {
                     return (
-                      <li className="-mb-px last:mr-0 text-center">
+                      <li
+                        className="-mb-px last:mr-0 text-center"
+                        key={app.appnumber}
+                      >
                         <a
                           className={
                             "text-sm mr-12 py-3 block leading-normal " +
@@ -200,7 +220,10 @@ export default function SpaceViewPage() {
                         </button>
                         {jimmysdummies.map((topic) => {
                           return (
-                            <div className="w-full border-b-2 border-embracedark border-opacity-5 pb-7 mt-5 text-embracedark">
+                            <div
+                              className="w-full border-b-2 border-embracedark border-opacity-5 pb-7 mt-5 text-embracedark"
+                              key={topic.id}
+                            >
                               <h2 className="text-xl font-semibold">
                                 {topic.title}
                               </h2>
@@ -217,13 +240,13 @@ export default function SpaceViewPage() {
                       id="link2"
                     >
                       <div className="flex flex-col w-full pl-32 pt-14 justify-start items-start">
-                        <p>
+                        {/* <p>
                           <DiscussionTopics />
                         </p>
 
                         <p>
                           <DiscussionTopicComments />
-                        </p>
+                        </p> */}
                       </div>
                     </div>
                     <div
@@ -239,7 +262,9 @@ export default function SpaceViewPage() {
             {/* <Discussion /> */}
           </div>
         ) : (
-          <></>
+          <>
+            <Spinner />
+          </>
         )}
       </AppLayout>
     </>
