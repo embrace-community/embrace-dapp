@@ -1,8 +1,8 @@
-import { useSigner } from "@web3modal/react";
+import { useSigner } from "wagmi";
 import { ethers } from "ethers";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import AppLayout from "../../components/AppLayout";
 import Spinner from "../../components/Spinner";
 import EmbraceSpaces from "../../data/contractArtifacts/EmbraceSpaces.json";
@@ -78,6 +78,7 @@ export default function SpaceViewPage() {
   const { data: signer } = useSigner();
   const router = useRouter();
 
+  // When submitting the form save the metadata IPFS and create the space once the metadata CID is set
   async function onSubmit() {
     if (!name || !description || !handle || !imageCid) {
       setError(
@@ -89,29 +90,51 @@ export default function SpaceViewPage() {
     setIsLoading(true);
 
     try {
-      await sendMetadataToIpfs();
-
-      const contract = new ethers.Contract(
-        process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-        EmbraceSpaces.abi,
-        signer
-      );
-
-      await contract.createSpace(
-        ethers.utils.formatBytes32String(handle),
-        visibility,
-        [],
-        "",
-        ""
-      );
-
-      router.push("/");
+      if (signer) {
+        await sendMetadataToIpfs();
+      } else {
+        console.error("No signer found");
+      }
     } catch (err: any) {
-      console.error(`Failed to create space ${err.message}`);
+      console.error(`Failed to save metadata ${err.message}`);
     } finally {
       setIsLoading(false);
     }
   }
+
+  // Only create a space once the metadata has been saved to ipfs and the CID is set in state
+  useEffect(() => {
+    if (!metadataCid.length) return;
+
+    async function createSpace() {
+      try {
+        if (signer) {
+          const contract = new ethers.Contract(
+            process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
+            EmbraceSpaces.abi,
+            signer as ethers.Signer
+          );
+
+          await contract.createSpace(
+            ethers.utils.formatBytes32String(handle),
+            visibility,
+            [0], // Apps
+            metadataCid
+          );
+
+          router.push("/");
+        } else {
+          console.error("No signer found");
+        }
+      } catch (err: any) {
+        console.error(`Failed to create space ${err.message}`);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    createSpace();
+  }, [metadataCid]);
 
   return (
     <>
