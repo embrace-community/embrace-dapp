@@ -13,7 +13,7 @@ contract EmbraceAccounts {
         _addHandle(_userHandle);
     }
 
-    function addSpace(uint256 _spaceIndex, address _address) public {
+    function addSpace(address _address, uint256 _spaceIndex) public {
         spaces[_address].push(_spaceIndex);
     }
 
