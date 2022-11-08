@@ -152,6 +152,10 @@ contract EmbraceSpaces {
     }
 
     function removeMember(uint256 _spaceIndex, address _member) public onlySpaceAdmin(_spaceIndex) {
+        if (spaceMembers[_spaceIndex][_member].active == false) {
+            revert("Member does not exist");
+        }
+
         Member memory member = Member({ isAdmin: false, active: false });
         spaceMembers[_spaceIndex][_member] = member;
         spaceMemberLength[_spaceIndex]--;
