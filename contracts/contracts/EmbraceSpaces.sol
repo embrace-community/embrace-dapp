@@ -25,7 +25,7 @@ contract EmbraceSpaces {
         bool active;
     }
 
-    uint256 private spaceIndex = 1;
+    uint256 private spaceIndex = 0;
     Space[] public spaces;
 
     EmbraceAccounts accounts;

@@ -7,13 +7,15 @@ import DiscussionTopicComments from "../../components/app/discussion/DiscussionT
 import DiscussionTopics from "../../components/app/discussion/DiscussionTopics";
 import AppLayout from "../../components/AppLayout";
 import embraceSpacesContract from "../../data/contractArtifacts/EmbraceSpaces.json";
-import { SpaceContext } from "../../lib/SpaceContext";
 import Spinner from "../../components/Spinner";
+import getIpfsJsonContent from "../../lib/web3storage/getIpfsJsonContent";
 
 export default function SpaceViewPage() {
-  const [spaceId, setSpaceId] = useContext(SpaceContext);
   const [spaceData, setSpaceData] = useState<any>(null);
-  const [contract, setContract] = useState<any>(null);
+  const [metadataLoaded, setMetadataLoaded] = useState<any>(false);
+  const [contract, setContract] = useState<Contract>();
+  const [memberCount, setMemberCount] = useState<number | null>(null);
+
   const [openTab, setOpenTab] = useState(1);
   const { data: signer, isLoading: isSignerLoading } = useSigner();
   const router = useRouter();
@@ -35,22 +37,18 @@ export default function SpaceViewPage() {
 
   // Once contract is initialized then get the space Id from the router handle
   useEffect((): void => {
-    if (!contract || !routerIsReady) return;
+    if (!contract || !routerIsReady || spaceData) return;
 
     const handleBytes32 = ethers.utils.formatBytes32String(
       router.query.handle as string
     );
 
-    async function getSpaceId(MyContract: Contract): Promise<void> {
+    async function getSpace(MyContract: Contract): Promise<void> {
       try {
-        const response = await MyContract.getIdFromHandle(handleBytes32);
+        const space = await MyContract.getSpaceFromHandle(handleBytes32);
 
-        // Only set space Id if the space is found
-        if (response) {
-          const spaceId = BigNumber.from(response).toNumber();
-          if (spaceId) {
-            setSpaceId(spaceId);
-          }
+        if (space) {
+          setSpaceData(space);
         }
       } catch (err) {
         console.log(
@@ -63,28 +61,53 @@ export default function SpaceViewPage() {
       }
     }
 
-    getSpaceId(contract);
+    getSpace(contract);
   }, [contract]);
 
-  // Once space Id is set then get the space data
-  useEffect((): void => {
-    if (!contract || !routerIsReady || spaceId == -1) return;
+  useEffect(() => {
+    if (!spaceData) return;
 
-    async function getSpace(MyContract: Contract): Promise<void> {
-      try {
-        const spaceDetails = await MyContract.getSpace(spaceId);
-        const memberCount = await MyContract.getMemberCount(spaceId);
-        // Now we have the space data, we need to get the metadata from IPFS
-        // and merge with the response
-        console.log("Space details", spaceDetails, "Member count", memberCount);
-        setSpaceData(spaceDetails);
-      } catch (err) {
-        console.log("getSpace", err);
+    async function loadSpaceMetadata() {
+      if (metadataLoaded) return;
+
+      const metadata = await getIpfsJsonContent(
+        spaceData.metadata,
+        "readAsText"
+      );
+
+      if (metadata?.image) {
+        metadata.image = (await getIpfsJsonContent(
+          metadata.image,
+          "readAsDataURL"
+        )) as string;
+      }
+
+      // Update the spaceData object with the loaded metadata
+      const spaceDataObj = { ...spaceData, metadata };
+
+      setSpaceData(spaceDataObj);
+      setMetadataLoaded(true);
+    }
+
+    loadSpaceMetadata();
+  }, [spaceData, metadataLoaded]);
+
+  useEffect(() => {
+    if (!metadataLoaded) return;
+
+    async function getMemberCount() {
+      if (contract) {
+        const spaceId = BigNumber.from(spaceData.index).toNumber();
+        const memberCount = await contract.getMemberCount(spaceId);
+
+        const memberCountNumber = BigNumber.from(memberCount).toNumber();
+
+        setMemberCount(memberCountNumber);
       }
     }
 
-    getSpace(contract);
-  }, [spaceId]);
+    getMemberCount();
+  }, [spaceData, metadataLoaded]);
 
   const jimmystabs = [
     {
@@ -138,34 +161,27 @@ export default function SpaceViewPage() {
 
   return (
     <>
-      <AppLayout title="Get Space Name from Handle">
-        {spaceId !== -1 ? (
-          <div className="">
+      <AppLayout title={spaceData?.metadata?.name}>
+        {spaceData && metadataLoaded ? (
+          <>
             <div className="w-full flex flex-col justify-start text-embracedark extrastyles-specialpadding2">
               <div className="w-full flex flex-row justify-start items-end border-b-2 border-embracedark border-opacity-5 mb-12">
                 <img
                   className="w-28 h-28 extrastyles-border-radius extrastyles-negmarg"
-                  src="https://res.cloudinary.com/crunchbase-production/image/upload/c_lpad,h_170,w_170,f_auto,b_white,q_auto:eco,dpr_1/iefz0rgodovf3fob6vja"
+                  src={spaceData?.metadata?.image}
                 />
                 <div className="mb-6 ml-7">
                   <h1 className="font-semibold text-2xl">
-                    Space View #{spaceId}
+                    {spaceData?.metadata?.name}
                   </h1>
                   <div className="w-full flex flex-row mt-1 text-sm">
-                    <p className="underline font-semibold mt-4px">about</p>
                     <p className="text-embracedark text-opacity-50 mx-3  mt-4px">
-                      &#124;
+                      {memberCount} Members
                     </p>
-                    <p className="text-embracedark text-opacity-50  mt-4px">
-                      founded by
-                    </p>
-                    <img
-                      className="inline-block h-6 w-6-full rounded-3xl mx-3"
-                      src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                      alt=""
-                    />
-                    <p className="text-embracedark text-opacity-50  mt-4px">
-                      Ox009...213
+                  </div>
+                  <div className="w-full flex flex-row mt-1 text-sm">
+                    <p className="text-embracedark text-opacity-50 mx-3  mt-4px">
+                      {spaceData?.metadata?.description}
                     </p>
                   </div>
                 </div>
@@ -271,13 +287,14 @@ export default function SpaceViewPage() {
                 </div>
               </div>
             </div>
-            {/* <Discussion /> */}
-          </div>
-        ) : (
-          <>
-            <Spinner />
           </>
+        ) : (
+          <div className="p-10">
+            <Spinner />
+          </div>
         )}
+
+        {/* <Discussion /> */}
       </AppLayout>
     </>
   );
