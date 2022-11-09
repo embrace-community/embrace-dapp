@@ -25,7 +25,7 @@ contract EmbraceSpaces {
         bool active;
     }
 
-    uint256 private spaceIndex = 0;
+    uint256 private spaceIndex = 1;
     Space[] public spaces;
 
     EmbraceAccounts accounts;
@@ -104,6 +104,11 @@ contract EmbraceSpaces {
     }
 
     function getSpace(uint256 _spaceIndex) public view returns (Space memory) {
+        return spaces[_spaceIndex];
+    }
+
+    function getSpaceFromHandle(bytes32 _handle) public view returns (Space memory) {
+        uint256 _spaceIndex = getIdFromHandle(_handle);
         return spaces[_spaceIndex];
     }
 

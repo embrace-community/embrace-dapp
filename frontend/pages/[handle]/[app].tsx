@@ -37,17 +37,29 @@ export default function SpaceViewPage() {
   useEffect((): void => {
     if (!contract || !routerIsReady) return;
 
+    const handleBytes32 = ethers.utils.formatBytes32String(
+      router.query.handle as string
+    );
+
     async function getSpaceId(MyContract: Contract): Promise<void> {
       try {
-        const handleBytes32 = ethers.utils.formatBytes32String(
-          router.query.handle as string
-        );
         const response = await MyContract.getIdFromHandle(handleBytes32);
 
-        setSpaceId(BigNumber.from(response).toNumber());
-        console.log(contract);
+        // Only set space Id if the space is found
+        if (response) {
+          const spaceId = BigNumber.from(response).toNumber();
+          if (spaceId) {
+            setSpaceId(spaceId);
+          }
+        }
       } catch (err) {
-        console.log("getSpaceId", err, contract, router.query.handle);
+        console.log(
+          "getSpaceId",
+          err,
+          contract,
+          router.query.handle,
+          handleBytes32
+        );
       }
     }
 
