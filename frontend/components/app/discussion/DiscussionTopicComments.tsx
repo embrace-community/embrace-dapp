@@ -85,7 +85,7 @@ export default function DiscussionTopicComments() {
               "kjzl6kcym7w8ya26fgzodhklnsp5ivop1i3jevcz0nd5edzqhyhstnynjolw4wz",
             content: "I like this",
             address: "0x...Hdk",
-            spaceId: 99999,
+            spaceId,
           },
         },
       },
@@ -95,7 +95,26 @@ export default function DiscussionTopicComments() {
   return (
     <>
       {loading && <div>Loading...</div>}
-      {error && <div>Error...</div>}
+      <button
+        onClick={() => createNewDiscussionTopicComment()}
+        className="
+                        rounded-full
+                        border-violet-500
+                        border-2
+                        bg-transparent
+                        py-4
+                        px-12
+                        text-violet-500
+                        shadow-sm
+                        focus:outline-none
+                        focus:ring-none
+                        mb-7
+                        font-semibold
+                        text-xl"
+      >
+        Create Comment
+      </button>
+      {error && <div>Error check daemon...</div>}
       {data && (
         <div>
           <ul>
@@ -113,13 +132,6 @@ export default function DiscussionTopicComments() {
           </ul>
         </div>
       )}
-
-      <button
-        onClick={() => createNewDiscussionTopicComment()}
-        className="h-8 px-4 m-2 text-sm text-indigo-100 transition-colors duration-150 bg-indigo-700 rounded-lg focus:shadow-outline hover:bg-indigo-800"
-      >
-        Create Comment
-      </button>
     </>
   );
 }

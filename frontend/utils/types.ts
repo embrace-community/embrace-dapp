@@ -1,3 +1,5 @@
+import { BigNumber } from "ethers";
+
 export enum Visibility {
   PUBLIC,
   PRIVATE,
@@ -5,10 +7,10 @@ export enum Visibility {
 }
 
 export type EmbraceSpace = {
+  index: BigNumber;
   handle: string;
   visibility: Visibility;
   apps: number[];
   metadata: string;
   founder: string;
-  passcode: string;
 };

@@ -12,7 +12,7 @@ export default function SpaceCollection({
   title: string;
   collection: EmbraceSpace[];
 }) {
-  const [jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
+  const [_jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
   const [metadataImg, setMetadataImg] = useState<string[]>([]);
 
   useEffect(() => {
@@ -35,6 +35,9 @@ export default function SpaceCollection({
           )) as string;
 
           images.push(image);
+        } else {
+          // So that images array maps correctly to collection of spaces otherwise images will not match up
+          images.push("");
         }
       }
 
@@ -54,7 +57,7 @@ export default function SpaceCollection({
       ) : (
         "no title"
       )}
-      <div className="flex flex-row">
+      <div className="flex flex-row flex-wrap">
         {collection &&
           collection.map((collectionItem, i) => {
             const handleString = collectionItem.handle
@@ -64,7 +67,7 @@ export default function SpaceCollection({
             return (
               <Link
                 key={collectionItem.handle + i}
-                href={`/space/${handleString}`}
+                href={`/${handleString}/home`}
               >
                 <div className="w-48 flex flex-col items-center">
                   <div className="w-32 h-32 mb-5 flex items-center justify-center">
