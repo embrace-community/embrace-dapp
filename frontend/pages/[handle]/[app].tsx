@@ -15,6 +15,7 @@ export default function SpaceViewPage() {
   const [metadataLoaded, setMetadataLoaded] = useState<any>(false);
   const [contract, setContract] = useState<Contract>();
   const [memberCount, setMemberCount] = useState<number | null>(null);
+  const [memberCountLoaded, setMemberCountLoaded] = useState<boolean>(false);
 
   const [openTab, setOpenTab] = useState(1);
   const { data: signer, isLoading: isSignerLoading } = useSigner();
@@ -103,6 +104,7 @@ export default function SpaceViewPage() {
         const memberCountNumber = BigNumber.from(memberCount).toNumber();
 
         setMemberCount(memberCountNumber);
+        setMemberCountLoaded(true);
       }
     }
 
@@ -162,7 +164,7 @@ export default function SpaceViewPage() {
   return (
     <>
       <AppLayout title={spaceData?.metadata?.name}>
-        {spaceData && metadataLoaded ? (
+        {spaceData && metadataLoaded && memberCountLoaded ? (
           <>
             <div className="w-full flex flex-col justify-start text-embracedark extrastyles-specialpadding2">
               <div className="w-full flex flex-row justify-start items-end border-b-2 border-embracedark border-opacity-5 mb-12">
