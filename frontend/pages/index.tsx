@@ -130,7 +130,7 @@ export default function HomePage() {
       <AppLayout title="Home">
         <div className="extrastyles-specialpadding">
           {signer && (
-            <Link href="/space/create">
+            <Link href="/create">
               <button
                 type="button"
                 className="

@@ -3,11 +3,11 @@ import { ethers } from "ethers";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useEffect, useState } from "react";
-import AppLayout from "../../components/AppLayout";
-import Spinner from "../../components/Spinner";
-import EmbraceSpaces from "../../data/contractArtifacts/EmbraceSpaces.json";
-import getWeb3StorageClient from "../../lib/web3storage/client";
-import saveToIpfs from "../../lib/web3storage/saveToIpfs";
+import AppLayout from "../components/AppLayout";
+import Spinner from "../components/Spinner";
+import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
+import getWeb3StorageClient from "../lib/web3storage/client";
+import saveToIpfs from "../lib/web3storage/saveToIpfs";
 
 export default function SpaceViewPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
