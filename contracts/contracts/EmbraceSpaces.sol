@@ -107,6 +107,11 @@ contract EmbraceSpaces {
         return spaces[_spaceIndex];
     }
 
+    function getSpaceFromHandle(bytes32 _handle) public view returns (Space memory) {
+        uint256 _spaceIndex = getIdFromHandle(_handle);
+        return spaces[_spaceIndex];
+    }
+
     function getIdFromHandle(bytes32 _handle) public view returns (uint256) {
         return spaceHandles[_handle];
     }
