@@ -67,7 +67,7 @@ export default function SpaceCollection({
             return (
               <Link
                 key={collectionItem.handle + i}
-                href={`/space/${handleString}`}
+                href={`/${handleString}/home`}
               >
                 <div className="w-48 flex flex-col items-center">
                   <div className="w-32 h-32 mb-5 flex items-center justify-center">
