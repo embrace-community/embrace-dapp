@@ -9,10 +9,12 @@ contract EmbraceApps {
         bytes32 code;
         address contractAddress;
         bool enabled;
+        string metadata;
     }
 
-    uint256 private appIndex = 1;
+    uint256 private appIndex = 0;
     App[] public apps;
+    bytes32[] categories;
 
     address public owner;
 
@@ -35,9 +37,17 @@ contract EmbraceApps {
     function createApp(
         bytes32 _code,
         address _contractAddress,
-        bool _enabled
+        bool _enabled,
+        string memory _metadata
     ) public onlyOwner uniqueAppCode(_code) {
-        App memory app = App({ code: _code, contractAddress: _contractAddress, enabled: _enabled });
+        console.log("metadata", _metadata);
+
+        App memory app = App({
+            code: _code,
+            contractAddress: _contractAddress,
+            enabled: _enabled,
+            metadata: _metadata
+        });
 
         apps.push(app);
         appIndex++;
@@ -49,6 +59,13 @@ contract EmbraceApps {
                 apps[i].contractAddress = _contractAddress;
             }
         }
+    }
+
+    function updateMetadata(uint256 _appIndex, string memory _newMetadata) public onlyOwner returns (App memory) {
+        App storage app = apps[_appIndex];
+        app.metadata = _newMetadata;
+
+        return app;
     }
 
     function getApps() public view returns (App[] memory) {

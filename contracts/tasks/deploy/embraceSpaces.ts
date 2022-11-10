@@ -6,7 +6,7 @@ import type { EmbraceSpaces } from "../../types/EmbraceSpaces";
 import type { EmbraceSpaces__factory } from "../../types/factories/EmbraceSpaces__factory";
 
 task("deploy:EmbraceSpaces")
-  .addParam("accountsAddress")
+  .addParam("accountsaddress")
   .setAction(async function (_taskArguments: TaskArguments, { ethers }) {
     const signers: SignerWithAddress[] = await ethers.getSigners();
     const deployer: SignerWithAddress = signers[0];
@@ -15,7 +15,7 @@ task("deploy:EmbraceSpaces")
       await ethers.getContractFactory("EmbraceSpaces")
     );
     const embraceSpaces: EmbraceSpaces = <EmbraceSpaces>(
-      await embraceSpacesFactory.connect(deployer).deploy(_taskArguments.accountsAddress)
+      await embraceSpacesFactory.connect(deployer).deploy(_taskArguments.accountsaddress)
     );
     await embraceSpaces.deployed();
     console.log("EmbraceSpaces deployed to: ", embraceSpaces.address);

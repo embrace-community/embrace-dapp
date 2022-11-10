@@ -1,28 +1,33 @@
 import { ApolloProvider } from "@apollo/client";
+import {
+  getDefaultWallets,
+  lightTheme,
+  RainbowKitProvider,
+} from "@rainbow-me/rainbowkit";
+import "@rainbow-me/rainbowkit/styles.css";
+import type { AppProps } from "next/app";
+import { useState } from "react";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
-import type { AppProps } from "next/app";
-import { useState } from "react";
+import ClientOnlyWrapper from "../components/ClientOnlyWrapper";
 import { apolloClient } from "../lib/ApolloClient";
 import { CeramicContext, composeDbClient } from "../lib/CeramicContext";
+import { colors } from "../lib/constants";
 import { SpaceContext } from "../lib/SpaceContext";
-import "../styles/globals.css";
 import "../styles/extrastyles.css";
-import "@rainbow-me/rainbowkit/styles.css";
-import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import ClientOnlyWrapper from "../components/ClientOnlyWrapper";
+import "../styles/globals.css";
 
 const { chains, provider } = configureChains(
-  [chain.goerli],
+  [chain.goerli, chain.localhost],
   [
-    infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY }),
-    // publicProvider(),
+    infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY! }),
+    publicProvider(),
   ]
 );
 
 const { connectors } = getDefaultWallets({
-  appName: "My RainbowKit App",
+  appName: "Embrace.Community",
   chains,
 });
 
@@ -39,7 +44,12 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <ApolloProvider client={apolloClient}>
         <WagmiConfig client={wagmiClient}>
-          <RainbowKitProvider chains={chains}>
+          <RainbowKitProvider
+            chains={chains}
+            theme={lightTheme({
+              accentColor: colors.main,
+            })}
+          >
             <CeramicContext.Provider value={composeDbClient}>
               <SpaceContext.Provider value={space}>
                 <ClientOnlyWrapper>
