@@ -10,6 +10,7 @@ import getWeb3StorageClient from "../lib/web3storage/client";
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import getIpfsJsonContent from "../lib/web3storage/getIpfsJsonContent";
+import { MembershipType } from "../utils/types";
 
 export default function SpaceViewPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -44,7 +45,7 @@ export default function SpaceViewPage() {
 
   const memberOptions = [
     { id: "public", title: "Public" },
-    { id: "token", title: "Token Gated" },
+    { id: "token_gated", title: "Token Gated" },
   ];
 
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -62,8 +63,8 @@ export default function SpaceViewPage() {
 
       setImage(uploadedFile);
       setImageCid(uploadedCid);
-    } catch (err) {
-      console.log("Error: ", err);
+    } catch (err: any) {
+      console.log("Error: ", err.message);
     } finally {
       setIsLoading(false);
     }
@@ -106,7 +107,8 @@ export default function SpaceViewPage() {
     }
 
     if (
-      membership === memberOptions.findIndex((opt) => opt.id === "token") &&
+      membership ===
+        memberOptions.findIndex((opt) => opt.id === "token_gated") &&
       !tokenMembershipAddress
     ) {
       setError(
@@ -143,9 +145,21 @@ export default function SpaceViewPage() {
             signer as ethers.Signer
           );
 
+          const spaceMembership = {
+            kind:
+              membership ===
+              memberOptions.findIndex((opt) => opt.id === "token_gated")
+                ? MembershipType.TOKEN_GATED
+                : MembershipType.PUBLIC,
+            tokenAddress: tokenMembershipAddress
+              ? tokenMembershipAddress
+              : ethers.constants.AddressZero,
+          };
+
           await contract.createSpace(
             ethers.utils.formatBytes32String(handle),
             visibility,
+            spaceMembership,
             apps,
             metadataCid
           );
@@ -378,7 +392,7 @@ export default function SpaceViewPage() {
                         {memberOption.title}
                       </label>
 
-                      {memberOption.id === "token" && (
+                      {memberOption.id === "token_gated" && (
                         <input
                           placeholder="Token Address"
                           type="text"
@@ -490,7 +504,9 @@ export default function SpaceViewPage() {
                   !handle ||
                   !imageCid ||
                   (membership ===
-                    memberOptions.findIndex((opt) => opt.id === "token") &&
+                    memberOptions.findIndex(
+                      (opt) => opt.id === "token_gated"
+                    ) &&
                     !tokenMembershipAddress)
                 }
                 onClick={() => onSubmit()}

@@ -40,8 +40,6 @@ contract EmbraceApps {
         bool _enabled,
         string memory _metadata
     ) public onlyOwner uniqueAppCode(_code) {
-        console.log("metadata", _metadata);
-
         App memory app = App({
             code: _code,
             contractAddress: _contractAddress,
