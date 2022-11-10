@@ -11,6 +11,19 @@ export type EmbraceSpace = {
   handle: string;
   visibility: Visibility;
   apps: number[];
-  metadata: string;
+  metadata: SpaceMetaData;
   founder: string;
+  memberCount: number;
 };
+
+export type SpaceMetaData = {
+  name: string;
+  description: string;
+  image: string;
+};
+
+export enum EmbraceApps {
+  DISCUSSIONS = 0,
+  PROPOSALS = 1,
+  CHAT = 2,
+}

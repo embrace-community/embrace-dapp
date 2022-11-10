@@ -4,7 +4,7 @@ import { useAccount } from "@web3modal/react";
 import { useContext, useState } from "react";
 import { CeramicContext } from "../../../lib/CeramicContext";
 import { SpaceContext } from "../../../lib/SpaceContext";
-import DiscussionTopic from "./DiscussionTopic";
+import DiscussionTopic from "./Topic";
 import { useAuthenticateCeramic } from "../../../hooks/useAuthenticateCeramic";
 
 // We get all the topics and then filter on the frontend as

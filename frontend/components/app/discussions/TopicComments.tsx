@@ -5,7 +5,7 @@ import { useContext, useState } from "react";
 import { useAuthenticateCeramic } from "../../../hooks/useAuthenticateCeramic";
 import { CeramicContext } from "../../../lib/CeramicContext";
 import { SpaceContext } from "../../../lib/SpaceContext";
-import DiscussionTopicComment from "./DiscussionTopicComment";
+import DiscussionTopicComment from "./TopicComment";
 
 // We get all the topics and then filter on the frontend as
 // ComposeDB does not support filtering at this time

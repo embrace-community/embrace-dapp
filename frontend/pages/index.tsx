@@ -125,6 +125,8 @@ export default function HomePage() {
     });
   }, [spaces, spaceIdsUserIsMember]);
 
+  console.log("INDEX");
+
   return (
     <div className="min-h-screen">
       <AppLayout title="Home">
