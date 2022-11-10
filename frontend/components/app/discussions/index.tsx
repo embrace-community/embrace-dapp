@@ -1,38 +1,7 @@
 import { Router } from "next/router";
+import { useEffect, useState } from "react";
 import { EmbraceSpace } from "../../../utils/types";
-import DiscussionTopicComments from "./TopicComments";
-import DiscussionTopics from "./Topics";
-
-const jimmysdummies = [
-  {
-    id: 1,
-    title: "Sed suscipit, nulla id tempus dapibus?",
-    descr:
-      "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-    poster: "0x405B353dff19b63C3c2C851f832C006d68b4Cc63",
-  },
-  {
-    id: 2,
-    title: "Sed suscipit, nulla id tempus dapibus?",
-    descr:
-      "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-    poster: "0x405B353dff19b63C3c2C851f832C006d68b4Cc63",
-  },
-  {
-    id: 3,
-    title: "Sed suscipit, nulla id tempus dapibus?",
-    descr:
-      "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-    poster: "0x405B353dff19b63C3c2C851f832C006d68b4Cc63",
-  },
-  {
-    id: 4,
-    title: "Sed suscipit, nulla id tempus dapibus?",
-    descr:
-      "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-    poster: "0x405B353dff19b63C3c2C851f832C006d68b4Cc63",
-  },
-];
+import Topics from "./Topics";
 
 export default function Discussions({
   query,
@@ -41,13 +10,21 @@ export default function Discussions({
   query: Router["query"];
   space: EmbraceSpace;
 }) {
-  console.log("discussions index.tsx", query, space);
-  const topicId = query.id;
+  const [topicId, setTopicId] = useState<number>(0);
+  const [newTopic, setNewTopic] = useState<boolean>(false);
+
+  // Set the topicId if set in the router query
+  useEffect(() => {
+    if (query.id) {
+      setTopicId(parseInt(query.id as string));
+    }
+  }, []);
 
   return (
     <>
-      <button
-        className="
+      {!topicId && (
+        <button
+          className="
                         rounded-full
                         border-violet-500
                         border-2
@@ -61,23 +38,17 @@ export default function Discussions({
                         mb-7
                         font-semibold
                         text-xl"
-      >
-        + new topic
-      </button>
-      {topicId && <>Topic ID = {topicId}</>}
-      {jimmysdummies.map((topic) => {
-        return (
-          <div
-            className="w-full border-b-2 border-embracedark border-opacity-5 pb-7 mt-5 text-embracedark"
-            key={topic.id}
-          >
-            <h2 className="text-xl font-semibold">{topic.title}</h2>
-            <p className="text-sm font-normal mt-1">{topic.descr}</p>
-          </div>
-        );
-      })}
-      {/* <DiscussionTopics />
-      <DiscussionTopicComments /> */}
+          onClick={(e) => setNewTopic(true)}
+        >
+          + new topic
+        </button>
+      )}
+
+      {newTopic && <>New Topic</>}
+
+      {topicId && <>Topic ID = test</>}
+
+      {!topicId && <Topics spaceId={space.index} />}
     </>
   );
 }

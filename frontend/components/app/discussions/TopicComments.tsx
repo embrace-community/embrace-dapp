@@ -44,7 +44,7 @@ const DISCUSSION_TOPIC_COMMENT_MUTATION = gql`
   }
 `;
 
-export default function DiscussionTopicComments() {
+export default function TopicComments() {
   const threeId = new ThreeIdConnect();
   const composeDbClient = useContext(CeramicContext);
 
@@ -55,7 +55,7 @@ export default function DiscussionTopicComments() {
 
   const { data, loading, error } = useQuery(DISCUSSION_TOPIC_COMMENT_QUERY, {
     onCompleted: (data) => {
-      console.log("DiscussionTopicComment", data);
+      console.log("TopicComment", data);
     },
     onError: (error) => {
       console.log("error", error);
