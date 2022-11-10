@@ -6,17 +6,17 @@ import Chat from "../components/app/chat";
 export const appMappings = {
   [EmbraceApps.DISCUSSIONS]: {
     title: "Discussions",
-    appRoute: "discussions",
+    route: "discussions",
     component: Discussions,
   },
   [EmbraceApps.PROPOSALS]: {
     title: "Proposals",
-    appRoute: "proposals",
+    route: "proposals",
     component: Proposals,
   },
   [EmbraceApps.CHAT]: {
     title: "Chat",
-    appRoute: "chat",
+    route: "chat",
     component: Chat,
   },
 };

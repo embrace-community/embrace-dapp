@@ -27,7 +27,7 @@ export default function Navigation({
             return (
               <div className="-mb-px last:mr-0 text-center" key={appIndexNum}>
                 <Link
-                  href={`/embrace/home`}
+                  href={`/embrace/${app.route}`}
                   className={
                     "text-sm mr-12 py-3 block leading-normal " +
                     (currentApp === appIndexNum

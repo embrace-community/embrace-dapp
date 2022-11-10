@@ -49,7 +49,7 @@ export default function SpaceViewPage({ props }) {
 
         if (space) {
           // const apps = space.apps.map((app) => BigNumber.from(app).toNumber());
-          const apps = [0, 1, 2];
+          const apps = [0, 1, 2]; // TODO: temp for testing
           const updatedSpace = { ...space, apps };
           setSpaceData(updatedSpace);
         }

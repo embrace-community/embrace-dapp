@@ -16,25 +16,25 @@ export default function Apps({
   const [appSelected, setAppSelected] = useState(false);
   const router = useRouter();
 
+  // FIXME: Apps loading multiple times
+  console.log("Apps LOADING multiple times", query);
+
   // On first render, if there is an app in the query then set the current app to that app
   useEffect(() => {
-    if (query.app && !appSelected) {
-      const appIndex = Object.keys(appMappings).findIndex(
-        (appIndex) => appMappings[appIndex].appRoute === query.app
-      );
+    if (!query.app || appSelected) return;
 
-      // TODO
-      console.log("TODO: App currently rendering multiple time");
+    const appIndex = Object.keys(appMappings).findIndex(
+      (appIndex) => appMappings[appIndex].route === query.app
+    );
 
-      // App cannot be found so select the first app as default
-      if (appIndex === -1) {
-        setCurrentApp(0);
-      } else {
-        setCurrentApp(appIndex);
-      }
-
-      setAppSelected(true);
+    // App cannot be found so select the first app as default
+    if (appIndex === -1) {
+      setCurrentApp(0);
+    } else {
+      setCurrentApp(appIndex);
     }
+
+    setAppSelected(true);
   }, []);
 
   // Method to dynamically render the current app component
@@ -43,20 +43,45 @@ export default function Apps({
     return <Component query={query} space={space} />;
   };
 
-  //   Whenever the current app changes then update the URI to reflect the new app
+  // Whenever the current app changes then update the URI to reflect the new app
   useEffect(() => {
-    const appRoute = appMappings[currentApp].appRoute;
-    router.push(`/${router.query.handle}/${appRoute}`, undefined, {
-      shallow: true,
-    });
+    if (appSelected) {
+      // Load the route for the current App
+      const route = appMappings[currentApp].route;
+      // Update the router to reflect the new app
+      router.query.app = route;
+
+      // Change the route URL without reloading the page
+      router.push(router, undefined, {
+        shallow: true,
+      });
+    }
   }, [currentApp]);
+
+  // This ensures query params are removed when changing pages
+  // I.e. /discussions?id=1223: id should be removed when switching to /proposals
+  const setApp = (newApp: number) => {
+    if (appSelected) {
+      // If the newly selected app differs from the current app then remove the query params
+      if (newApp !== currentApp) {
+        // Reset the query params
+        router.query = {
+          handle: router.query.handle,
+          app: router.query.app,
+        };
+      }
+
+      // Set current app
+      setCurrentApp(newApp);
+    }
+  };
 
   return (
     <>
       <Navigation
         space={space}
         currentApp={currentApp}
-        setCurrentApp={setCurrentApp}
+        setCurrentApp={setApp}
       />
       <div className="relative flex flex-col min-w-0 break-words bg-white w-full">
         <div className="tab-content tab-space">
