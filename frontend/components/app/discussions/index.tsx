@@ -42,6 +42,8 @@ export default function Discussions({
   space: EmbraceSpace;
 }) {
   console.log("discussions index.tsx", query, space);
+  const topicId = query.id;
+
   return (
     <>
       <button
@@ -62,6 +64,7 @@ export default function Discussions({
       >
         + new topic
       </button>
+      {topicId && <>Topic ID = {topicId}</>}
       {jimmysdummies.map((topic) => {
         return (
           <div
