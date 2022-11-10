@@ -21,7 +21,7 @@ import "../styles/globals.css";
 const { chains, provider } = configureChains(
   [chain.goerli, chain.localhost],
   [
-    infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY }),
+    infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY! }),
     publicProvider(),
   ]
 );
