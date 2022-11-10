@@ -1,4 +1,4 @@
-import { useContract, useSigner } from "@web3modal/react";
+import { useContract, useSigner } from "wagmi";
 import EmbraceSpacesJSON from "../data/contractArtifacts/EmbraceSpaces.json";
 import EmbraceAppsJSON from "../data/contractArtifacts/EmbraceApps.json";
 import EmbraceAccountsJSON from "../data/contractArtifacts/EmbraceAccounts.json";

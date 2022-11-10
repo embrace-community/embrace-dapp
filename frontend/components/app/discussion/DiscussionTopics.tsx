@@ -1,6 +1,6 @@
 import { ThreeIdConnect } from "@3id/connect";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { useAccount } from "@web3modal/react";
+import { useAccount } from "wagmi";
 import { useContext, useState } from "react";
 import { CeramicContext } from "../../../lib/CeramicContext";
 import { SpaceContext } from "../../../lib/SpaceContext";
