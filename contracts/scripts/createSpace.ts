@@ -6,7 +6,15 @@ import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/Embrace
 import { MembershipGateType, MembershipType, Visibility } from "./../test/types";
 import { getSignerProvider, getWallet } from "./utils";
 
-// npx ts-node scripts/createSpace 0x7f59Bc766Eb5A0263C0D00B4EF33B62671Bd6A38 Embrace.community bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli
+// COMMANDS TO CREATE SPACES WITH DIFFERING MEMBERSHIP TYPES
+// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa public.open bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli
+// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa public.gated bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli public-gated
+// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa private.closed bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli private-closed
+// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa private.closed.reqs bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli private-closed-reqs
+// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa private.gated bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli private-gated
+// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa anon bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli anon
+
+const chainLinkAddressGoerli = "0x326c977e6efc84e512bb9c30f76e30c160ed06fb";
 
 async function main() {
   const contractAddress = process.argv[2];
@@ -65,6 +73,20 @@ const getSpace = (spaceType: any, handle: string, metadata: string) => {
       apps: [0],
       metadata,
     };
+  } else if (spaceType == "public-gated") {
+    return {
+      handle,
+      visibility: Visibility.PUBLIC,
+      membership: {
+        kind: MembershipType.GATED,
+        gate: {
+          gateType: MembershipGateType.ERC20,
+          tokenAddress: chainLinkAddressGoerli,
+        },
+      },
+      apps: [0],
+      metadata,
+    };
   } else if (spaceType == "private-gated") {
     return {
       handle,
@@ -73,13 +95,25 @@ const getSpace = (spaceType: any, handle: string, metadata: string) => {
         kind: MembershipType.GATED,
         gate: {
           gateType: MembershipGateType.ERC20,
-          tokenAddress: ethers.constants.AddressZero,
+          tokenAddress: chainLinkAddressGoerli,
         },
       },
       apps: [0],
       metadata,
     };
   } else if (spaceType == "private-closed") {
+    return {
+      handle,
+      visibility: Visibility.PRIVATE,
+      membership: {
+        kind: MembershipType.CLOSED,
+        gate: { gateType: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
+        allowRequests: false,
+      },
+      apps: [0],
+      metadata,
+    };
+  } else if (spaceType == "private-closed-reqs") {
     return {
       handle,
       visibility: Visibility.PRIVATE,

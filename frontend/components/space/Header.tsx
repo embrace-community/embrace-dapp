@@ -1,6 +1,20 @@
-import { EmbraceSpace } from "../../utils/types";
+import {
+  EmbraceSpace,
+  MembershipGateType,
+  MembershipType,
+  Visibility,
+} from "../../utils/types";
 
 export default function Header({ space }: { space: any }) {
+  const visibility = Visibility[space.visibility];
+  const membershipKind = MembershipType[space.membership.kind];
+  const membershipGate = MembershipGateType[space.membership.gate.gateType];
+  const allowRequests = space.membership.allowRequests;
+  // TODO: Check if the account is a member of the space
+  // TODO: Check if account is founder of the space
+
+  console.log(space);
+  console.log(membershipKind, membershipGate, allowRequests);
   return (
     <div className="w-full flex flex-col justify-start text-embracedark extrastyles-specialpadding2">
       <div className="w-full flex flex-row justify-start items-end border-b-2 border-embracedark border-opacity-5 mb-12">
@@ -18,6 +32,17 @@ export default function Header({ space }: { space: any }) {
           <div className="w-full flex flex-row mt-1 text-sm">
             <p className="text-embracedark text-opacity-50 mx-3  mt-4px">
               {space?.metadata?.description}
+            </p>
+          </div>
+          <div className="w-full flex flex-row mt-1 text-sm">
+            <p className="text-embracedark text-opacity-50 mx-3  mt-4px">
+              Visibility: {visibility}
+              <br />
+              Membership Kind: {membershipKind}
+              <br />
+              Membership Gate: {membershipGate}
+              <br />
+              Allow Requests: {allowRequests ? "Yes" : "No"}
             </p>
           </div>
         </div>

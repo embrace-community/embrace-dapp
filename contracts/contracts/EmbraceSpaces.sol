@@ -140,7 +140,7 @@ contract EmbraceSpaces {
         if (space.visibility == Visibility.PRIVATE && space.membership.kind == MembershipType.CLOSED)
             revert("You cannot join a private closed space");
         // Make sure address meets the token requirements
-        if (space.membership.kind == MembershipType.GATED && !_meetsGateRequirements(_spaceIndex))
+        if (space.membership.kind == MembershipType.GATED && !meetsGateRequirements(_spaceIndex))
             revert("You do not meet the requirements for the gated space");
 
         // In all cases, if the requirements above are met then this will allow the address to auto-join the space
@@ -164,7 +164,7 @@ contract EmbraceSpaces {
         return true;
     }
 
-    function _meetsGateRequirements(uint256 _spaceIndex) private view returns (bool) {
+    function meetsGateRequirements(uint256 _spaceIndex) public view returns (bool) {
         Space memory space = spaces[_spaceIndex];
         address tokenAddress = space.membership.gate.tokenAddress;
 

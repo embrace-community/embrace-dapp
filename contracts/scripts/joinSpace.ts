@@ -5,7 +5,7 @@ import { formatBytes32String } from "ethers/lib/utils";
 import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json";
 import { getSignerProvider, getWallet } from "./utils";
 
-// npx ts-node scripts/joinSpace 0x096efE70986D163C61aECaEa05Cf996f96543F85 0 1 goerli
+// npx ts-node scripts/joinSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa 0 1 goerli
 
 async function main() {
   const contractAddress = process.argv[2];
