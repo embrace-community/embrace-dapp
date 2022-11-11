@@ -16,7 +16,8 @@ export type EmbraceSpace = {
   handle: string;
   visibility: Visibility;
   apps: number[];
-  metadata: SpaceMetaData;
+  // metadata: SpaceMetaData;
+  metadata: string;
   founder: string;
   memberCount: number;
 };
