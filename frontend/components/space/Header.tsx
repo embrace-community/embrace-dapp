@@ -1,6 +1,6 @@
 import { EmbraceSpace } from "../../utils/types";
 
-export default function Header({ space }: { space: EmbraceSpace }) {
+export default function Header({ space }: { space: any }) {
   return (
     <div className="w-full flex flex-col justify-start text-embracedark extrastyles-specialpadding2">
       <div className="w-full flex flex-row justify-start items-end border-b-2 border-embracedark border-opacity-5 mb-12">
