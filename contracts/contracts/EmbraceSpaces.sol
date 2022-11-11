@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.17;
 
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 import "./EmbraceAccounts.sol";
 
 contract EmbraceSpaces {
@@ -11,10 +11,21 @@ contract EmbraceSpaces {
         ANONYMOUS
     }
 
+    enum MembershipType {
+        PUBLIC,
+        TOKEN_GATED
+    }
+
+    struct Membership {
+        MembershipType kind;
+        address tokenAddress;
+    }
+
     struct Space {
         uint256 index;
         bytes32 handle; // acts as spaceId
         Visibility visibility;
+        Membership membership;
         uint128[] apps;
         string metadata;
         address founder;
@@ -52,6 +63,7 @@ contract EmbraceSpaces {
     function createSpace(
         bytes32 _handle,
         Visibility _visibility,
+        Membership memory _membership,
         uint128[] memory _apps,
         string memory _metadata
     ) public {
@@ -63,6 +75,7 @@ contract EmbraceSpaces {
             index: spaceIndex,
             handle: _handle,
             visibility: _visibility,
+            membership: _membership,
             founder: msg.sender,
             apps: _apps,
             metadata: _metadata

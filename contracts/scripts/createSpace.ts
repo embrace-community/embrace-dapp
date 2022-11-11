@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { formatBytes32String } from "ethers/lib/utils";
 
 import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json";
-import { Visibility } from "./../test/types";
+import { MembershipType, Visibility } from "./../test/types";
 import { getSignerProvider, getWallet } from "./utils";
 
 async function main() {
@@ -26,9 +26,9 @@ async function main() {
   const space = {
     handle,
     visibility: Visibility.PUBLIC,
-    apps: [],
+    membership: { kind: MembershipType.PUBLIC, tokenAddress: ethers.constants.AddressZero },
+    apps: [0],
     metadata,
-    passstring: "",
   };
 
   const wallet = getWallet();
@@ -37,12 +37,14 @@ async function main() {
 
   const contract = new ethers.Contract(contractAddress, EmbraceSpaces.abi, signer);
 
+  console.log("space", space);
+
   await contract.createSpace(
     formatBytes32String(space.handle),
     space.visibility,
+    space.membership,
     space.apps,
     space.metadata,
-    space.passstring,
   );
 
   const spaces = await contract.getSpaces();

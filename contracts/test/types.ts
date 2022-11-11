@@ -14,3 +14,8 @@ export enum Visibility {
   PRIVATE,
   ANONYMOUS,
 }
+
+export enum MembershipType {
+  PUBLIC,
+  TOKEN_GATED,
+}

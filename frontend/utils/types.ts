@@ -6,6 +6,11 @@ export enum Visibility {
   ANONYMOUS,
 }
 
+export enum MembershipType {
+  PUBLIC,
+  TOKEN_GATED,
+}
+
 export type EmbraceSpace = {
   index: BigNumber;
   handle: string;
