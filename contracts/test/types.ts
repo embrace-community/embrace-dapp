@@ -20,3 +20,9 @@ export enum MembershipType {
   GATED,
   CLOSED,
 }
+
+export interface Membership {
+  kind: MembershipType;
+  address: string;
+  allowRequests: false;
+}

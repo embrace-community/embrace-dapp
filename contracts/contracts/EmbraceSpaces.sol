@@ -21,8 +21,8 @@ contract EmbraceSpaces {
         MembershipType kind;
         address tokenAddress;
         // Only relevant if space is Private and MemberType is Closed
-        // If false allow requests to join / if true only Admin's can add members
-        bool inviteOnly;
+        // If true allow requests to join / if false only Admin's can add members
+        bool allowRequests;
     }
 
     struct Space {
