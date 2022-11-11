@@ -1,5 +1,5 @@
 import { ThreeIdConnect } from "@3id/connect";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { useAccount } from "wagmi";
 import { useContext, useState } from "react";
 import { CeramicContext } from "../../../lib/CeramicContext";
@@ -46,7 +46,7 @@ export default function Topics() {
   const [spaceId, setSpaceId] = useContext(SpaceContext);
   const [title, setTitle] = useState("New Topic default title");
   const [content, setContent] = useState("topic content");
-  const { account } = useAccount();
+  const account = useAccount();
 
   const [discussionTopicMutation] = useMutation(DISCUSSION_TOPIC_MUTATION, {
     onCompleted: (data) => {
