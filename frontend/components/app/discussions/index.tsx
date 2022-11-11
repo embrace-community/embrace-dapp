@@ -10,7 +10,7 @@ export default function Discussions({
   query: Router["query"];
   space: EmbraceSpace;
 }) {
-  const [topicId, setTopicId] = useState<number>(0);
+  const [topicId, setTopicId] = useState<number>();
   const [newTopic, setNewTopic] = useState<boolean>(false);
 
   // Set the topicId if set in the router query
