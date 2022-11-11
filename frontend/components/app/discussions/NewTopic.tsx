@@ -1,10 +1,10 @@
 import { ThreeIdConnect } from "@3id/connect";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { useAccount } from "@web3modal/react";
+import { gql, useMutation } from "@apollo/client";
+import { useAccount } from "wagmi";
 import { useContext, useState } from "react";
 import { CeramicContext } from "../../../lib/CeramicContext";
 import { SpaceContext } from "../../../lib/SpaceContext";
-import DiscussionTopic from "./DiscussionTopic";
+import DiscussionTopic from "./TopicItem";
 import { useAuthenticateCeramic } from "../../../hooks/useAuthenticateCeramic";
 
 // We get all the topics and then filter on the frontend as
@@ -39,23 +39,14 @@ const DISCUSSION_TOPIC_MUTATION = gql`
   }
 `;
 
-export default function DiscussionTopics() {
+export default function Topics() {
   const threeId = new ThreeIdConnect();
   const composeDbClient = useContext(CeramicContext);
 
   const [spaceId, setSpaceId] = useContext(SpaceContext);
   const [title, setTitle] = useState("New Topic default title");
   const [content, setContent] = useState("topic content");
-  const { account } = useAccount();
-
-  const { data, loading, error } = useQuery(DISCUSSION_TOPIC_QUERY, {
-    onCompleted: (data) => {
-      console.log(data, "dis");
-    },
-    onError: (error) => {
-      console.log("error", error);
-    },
-  });
+  const account = useAccount();
 
   const [discussionTopicMutation] = useMutation(DISCUSSION_TOPIC_MUTATION, {
     onCompleted: (data) => {
@@ -83,47 +74,5 @@ export default function DiscussionTopics() {
     });
   };
 
-  return (
-    <>
-      {loading && <div>Loading...</div>}
-      {error && <div>Error check daemon...</div>}
-      <button
-        onClick={() => createNewDiscussionTopic()}
-        className="
-                        rounded-full
-                        border-violet-500
-                        border-2
-                        bg-transparent
-                        py-4
-                        px-12
-                        text-violet-500
-                        shadow-sm
-                        focus:outline-none
-                        focus:ring-none
-                        mb-7
-                        font-semibold
-                        text-xl"
-      >
-        Create Discussion
-      </button>
-      {data && (
-        <div>
-          <ul>
-            {data.discussionTopicIndex.edges
-              .filter((edge: any) => edge.node.spaceId === spaceId)
-              .map((edge: any) => (
-                <DiscussionTopic
-                  key={edge.node.id}
-                  id={edge.node.id}
-                  spaceId={edge.node.spaceId}
-                  address={edge.node.address}
-                  title={edge.node.title}
-                  content={edge.node.content}
-                />
-              ))}
-          </ul>
-        </div>
-      )}
-    </>
-  );
+  return <></>;
 }

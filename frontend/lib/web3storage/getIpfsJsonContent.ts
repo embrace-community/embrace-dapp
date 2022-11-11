@@ -6,7 +6,7 @@ const web3StorageClient = getWeb3StorageClient();
 
 async function getIpfsJsonContent(
   cid: string,
-  readAs: string = "readAsText"
+  readAs: "readAsText" | "readAsDataURL" | "none" = "readAsText"
 ): Promise<string | Web3File | undefined | Record<string, any>> {
   try {
     let res = await web3StorageClient.get(cid);

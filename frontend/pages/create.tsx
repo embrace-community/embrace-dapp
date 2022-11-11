@@ -8,16 +8,30 @@ import Spinner from "../components/Spinner";
 import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
 import getWeb3StorageClient from "../lib/web3storage/client";
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
+import useEmbraceContracts from "../hooks/useEmbraceContracts";
+import getIpfsJsonContent from "../lib/web3storage/getIpfsJsonContent";
+import { MembershipType } from "../utils/types";
 
 export default function SpaceViewPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string>("");
+
+  const [deployedApps, setDeployedApps] = useState({
+    isLoading: false,
+    loaded: false,
+    apps: [] as Record<string, any>[],
+    appsMetadata: [] as Record<string, any>[],
+    error: "",
+  });
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [handle, setHandle] = useState("");
   const [visibility, setVisibility] = useState<number>(0);
-  const [apps, setApps] = useState([1]);
+  const [membership, setMembership] = useState<number>(0);
+  const [tokenMembershipAddress, setTokenMembershipAddress] =
+    useState<string>("");
+  const [apps, setApps] = useState<number[]>([]);
   const [image, setImage] = useState<null | File>(null);
   const [imageCid, setImageCid] = useState("");
 
@@ -27,6 +41,11 @@ export default function SpaceViewPage() {
     { id: "public", title: "Public" },
     { id: "private", title: "Private" },
     { id: "anonymous", title: "Anonymous" },
+  ];
+
+  const memberOptions = [
+    { id: "public", title: "Public" },
+    { id: "token_gated", title: "Token Gated" },
   ];
 
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -44,8 +63,8 @@ export default function SpaceViewPage() {
 
       setImage(uploadedFile);
       setImageCid(uploadedCid);
-    } catch (err) {
-      console.log("Error: ", err);
+    } catch (err: any) {
+      console.log("Error: ", err.message);
     } finally {
       setIsLoading(false);
     }
@@ -87,6 +106,17 @@ export default function SpaceViewPage() {
       return;
     }
 
+    if (
+      membership ===
+        memberOptions.findIndex((opt) => opt.id === "token_gated") &&
+      !tokenMembershipAddress
+    ) {
+      setError(
+        "Please provide a token address if you want the membership to be token gated."
+      );
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -115,10 +145,22 @@ export default function SpaceViewPage() {
             signer as ethers.Signer
           );
 
+          const spaceMembership = {
+            kind:
+              membership ===
+              memberOptions.findIndex((opt) => opt.id === "token_gated")
+                ? MembershipType.TOKEN_GATED
+                : MembershipType.PUBLIC,
+            tokenAddress: tokenMembershipAddress
+              ? tokenMembershipAddress
+              : ethers.constants.AddressZero,
+          };
+
           await contract.createSpace(
             ethers.utils.formatBytes32String(handle),
             visibility,
-            [0], // Apps
+            spaceMembership,
+            apps,
             metadataCid
           );
 
@@ -135,6 +177,43 @@ export default function SpaceViewPage() {
 
     createSpace();
   }, [metadataCid]);
+
+  const { appsContract } = useEmbraceContracts();
+
+  useEffect(() => {
+    async function getApps() {
+      if (!signer || deployedApps.isLoading || deployedApps.loaded) return;
+
+      setDeployedApps((prevState) => ({ ...prevState, isLoading: true }));
+
+      try {
+        const apps = await appsContract?.getApps?.();
+
+        const appsMetadata: Record<string, any>[] = [];
+        for (const app of apps) {
+          const appMetadata = (await getIpfsJsonContent(
+            app.metadata,
+            "readAsText"
+          )) as Record<string, any>;
+          appsMetadata.push(appMetadata);
+        }
+
+        console.log("Existing Apps", apps, "Apps Metadata", appsMetadata);
+
+        setDeployedApps((prevState) => ({ ...prevState, apps, appsMetadata }));
+      } catch (e: any) {
+        console.error(e.message);
+      } finally {
+        setDeployedApps((prevState) => ({
+          ...prevState,
+          isLoading: false,
+          loaded: true,
+        }));
+      }
+    }
+
+    getApps();
+  }, [signer, deployedApps]);
 
   return (
     <>
@@ -248,7 +327,7 @@ export default function SpaceViewPage() {
             </div>
 
             <div className="mb-7">
-              <label className="block text-sm font-medium text-emnbracedark">
+              <label className="block text-sm font-medium text-embracedark">
                 Visibility
               </label>
 
@@ -280,108 +359,110 @@ export default function SpaceViewPage() {
               </fieldset>
             </div>
 
+            <div className="mb-7">
+              <label className="block text-sm font-medium text-embracedark">
+                Membership
+              </label>
+
+              <fieldset className="mt-2">
+                <legend className="sr-only">Membership</legend>
+
+                <div className="space-y-3 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                  {memberOptions.map((memberOption, i) => (
+                    <div
+                      key={memberOption.id}
+                      className={`flex items-center${
+                        i === memberOptions.length - 1 ? " w-full" : ""
+                      }`}
+                    >
+                      <input
+                        id={memberOption.id}
+                        name="member-method"
+                        type="radio"
+                        onChange={(e) => {
+                          if (e.target.checked) setMembership(i);
+                        }}
+                        checked={i === membership}
+                        className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
+                      />
+                      <label
+                        htmlFor={memberOption.id}
+                        className="ml-2 block text-sm font-medium text-embracedark"
+                      >
+                        {memberOption.title}
+                      </label>
+
+                      {memberOption.id === "token_gated" && (
+                        <input
+                          placeholder="Token Address"
+                          type="text"
+                          value={tokenMembershipAddress}
+                          onChange={(e) => {
+                            setTokenMembershipAddress(e.target.value);
+                          }}
+                          className="w-full ml-10 block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </fieldset>
+            </div>
+
             <fieldset className="space-y-2 mt-12 mb-10">
-              <label className="block text-sm font-medium text-emnbracedark">
+              <label className="block text-sm font-medium text-embracedark mb-3">
                 Apps
               </label>
 
               <legend className="sr-only">Apps</legend>
 
-              <div className="relative flex items-start bg-white py-6 px-7">
-                <div className="flex h-5 items-center">
-                  <input
-                    id="discussion"
-                    aria-describedby="discussion-description"
-                    name="discussion"
-                    type="checkbox"
-                    checked
-                    readOnly
-                    className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
-                  />
-                </div>
+              {deployedApps.isLoading ? (
+                <Spinner />
+              ) : (
+                deployedApps.apps.map((app, i) => {
+                  const name =
+                    app?.code && ethers.utils.parseBytes32String(app.code);
 
-                <div className="ml-3 text-sm">
-                  <label
-                    htmlFor="discussion"
-                    className="font-medium text-embracedark"
-                  >
-                    discussion
-                  </label>
+                  return (
+                    <div
+                      key={`app-${i}`}
+                      className="relative flex items-start bg-white py-6 px-7"
+                    >
+                      <div className="flex h-5 items-center">
+                        <input
+                          id={name}
+                          aria-describedby={`${name}-app`}
+                          name={name}
+                          type="checkbox"
+                          checked={apps.includes(i)}
+                          onChange={() => {
+                            apps.includes(i)
+                              ? setApps(apps.filter((a) => a !== i))
+                              : setApps([...apps, i]);
+                          }}
+                          className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
+                        />
+                      </div>
 
-                  <p
-                    id="discussion-description"
-                    className="text-embracedark text-opacity-50"
-                  >
-                    A forum to discuss topics
-                  </p>
-                </div>
-              </div>
+                      <div className="ml-3 text-sm">
+                        <label
+                          htmlFor={name}
+                          className="font-medium text-embracedark"
+                        >
+                          {name}
+                        </label>
 
-              <div className="relative flex items-start bg-white py-6 px-7">
-                <div className="flex h-5 items-center">
-                  <input
-                    id="proposals"
-                    aria-describedby="proposals-description"
-                    name="proposals"
-                    type="checkbox"
-                    className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
-                    checked={apps.includes(2)}
-                    onChange={() => {
-                      apps.includes(2)
-                        ? setApps(apps.filter((a) => a !== 2))
-                        : setApps([...apps, 2]);
-                    }}
-                  />
-                </div>
-
-                <div className="ml-3 text-sm">
-                  <label
-                    htmlFor="proposals"
-                    className="font-medium text-embracedark"
-                  >
-                    proposals
-                  </label>
-                  <p
-                    id="proposals-description"
-                    className="text-embracedark text-opacity-50"
-                  >
-                    Create and vote on proposals
-                  </p>
-                </div>
-              </div>
-
-              <div className="relative flex items-start bg-white py-6 px-7">
-                <div className="flex h-5 items-center">
-                  <input
-                    id="chat"
-                    aria-describedby="chat-description"
-                    name="chat"
-                    type="checkbox"
-                    className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
-                    checked={apps.includes(3)}
-                    onChange={() => {
-                      apps.includes(3)
-                        ? setApps(apps.filter((a) => a !== 3))
-                        : setApps([...apps, 3]);
-                    }}
-                  />
-                </div>
-
-                <div className="ml-3 text-sm">
-                  <label
-                    htmlFor="chat"
-                    className="font-medium text-embracedark"
-                  >
-                    chat
-                  </label>
-                  <p
-                    id="chat-description"
-                    className="text-embracedark text-opacity-50"
-                  >
-                    Chat in channels and direct messages
-                  </p>
-                </div>
-              </div>
+                        <p
+                          id={`${name}-description`}
+                          className="text-embracedark text-opacity-50"
+                        >
+                          {deployedApps.appsMetadata?.[i]?.description}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </fieldset>
 
             {error && (
@@ -416,22 +497,18 @@ export default function SpaceViewPage() {
                 cancel
               </Link>
               <button
-                className="
-            inline-flex
-            items-center
-            rounded-full
-            border-violet-500
-            border-2
-            bg-transparent
-            py-2
-            px-10
-            text-violet-500
-            shadow-sm
-            focus:outline-none
-            focus:ring-none
-            font-semibold
-            disabled:opacity-30"
-                disabled={!name || !description || !handle || !imageCid}
+                className=" inline-flex items-center rounded-full border-violet-500 border-2 bg-transparent py-2 px-10 text-violet-500 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
+                disabled={
+                  !name ||
+                  !description ||
+                  !handle ||
+                  !imageCid ||
+                  (membership ===
+                    memberOptions.findIndex(
+                      (opt) => opt.id === "token_gated"
+                    ) &&
+                    !tokenMembershipAddress)
+                }
                 onClick={() => onSubmit()}
               >
                 {isLoading ? <Spinner /> : "create space!"}
