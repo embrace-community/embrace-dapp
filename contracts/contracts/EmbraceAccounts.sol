@@ -17,7 +17,17 @@ contract EmbraceAccounts {
     }
 
     function addSpace(address _address, uint256 _spaceIndex) public {
-        spaces[_address].push(_spaceIndex);
+        uint256[] storage addressSpaces = spaces[_address];
+
+        // Only add space if index doesn't already exist
+        // TODO: Could this be more gas efficient?
+        for (uint256 i = 0; i < addressSpaces.length; i++) {
+            if (addressSpaces[i] == _spaceIndex) {
+                return;
+            }
+        }
+
+        addressSpaces.push(_spaceIndex);
     }
 
     function getSpaces(address _address) public view returns (uint256[] memory) {

@@ -6,6 +6,8 @@ import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/Embrace
 import { MembershipType, Visibility } from "./../test/types";
 import { getSignerProvider, getWallet } from "./utils";
 
+// npx ts-node scripts/createSpace 0x096efE70986D163C61aECaEa05Cf996f96543F85 Embrace.community bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli
+
 async function main() {
   const contractAddress = process.argv[2];
   if (!contractAddress) {
@@ -26,7 +28,7 @@ async function main() {
   const space = {
     handle,
     visibility: Visibility.PUBLIC,
-    membership: { kind: MembershipType.PUBLIC, tokenAddress: ethers.constants.AddressZero },
+    membership: { kind: MembershipType.GATED, tokenAddress: ethers.constants.AddressZero },
     apps: [0],
     metadata,
   };

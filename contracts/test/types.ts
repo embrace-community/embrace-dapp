@@ -16,6 +16,7 @@ export enum Visibility {
 }
 
 export enum MembershipType {
-  PUBLIC,
-  TOKEN_GATED,
+  OPEN,
+  GATED,
+  CLOSED,
 }

@@ -8,6 +8,8 @@ function getWallet(): ethers.Wallet {
   const isUsingMnemonic = process.env.MNEMONIC && process.env.MNEMONIC.length > 0;
   const path = `m/44'/60'/0'/0/0`; // change last 0 for using a different account
 
+  console.log(isUsingMnemonic);
+
   const wallet = isUsingMnemonic
     ? ethers.Wallet.fromMnemonic(process.env.MNEMONIC!, path)
     : new ethers.Wallet(process.env.PRIVATE_KEY ?? EXPOSED_KEY);

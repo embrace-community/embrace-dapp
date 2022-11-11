@@ -4,6 +4,8 @@ import { ethers } from "ethers";
 import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json";
 import { getSignerProvider, getWallet } from "./utils";
 
+// npx ts-node scripts/getSpaces 0x096efE70986D163C61aECaEa05Cf996f96543F85 goerli
+
 async function main() {
   const contractAddress = process.argv[2];
   if (!contractAddress) {
@@ -20,7 +22,13 @@ async function main() {
 
   const spaces = await contract.getSpaces();
 
-  console.log(`Spaces found, there are currently ${spaces.length}, ${JSON.stringify(spaces)}`);
+  console.log(`Spaces found, there are currently ${spaces.length}`);
+
+  for (let index = 0; index < spaces.length; index++) {
+    console.log(`======Space Index #${index}======`);
+    console.log(spaces[index]);
+    console.log("\n");
+  }
 }
 
 main().catch((error) => {

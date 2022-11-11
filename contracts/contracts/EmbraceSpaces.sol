@@ -12,13 +12,17 @@ contract EmbraceSpaces {
     }
 
     enum MembershipType {
-        PUBLIC,
-        TOKEN_GATED
+        OPEN, // Public only
+        GATED, // Public or Private
+        CLOSED // Private and all Anonymous
     }
 
     struct Membership {
         MembershipType kind;
         address tokenAddress;
+        // Only relevant if space is Private and MemberType is Closed
+        // If false allow requests to join / if true only Admin's can add members
+        bool inviteOnly;
     }
 
     struct Space {
@@ -58,6 +62,20 @@ contract EmbraceSpaces {
 
     constructor(address _accountsAddress) {
         accounts = EmbraceAccounts(_accountsAddress);
+    }
+
+    function isAdmin(uint256 _spaceIndex) public view returns (bool) {
+        if (spaceMembers[_spaceIndex][msg.sender].isAdmin == true) {
+            return true;
+        }
+
+        return false;
+    }
+
+    function isFounder(uint256 _spaceIndex) public view returns (bool) {
+        Space memory space = spaces[_spaceIndex];
+
+        return space.founder == msg.sender;
     }
 
     function createSpace(
@@ -133,20 +151,6 @@ contract EmbraceSpaces {
         return spaceMemberLength[_spaceIndex];
     }
 
-    function isAdmin(uint256 _spaceIndex) public view returns (bool) {
-        if (spaceMembers[_spaceIndex][msg.sender].isAdmin == true) {
-            return true;
-        }
-
-        return false;
-    }
-
-    function isFounder(uint256 _spaceIndex) public view returns (bool) {
-        Space memory space = spaces[_spaceIndex];
-
-        return space.founder == msg.sender;
-    }
-
     function addAdmin(uint256 _spaceIndex, address _address) public onlySpaceFounder(_spaceIndex) {
         // If address is already an active member then just make them an admin
         if (spaceMembers[_spaceIndex][_address].active == true) {
@@ -167,6 +171,14 @@ contract EmbraceSpaces {
         Member memory member = Member({ isAdmin: false, active: true });
         spaceMembers[_spaceIndex][_address] = member;
         spaceMemberLength[_spaceIndex]++;
+    }
+
+    // Allows the founder to set founder to another address if required
+    // I.e. Founder changes wallet OR space setup on behalf of founder, then transferred to them
+    function setFounder(uint256 _spaceIndex, address _address) public onlySpaceFounder(_spaceIndex) {
+        Space storage space = spaces[_spaceIndex];
+
+        space.founder = _address;
     }
 
     function removeMember(uint256 _spaceIndex, address _member) public onlySpaceAdmin(_spaceIndex) {
