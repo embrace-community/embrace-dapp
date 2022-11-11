@@ -3,10 +3,10 @@ import { ethers } from "ethers";
 import { formatBytes32String } from "ethers/lib/utils";
 
 import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json";
-import { MembershipType, Visibility } from "./../test/types";
+import { MembershipGateType, MembershipType, Visibility } from "./../test/types";
 import { getSignerProvider, getWallet } from "./utils";
 
-// npx ts-node scripts/createSpace 0x096efE70986D163C61aECaEa05Cf996f96543F85 Embrace.community bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli
+// npx ts-node scripts/createSpace 0x7f59Bc766Eb5A0263C0D00B4EF33B62671Bd6A38 Embrace.community bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli
 
 async function main() {
   const contractAddress = process.argv[2];
@@ -25,13 +25,9 @@ async function main() {
   }
   const network = process.argv[5] || "localhost";
 
-  const space = {
-    handle,
-    visibility: Visibility.PUBLIC,
-    membership: { kind: MembershipType.GATED, tokenAddress: ethers.constants.AddressZero },
-    apps: [0],
-    metadata,
-  };
+  const spaceType = process.argv[6] || "public";
+
+  const space = getSpace(spaceType, handle, metadata);
 
   const wallet = getWallet();
 
@@ -41,17 +37,73 @@ async function main() {
 
   console.log("space", space);
 
-  await contract.createSpace(
-    formatBytes32String(space.handle),
-    space.visibility,
-    space.membership,
-    space.apps,
-    space.metadata,
-  );
+  if (space) {
+    await contract.createSpace(
+      formatBytes32String(space.handle),
+      space.visibility,
+      space.membership,
+      space.apps,
+      space.metadata,
+    );
 
-  const spaces = await contract.getSpaces();
-  console.log(`Space created, there are currently ${spaces.length}, ${JSON.stringify(spaces[spaces.length - 1])}`);
+    const spaces = await contract.getSpaces();
+    console.log(`Space created, there are currently ${spaces.length}, ${JSON.stringify(spaces[spaces.length - 1])}`);
+  } else {
+    console.log(`No space object`);
+  }
 }
+
+const getSpace = (spaceType: any, handle: string, metadata: string) => {
+  if (spaceType == "public") {
+    return {
+      handle,
+      visibility: Visibility.PUBLIC,
+      membership: {
+        kind: MembershipType.OPEN,
+        gate: { gateType: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
+      },
+      apps: [0],
+      metadata,
+    };
+  } else if (spaceType == "private-gated") {
+    return {
+      handle,
+      visibility: Visibility.PRIVATE,
+      membership: {
+        kind: MembershipType.GATED,
+        gate: {
+          gateType: MembershipGateType.ERC20,
+          tokenAddress: ethers.constants.AddressZero,
+        },
+      },
+      apps: [0],
+      metadata,
+    };
+  } else if (spaceType == "private-closed") {
+    return {
+      handle,
+      visibility: Visibility.PRIVATE,
+      membership: {
+        kind: MembershipType.CLOSED,
+        gate: { gateType: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
+        allowRequests: true,
+      },
+      apps: [0],
+      metadata,
+    };
+  } else if (spaceType == "anon") {
+    return {
+      handle,
+      visibility: Visibility.ANONYMOUS,
+      membership: {
+        kind: MembershipType.CLOSED,
+        gate: { gateType: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
+      },
+      apps: [0],
+      metadata,
+    };
+  }
+};
 
 main().catch((error) => {
   console.error(error);

@@ -21,8 +21,27 @@ export enum MembershipType {
   CLOSED,
 }
 
+export enum MembershipGateType {
+  NONE,
+  ERC20,
+  ERC721,
+  ERC1155,
+}
+
+export enum Chains {
+  MAINNET = 1,
+  GOERLI = 5,
+  POLYGON = 137,
+  POLYGONMUMBAI = 80001,
+}
+
+export interface MembershipGate {
+  chainId: number;
+  gateType: MembershipGateType;
+  tokenAddress: string;
+}
 export interface Membership {
   kind: MembershipType;
-  address: string;
+  gate: MembershipGate;
   allowRequests: false;
 }
