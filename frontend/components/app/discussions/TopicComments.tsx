@@ -51,7 +51,7 @@ export default function TopicComments() {
   const [spaceId, setSpaceId] = useContext(SpaceContext);
   const [title, setTitle] = useState("New Topic default title");
   const [content, setContent] = useState("topic content");
-  const { account } = useAccount();
+  const account = useAccount();
 
   const { data, loading, error } = useQuery(DISCUSSION_TOPIC_COMMENT_QUERY, {
     onCompleted: (data) => {

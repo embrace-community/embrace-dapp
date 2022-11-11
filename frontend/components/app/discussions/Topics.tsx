@@ -1,6 +1,6 @@
 import { ThreeIdConnect } from "@3id/connect";
 import { gql, useQuery } from "@apollo/client";
-import { useAccount } from "@web3modal/react";
+import { useAccount } from "wagmi";
 import { useContext, useState } from "react";
 import { CeramicContext } from "../../../lib/CeramicContext";
 import TopicItem from "./TopicItem";
@@ -27,7 +27,7 @@ export default function Topics({ spaceId }) {
   const threeId = new ThreeIdConnect();
   const composeDbClient = useContext(CeramicContext);
 
-  const { account } = useAccount();
+  const account = useAccount();
 
   const { data, loading, error } = useQuery(DISCUSSION_TOPIC_QUERY, {
     onCompleted: (data) => {
