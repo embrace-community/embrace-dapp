@@ -11,16 +11,16 @@
  * Nextjs does not transpile web3modal packages imported from monorepo and throws an error.
  */
 
-const nextTranspileModules = require("next-transpile-modules")
+const nextTranspileModules = require("next-transpile-modules");
 
-const withTranspileModules = nextTranspileModules([
-  "@web3modal/react",
-  "@web3modal/ethereum",
-])
+// const withTranspileModules = nextTranspileModules([
+//   "@web3modal/react",
+//   "@web3modal/ethereum",
+// ])
 
 const nextConfig = withTranspileModules({
   reactStrictMode: true,
   swcMinify: true,
-})
+});
 
-module.exports = nextConfig
+module.exports = nextConfig;
