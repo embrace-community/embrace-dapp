@@ -33,24 +33,6 @@ export default function SpaceViewPage() {
     }
   }, [account]);
 
-  // Once router is ready and signer is loaded then initialize the contract
-  // useEffect(() => {
-  //   if (!routerIsReady || isSignerLoading || contract) return;
-
-  //   if (signer) {
-  //     const spacesContract = new Contract(
-  //       process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-  //       embraceSpacesContract.abi,
-  //       (signer as Signer) ||
-  //         new ethers.providers.Web3Provider((window as any).ethereum)
-  //     );
-  //   }
-
-  //   console.log(isSignerLoading, signer, "SIGNER");
-
-  //   setContract(spacesContract);
-  // }, [routerIsReady, signer, isSignerLoading, contract]);
-
   // Once the signer is loaded, initialize the accounts contract
   useEffect((): void => {
     if (isSignerLoading) return;
