@@ -10,7 +10,7 @@ import getWeb3StorageClient from "../lib/web3storage/client";
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import getIpfsJsonContent from "../lib/web3storage/getIpfsJsonContent";
-import { MembershipType } from "../utils/types";
+import { Access } from "../utils/types";
 
 export default function SpaceViewPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -149,8 +149,8 @@ export default function SpaceViewPage() {
             kind:
               membership ===
               memberOptions.findIndex((opt) => opt.id === "token_gated")
-                ? MembershipType.TOKEN_GATED
-                : MembershipType.PUBLIC,
+                ? Access.GATED
+                : Access.OPEN,
             tokenAddress: tokenMembershipAddress
               ? tokenMembershipAddress
               : ethers.constants.AddressZero,
