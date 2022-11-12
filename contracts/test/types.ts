@@ -1,7 +1,5 @@
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/dist/src/signer-with-address";
 
-import type { EmbraceApps } from "../types/EmbraceApps";
-
 type Fixture<T> = () => Promise<T>;
 
 export interface Signers {
@@ -15,13 +13,13 @@ export enum Visibility {
   ANONYMOUS,
 }
 
-export enum MembershipType {
+export enum Access {
   OPEN,
   GATED,
   CLOSED,
 }
 
-export enum MembershipGateType {
+export enum MembershipGateToken {
   NONE,
   ERC20,
   ERC721,
@@ -36,12 +34,11 @@ export enum Chains {
 }
 
 export interface MembershipGate {
-  chainId: number;
-  gateType: MembershipGateType;
+  token: MembershipGateToken;
   tokenAddress: string;
 }
 export interface Membership {
-  kind: MembershipType;
+  access: Access;
   gate: MembershipGate;
   allowRequests: false;
 }

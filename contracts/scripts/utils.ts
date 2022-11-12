@@ -1,5 +1,7 @@
 import { ethers } from "ethers";
 
+import { Access, MembershipGateToken, Visibility } from "../test/types";
+
 function getWallet(walletNum: number = 0): ethers.Wallet {
   // This key is already public on Herong's Tutorial Examples - v1.03, by Dr. Herong Yang
   // Do never expose your keys like this
@@ -46,4 +48,84 @@ function convertStringArrayToBytes32(array: string[]) {
   return bytes32Array;
 }
 
-export { getWallet, getSignerProvider, convertStringArrayToBytes32 };
+const chainLinkAddressGoerli = "0x326c977e6efc84e512bb9c30f76e30c160ed06fb";
+
+function getSpace(spaceType: any, handle: string, metadata: string) {
+  if (spaceType == "public") {
+    return {
+      handle,
+      visibility: Visibility.PUBLIC,
+      membership: {
+        access: Access.OPEN,
+        gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
+      },
+      apps: [0],
+      metadata,
+    };
+  } else if (spaceType == "public-gated") {
+    return {
+      handle,
+      visibility: Visibility.PUBLIC,
+      membership: {
+        access: Access.GATED,
+        gate: {
+          token: MembershipGateToken.ERC20,
+          tokenAddress: chainLinkAddressGoerli,
+        },
+      },
+      apps: [0],
+      metadata,
+    };
+  } else if (spaceType == "private-gated") {
+    return {
+      handle,
+      visibility: Visibility.PRIVATE,
+      membership: {
+        access: Access.GATED,
+        gate: {
+          token: MembershipGateToken.ERC20,
+          tokenAddress: chainLinkAddressGoerli,
+        },
+      },
+      apps: [0],
+      metadata,
+    };
+  } else if (spaceType == "private-closed") {
+    return {
+      handle,
+      visibility: Visibility.PRIVATE,
+      membership: {
+        access: Access.CLOSED,
+        gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
+        allowRequests: false,
+      },
+      apps: [0],
+      metadata,
+    };
+  } else if (spaceType == "private-closed-reqs") {
+    return {
+      handle,
+      visibility: Visibility.PRIVATE,
+      membership: {
+        access: Access.CLOSED,
+        gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
+        allowRequests: true,
+      },
+      apps: [0],
+      metadata,
+    };
+  } else if (spaceType == "anon") {
+    return {
+      handle,
+      visibility: Visibility.ANONYMOUS,
+      membership: {
+        access: Access.CLOSED,
+        gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
+      },
+      apps: [0],
+      metadata,
+    };
+  }
+}
+
+export { getWallet, getSignerProvider, convertStringArrayToBytes32, getSpace };
