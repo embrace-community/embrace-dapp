@@ -167,10 +167,10 @@ contract EmbraceSpaces {
         spaceMembers[_spaceIndex][msg.sender] = member;
         spaceMemberLength[_spaceIndex]++;
 
-        emit JoinedSpace(spaceIndex, msg.sender, false);
+        emit JoinedSpace(_spaceIndex, msg.sender, false);
 
         // Add space to account
-        accounts.addSpace(msg.sender, spaceIndex);
+        accounts.addSpace(msg.sender, _spaceIndex);
 
         return true;
     }
@@ -193,7 +193,7 @@ contract EmbraceSpaces {
         Member memory member = Member({ isAdmin: false, isActive: false, isRequest: true });
         spaceMembers[_spaceIndex][msg.sender] = member;
 
-        emit RequestJoinSpace(spaceIndex, msg.sender);
+        emit RequestJoinSpace(_spaceIndex, msg.sender);
 
         return true;
     }
@@ -269,11 +269,11 @@ contract EmbraceSpaces {
         // If the member is being activated then increment the member count
         if (_isActive) {
             spaceMemberLength[_spaceIndex]++;
-            emit JoinedSpace(spaceIndex, msg.sender, _isAdmin);
+            emit JoinedSpace(_spaceIndex, msg.sender, _isAdmin);
         } else {
             // If the member is being deactivated then decrement the member count
             spaceMemberLength[_spaceIndex]--;
-            emit RemovedFromSpace(spaceIndex, msg.sender);
+            emit RemovedFromSpace(_spaceIndex, msg.sender);
         }
     }
 

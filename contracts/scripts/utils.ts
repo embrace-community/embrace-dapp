@@ -25,8 +25,11 @@ function getSignerProvider(
   signer: ethers.Wallet;
 } {
   let provider: ethers.providers.JsonRpcProvider | ethers.providers.BaseProvider;
+
   if (network === "localhost") {
     provider = new ethers.providers.JsonRpcProvider();
+  } else if (network === "evmosTestnet") {
+    provider = new ethers.providers.JsonRpcProvider("https://eth.bd.evmos.dev:8545");
   } else {
     provider = ethers.providers.getDefaultProvider(network);
   }

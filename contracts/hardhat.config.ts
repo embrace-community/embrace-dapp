@@ -27,18 +27,14 @@ const chainIds = {
   goerli: 5,
   hardhat: 1337,
   mainnet: 1,
-  cro_test: 338,
-  cro_main: 25,
+  evmos_testnet: 9000,
 };
 
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
   let jsonRpcUrl: string;
   switch (chain) {
-    case "cro_main":
-      jsonRpcUrl = "https://evm.cronos.org/";
-      break;
-    case "cro_test":
-      jsonRpcUrl = "https://evm-t3.cronos.org/";
+    case "evmos_testnet":
+      jsonRpcUrl = "https://eth.bd.evmos.dev:8545";
       break;
     default:
       jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
@@ -75,8 +71,7 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: chainIds.hardhat,
     },
-    cro_test: getChainConfig("cro_test"),
-    cro_main: getChainConfig("cro_main"),
+    evmosTestnet: getChainConfig("evmos_testnet"),
     goerli: getChainConfig("goerli"),
     mainnet: getChainConfig("mainnet"),
   },
