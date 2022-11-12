@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { formatBytes32String } from "ethers/lib/utils";
 
 import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json";
-import { MembershipGateType, MembershipType, Visibility } from "./../test/types";
+import { Access, MembershipGateToken, Visibility } from "./../test/types";
 import { getSignerProvider, getWallet } from "./utils";
 
 // COMMANDS TO CREATE SPACES WITH DIFFERING MEMBERSHIP TYPES
@@ -13,8 +13,6 @@ import { getSignerProvider, getWallet } from "./utils";
 // npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 private.closed.reqs bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet private-closed-reqs
 // npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 private.gated bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet private-gated
 // npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 anon bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet anon
-
-const chainLinkAddressGoerli = "0x326c977e6efc84e512bb9c30f76e30c160ed06fb";
 
 async function main() {
   const contractAddress = process.argv[2];
@@ -60,84 +58,6 @@ async function main() {
     console.log(`No space object`);
   }
 }
-
-const getSpace = (spaceType: any, handle: string, metadata: string) => {
-  if (spaceType == "public") {
-    return {
-      handle,
-      visibility: Visibility.PUBLIC,
-      membership: {
-        access: MembershipType.OPEN,
-        gate: { token: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
-      },
-      apps: [0],
-      metadata,
-    };
-  } else if (spaceType == "public-gated") {
-    return {
-      handle,
-      visibility: Visibility.PUBLIC,
-      membership: {
-        access: MembershipType.GATED,
-        gate: {
-          token: MembershipGateType.ERC20,
-          tokenAddress: chainLinkAddressGoerli,
-        },
-      },
-      apps: [0],
-      metadata,
-    };
-  } else if (spaceType == "private-gated") {
-    return {
-      handle,
-      visibility: Visibility.PRIVATE,
-      membership: {
-        access: MembershipType.GATED,
-        gate: {
-          token: MembershipGateType.ERC20,
-          tokenAddress: chainLinkAddressGoerli,
-        },
-      },
-      apps: [0],
-      metadata,
-    };
-  } else if (spaceType == "private-closed") {
-    return {
-      handle,
-      visibility: Visibility.PRIVATE,
-      membership: {
-        access: MembershipType.CLOSED,
-        gate: { token: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
-        allowRequests: false,
-      },
-      apps: [0],
-      metadata,
-    };
-  } else if (spaceType == "private-closed-reqs") {
-    return {
-      handle,
-      visibility: Visibility.PRIVATE,
-      membership: {
-        access: MembershipType.CLOSED,
-        gate: { token: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
-        allowRequests: true,
-      },
-      apps: [0],
-      metadata,
-    };
-  } else if (spaceType == "anon") {
-    return {
-      handle,
-      visibility: Visibility.ANONYMOUS,
-      membership: {
-        access: MembershipType.CLOSED,
-        gate: { token: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
-      },
-      apps: [0],
-      metadata,
-    };
-  }
-};
 
 main().catch((error) => {
   console.error(error);

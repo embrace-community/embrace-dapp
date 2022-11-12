@@ -63,17 +63,23 @@ export default function Header({
               Allow Requests: {allowRequests ? "Yes" : "No"}
             </p>
 
-            {!membership?.isActive && !space.membership.allowRequests && (
-              <button
-                className="bg-embracelight text-embracedark text-sm font-semibold py-2 px-4 rounded-full ml-3"
-                onClick={() => joinSpace()}
-              >
-                Join
-              </button>
-            )}
+            {/* When Public Open space and not a member allow joining */}
+            {space.membership.access == Access.OPEN &&
+              space.visibility == Visibility.PUBLIC &&
+              !membership?.isActive && (
+                <button
+                  className="bg-embracelight text-embracedark text-sm font-semibold py-2 px-4 rounded-full ml-3"
+                  onClick={() => joinSpace()}
+                >
+                  Join
+                </button>
+              )}
 
-            {!membership?.isActive &&
+            {/* When Private Closed space which allows requests. Address not a member and no pending request, then allow requests */}
+            {space.membership.access == Access.OPEN &&
+              space.visibility == Visibility.PUBLIC &&
               space.membership.allowRequests &&
+              !membership?.isActive &&
               !membership?.isRequest && (
                 <button
                   className="bg-embracelight text-embracedark text-sm font-semibold py-2 px-4 rounded-full ml-3"
@@ -83,10 +89,22 @@ export default function Header({
                 </button>
               )}
 
+            {/* Gated space and not a member then allow join 
+            TODO: Only show if the account meets the gate requirements*/}
+            {space.membership.access == Access.GATED && !membership?.isActive && (
+              <button
+                className="bg-embracelight text-embracedark text-sm font-semibold py-2 px-4 rounded-full ml-3"
+                onClick={() => requestJoinSpace()}
+              >
+                Join Gated space
+              </button>
+            )}
+
+            {membership?.isActive && <>You are a member</>}
             {membership?.isRequest && <>Request pending</>}
+            {membership?.isAdmin && <>You are an Admin</>}
 
             {isFounder && <>You are the founder</>}
-            {membership?.isAdmin && <>You are an Admin</>}
           </div>
         </div>
       </div>

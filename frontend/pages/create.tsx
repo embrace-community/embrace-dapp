@@ -146,7 +146,7 @@ export default function SpaceViewPage() {
           );
 
           const spaceMembership = {
-            kind:
+            access:
               membership ===
               memberOptions.findIndex((opt) => opt.id === "token_gated")
                 ? Access.GATED
