@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Router, useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { EmbraceSpace } from "../../utils/types";

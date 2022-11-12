@@ -7,12 +7,12 @@ import { MembershipGateType, MembershipType, Visibility } from "./../test/types"
 import { getSignerProvider, getWallet } from "./utils";
 
 // COMMANDS TO CREATE SPACES WITH DIFFERING MEMBERSHIP TYPES
-// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa public.open bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli
-// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa public.gated bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli public-gated
-// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa private.closed bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli private-closed
-// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa private.closed.reqs bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli private-closed-reqs
-// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa private.gated bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli private-gated
-// npx ts-node scripts/createSpace 0x9d36D68d99281A868B2daE74645784f6cd47c4Fa anon bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli anon
+// npx ts-node scripts/createSpace 0xBd393d1F864D888Ea915550FA4a76962927aD7D9 public.open bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli
+// npx ts-node scripts/createSpace 0xBd393d1F864D888Ea915550FA4a76962927aD7D9 public.gated bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli public-gated
+// npx ts-node scripts/createSpace 0xBd393d1F864D888Ea915550FA4a76962927aD7D9 private.closed bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli private-closed
+// npx ts-node scripts/createSpace 0xBd393d1F864D888Ea915550FA4a76962927aD7D9 private.closed.reqs bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli private-closed-reqs
+// npx ts-node scripts/createSpace 0xBd393d1F864D888Ea915550FA4a76962927aD7D9 private.gated bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli private-gated
+// npx ts-node scripts/createSpace 0xBd393d1F864D888Ea915550FA4a76962927aD7D9 anon bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli anon
 
 const chainLinkAddressGoerli = "0x326c977e6efc84e512bb9c30f76e30c160ed06fb";
 
@@ -67,8 +67,8 @@ const getSpace = (spaceType: any, handle: string, metadata: string) => {
       handle,
       visibility: Visibility.PUBLIC,
       membership: {
-        kind: MembershipType.OPEN,
-        gate: { gateType: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
+        access: MembershipType.OPEN,
+        gate: { token: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
       },
       apps: [0],
       metadata,
@@ -78,9 +78,9 @@ const getSpace = (spaceType: any, handle: string, metadata: string) => {
       handle,
       visibility: Visibility.PUBLIC,
       membership: {
-        kind: MembershipType.GATED,
+        access: MembershipType.GATED,
         gate: {
-          gateType: MembershipGateType.ERC20,
+          token: MembershipGateType.ERC20,
           tokenAddress: chainLinkAddressGoerli,
         },
       },
@@ -92,9 +92,9 @@ const getSpace = (spaceType: any, handle: string, metadata: string) => {
       handle,
       visibility: Visibility.PRIVATE,
       membership: {
-        kind: MembershipType.GATED,
+        access: MembershipType.GATED,
         gate: {
-          gateType: MembershipGateType.ERC20,
+          token: MembershipGateType.ERC20,
           tokenAddress: chainLinkAddressGoerli,
         },
       },
@@ -106,8 +106,8 @@ const getSpace = (spaceType: any, handle: string, metadata: string) => {
       handle,
       visibility: Visibility.PRIVATE,
       membership: {
-        kind: MembershipType.CLOSED,
-        gate: { gateType: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
+        access: MembershipType.CLOSED,
+        gate: { token: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
         allowRequests: false,
       },
       apps: [0],
@@ -118,8 +118,8 @@ const getSpace = (spaceType: any, handle: string, metadata: string) => {
       handle,
       visibility: Visibility.PRIVATE,
       membership: {
-        kind: MembershipType.CLOSED,
-        gate: { gateType: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
+        access: MembershipType.CLOSED,
+        gate: { token: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
         allowRequests: true,
       },
       apps: [0],
@@ -130,8 +130,8 @@ const getSpace = (spaceType: any, handle: string, metadata: string) => {
       handle,
       visibility: Visibility.ANONYMOUS,
       membership: {
-        kind: MembershipType.CLOSED,
-        gate: { gateType: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
+        access: MembershipType.CLOSED,
+        gate: { token: MembershipGateType.NONE, tokenAddress: ethers.constants.AddressZero },
       },
       apps: [0],
       metadata,

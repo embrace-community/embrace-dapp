@@ -1,20 +1,34 @@
 import {
-  EmbraceSpace,
-  MembershipGateType,
-  MembershipType,
+  MembershipGateToken,
+  Access,
   Visibility,
+  SpaceMembership,
 } from "../../utils/types";
 
-export default function Header({ space }: { space: any }) {
+export default function Header({
+  space,
+  isFounder,
+  membership,
+  joinSpace,
+}: {
+  space: any;
+  isFounder: boolean;
+  membership: SpaceMembership | undefined;
+  joinSpace: () => void;
+}) {
   const visibility = Visibility[space.visibility];
-  const membershipKind = MembershipType[space.membership.kind];
-  const membershipGate = MembershipGateType[space.membership.gate.gateType];
+  const access = Access[space.membership.access];
+  const membershipGateToken = MembershipGateToken[space.membership.gate.token];
   const allowRequests = space.membership.allowRequests;
-  // TODO: Check if the account is a member of the space
-  // TODO: Check if account is founder of the space
 
   console.log(space);
-  console.log(membershipKind, membershipGate, allowRequests);
+  console.log(
+    access,
+    membershipGateToken,
+    allowRequests,
+    isFounder,
+    membership
+  );
   return (
     <div className="w-full flex flex-col justify-start text-embracedark extrastyles-specialpadding2">
       <div className="w-full flex flex-row justify-start items-end border-b-2 border-embracedark border-opacity-5 mb-12">
@@ -38,12 +52,26 @@ export default function Header({ space }: { space: any }) {
             <p className="text-embracedark text-opacity-50 mx-3  mt-4px">
               Visibility: {visibility}
               <br />
-              Membership Kind: {membershipKind}
+              Access: {access}
               <br />
-              Membership Gate: {membershipGate}
+              Membership Gate: {membershipGateToken}
               <br />
               Allow Requests: {allowRequests ? "Yes" : "No"}
             </p>
+
+            {!membership.isActive ? (
+              <button
+                className="bg-embracelight text-embracedark text-sm font-semibold py-2 px-4 rounded-full ml-3"
+                onClick={() => joinSpace()}
+              >
+                Join
+              </button>
+            ) : (
+              <>Already member</>
+            )}
+
+            {isFounder && <>You are the founder</>}
+            {membership.isAdmin && <>You are an Admin</>}
           </div>
         </div>
       </div>

@@ -102,5 +102,8 @@
   "packageManager": "yarn@3.2.1",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.0"
   }
 }

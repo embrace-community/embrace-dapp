@@ -6,13 +6,13 @@ export enum Visibility {
   ANONYMOUS,
 }
 
-export enum MembershipType {
+export enum Access {
   OPEN,
   GATED,
   CLOSED,
 }
 
-export enum MembershipGateType {
+export enum MembershipGateToken {
   NONE,
   ERC20,
   ERC721,
@@ -20,12 +20,12 @@ export enum MembershipGateType {
 }
 
 type MembershipGate = {
-  gateType: MembershipGateType;
+  token: MembershipGateToken;
   tokenAddress: string;
 };
 
 type Membership = {
-  kind: MembershipType;
+  access: Access;
   gate: MembershipGate;
   allowRequests: boolean;
 };
@@ -53,3 +53,9 @@ export enum EmbraceApps {
   PROPOSALS = 1,
   CHAT = 2,
 }
+
+export type SpaceMembership = {
+  isActive: boolean;
+  isAdmin: boolean;
+  isRequest: boolean;
+};

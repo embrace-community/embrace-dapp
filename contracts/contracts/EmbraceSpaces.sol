@@ -3,21 +3,37 @@ pragma solidity >=0.8.17;
 
 // import "hardhat/console.sol";
 import "./EmbraceAccounts.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 contract EmbraceSpaces {
+    event SpaceCreated(uint256 indexed spaceId, address indexed founder);
+    event JoinedSpace(uint256 indexed spaceId, address indexed memberAddress, bool isAdmin);
+    event RequestJoinSpace(uint256 indexed spaceId, address indexed memberAddress);
+    event RemovedFromSpace(uint256 indexed spaceId, address indexed memberAddress);
+
+    error ErrorHandleExists(bytes32 handle);
+    error ErrorMemberAlreadyExists(uint256 spaceId, address memberAddress);
+    error ErrorOnlyAdmin(uint256 spaceId, address memberAddress);
+    error ErrorOnlyFounder(uint256 spaceId, address memberAddress);
+    error ErrorCannotJoinAnonSpace(uint256 spaceId, address memberAddress);
+    error ErrorCannotJoinPrivClosedSpace(uint256 spaceId, address memberAddress);
+    error ErrorDoNotMeetSpaceReq(uint256 spaceId, address memberAddress);
+
     enum Visibility {
         PUBLIC,
         PRIVATE,
         ANONYMOUS
     }
 
-    enum MembershipType {
+    enum Access {
         OPEN, // Public only
         GATED, // Public or Private
         CLOSED // Private and all Anonymous
     }
 
-    enum MembershipGateType {
+    enum MembershipGateToken {
         NONE,
         ERC20,
         ERC721,
@@ -26,12 +42,12 @@ contract EmbraceSpaces {
 
     struct MembershipGate {
         // uint256 chainId;
-        MembershipGateType gateType;
+        MembershipGateToken token;
         address tokenAddress;
     }
 
     struct Membership {
-        MembershipType kind;
+        Access access;
         MembershipGate gate;
         // Only relevant if space is Private and MemberType is Closed
         // If true allow requests to join / if false only Admin's can add members
@@ -50,8 +66,8 @@ contract EmbraceSpaces {
 
     struct Member {
         bool isAdmin;
-        bool active;
-        bool request;
+        bool isActive;
+        bool isRequest;
     }
 
     uint256 private spaceIndex = 0;
@@ -65,12 +81,12 @@ contract EmbraceSpaces {
     mapping(bytes32 => uint256) public spaceHandles;
 
     modifier onlySpaceAdmin(uint256 _spaceIndex) {
-        require(isAdmin(_spaceIndex) || isFounder(_spaceIndex), "Only Admin user");
+        if (isAdmin(_spaceIndex) || isFounder(_spaceIndex)) revert ErrorOnlyAdmin(_spaceIndex, msg.sender);
         _;
     }
 
     modifier onlySpaceFounder(uint256 _spaceIndex) {
-        require(isFounder(_spaceIndex), "Only founder");
+        if (isFounder(_spaceIndex)) revert ErrorOnlyFounder(_spaceIndex, msg.sender);
         _;
     }
 
@@ -100,7 +116,7 @@ contract EmbraceSpaces {
         string memory _metadata
     ) public {
         if (spaceHandles[_handle] != 0) {
-            revert("Handle already exists");
+            revert ErrorHandleExists(_handle);
         }
 
         Space memory space = Space({
@@ -123,43 +139,69 @@ contract EmbraceSpaces {
 
         // Set founder as the first admin member
         spaceMemberLength[spaceIndex]++;
-        spaceMembers[spaceIndex][msg.sender] = Member({ isAdmin: true, active: true, request: false });
+        spaceMembers[spaceIndex][msg.sender] = Member({ isAdmin: true, isActive: true, isRequest: false });
+
+        emit SpaceCreated(spaceIndex, msg.sender);
 
         spaceIndex++;
     }
 
-    // TODO: Use Customer Errors instead of messages: https://blog.soliditylang.org/2021/04/21/custom-errors/
     function joinSpace(uint256 _spaceIndex) public returns (bool) {
         Space memory space = spaces[_spaceIndex];
 
         // Ensure not already a member
-        if (spaceMembers[_spaceIndex][msg.sender].active == true) revert("You are already a member");
+        if (spaceMembers[_spaceIndex][msg.sender].isActive == true)
+            revert ErrorMemberAlreadyExists(_spaceIndex, msg.sender);
         // Cannot join anon space
-        if (space.visibility == Visibility.ANONYMOUS) revert("You cannot join an anonymous space");
+        if (space.visibility == Visibility.ANONYMOUS) revert ErrorCannotJoinAnonSpace(_spaceIndex, msg.sender);
         // Cannot join private closed space
-        if (space.visibility == Visibility.PRIVATE && space.membership.kind == MembershipType.CLOSED)
-            revert("You cannot join a private closed space");
+        if (space.visibility == Visibility.PRIVATE && space.membership.access == Access.CLOSED)
+            revert ErrorCannotJoinPrivClosedSpace(_spaceIndex, msg.sender);
         // Make sure address meets the token requirements
-        if (space.membership.kind == MembershipType.GATED && !meetsGateRequirements(_spaceIndex))
-            revert("You do not meet the requirements for the gated space");
+        if (space.membership.access == Access.GATED && !meetsGateRequirements(_spaceIndex))
+            revert ErrorDoNotMeetSpaceReq(_spaceIndex, msg.sender);
 
         // In all cases, if the requirements above are met then this will allow the address to auto-join the space
         bool membershipRequest = false;
         bool membershipActive = true;
 
         // However, if this is a private closed group then this is a membership request that needs to be confirmed by Admins
-        if (space.visibility == Visibility.PRIVATE && space.membership.kind == MembershipType.OPEN) {
+        if (space.visibility == Visibility.PRIVATE && space.membership.access == Access.OPEN) {
             membershipRequest = true;
             membershipActive = false;
         }
 
-        Member memory member = Member({ isAdmin: false, active: membershipActive, request: membershipRequest });
+        Member memory member = Member({ isAdmin: false, isActive: membershipActive, isRequest: membershipRequest });
 
         spaceMembers[_spaceIndex][msg.sender] = member;
         spaceMemberLength[_spaceIndex]++;
 
+        emit JoinedSpace(spaceIndex, msg.sender, false);
+
         // Add space to account
         accounts.addSpace(msg.sender, spaceIndex);
+
+        return true;
+    }
+
+    function requestJoin(uint256 _spaceIndex) public returns (bool) {
+        if (spaceMembers[_spaceIndex][msg.sender].isActive == true)
+            revert ErrorMemberAlreadyExists(_spaceIndex, msg.sender);
+
+        Space memory space = spaces[_spaceIndex];
+
+        // Ensure space is private, closed and allows requests
+        if (
+            space.visibility != Visibility.PRIVATE ||
+            space.membership.access != Access.CLOSED ||
+            !space.membership.allowRequests
+        ) revert ErrorCannotJoinPrivClosedSpace(_spaceIndex, msg.sender);
+
+        // Add membership request
+        Member memory member = Member({ isAdmin: false, isActive: false, isRequest: true });
+        spaceMembers[_spaceIndex][msg.sender] = member;
+
+        emit RequestJoinSpace(spaceIndex, msg.sender);
 
         return true;
     }
@@ -168,13 +210,22 @@ contract EmbraceSpaces {
         Space memory space = spaces[_spaceIndex];
         address tokenAddress = space.membership.gate.tokenAddress;
 
-        // TODO: check token address value / exists in address balance
-        // How to check the value of ERC20 tokens on another chain to this one??
-        if (tokenAddress != address(0)) {
-            return true;
+        if (space.membership.gate.token == MembershipGateToken.ERC20) {
+            ERC20 token = ERC20(tokenAddress);
+            return token.balanceOf(msg.sender) > 0;
+        } else if (space.membership.gate.token == MembershipGateToken.ERC721) {
+            ERC721 token = ERC721(tokenAddress);
+            return token.balanceOf(msg.sender) > 0;
+        } else if (space.membership.gate.token == MembershipGateToken.ERC1155) {
+            ERC1155 token = ERC1155(tokenAddress);
+            return token.balanceOf(msg.sender, 0) > 0;
         }
 
         return false;
+    }
+
+    function getSpaceMember(uint256 _spaceIndex, address _address) public view returns (Member memory) {
+        return spaceMembers[_spaceIndex][_address];
     }
 
     function getSpaces() public view returns (Space[] memory) {
@@ -200,24 +251,50 @@ contract EmbraceSpaces {
 
     function addAdmin(uint256 _spaceIndex, address _address) public onlySpaceFounder(_spaceIndex) {
         // If address is already an active member then just make them an admin
-        if (spaceMembers[_spaceIndex][_address].active == true) {
+        if (spaceMembers[_spaceIndex][_address].isActive == true) {
             spaceMembers[_spaceIndex][_address].isAdmin = true;
         } else {
             // Otherwise add them as a new member and increment the member count
-            Member memory member = Member({ isAdmin: true, active: true, request: false });
+            Member memory member = Member({ isAdmin: true, isActive: true, isRequest: false });
             spaceMembers[_spaceIndex][_address] = member;
+
+            emit JoinedSpace(spaceIndex, msg.sender, true); // isAdmin = true
+
             spaceMemberLength[_spaceIndex]++;
         }
     }
 
-    function addMember(uint256 _spaceIndex, address _address) public onlySpaceAdmin(_spaceIndex) {
-        if (spaceMembers[_spaceIndex][_address].active == true) {
-            revert("Member already exists");
+    // This method can be used to
+    // 1- add a new member
+    // 2- add or remove admin privileges (_isAdmin)
+    // 3- activate or deactivate a member (_isActive)
+    function setMember(
+        uint256 _spaceIndex,
+        address _address,
+        bool _isActive,
+        bool _isAdmin
+    ) public onlySpaceAdmin(_spaceIndex) {
+        // Ensures that the member struct has some changes
+        if (
+            spaceMembers[_spaceIndex][_address].isActive == _isActive &&
+            spaceMembers[_spaceIndex][_address].isAdmin == _isAdmin
+        ) {
+            revert ErrorMemberAlreadyExists(_spaceIndex, _address);
         }
 
-        Member memory member = Member({ isAdmin: false, active: true, request: false });
+        // Will set the member struct to the new values
+        Member memory member = Member({ isAdmin: _isAdmin, isActive: _isActive, isRequest: false });
         spaceMembers[_spaceIndex][_address] = member;
-        spaceMemberLength[_spaceIndex]++;
+
+        // If the member is being activated then increment the member count
+        if (_isActive) {
+            spaceMemberLength[_spaceIndex]++;
+            emit JoinedSpace(spaceIndex, msg.sender, _isAdmin);
+        } else {
+            // If the member is being deactivated then decrement the member count
+            spaceMemberLength[_spaceIndex]--;
+            emit RemovedFromSpace(spaceIndex, msg.sender);
+        }
     }
 
     // Allows the founder to set founder to another address if required
@@ -226,16 +303,6 @@ contract EmbraceSpaces {
         Space storage space = spaces[_spaceIndex];
 
         space.founder = _address;
-    }
-
-    function removeMember(uint256 _spaceIndex, address _member) public onlySpaceAdmin(_spaceIndex) {
-        if (spaceMembers[_spaceIndex][_member].active == false) {
-            revert("Member does not exist");
-        }
-
-        Member memory member = Member({ isAdmin: false, active: false, request: false });
-        spaceMembers[_spaceIndex][_member] = member;
-        spaceMemberLength[_spaceIndex]--;
     }
 
     function addApp(uint256 _spaceIndex, uint128 _appIndex) public onlySpaceAdmin(_spaceIndex) {

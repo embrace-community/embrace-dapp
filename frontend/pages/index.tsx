@@ -7,7 +7,7 @@ import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
 import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
 import EmbraceAccounts from "../data/contractArtifacts/EmbraceAccounts.json";
-import { EmbraceSpace, Visibility } from "../utils/types";
+import { EmbraceSpace } from "../utils/types";
 
 export default function HomePage() {
   const { data: signer, isLoading: isSignerLoading } = useSigner();
@@ -46,6 +46,8 @@ export default function HomePage() {
         EmbraceAccounts.abi,
         signer as Signer
       );
+
+      console.log(signer, "SIGNER");
 
       setAccountsContract(accountsContract);
     }

@@ -1434,6 +1434,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openzeppelin/contracts@npm:^4.8.0":
+  version: 4.8.0
+  resolution: "@openzeppelin/contracts@npm:4.8.0"
+  checksum: dfab51a7f91735cfb1e94dd5074736b0dac0207e4ebf26eb46b32defd3b67adce5a36b248daa7b841c21be74863c1e37cf92ed194a9c36d3f8c5326d1a24242a
+  languageName: node
+  linkType: hard
+
 "@prb/hardhat-template@workspace:.":
   version: 0.0.0-use.local
   resolution: "@prb/hardhat-template@workspace:."
@@ -1450,6 +1457,7 @@ __metadata:
     "@nomicfoundation/hardhat-toolbox": ^2.0.0
     "@nomiclabs/hardhat-ethers": ^2.2.0
     "@nomiclabs/hardhat-etherscan": ^3.1.1
+    "@openzeppelin/contracts": ^4.8.0
     "@trivago/prettier-plugin-sort-imports": ^3.3.0
     "@typechain/ethers-v5": ^10.1.0
     "@typechain/hardhat": ^6.1.3
