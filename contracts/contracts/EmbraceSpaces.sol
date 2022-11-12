@@ -162,16 +162,7 @@ contract EmbraceSpaces {
             revert ErrorDoNotMeetSpaceReq(_spaceIndex, msg.sender);
 
         // In all cases, if the requirements above are met then this will allow the address to auto-join the space
-        bool membershipRequest = false;
-        bool membershipActive = true;
-
-        // However, if this is a private closed group then this is a membership request that needs to be confirmed by Admins
-        if (space.visibility == Visibility.PRIVATE && space.membership.access == Access.OPEN) {
-            membershipRequest = true;
-            membershipActive = false;
-        }
-
-        Member memory member = Member({ isAdmin: false, isActive: membershipActive, isRequest: membershipRequest });
+        Member memory member = Member({ isAdmin: false, isActive: true, isRequest: false });
 
         spaceMembers[_spaceIndex][msg.sender] = member;
         spaceMemberLength[_spaceIndex]++;
@@ -185,6 +176,7 @@ contract EmbraceSpaces {
     }
 
     function requestJoin(uint256 _spaceIndex) public returns (bool) {
+        // TODO: Add check to see if request is already pending
         if (spaceMembers[_spaceIndex][msg.sender].isActive == true)
             revert ErrorMemberAlreadyExists(_spaceIndex, msg.sender);
 
@@ -249,21 +241,6 @@ contract EmbraceSpaces {
         return spaceMemberLength[_spaceIndex];
     }
 
-    function addAdmin(uint256 _spaceIndex, address _address) public onlySpaceFounder(_spaceIndex) {
-        // If address is already an active member then just make them an admin
-        if (spaceMembers[_spaceIndex][_address].isActive == true) {
-            spaceMembers[_spaceIndex][_address].isAdmin = true;
-        } else {
-            // Otherwise add them as a new member and increment the member count
-            Member memory member = Member({ isAdmin: true, isActive: true, isRequest: false });
-            spaceMembers[_spaceIndex][_address] = member;
-
-            emit JoinedSpace(spaceIndex, msg.sender, true); // isAdmin = true
-
-            spaceMemberLength[_spaceIndex]++;
-        }
-    }
-
     // This method can be used to
     // 1- add a new member
     // 2- add or remove admin privileges (_isAdmin)
@@ -285,6 +262,9 @@ contract EmbraceSpaces {
         // Will set the member struct to the new values
         Member memory member = Member({ isAdmin: _isAdmin, isActive: _isActive, isRequest: false });
         spaceMembers[_spaceIndex][_address] = member;
+
+        // TODO: Need to emit JoinedSpace event only when the account is being added for first time
+        // I.e. account could exist but be set as an admin
 
         // If the member is being activated then increment the member count
         if (_isActive) {

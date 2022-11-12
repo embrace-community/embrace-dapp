@@ -171,13 +171,28 @@ export default function SpaceViewPage() {
 
     const spaceId = BigNumber.from(spaceData.index).toNumber();
 
-    alert("joining space");
-
     try {
-      const tx = await contract.joinSpace(spaceId);
+      const tx = await contract.joinSpace(spaceId, {
+        gasLimit: 1000000,
+      });
       await tx.wait();
     } catch (err) {
       console.log("joinSpace", err);
+    }
+  };
+
+  const requestJoinSpace = async () => {
+    if (!contract || !spaceData) return;
+
+    const spaceId = BigNumber.from(spaceData.index).toNumber();
+
+    try {
+      const tx = await contract.requestJoin(spaceId, {
+        gasLimit: 1000000,
+      });
+      await tx.wait();
+    } catch (err) {
+      console.log("requestJoin", err);
     }
   };
 
@@ -191,6 +206,7 @@ export default function SpaceViewPage() {
               isFounder={isFounder}
               membership={membership}
               joinSpace={joinSpace}
+              requestJoinSpace={requestJoinSpace}
             />
             <Apps space={spaceData} query={router.query} />
           </>

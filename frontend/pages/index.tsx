@@ -127,7 +127,7 @@ export default function HomePage() {
     });
   }, [spaces, spaceIdsUserIsMember]);
 
-  console.log("INDEX");
+  console.log("yourSpaces", yourSpaces, spaceIdsUserIsMember);
 
   return (
     <div className="min-h-screen">

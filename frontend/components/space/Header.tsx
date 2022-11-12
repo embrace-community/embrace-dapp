@@ -10,11 +10,13 @@ export default function Header({
   isFounder,
   membership,
   joinSpace,
+  requestJoinSpace,
 }: {
   space: any;
   isFounder: boolean;
   membership: SpaceMembership | undefined;
   joinSpace: () => void;
+  requestJoinSpace: () => void;
 }) {
   const visibility = Visibility[space.visibility];
   const access = Access[space.membership.access];
@@ -29,6 +31,8 @@ export default function Header({
     isFounder,
     membership
   );
+
+  console.log(!membership?.isActive && space.membership.allowRequests);
   return (
     <div className="w-full flex flex-col justify-start text-embracedark extrastyles-specialpadding2">
       <div className="w-full flex flex-row justify-start items-end border-b-2 border-embracedark border-opacity-5 mb-12">
@@ -59,19 +63,30 @@ export default function Header({
               Allow Requests: {allowRequests ? "Yes" : "No"}
             </p>
 
-            {!membership.isActive ? (
+            {!membership?.isActive && !space.membership.allowRequests && (
               <button
                 className="bg-embracelight text-embracedark text-sm font-semibold py-2 px-4 rounded-full ml-3"
                 onClick={() => joinSpace()}
               >
                 Join
               </button>
-            ) : (
-              <>Already member</>
             )}
 
+            {!membership?.isActive &&
+              space.membership.allowRequests &&
+              !membership?.isRequest && (
+                <button
+                  className="bg-embracelight text-embracedark text-sm font-semibold py-2 px-4 rounded-full ml-3"
+                  onClick={() => requestJoinSpace()}
+                >
+                  Request to Join
+                </button>
+              )}
+
+            {membership?.isRequest && <>Request pending</>}
+
             {isFounder && <>You are the founder</>}
-            {membership.isAdmin && <>You are an Admin</>}
+            {membership?.isAdmin && <>You are an Admin</>}
           </div>
         </div>
       </div>
