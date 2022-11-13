@@ -10,7 +10,7 @@ import getWeb3StorageClient from "../lib/web3storage/client";
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import getIpfsJsonContent from "../lib/web3storage/getIpfsJsonContent";
-import { Access } from "../utils/types";
+import { Access, MembershipGateToken } from "../utils/types";
 
 export default function SpaceViewPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -28,9 +28,12 @@ export default function SpaceViewPage() {
   const [description, setDescription] = useState("");
   const [handle, setHandle] = useState("");
   const [visibility, setVisibility] = useState<number>(0);
-  const [membership, setMembership] = useState<number>(0);
-  const [tokenMembershipAddress, setTokenMembershipAddress] =
+  const [membershipAccess, setMembershipAccess] = useState<number>(0);
+  const [membershipToken, setMembershipToken] = useState<number>(0);
+  const [membershipTokenAddress, setMembershipTokenAddress] =
     useState<string>("");
+  const [allowRequests, setAllowRequests] = useState<boolean>(false);
+
   const [apps, setApps] = useState<number[]>([]);
   const [image, setImage] = useState<null | File>(null);
   const [imageCid, setImageCid] = useState("");
@@ -43,9 +46,16 @@ export default function SpaceViewPage() {
     { id: "anonymous", title: "Anonymous" },
   ];
 
-  const memberOptions = [
-    { id: "public", title: "Public" },
-    { id: "token_gated", title: "Token Gated" },
+  const memberAccessOptions = [
+    { id: "open", title: "Open" },
+    { id: "gated", title: "Token Gated" },
+    { id: "closed", title: "Closed" },
+  ];
+
+  const memberTokenOptions = [
+    { id: "erc20", title: "ERC20" },
+    { id: "erc721", title: "ERC721" },
+    { id: "erc1155", title: "ERC1155" },
   ];
 
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -70,30 +80,6 @@ export default function SpaceViewPage() {
     }
   }
 
-  async function sendMetadataToIpfs() {
-    const data = {
-      name,
-      description,
-      image: imageCid,
-      handle,
-    };
-
-    try {
-      const cid = (await saveToIpfs(
-        data,
-        `${data.name.replaceAll(" ", "_")}.json`
-      )) as string;
-
-      if (!cid) console.error("Failed to save post to IPFS");
-      else {
-        console.log("Uploaded json to ipfs, CID: ", cid);
-        setMetadataCid(cid);
-      }
-    } catch (err: any) {
-      console.error(`Failed to save post to IPFS, ${err.message}`);
-    }
-  }
-
   const { data: signer } = useSigner();
   const router = useRouter();
 
@@ -107,12 +93,12 @@ export default function SpaceViewPage() {
     }
 
     if (
-      membership ===
-        memberOptions.findIndex((opt) => opt.id === "token_gated") &&
-      !tokenMembershipAddress
+      membershipAccess ===
+        memberAccessOptions.findIndex((opt) => opt.id === "gated") &&
+      !membershipTokenAddress
     ) {
       setError(
-        "Please provide a token address if you want the membership to be token gated."
+        "Please provide a token address if you want the membershipAccess to be token gated."
       );
       return;
     }
@@ -132,51 +118,86 @@ export default function SpaceViewPage() {
     }
   }
 
-  // Only create a space once the metadata has been saved to ipfs and the CID is set in state
-  useEffect(() => {
-    if (!metadataCid.length) return;
+  async function sendMetadataToIpfs() {
+    const data = {
+      name,
+      description,
+      image: imageCid,
+      handle,
+    };
 
-    async function createSpace() {
-      try {
-        if (signer) {
-          const contract = new ethers.Contract(
-            process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-            EmbraceSpaces.abi,
-            signer as ethers.Signer
-          );
+    try {
+      const cid = (await saveToIpfs(
+        data,
+        `${data.name.replaceAll(" ", "_")}.json`
+      )) as string;
 
-          const spaceMembership = {
-            access:
-              membership ===
-              memberOptions.findIndex((opt) => opt.id === "token_gated")
-                ? Access.GATED
-                : Access.OPEN,
-            tokenAddress: tokenMembershipAddress
-              ? tokenMembershipAddress
-              : ethers.constants.AddressZero,
-          };
-
-          await contract.createSpace(
-            ethers.utils.formatBytes32String(handle),
-            visibility,
-            spaceMembership,
-            apps,
-            metadataCid
-          );
-
-          router.push("/");
-        } else {
-          console.error("No signer found");
-        }
-      } catch (err: any) {
-        console.error(`Failed to create space ${err.message}`);
-      } finally {
-        setIsLoading(false);
+      if (!cid) console.error("Failed to save post to IPFS");
+      else {
+        console.log("Uploaded json to ipfs, CID: ", cid);
+        setMetadataCid(cid);
+        createSpace();
       }
+    } catch (err: any) {
+      console.error(`Failed to save post to IPFS, ${err.message}`);
     }
+  }
 
-    createSpace();
-  }, [metadataCid]);
+  async function createSpace() {
+    try {
+      if (signer) {
+        const contract = new ethers.Contract(
+          process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
+          EmbraceSpaces.abi,
+          signer as ethers.Signer
+        );
+
+        const isTokenGated =
+          membershipAccess ===
+          memberAccessOptions.indexOf(
+            memberAccessOptions.find((opt) => opt.id === "gated")!
+          );
+
+        const spaceMembership = {
+          access:
+            Access[memberAccessOptions[membershipAccess].id.toUpperCase()],
+
+          gate: {
+            token: isTokenGated
+              ? membershipToken + 1
+              : MembershipGateToken.NONE,
+            tokenAddress: membershipTokenAddress
+              ? membershipTokenAddress
+              : ethers.constants.AddressZero,
+          },
+
+          allowRequests:
+            membershipAccess ===
+            memberAccessOptions.indexOf(
+              memberAccessOptions.find((opt) => opt.id === "closed")!
+            )
+              ? allowRequests
+              : false,
+        };
+
+        await contract.createSpace(
+          ethers.utils.formatBytes32String(handle),
+          visibility,
+          spaceMembership,
+          apps,
+          metadataCid
+        );
+
+        router.push("/");
+      } else {
+        console.error("No signer found");
+      }
+    } catch (err: any) {
+      console.error(`Failed to create space ${err.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const { appsContract } = useEmbraceContracts();
 
@@ -237,7 +258,7 @@ export default function SpaceViewPage() {
             <div className="mb-7">
               <label
                 htmlFor="description"
-                className="block text-sm font-medium text-embracedark"
+                className="mb-2 block text-sm font-medium text-embracedark"
               >
                 Avatar
               </label>
@@ -249,7 +270,7 @@ export default function SpaceViewPage() {
                 />
               )}
 
-              <div className="mt-1">
+              <div className="mt-2">
                 <input
                   type="file"
                   accept="image/*"
@@ -272,7 +293,7 @@ export default function SpaceViewPage() {
                 Name
               </label>
 
-              <div className="mt-1">
+              <div className="mt-2">
                 <input
                   type="text"
                   name="name"
@@ -293,7 +314,7 @@ export default function SpaceViewPage() {
                 Handle
               </label>
 
-              <div className="mt-1">
+              <div className="mt-2">
                 <input
                   type="text"
                   name="handle"
@@ -314,7 +335,7 @@ export default function SpaceViewPage() {
                 About
               </label>
 
-              <div className="mt-1">
+              <div className="mt-2">
                 <textarea
                   name="description"
                   id="description"
@@ -334,7 +355,7 @@ export default function SpaceViewPage() {
               <fieldset className="mt-2">
                 <legend className="sr-only">Visibility</legend>
 
-                <div className="space-y-3 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
                   {visOptions.map((visOption, i) => (
                     <div key={visOption.id} className="flex items-center">
                       <input
@@ -361,50 +382,125 @@ export default function SpaceViewPage() {
 
             <div className="mb-7">
               <label className="block text-sm font-medium text-embracedark">
-                Membership
+                Membership Access
               </label>
 
               <fieldset className="mt-2">
-                <legend className="sr-only">Membership</legend>
+                <legend className="sr-only">Membership Access</legend>
 
-                <div className="space-y-3 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
-                  {memberOptions.map((memberOption, i) => (
+                <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                  {memberAccessOptions.map((memberAccessOption, i) => (
                     <div
-                      key={memberOption.id}
-                      className={`flex items-center${
-                        i === memberOptions.length - 1 ? " w-full" : ""
-                      }`}
+                      key={`${memberAccessOption.id}-opt`}
+                      className={`flex items-center`}
                     >
                       <input
-                        id={memberOption.id}
-                        name="member-method"
+                        id={memberAccessOption.id}
+                        name="member-access-method"
                         type="radio"
-                        onChange={(e) => {
-                          if (e.target.checked) setMembership(i);
-                        }}
-                        checked={i === membership}
+                        onChange={(e) =>
+                          e.target.checked && setMembershipAccess(i)
+                        }
+                        checked={i === membershipAccess}
                         className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
                       />
                       <label
-                        htmlFor={memberOption.id}
+                        htmlFor={memberAccessOption.id}
                         className="ml-2 block text-sm font-medium text-embracedark"
                       >
-                        {memberOption.title}
+                        {memberAccessOption.title}
                       </label>
-
-                      {memberOption.id === "token_gated" && (
-                        <input
-                          placeholder="Token Address"
-                          type="text"
-                          value={tokenMembershipAddress}
-                          onChange={(e) => {
-                            setTokenMembershipAddress(e.target.value);
-                          }}
-                          className="w-full ml-10 block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
-                        />
-                      )}
                     </div>
                   ))}
+                </div>
+              </fieldset>
+
+              <fieldset className="mt-2">
+                <legend className="sr-only">Membership Token</legend>
+
+                <div
+                  className={`sm:flex sm:items-center sm:space-y-0 sm:space-x-10 transition-all duration-200	 ${
+                    membershipAccess ===
+                    memberAccessOptions.indexOf(
+                      memberAccessOptions.find((opt) => opt.id === "gated")!
+                    )
+                      ? "opacity-100"
+                      : "opacity-0"
+                  }`}
+                >
+                  {memberTokenOptions.map((memberTokenOption, i) => {
+                    return (
+                      <div
+                        key={memberTokenOption.id}
+                        className="flex items-center"
+                      >
+                        <input
+                          id={memberTokenOption.id}
+                          name="member-token-method"
+                          type="radio"
+                          onChange={(e) => {
+                            if (e.target.checked) setMembershipToken(i);
+                          }}
+                          checked={i === membershipToken}
+                          className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
+                        />
+                        <label
+                          htmlFor={memberTokenOption.id}
+                          className="ml-2 block text-sm font-medium text-embracedark"
+                        >
+                          {memberTokenOption.title}
+                        </label>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-2 sm:flex sm:items-center">
+                  <input
+                    placeholder="Token Address"
+                    type="text"
+                    value={membershipTokenAddress}
+                    onChange={(e) => setMembershipTokenAddress(e.target.value)}
+                    className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm transition-all duration-200 ${
+                      membershipAccess ===
+                      memberAccessOptions.indexOf(
+                        memberAccessOptions.find((opt) => opt.id === "gated")!
+                      )
+                        ? "opacity-100"
+                        : "opacity-0"
+                    }`}
+                  />
+
+                  <div
+                    className={`sm:flex sm:items-center transition-all duration-200	 ${
+                      membershipAccess ===
+                      memberAccessOptions.indexOf(
+                        memberAccessOptions.find((opt) => opt.id === "closed")!
+                      )
+                        ? "opacity-100"
+                        : "opacity-0"
+                    }`}
+                  >
+                    <input
+                      id="allowRequests"
+                      aria-describedby="allowRequests"
+                      name="allowRequests"
+                      type="checkbox"
+                      checked={allowRequests}
+                      onChange={() =>
+                        allowRequests
+                          ? setAllowRequests(false)
+                          : setAllowRequests(true)
+                      }
+                      className="ml-5 h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
+                    />
+                    <label
+                      htmlFor="allowRequests"
+                      className="ml-2 block text-sm font-medium text-embracedark"
+                    >
+                      Allow Requests
+                    </label>
+                  </div>
                 </div>
               </fieldset>
             </div>
@@ -503,11 +599,11 @@ export default function SpaceViewPage() {
                   !description ||
                   !handle ||
                   !imageCid ||
-                  (membership ===
-                    memberOptions.findIndex(
-                      (opt) => opt.id === "token_gated"
+                  (membershipAccess ===
+                    memberAccessOptions.findIndex(
+                      (opt) => opt.id === "gated"
                     ) &&
-                    !tokenMembershipAddress)
+                    !membershipTokenAddress)
                 }
                 onClick={() => onSubmit()}
               >
