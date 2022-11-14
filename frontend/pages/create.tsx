@@ -52,7 +52,19 @@ export default function SpaceViewPage() {
   const [tx, setTx] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  const { x, y, reference, floating, strategy } = useFloating();
+  const isVisibilityPrivate =
+    visibility === visOptions.findIndex((opt) => opt.id === "private");
+
+  const isVisibilityAnon =
+    visibility !== visOptions.findIndex((opt) => opt.id === "anonymous");
+
+  const isMembershipGated =
+    membershipAccess ===
+    memberAccessOptions.findIndex((opt) => opt.id === Access.GATED)!;
+
+  const isMembershipClosed =
+    membershipAccess ===
+    memberAccessOptions.findIndex((opt) => opt.id === Access.CLOSED)!;
 
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     /* upload cover image to ipfs and save content to state */
@@ -88,12 +100,7 @@ export default function SpaceViewPage() {
       return;
     }
 
-    if (
-      visibility === visOptions.findIndex((opt) => opt.id === "private") &&
-      membershipAccess ===
-        memberAccessOptions.findIndex((opt) => opt.id === Access.GATED) &&
-      !membershipTokenAddress
-    ) {
+    if (isVisibilityPrivate && isMembershipGated && !membershipTokenAddress) {
       setError(
         "Please provide a token address if you want the membershipAccess to be token gated."
       );
@@ -149,18 +156,8 @@ export default function SpaceViewPage() {
           signer as ethers.Signer
         );
 
-        const isTokenGated =
-          membershipAccess ===
-          memberAccessOptions.indexOf(
-            memberAccessOptions.find((opt) => opt.id === Access.GATED)!
-          );
-
         let allowRequests = false;
-        if (
-          visibility === visOptions.findIndex((opt) => opt.id === "private")! &&
-          membershipAccess ===
-            memberAccessOptions.findIndex((opt) => opt.id === Access.CLOSED)!
-        ) {
+        if (isVisibilityPrivate! && isMembershipClosed) {
           allowRequests = allowMembershipRequests;
         }
 
@@ -168,7 +165,7 @@ export default function SpaceViewPage() {
           access: memberAccessOptions[membershipAccess].id,
 
           gate: {
-            token: isTokenGated
+            token: isMembershipGated
               ? membershipToken + 1
               : MembershipGateToken.NONE,
             tokenAddress: membershipTokenAddress
@@ -356,23 +353,9 @@ export default function SpaceViewPage() {
             </div>
 
             <div className="mb-7">
-              <label
-                // ref={reference}
-                className="block text-sm font-medium text-embracedark"
-              >
+              <label className="block text-sm font-medium text-embracedark">
                 Visibility
               </label>
-              {/* <div
-                ref={floating}
-                style={{
-                  position: strategy,
-                  top: y ?? 0,
-                  left: x ?? 0,
-                  width: "max-content",
-                }}
-              >
-                Tooltip
-              </div> */}
 
               <fieldset className="mt-2">
                 <legend className="sr-only">Visibility</legend>
@@ -406,14 +389,16 @@ export default function SpaceViewPage() {
                   ))}
                 </div>
               </fieldset>
+              <div className="mt-2 italic text-sm font-medium text-embracedark">
+                Public is open to everyone to join, private can require access
+                through a token or user membership requests, anonymous doesn't
+                track any identity.
+              </div>
             </div>
 
             <div
               className={`transition-all duration-200 ${
-                visibility !==
-                visOptions.findIndex((opt) => opt.id === "anonymous")
-                  ? "opacity-100"
-                  : "opacity-0"
+                isVisibilityAnon ? "opacity-100" : "opacity-0"
               }`}
             >
               <div className="mb-7">
@@ -458,17 +443,9 @@ export default function SpaceViewPage() {
 
                 <fieldset className="mt-2">
                   <legend className="sr-only">Membership Token</legend>
-
                   <div
                     className={`sm:flex sm:items-center sm:space-y-0 sm:space-x-10 transition-all duration-200 ${
-                      membershipAccess ===
-                      memberAccessOptions.indexOf(
-                        memberAccessOptions.find(
-                          (opt) => opt.id === Access.GATED
-                        )!
-                      )
-                        ? "opacity-100"
-                        : "opacity-0"
+                      isMembershipGated ? "opacity-100" : "opacity-0"
                     }`}
                   >
                     {memberTokenOptions.map((memberTokenOption, i) => {
@@ -498,7 +475,11 @@ export default function SpaceViewPage() {
                     })}
                   </div>
 
-                  <div className="mt-2 sm:flex sm:items-center">
+                  <div
+                    className={`mt-2 transition-all duration-200 ${
+                      isMembershipGated ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
                     <input
                       placeholder="Token Address"
                       type="text"
@@ -506,30 +487,23 @@ export default function SpaceViewPage() {
                       onChange={(e) =>
                         setMembershipTokenAddress(e.target.value)
                       }
-                      className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm transition-all duration-200 ${
-                        membershipAccess ===
-                        memberAccessOptions.indexOf(
-                          memberAccessOptions.find(
-                            (opt) => opt.id === Access.GATED
-                          )!
-                        )
-                          ? "opacity-100"
-                          : "opacity-0"
-                      }`}
+                      className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm`}
                     />
 
                     <div
-                      className={`sm:flex sm:items-center transition-all duration-200	 ${
-                        membershipAccess ===
-                        memberAccessOptions.indexOf(
-                          memberAccessOptions.find(
-                            (opt) => opt.id === Access.CLOSED
-                          )!
-                        )
-                          ? "opacity-100"
-                          : "opacity-0"
-                      }`}
+                      className={`mt-1 italic text-sm font-medium text-embracedark`}
                     >
+                      Please choose the token standard and type in the address
+                      of the deployed contract.
+                    </div>
+                  </div>
+
+                  <div
+                    className={`transition-all duration-200 ${
+                      isMembershipClosed ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    <div className={`sm:flex sm:items-center`}>
                       <input
                         id="allowMembershipRequests"
                         aria-describedby="allowMembershipRequests"
@@ -541,14 +515,26 @@ export default function SpaceViewPage() {
                             ? setAllowMembershipRequests(false)
                             : setAllowMembershipRequests(true)
                         }
-                        className="ml-5 h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
+                        className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
                       />
+
                       <label
                         htmlFor="allowMembershipRequests"
                         className="ml-2 block text-sm font-medium text-embracedark"
                       >
                         Allow Requests
                       </label>
+                    </div>
+
+                    <div
+                      className={`mt-1 italic text-sm font-medium text-embracedark transition-all duration-200 ${
+                        isVisibilityPrivate && isMembershipClosed
+                          ? "opacity-100"
+                          : "opacity-0"
+                      }`}
+                    >
+                      Are other users allowed to request access to the private
+                      space?
                     </div>
                   </div>
                 </fieldset>
@@ -650,12 +636,8 @@ export default function SpaceViewPage() {
                   !description ||
                   !handle ||
                   !imageCid ||
-                  (visibility ===
-                    visOptions.findIndex((opt) => opt.id === "private") &&
-                    membershipAccess ===
-                      memberAccessOptions.findIndex(
-                        (opt) => opt.id === Access.GATED
-                      ) &&
+                  (isVisibilityPrivate &&
+                    isMembershipGated &&
                     !membershipTokenAddress)
                 }
                 onClick={() => onSubmit()}
