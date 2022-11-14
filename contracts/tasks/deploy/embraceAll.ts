@@ -10,6 +10,7 @@ import { EmbraceSpaces } from "../../types/contracts/EmbraceSpaces";
 import { EmbraceAccounts__factory } from "../../types/factories/contracts/EmbraceAccounts__factory";
 import { EmbraceApps__factory } from "../../types/factories/contracts/EmbraceApps__factory";
 import { EmbraceSpaces__factory } from "../../types/factories/contracts/EmbraceSpaces__factory";
+import { EmbraceSpace } from "./../../../frontend/utils/types";
 
 task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArguments, { ethers }) {
   const signers: SignerWithAddress[] = await ethers.getSigners();
@@ -41,7 +42,7 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
   const spaces = ["public", "public-gated", "private-gated", "private-closed", "private-closed-reqs", "anon"];
   const metadata = "bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa";
   for (let i = 0; i < spaces.length; i++) {
-    const space = getSpace(spaces[i], spaces[i], metadata);
+    const space = getSpace(spaces[i], spaces[i], metadata) as EmbraceSpace;
 
     if (space) {
       // console.log(space.handle, space.visibility, space.membership, space.apps, space.metadata);

@@ -3,8 +3,7 @@ import { ethers } from "ethers";
 import { formatBytes32String } from "ethers/lib/utils";
 
 import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json";
-import { Access, MembershipGateToken, Visibility } from "./../test/types";
-import { getSignerProvider, getWallet } from "./utils";
+import { getSignerProvider, getSpace, getWallet } from "./utils";
 
 // COMMANDS TO CREATE SPACES WITH DIFFERING MEMBERSHIP TYPES
 // npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 public.open bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet

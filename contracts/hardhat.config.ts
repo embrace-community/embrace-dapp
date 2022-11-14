@@ -21,8 +21,6 @@ if (!infuraApiKey) {
   throw new Error("Please set your INFURA_API_KEY in a .env file");
 }
 
-const privateKey = process.env.PRIVATE_KEY;
-
 const chainIds = {
   goerli: 5,
   hardhat: 1337,
@@ -54,8 +52,6 @@ const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   etherscan: {
     apiKey: {
-      cro_test: process.env.ETHERSCAN_API_KEY || "",
-      cro_main: process.env.ETHERSCAN_API_KEY || "",
       goerli: process.env.ETHERSCAN_API_KEY || "",
       mainnet: process.env.ETHERSCAN_API_KEY || "",
     },
