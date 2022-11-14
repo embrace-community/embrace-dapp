@@ -1,15 +1,16 @@
-import { useSigner } from "wagmi";
 import { ethers } from "ethers";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useEffect, useState } from "react";
+import { useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
+import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
 import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
-import getWeb3StorageClient from "../lib/web3storage/client";
-import saveToIpfs from "../lib/web3storage/saveToIpfs";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
+import getWeb3StorageClient from "../lib/web3storage/client";
 import getIpfsJsonContent from "../lib/web3storage/getIpfsJsonContent";
+import saveToIpfs from "../lib/web3storage/saveToIpfs";
 import { Access, MembershipGateToken } from "../utils/types";
 
 export default function SpaceViewPage() {
@@ -36,9 +37,11 @@ export default function SpaceViewPage() {
 
   const [apps, setApps] = useState<number[]>([]);
   const [image, setImage] = useState<null | File>(null);
-  const [imageCid, setImageCid] = useState("");
+  const [imageCid, setImageCid] = useState<string>("");
 
   const [metadataCid, setMetadataCid] = useState("");
+  const [tx, setTx] = useState<string>("");
+  const [showModal, setShowModal] = useState<boolean>(false);
 
   const visOptions = [
     { id: "public", title: "Public" },
@@ -47,9 +50,9 @@ export default function SpaceViewPage() {
   ];
 
   const memberAccessOptions = [
-    { id: "open", title: "Open" },
-    { id: "gated", title: "Token Gated" },
-    { id: "closed", title: "Closed" },
+    { id: Access.OPEN, title: "Open" },
+    { id: Access.GATED, title: "Token Gated" },
+    { id: Access.CLOSED, title: "Closed" },
   ];
 
   const memberTokenOptions = [
@@ -94,7 +97,7 @@ export default function SpaceViewPage() {
 
     if (
       membershipAccess ===
-        memberAccessOptions.findIndex((opt) => opt.id === "gated") &&
+        memberAccessOptions.findIndex((opt) => opt.id === Access.GATED) &&
       !membershipTokenAddress
     ) {
       setError(
@@ -155,12 +158,11 @@ export default function SpaceViewPage() {
         const isTokenGated =
           membershipAccess ===
           memberAccessOptions.indexOf(
-            memberAccessOptions.find((opt) => opt.id === "gated")!
+            memberAccessOptions.find((opt) => opt.id === Access.GATED)!
           );
 
         const spaceMembership = {
-          access:
-            Access[memberAccessOptions[membershipAccess].id.toUpperCase()],
+          access: memberAccessOptions[membershipAccess].id,
 
           gate: {
             token: isTokenGated
@@ -174,13 +176,13 @@ export default function SpaceViewPage() {
           allowRequests:
             membershipAccess ===
             memberAccessOptions.indexOf(
-              memberAccessOptions.find((opt) => opt.id === "closed")!
+              memberAccessOptions.find((opt) => opt.id === Access.CLOSED)!
             )
               ? allowRequests
               : false,
         };
 
-        await contract.createSpace(
+        const tx = await contract.createSpace(
           ethers.utils.formatBytes32String(handle),
           visibility,
           spaceMembership,
@@ -188,7 +190,10 @@ export default function SpaceViewPage() {
           metadataCid
         );
 
-        router.push("/");
+        console.log(`Creating spaces...tx ${tx}`);
+
+        setTx(tx);
+        setShowModal(true);
       } else {
         console.error("No signer found");
       }
@@ -197,6 +202,12 @@ export default function SpaceViewPage() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function onFinishModal() {
+    setShowModal(false);
+
+    router.push("/");
   }
 
   const { appsContract } = useEmbraceContracts();
@@ -395,7 +406,7 @@ export default function SpaceViewPage() {
                       className={`flex items-center`}
                     >
                       <input
-                        id={memberAccessOption.id}
+                        id={`${memberAccessOption.id}`}
                         name="member-access-method"
                         type="radio"
                         onChange={(e) =>
@@ -405,7 +416,7 @@ export default function SpaceViewPage() {
                         className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
                       />
                       <label
-                        htmlFor={memberAccessOption.id}
+                        htmlFor={`${memberAccessOption.id}`}
                         className="ml-2 block text-sm font-medium text-embracedark"
                       >
                         {memberAccessOption.title}
@@ -422,7 +433,9 @@ export default function SpaceViewPage() {
                   className={`sm:flex sm:items-center sm:space-y-0 sm:space-x-10 transition-all duration-200	 ${
                     membershipAccess ===
                     memberAccessOptions.indexOf(
-                      memberAccessOptions.find((opt) => opt.id === "gated")!
+                      memberAccessOptions.find(
+                        (opt) => opt.id === Access.GATED
+                      )!
                     )
                       ? "opacity-100"
                       : "opacity-0"
@@ -464,7 +477,9 @@ export default function SpaceViewPage() {
                     className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm transition-all duration-200 ${
                       membershipAccess ===
                       memberAccessOptions.indexOf(
-                        memberAccessOptions.find((opt) => opt.id === "gated")!
+                        memberAccessOptions.find(
+                          (opt) => opt.id === Access.GATED
+                        )!
                       )
                         ? "opacity-100"
                         : "opacity-0"
@@ -475,7 +490,9 @@ export default function SpaceViewPage() {
                     className={`sm:flex sm:items-center transition-all duration-200	 ${
                       membershipAccess ===
                       memberAccessOptions.indexOf(
-                        memberAccessOptions.find((opt) => opt.id === "closed")!
+                        memberAccessOptions.find(
+                          (opt) => opt.id === Access.CLOSED
+                        )!
                       )
                         ? "opacity-100"
                         : "opacity-0"
@@ -569,21 +586,22 @@ export default function SpaceViewPage() {
               </div>
             )}
 
-            {!name || !description || !handle || !imageCid ? (
-              <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
-                <p className="text-sm text-embracedark text-opacity-50 mb-2">
-                  To create your space, it needs:
-                </p>
-                <ul className="text-sm text-embracedark text-opacity-50">
-                  {!imageCid && <li>• an avatar</li>}
-                  {!name && <li>• a name</li>}
-                  {!handle && <li>• a handle</li>}
-                  {!description && <li>• description</li>}
-                </ul>
-              </div>
-            ) : (
-              <></>
-            )}
+            {!name ||
+              !description ||
+              !handle ||
+              (!imageCid && (
+                <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
+                  <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                    To create your space, it needs:
+                  </p>
+                  <ul className="text-sm text-embracedark text-opacity-50">
+                    {!imageCid && <li>• an avatar</li>}
+                    {!name && <li>• a name</li>}
+                    {!handle && <li>• a handle</li>}
+                    {!description && <li>• description</li>}
+                  </ul>
+                </div>
+              ))}
 
             <div className="flex flex-row mt-6 align-middle">
               <Link
@@ -601,7 +619,7 @@ export default function SpaceViewPage() {
                   !imageCid ||
                   (membershipAccess ===
                     memberAccessOptions.findIndex(
-                      (opt) => opt.id === "gated"
+                      (opt) => opt.id === Access.GATED
                     ) &&
                     !membershipTokenAddress)
                 }
@@ -613,6 +631,39 @@ export default function SpaceViewPage() {
           </div>
         </div>
       </AppLayout>
+
+      <Modal
+        title={
+          <h5 className="text-xl font-medium leading-normal text-gray-800">
+            Creating Space in progress
+          </h5>
+        }
+        body={
+          <>
+            To see your transaction in the blockchain explorer,{" "}
+            <a
+              target="_blank"
+              href={`${process.env.NEXT_PUBLIC_BLOCKEXPLORER_URL}/${tx}`}
+              className="text-violet-500"
+            >
+              please following this link
+            </a>
+            .
+          </>
+        }
+        footer={
+          <button
+            className="px-6 py-2.5 bg-violet-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-violet-500 hover:shadow-lg focus:bg-violet-500 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-violet-800 active:shadow-lg transition duration-150 ease-in-out"
+            onClick={() => onFinishModal()}
+          >
+            Close & return to Spaces
+          </button>
+        }
+        {...{
+          showModal,
+          setShowModal,
+        }}
+      />
     </>
   );
 }
