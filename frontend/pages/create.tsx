@@ -1,3 +1,4 @@
+import { useFloating } from "@floating-ui/react-dom";
 import { ethers } from "ethers";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -5,6 +6,13 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import Modal from "../components/Modal";
+import {
+  memberAccessOptions,
+  memberTokenOptions,
+  setNextMembershipAccess,
+  setNextVisibility,
+  visOptions,
+} from "../components/pages/create/utils";
 import Spinner from "../components/Spinner";
 import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
@@ -33,7 +41,8 @@ export default function SpaceViewPage() {
   const [membershipToken, setMembershipToken] = useState<number>(0);
   const [membershipTokenAddress, setMembershipTokenAddress] =
     useState<string>("");
-  const [allowRequests, setAllowRequests] = useState<boolean>(false);
+  const [allowMembershipRequests, setAllowMembershipRequests] =
+    useState<boolean>(false);
 
   const [apps, setApps] = useState<number[]>([]);
   const [image, setImage] = useState<null | File>(null);
@@ -43,23 +52,7 @@ export default function SpaceViewPage() {
   const [tx, setTx] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  const visOptions = [
-    { id: "public", title: "Public" },
-    { id: "private", title: "Private" },
-    { id: "anonymous", title: "Anonymous" },
-  ];
-
-  const memberAccessOptions = [
-    { id: Access.OPEN, title: "Open" },
-    { id: Access.GATED, title: "Token Gated" },
-    { id: Access.CLOSED, title: "Closed" },
-  ];
-
-  const memberTokenOptions = [
-    { id: "erc20", title: "ERC20" },
-    { id: "erc721", title: "ERC721" },
-    { id: "erc1155", title: "ERC1155" },
-  ];
+  const { x, y, reference, floating, strategy } = useFloating();
 
   async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     /* upload cover image to ipfs and save content to state */
@@ -96,6 +89,7 @@ export default function SpaceViewPage() {
     }
 
     if (
+      visibility === visOptions.findIndex((opt) => opt.id === "private") &&
       membershipAccess ===
         memberAccessOptions.findIndex((opt) => opt.id === Access.GATED) &&
       !membershipTokenAddress
@@ -161,6 +155,15 @@ export default function SpaceViewPage() {
             memberAccessOptions.find((opt) => opt.id === Access.GATED)!
           );
 
+        let allowRequests = false;
+        if (
+          visibility === visOptions.findIndex((opt) => opt.id === "private")! &&
+          membershipAccess ===
+            memberAccessOptions.findIndex((opt) => opt.id === Access.CLOSED)!
+        ) {
+          allowRequests = allowMembershipRequests;
+        }
+
         const spaceMembership = {
           access: memberAccessOptions[membershipAccess].id,
 
@@ -173,13 +176,7 @@ export default function SpaceViewPage() {
               : ethers.constants.AddressZero,
           },
 
-          allowRequests:
-            membershipAccess ===
-            memberAccessOptions.indexOf(
-              memberAccessOptions.find((opt) => opt.id === Access.CLOSED)!
-            )
-              ? allowRequests
-              : false,
+          allowRequests,
         };
 
         const tx = await contract.createSpace(
@@ -190,9 +187,9 @@ export default function SpaceViewPage() {
           metadataCid
         );
 
-        console.log(`Creating spaces...tx ${tx}`);
+        console.log(`Creating spaces...tx ${JSON.stringify(tx)}`);
 
-        setTx(tx);
+        setTx(tx?.hash);
         setShowModal(true);
       } else {
         console.error("No signer found");
@@ -359,9 +356,23 @@ export default function SpaceViewPage() {
             </div>
 
             <div className="mb-7">
-              <label className="block text-sm font-medium text-embracedark">
+              <label
+                // ref={reference}
+                className="block text-sm font-medium text-embracedark"
+              >
                 Visibility
               </label>
+              {/* <div
+                ref={floating}
+                style={{
+                  position: strategy,
+                  top: y ?? 0,
+                  left: x ?? 0,
+                  width: "max-content",
+                }}
+              >
+                Tooltip
+              </div> */}
 
               <fieldset className="mt-2">
                 <legend className="sr-only">Visibility</legend>
@@ -373,9 +384,15 @@ export default function SpaceViewPage() {
                         id={visOption.id}
                         name="vis-method"
                         type="radio"
-                        onChange={(e) => {
-                          if (e.target.checked) setVisibility(i);
-                        }}
+                        onChange={(e) =>
+                          setNextVisibility({
+                            e,
+                            setVisibility,
+                            i,
+                            membershipAccess,
+                            setMembershipAccess,
+                          })
+                        }
                         checked={i === visibility}
                         className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
                       />
@@ -391,90 +408,59 @@ export default function SpaceViewPage() {
               </fieldset>
             </div>
 
-            <div className="mb-7">
-              <label className="block text-sm font-medium text-embracedark">
-                Membership Access
-              </label>
+            <div
+              className={`transition-all duration-200 ${
+                visibility !==
+                visOptions.findIndex((opt) => opt.id === "anonymous")
+                  ? "opacity-100"
+                  : "opacity-0"
+              }`}
+            >
+              <div className="mb-7">
+                <label className="block text-sm font-medium text-embracedark">
+                  Membership Access
+                </label>
+                <fieldset className="mt-2">
+                  <legend className="sr-only">Membership Access</legend>
 
-              <fieldset className="mt-2">
-                <legend className="sr-only">Membership Access</legend>
-
-                <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
-                  {memberAccessOptions.map((memberAccessOption, i) => (
-                    <div
-                      key={`${memberAccessOption.id}-opt`}
-                      className={`flex items-center`}
-                    >
-                      <input
-                        id={`${memberAccessOption.id}`}
-                        name="member-access-method"
-                        type="radio"
-                        onChange={(e) =>
-                          e.target.checked && setMembershipAccess(i)
-                        }
-                        checked={i === membershipAccess}
-                        className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
-                      />
-                      <label
-                        htmlFor={`${memberAccessOption.id}`}
-                        className="ml-2 block text-sm font-medium text-embracedark"
-                      >
-                        {memberAccessOption.title}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </fieldset>
-
-              <fieldset className="mt-2">
-                <legend className="sr-only">Membership Token</legend>
-
-                <div
-                  className={`sm:flex sm:items-center sm:space-y-0 sm:space-x-10 transition-all duration-200	 ${
-                    membershipAccess ===
-                    memberAccessOptions.indexOf(
-                      memberAccessOptions.find(
-                        (opt) => opt.id === Access.GATED
-                      )!
-                    )
-                      ? "opacity-100"
-                      : "opacity-0"
-                  }`}
-                >
-                  {memberTokenOptions.map((memberTokenOption, i) => {
-                    return (
+                  <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                    {memberAccessOptions.map((memberAccessOption, i) => (
                       <div
-                        key={memberTokenOption.id}
-                        className="flex items-center"
+                        key={`${memberAccessOption.id}-opt`}
+                        className={`flex items-center`}
                       >
                         <input
-                          id={memberTokenOption.id}
-                          name="member-token-method"
+                          id={`${memberAccessOption.id}`}
+                          name="member-access-method"
                           type="radio"
-                          onChange={(e) => {
-                            if (e.target.checked) setMembershipToken(i);
-                          }}
-                          checked={i === membershipToken}
+                          onChange={(e) =>
+                            setNextMembershipAccess({
+                              e,
+                              setMembershipAccess,
+                              i,
+                              visibility,
+                              setVisibility,
+                            })
+                          }
+                          checked={i === membershipAccess}
                           className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
                         />
                         <label
-                          htmlFor={memberTokenOption.id}
+                          htmlFor={`${memberAccessOption.id}`}
                           className="ml-2 block text-sm font-medium text-embracedark"
                         >
-                          {memberTokenOption.title}
+                          {memberAccessOption.title}
                         </label>
                       </div>
-                    );
-                  })}
-                </div>
+                    ))}
+                  </div>
+                </fieldset>
 
-                <div className="mt-2 sm:flex sm:items-center">
-                  <input
-                    placeholder="Token Address"
-                    type="text"
-                    value={membershipTokenAddress}
-                    onChange={(e) => setMembershipTokenAddress(e.target.value)}
-                    className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm transition-all duration-200 ${
+                <fieldset className="mt-2">
+                  <legend className="sr-only">Membership Token</legend>
+
+                  <div
+                    className={`sm:flex sm:items-center sm:space-y-0 sm:space-x-10 transition-all duration-200 ${
                       membershipAccess ===
                       memberAccessOptions.indexOf(
                         memberAccessOptions.find(
@@ -484,42 +470,89 @@ export default function SpaceViewPage() {
                         ? "opacity-100"
                         : "opacity-0"
                     }`}
-                  />
-
-                  <div
-                    className={`sm:flex sm:items-center transition-all duration-200	 ${
-                      membershipAccess ===
-                      memberAccessOptions.indexOf(
-                        memberAccessOptions.find(
-                          (opt) => opt.id === Access.CLOSED
-                        )!
-                      )
-                        ? "opacity-100"
-                        : "opacity-0"
-                    }`}
                   >
-                    <input
-                      id="allowRequests"
-                      aria-describedby="allowRequests"
-                      name="allowRequests"
-                      type="checkbox"
-                      checked={allowRequests}
-                      onChange={() =>
-                        allowRequests
-                          ? setAllowRequests(false)
-                          : setAllowRequests(true)
-                      }
-                      className="ml-5 h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
-                    />
-                    <label
-                      htmlFor="allowRequests"
-                      className="ml-2 block text-sm font-medium text-embracedark"
-                    >
-                      Allow Requests
-                    </label>
+                    {memberTokenOptions.map((memberTokenOption, i) => {
+                      return (
+                        <div
+                          key={memberTokenOption.id}
+                          className="flex items-center"
+                        >
+                          <input
+                            id={memberTokenOption.id}
+                            name="member-token-method"
+                            type="radio"
+                            onChange={(e) => {
+                              if (e.target.checked) setMembershipToken(i);
+                            }}
+                            checked={i === membershipToken}
+                            className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
+                          />
+                          <label
+                            htmlFor={memberTokenOption.id}
+                            className="ml-2 block text-sm font-medium text-embracedark"
+                          >
+                            {memberTokenOption.title}
+                          </label>
+                        </div>
+                      );
+                    })}
                   </div>
-                </div>
-              </fieldset>
+
+                  <div className="mt-2 sm:flex sm:items-center">
+                    <input
+                      placeholder="Token Address"
+                      type="text"
+                      value={membershipTokenAddress}
+                      onChange={(e) =>
+                        setMembershipTokenAddress(e.target.value)
+                      }
+                      className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm transition-all duration-200 ${
+                        membershipAccess ===
+                        memberAccessOptions.indexOf(
+                          memberAccessOptions.find(
+                            (opt) => opt.id === Access.GATED
+                          )!
+                        )
+                          ? "opacity-100"
+                          : "opacity-0"
+                      }`}
+                    />
+
+                    <div
+                      className={`sm:flex sm:items-center transition-all duration-200	 ${
+                        membershipAccess ===
+                        memberAccessOptions.indexOf(
+                          memberAccessOptions.find(
+                            (opt) => opt.id === Access.CLOSED
+                          )!
+                        )
+                          ? "opacity-100"
+                          : "opacity-0"
+                      }`}
+                    >
+                      <input
+                        id="allowMembershipRequests"
+                        aria-describedby="allowMembershipRequests"
+                        name="allowMembershipRequests"
+                        type="checkbox"
+                        checked={allowMembershipRequests}
+                        onChange={() =>
+                          allowMembershipRequests
+                            ? setAllowMembershipRequests(false)
+                            : setAllowMembershipRequests(true)
+                        }
+                        className="ml-5 h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
+                      />
+                      <label
+                        htmlFor="allowMembershipRequests"
+                        className="ml-2 block text-sm font-medium text-embracedark"
+                      >
+                        Allow Requests
+                      </label>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
             </div>
 
             <fieldset className="space-y-2 mt-12 mb-10">
@@ -617,10 +650,12 @@ export default function SpaceViewPage() {
                   !description ||
                   !handle ||
                   !imageCid ||
-                  (membershipAccess ===
-                    memberAccessOptions.findIndex(
-                      (opt) => opt.id === Access.GATED
-                    ) &&
+                  (visibility ===
+                    visOptions.findIndex((opt) => opt.id === "private") &&
+                    membershipAccess ===
+                      memberAccessOptions.findIndex(
+                        (opt) => opt.id === Access.GATED
+                      ) &&
                     !membershipTokenAddress)
                 }
                 onClick={() => onSubmit()}
