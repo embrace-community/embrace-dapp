@@ -18,7 +18,7 @@ import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import getWeb3StorageClient from "../lib/web3storage/client";
 import getIpfsJsonContent from "../lib/web3storage/getIpfsJsonContent";
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
-import { Access, MembershipGateToken } from "../utils/types";
+import { Access, MembershipGateToken, Visibility } from "../utils/types";
 
 export default function SpaceViewPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -52,10 +52,11 @@ export default function SpaceViewPage() {
   const [showModal, setShowModal] = useState<boolean>(false);
 
   const isVisibilityPrivate =
-    visibility === visOptions.findIndex((opt) => opt.id === "private");
+    visibility === visOptions.findIndex((opt) => opt.id === Visibility.PRIVATE);
 
   const isVisibilityAnon =
-    visibility !== visOptions.findIndex((opt) => opt.id === "anonymous");
+    visibility !==
+    visOptions.findIndex((opt) => opt.id === Visibility.ANONYMOUS);
 
   const isMembershipGated =
     membershipAccess ===
@@ -363,7 +364,7 @@ export default function SpaceViewPage() {
                   {visOptions.map((visOption, i) => (
                     <div key={visOption.id} className="flex items-center">
                       <input
-                        id={visOption.id}
+                        id={`vis-${visOption.id}`}
                         name="vis-method"
                         type="radio"
                         onChange={(e) =>
@@ -379,7 +380,7 @@ export default function SpaceViewPage() {
                         className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
                       />
                       <label
-                        htmlFor={visOption.id}
+                        htmlFor={`vis-${visOption.id}`}
                         className="ml-2 block text-sm font-medium text-embracedark"
                       >
                         {visOption.title}
@@ -450,11 +451,11 @@ export default function SpaceViewPage() {
                     {memberTokenOptions.map((memberTokenOption, i) => {
                       return (
                         <div
-                          key={memberTokenOption.id}
+                          key={`member-${memberTokenOption.id}`}
                           className="flex items-center"
                         >
                           <input
-                            id={memberTokenOption.id}
+                            id={`member-${memberTokenOption.id}`}
                             name="member-token-method"
                             type="radio"
                             onChange={(e) => {
@@ -464,7 +465,7 @@ export default function SpaceViewPage() {
                             className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
                           />
                           <label
-                            htmlFor={memberTokenOption.id}
+                            htmlFor={`member-${memberTokenOption.id}`}
                             className="ml-2 block text-sm font-medium text-embracedark"
                           >
                             {memberTokenOption.title}

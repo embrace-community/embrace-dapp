@@ -1,9 +1,9 @@
-import { Access } from "../../../utils/types";
+import { Access, MembershipGateToken, Visibility } from "../../../utils/types";
 
 export const visOptions = [
-  { id: "public", title: "Public" },
-  { id: "private", title: "Private" },
-  { id: "anonymous", title: "Anonymous" },
+  { id: Visibility.PUBLIC, title: "Public" },
+  { id: Visibility.PRIVATE, title: "Private" },
+  { id: Visibility.ANONYMOUS, title: "Anonymous" },
 ];
 
 export const memberAccessOptions = [
@@ -13,9 +13,9 @@ export const memberAccessOptions = [
 ];
 
 export const memberTokenOptions = [
-  { id: "erc20", title: "ERC20" },
-  { id: "erc721", title: "ERC721" },
-  { id: "erc1155", title: "ERC1155" },
+  { id: MembershipGateToken.ERC20, title: "ERC20" },
+  { id: MembershipGateToken.ERC721, title: "ERC721" },
+  { id: MembershipGateToken.ERC1155, title: "ERC1155" },
 ];
 
 export function setNextVisibility({
@@ -30,7 +30,7 @@ export function setNextVisibility({
       setVisibility(i);
 
       if (
-        i === visOptions.findIndex((opt) => opt.id === "public") &&
+        i === visOptions.findIndex((opt) => opt.id === Visibility.PUBLIC) &&
         membershipAccess ===
           memberAccessOptions.findIndex((opt) => opt.id === Access.CLOSED)
       ) {
@@ -38,7 +38,7 @@ export function setNextVisibility({
       }
 
       if (
-        i === visOptions.findIndex((opt) => opt.id === "private") &&
+        i === visOptions.findIndex((opt) => opt.id === Visibility.PRIVATE) &&
         membershipAccess ===
           memberAccessOptions.findIndex((opt) => opt.id === Access.OPEN)
       ) {
@@ -46,7 +46,7 @@ export function setNextVisibility({
       }
 
       if (
-        i === visOptions.findIndex((opt) => opt.id === "anonymous") &&
+        i === visOptions.findIndex((opt) => opt.id === Visibility.ANONYMOUS) &&
         membershipAccess ===
           memberAccessOptions.findIndex((opt) => opt.id === Access.OPEN)
       ) {
@@ -68,16 +68,21 @@ export function setNextMembershipAccess({
 
     if (
       i === memberAccessOptions.findIndex((opt) => opt.id === Access.CLOSED) &&
-      visibility === visOptions.findIndex((opt) => opt.id === "public")
+      visibility === visOptions.findIndex((opt) => opt.id === Visibility.PUBLIC)
     ) {
-      setVisibility(visOptions.findIndex((opt) => opt.id === "private"));
+      setVisibility(
+        visOptions.findIndex((opt) => opt.id === Visibility.PRIVATE)
+      );
     }
 
     if (
       i === memberAccessOptions.findIndex((opt) => opt.id === Access.OPEN) &&
-      visibility === visOptions.findIndex((opt) => opt.id === "private")
+      visibility ===
+        visOptions.findIndex((opt) => opt.id === Visibility.PRIVATE)
     ) {
-      setVisibility(visOptions.findIndex((opt) => opt.id === "public"));
+      setVisibility(
+        visOptions.findIndex((opt) => opt.id === Visibility.PUBLIC)
+      );
     }
   }
 }
