@@ -1,4 +1,3 @@
-import { useFloating } from "@floating-ui/react-dom";
 import { ethers } from "ethers";
 import Link from "next/link";
 import { useRouter } from "next/router";
