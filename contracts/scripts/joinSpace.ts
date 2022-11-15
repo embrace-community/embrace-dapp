@@ -13,8 +13,8 @@ async function main() {
     throw new Error("Contract address needs to be specified.");
   }
 
-  const spaceIndex = process.argv[3];
-  if (!spaceIndex) {
+  const spaceId = process.argv[3];
+  if (!spaceId) {
     throw new Error("Space Index needs to be specified.");
   }
 
@@ -28,7 +28,7 @@ async function main() {
 
   const contract = new ethers.Contract(contractAddress, EmbraceSpaces.abi, signer);
 
-  console.log(`Joining space ${spaceIndex} with address ${signer.address}`);
+  console.log(`Joining space ${spaceId} with address ${signer.address}`);
 
   // attempt to join the space
   // Gas limit included to avoid gas issues error

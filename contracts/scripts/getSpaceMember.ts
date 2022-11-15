@@ -12,8 +12,8 @@ async function main() {
     throw new Error("Contract address needs to be specified.");
   }
 
-  const spaceIndex = process.argv[3];
-  if (!spaceIndex) {
+  const spaceId = process.argv[3];
+  if (!spaceId) {
     throw new Error("Space Index needs to be specified.");
   }
 
@@ -30,7 +30,7 @@ async function main() {
 
   const contract = new ethers.Contract(contractAddress, EmbraceSpaces.abi, signer);
 
-  const member = await contract.getSpaceMember(spaceIndex, memberAddress);
+  const member = await contract.getSpaceMember(spaceId, memberAddress);
 
   console.log(`Member: ${member}`);
 }

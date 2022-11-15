@@ -18,25 +18,25 @@ export default function Navigation({
           className="flex mb-0 list-none flex-row extrastyles-specialpadding2"
           role="tablist"
         >
-          {Object.keys(appMappings).map((appIndex) => {
-            const appIndexNum = parseInt(appIndex); // map keys are strings
-            const app = appMappings[appIndexNum];
+          {Object.keys(appMappings).map((appId) => {
+            const appIdNum = parseInt(appId); // map keys are strings
+            const app = appMappings[appIdNum];
 
-            if (!space.apps.includes(appIndexNum)) return null;
+            if (!space.apps.includes(appIdNum)) return null;
 
             return (
-              <div className="-mb-px last:mr-0 text-center" key={appIndexNum}>
+              <div className="-mb-px last:mr-0 text-center" key={appIdNum}>
                 <Link
                   href={`/embrace/${app.route}`}
                   className={
                     "text-sm mr-12 py-3 block leading-normal " +
-                    (currentApp === appIndexNum
+                    (currentApp === appIdNum
                       ? "border-b-4 border-violet-500 font-semibold"
                       : "font-normal")
                   }
                   onClick={(e) => {
                     e.preventDefault();
-                    setCurrentApp(appIndexNum);
+                    setCurrentApp(appIdNum);
                   }}
                   data-toggle="tab"
                   role="tablist"

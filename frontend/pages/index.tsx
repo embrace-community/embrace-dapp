@@ -90,10 +90,10 @@ export default function HomePage() {
 
         for (let i in spaces) {
           const space = spaces[i] as EmbraceSpace;
-          const spaceIndex = BigNumber.from(space.index).toNumber();
+          const spaceId = BigNumber.from(space.index).toNumber();
 
-          if (accountSpaces.includes(spaceIndex)) {
-            spaceIdsIsMember.push(spaceIndex);
+          if (accountSpaces.includes(spaceId)) {
+            spaceIdsIsMember.push(spaceId);
           }
 
           setSpaceIdsUserIsMember(spaceIdsIsMember);

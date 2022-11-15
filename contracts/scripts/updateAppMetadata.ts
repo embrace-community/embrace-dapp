@@ -11,8 +11,8 @@ async function main() {
     throw new Error("Contract address needs to be specified.");
   }
 
-  const appIndex = process.argv[3];
-  if (!appIndex) {
+  const appId = process.argv[3];
+  if (!appId) {
     throw new Error("App index needs to be specified.");
   }
 
@@ -29,9 +29,9 @@ async function main() {
 
   const contract = new ethers.Contract(contractAddress, EmbraceApps.abi, signer);
 
-  await contract.updateMetadata(appIndex, metadata);
+  await contract.updateMetadata(appId, metadata);
 
-  const app = await contract.getAppByIndex(appIndex);
+  const app = await contract.getAppByIndex(appId);
   console.log(`App updated ${JSON.stringify(app)}`);
 }
 

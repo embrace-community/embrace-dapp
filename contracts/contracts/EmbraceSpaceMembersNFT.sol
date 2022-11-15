@@ -29,7 +29,7 @@ contract EmbraceSpaceMembersNFT is ERC721, ERC721Enumerable, ERC721URIStorage, O
         spaceId = _spaceId;
     }
 
-    function join(address _member, string memory _memberURI, ) public returns (uint256) {
+    function join(address _member, string memory _memberURI) public returns (uint256) {
         _memberIds.increment();
 
         uint256 newMemberId = _memberIds.current();
