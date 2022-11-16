@@ -69,8 +69,16 @@ export default function SpaceViewPage() {
 
     async function getSpace(MyContract: Contract): Promise<void> {
       try {
+        console.log("getSpaceFromHandle", handleBytes32, router.query.handle);
         const space: EmbraceSpace = await MyContract.getSpaceFromHandle(
           handleBytes32
+        );
+
+        console.log(
+          "getSpaceFromHandle",
+          handleBytes32,
+          router.query.handle,
+          space
         );
 
         if (space) {
@@ -82,7 +90,7 @@ export default function SpaceViewPage() {
         }
       } catch (err) {
         console.log(
-          "getSpaceId",
+          "getSpace",
           err,
           contract,
           router.query.handle,
@@ -126,7 +134,7 @@ export default function SpaceViewPage() {
     if (!contract || !spaceData || memberInfoLoaded) return;
 
     async function getMemberInfo(MyContract: Contract): Promise<void> {
-      const spaceId = BigNumber.from(spaceData.index).toNumber();
+      const spaceId = BigNumber.from(spaceData.id).toNumber();
       const memberCount = await MyContract.getMemberCount(spaceId);
       const memberCountNumber = BigNumber.from(memberCount).toNumber();
 
@@ -151,7 +159,7 @@ export default function SpaceViewPage() {
   const joinSpace = async () => {
     if (!contract || !spaceData) return;
 
-    const spaceId = BigNumber.from(spaceData.index).toNumber();
+    const spaceId = BigNumber.from(spaceData.id).toNumber();
 
     try {
       const tx = await contract.joinSpace(spaceId, {
@@ -166,7 +174,7 @@ export default function SpaceViewPage() {
   const requestJoinSpace = async () => {
     if (!contract || !spaceData) return;
 
-    const spaceId = BigNumber.from(spaceData.index).toNumber();
+    const spaceId = BigNumber.from(spaceData.id).toNumber();
 
     try {
       const tx = await contract.requestJoin(spaceId, {
@@ -181,7 +189,7 @@ export default function SpaceViewPage() {
   return (
     <>
       <AppLayout title={spaceData?.metadata?.name}>
-        {spaceData && metadataLoaded && memberInfoLoaded ? (
+        {spaceData ? (
           <>
             <Header
               space={spaceData}

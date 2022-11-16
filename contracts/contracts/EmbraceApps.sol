@@ -2,17 +2,22 @@
 
 pragma solidity >=0.8.17;
 
-// import "hardhat/console.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract EmbraceApps {
+    using Counters for Counters.Counter;
+
+    Counters.Counter private _appIds;
+
     struct App {
+        uint256 id;
         bytes32 code;
         address contractAddress;
         bool enabled;
         string metadata;
     }
 
-    uint256 private appIndex = 0;
+    uint256 private appId = 0;
     App[] public apps;
     bytes32[] categories;
 
@@ -40,7 +45,10 @@ contract EmbraceApps {
         bool _enabled,
         string memory _metadata
     ) public onlyOwner uniqueAppCode(_code) {
+        _appIds.increment();
+
         App memory app = App({
+            id: _appIds.current(),
             code: _code,
             contractAddress: _contractAddress,
             enabled: _enabled,
@@ -48,7 +56,6 @@ contract EmbraceApps {
         });
 
         apps.push(app);
-        appIndex++;
     }
 
     function setAppContractAddress(bytes32 _code, address _contractAddress) public onlyOwner {
@@ -59,8 +66,8 @@ contract EmbraceApps {
         }
     }
 
-    function updateMetadata(uint256 _appIndex, string memory _newMetadata) public onlyOwner returns (App memory) {
-        App storage app = apps[_appIndex];
+    function updateMetadata(uint256 _appId, string memory _newMetadata) public onlyOwner returns (App memory) {
+        App storage app = apps[_appId];
         app.metadata = _newMetadata;
 
         return app;
@@ -70,8 +77,8 @@ contract EmbraceApps {
         return apps;
     }
 
-    function getAppByIndex(uint256 _appIndex) public view returns (App memory) {
-        return apps[_appIndex];
+    function getAppByIndex(uint256 _appId) public view returns (App memory) {
+        return apps[_appId];
     }
 
     function getAppByCode(bytes32 _code) public view returns (App memory) {

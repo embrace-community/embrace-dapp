@@ -22,15 +22,15 @@ export default function Apps({
   useEffect(() => {
     if (!query.app || appSelected) return;
 
-    const appIndex = Object.keys(appMappings).findIndex(
-      (appIndex) => appMappings[appIndex].route === query.app
+    const appId = Object.keys(appMappings).findIndex(
+      (appId) => appMappings[appId].route === query.app
     );
 
     // App cannot be found so select the first app as default
-    if (appIndex === -1) {
+    if (appId === -1) {
       setCurrentApp(0);
     } else {
-      setCurrentApp(appIndex);
+      setCurrentApp(appId);
     }
 
     setAppSelected(true);
