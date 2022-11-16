@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract EmbraceApps {
     using Counters for Counters.Counter;
 
-    Counters.Counter private _appIds;
+    Counters.Counter private _appIdCounter;
 
     struct App {
         uint256 id;
@@ -17,7 +17,6 @@ contract EmbraceApps {
         string metadata;
     }
 
-    uint256 private appId = 0;
     App[] public apps;
     bytes32[] categories;
 
@@ -42,20 +41,20 @@ contract EmbraceApps {
     function createApp(
         bytes32 _code,
         address _contractAddress,
-        bool _enabled,
-        string memory _metadata
+        string memory _metadata,
+        bool _enabled
     ) public onlyOwner uniqueAppCode(_code) {
-        _appIds.increment();
-
         App memory app = App({
-            id: _appIds.current(),
+            id: _appIdCounter.current(),
             code: _code,
             contractAddress: _contractAddress,
-            enabled: _enabled,
-            metadata: _metadata
+            metadata: _metadata,
+            enabled: _enabled
         });
 
         apps.push(app);
+
+        _appIdCounter.increment();
     }
 
     function setAppContractAddress(bytes32 _code, address _contractAddress) public onlyOwner {

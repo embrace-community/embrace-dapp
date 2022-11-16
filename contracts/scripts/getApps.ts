@@ -2,6 +2,7 @@ import "dotenv/config";
 import { ethers } from "ethers";
 import { formatBytes32String } from "ethers/lib/utils";
 
+// npx ts-node scripts/getApps 0xE300bF5B76671A5C702F9E48B8e5e91cE8C8C282 polygonMumbai
 import * as EmbraceApps from "../artifacts/contracts/EmbraceApps.sol/EmbraceApps.json";
 import { getSignerProvider, getWallet } from "./utils";
 

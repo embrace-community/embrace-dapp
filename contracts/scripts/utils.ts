@@ -1,6 +1,12 @@
+import { config as dotenvConfig } from "dotenv";
 import { ethers } from "ethers";
 
 import { Access, MembershipGateToken, Visibility } from "../test/types";
+
+const infuraApiKey: string | undefined = process.env.INFURA_API_KEY;
+// if (!infuraApiKey) {
+//   throw new Error("Please set your INFURA_API_KEY in a .env file (utils.ts)");
+// }
 
 function getWallet(walletNum: number = 0): ethers.Wallet {
   // This key is already public on Herong's Tutorial Examples - v1.03, by Dr. Herong Yang
@@ -30,10 +36,13 @@ function getSignerProvider(
 
   if (network === "localhost") {
     provider = new ethers.providers.JsonRpcProvider();
-  } else if (network === "evmosTestnet") {
-    provider = new ethers.providers.JsonRpcProvider("https://eth.bd.evmos.dev:8545");
   } else {
-    provider = ethers.providers.getDefaultProvider(network);
+    let chainName: string = network;
+    if (network === "polygonMumbai") {
+      chainName = "polygon-mumbai";
+    }
+
+    provider = new ethers.providers.JsonRpcProvider("https://" + chainName + ".infura.io/v3/" + infuraApiKey);
   }
   const signer = wallet.connect(provider);
 
