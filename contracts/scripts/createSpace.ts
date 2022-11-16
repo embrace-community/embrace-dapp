@@ -6,7 +6,7 @@ import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/Embrace
 import { getSignerProvider, getSpace, getWallet } from "./utils";
 
 // COMMANDS TO CREATE SPACES WITH DIFFERING MEMBERSHIP TYPES
-// npx ts-node scripts/createSpace 0x2867f5Eb64C1efd8Cd55a03e48aC0953fd5c183F public.open bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli
+// npx ts-node scripts/createSpace 0x275aF440EAe74c3d49b1ef87a05C848Ec6426ef8 public.open bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli
 // npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 public.gated bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet public-gated
 // npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 private.closed bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet private-closed
 // npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 private.closed.reqs bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet private-closed-reqs

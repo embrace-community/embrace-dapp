@@ -16,7 +16,7 @@ import Spinner from "../components/Spinner";
 import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import getWeb3StorageClient from "../lib/web3storage/client";
-import getIpfsJsonContent from "../lib/web3storage/getIpfsJsonContent";
+import { getIpfsJsonContent } from "../lib/web3storage/getIpfsJsonContent";
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
 import { Access, MembershipGateToken, Visibility } from "../utils/types";
 
