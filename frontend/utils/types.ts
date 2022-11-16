@@ -31,13 +31,13 @@ type Membership = {
 };
 
 export type EmbraceSpace = {
-  index: BigNumber;
+  id: BigNumber;
   handle: string;
+  founder: string;
   visibility: Visibility;
   apps: number[];
   // metadata: SpaceMetaData;
   metadata: string;
-  founder: string;
   memberCount: number;
   membership: Membership;
 };

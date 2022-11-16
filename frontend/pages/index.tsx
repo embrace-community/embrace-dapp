@@ -40,7 +40,7 @@ export default function HomePage() {
 
   // Once the signer is loaded, initialize the accounts contract
   useEffect(() => {
-    if (!isSignerLoading) {
+    if (!isSignerLoading && signer) {
       const accountsContract = new Contract(
         process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
         EmbraceAccounts.abi,
@@ -63,6 +63,7 @@ export default function HomePage() {
 
         // Gets spaces for the current account in account contract
         const response = await MyContract.getSpaces(address);
+
         if (response.length > 0) {
           const spaceIds = response.map((spaceId) =>
             BigNumber.from(spaceId).toNumber()
@@ -90,7 +91,7 @@ export default function HomePage() {
 
         for (let i in spaces) {
           const space = spaces[i] as EmbraceSpace;
-          const spaceId = BigNumber.from(space.index).toNumber();
+          const spaceId = BigNumber.from(space.id).toNumber();
 
           if (accountSpaces.includes(spaceId)) {
             spaceIdsIsMember.push(spaceId);
@@ -110,7 +111,7 @@ export default function HomePage() {
 
     return (spaces as EmbraceSpace[]).filter((_, i) => {
       if (!Array.isArray(spaceIdsUserIsMember)) return false;
-      let spaceId: number = spaces[i].index.toNumber();
+      let spaceId: number = spaces[i].id.toNumber();
 
       return spaceIdsUserIsMember?.includes(spaceId);
     });
@@ -121,7 +122,7 @@ export default function HomePage() {
 
     return (spaces as EmbraceSpace[]).filter((_, i) => {
       if (!Array.isArray(spaceIdsUserIsMember)) return false;
-      let spaceId: number = spaces[i].index.toNumber();
+      let spaceId: number = spaces[i].id.toNumber();
 
       return !spaceIdsUserIsMember?.includes(spaceId);
     });

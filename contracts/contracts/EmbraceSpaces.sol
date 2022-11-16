@@ -7,7 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "./EmbraceSpaceMembersNFT.sol";
 
 contract EmbraceSpaces {
     using Counters for Counters.Counter;
@@ -68,7 +67,6 @@ contract EmbraceSpaces {
         Membership membership;
         uint128[] apps;
         string metadata;
-        address membersContract;
     }
 
     struct Member {
@@ -125,10 +123,7 @@ contract EmbraceSpaces {
             revert ErrorHandleExists(_handle);
         }
 
-        _spaceIdCounter.increment();
         uint256 spaceId = _spaceIdCounter.current();
-
-        address membersNftContract = address(new EmbraceSpaceMembersNFT("Embrace Space Members", "ESM", spaceId));
 
         Space memory space = Space({
             id: spaceId,
@@ -137,16 +132,13 @@ contract EmbraceSpaces {
             visibility: _visibility,
             membership: _membership,
             apps: _apps,
-            metadata: _metadata,
-            membersContract: membersNftContract
+            metadata: _metadata
         });
 
         spaces.push(space);
 
         // Add Handle only if one is provided - anonymous spaces do not have handles
-        if (_handle != "") {
-            spaceHandles[_handle] = spaceId;
-        }
+        spaceHandles[_handle] = spaceId;
 
         // Add space to founder's account
         accounts.addSpace(msg.sender, spaceId);
@@ -154,6 +146,8 @@ contract EmbraceSpaces {
         // Set founder as the first admin member
         spaceMemberLength[spaceId]++;
         spaceMembers[spaceId][msg.sender] = Member({ isAdmin: true, isActive: true, isRequest: false });
+
+        _spaceIdCounter.increment();
 
         emit SpaceCreated(spaceId, msg.sender);
     }

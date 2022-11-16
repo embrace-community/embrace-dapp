@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json";
 import { getSignerProvider, getWallet } from "./utils";
 
-// npx ts-node scripts/getSpaces 0x1B51857E817E328Bb53166Bc7a36FeD31F5cDee4 evmosTestnet
+// npx ts-node scripts/getSpaces 0x2867f5Eb64C1efd8Cd55a03e48aC0953fd5c183F goerli
 
 async function main() {
   const contractAddress = process.argv[2];

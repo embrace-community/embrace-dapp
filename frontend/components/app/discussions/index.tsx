@@ -48,7 +48,7 @@ export default function Discussions({
 
       {topicId && <>Topic ID = {topicId}</>}
 
-      {!topicId && <Topics spaceId={space.index} />}
+      {!topicId && <Topics spaceId={space.id} />}
     </>
   );
 }
