@@ -77,8 +77,8 @@ export default function SpaceViewPage() {
         );
 
         if (space) {
-          // const apps = space.apps.map((app) => BigNumber.from(app).toNumber());
-          const apps = [0, 1, 2]; // TODO: temp for testing
+          const apps = space.apps.map((app) => BigNumber.from(app).toNumber());
+          // const apps = [0, 1, 2]; // TODO: temp for testing
           const updatedSpace = { ...space, apps };
           setSpaceData(updatedSpace);
           setIsFounder(space.founder === connectedAddress);

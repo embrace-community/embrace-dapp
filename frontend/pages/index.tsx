@@ -165,11 +165,15 @@ export default function HomePage() {
 
           {!isSpacesLoading && !yourSpacesLoading && (
             <>
-              {signer && (
+              {signer && yourSpaces.length > 0 && (
                 <SpaceCollection title="your spaces" collection={yourSpaces} />
               )}
-
-              <SpaceCollection title="public spaces" collection={allSpaces} />
+              {allSpaces.length > 0 && (
+                <SpaceCollection
+                  title="community spaces"
+                  collection={allSpaces}
+                />
+              )}
             </>
           )}
         </div>

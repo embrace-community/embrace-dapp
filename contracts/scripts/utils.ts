@@ -1,6 +1,12 @@
+import { config as dotenvConfig } from "dotenv";
 import { ethers } from "ethers";
 
 import { Access, MembershipGateToken, Visibility } from "../test/types";
+
+const infuraApiKey: string | undefined = process.env.INFURA_API_KEY;
+// if (!infuraApiKey) {
+//   throw new Error("Please set your INFURA_API_KEY in a .env file (utils.ts)");
+// }
 
 function getWallet(walletNum: number = 0): ethers.Wallet {
   // This key is already public on Herong's Tutorial Examples - v1.03, by Dr. Herong Yang
@@ -30,10 +36,13 @@ function getSignerProvider(
 
   if (network === "localhost") {
     provider = new ethers.providers.JsonRpcProvider();
-  } else if (network === "evmosTestnet") {
-    provider = new ethers.providers.JsonRpcProvider("https://eth.bd.evmos.dev:8545");
   } else {
-    provider = ethers.providers.getDefaultProvider(network);
+    let chainName: string = network;
+    if (network === "polygonMumbai") {
+      chainName = "polygon-mumbai";
+    }
+
+    provider = new ethers.providers.JsonRpcProvider("https://" + chainName + ".infura.io/v3/" + infuraApiKey);
   }
   const signer = wallet.connect(provider);
 
@@ -49,6 +58,7 @@ function convertStringArrayToBytes32(array: string[]) {
 }
 
 const chainLinkAddressGoerli = "0x326c977e6efc84e512bb9c30f76e30c160ed06fb";
+const apps = [0, 1, 2];
 
 function getSpace(spaceType: any, handle: string, metadata: string) {
   if (spaceType == "public") {
@@ -59,7 +69,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
         access: Access.OPEN,
         gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
       },
-      apps: [0],
+      apps,
       metadata,
     };
   } else if (spaceType == "public-gated") {
@@ -73,7 +83,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
           tokenAddress: chainLinkAddressGoerli,
         },
       },
-      apps: [0],
+      apps,
       metadata,
     };
   } else if (spaceType == "private-gated") {
@@ -87,7 +97,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
           tokenAddress: chainLinkAddressGoerli,
         },
       },
-      apps: [0],
+      apps,
       metadata,
     };
   } else if (spaceType == "private-closed") {
@@ -99,7 +109,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
         gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
         allowRequests: false,
       },
-      apps: [0],
+      apps,
       metadata,
     };
   } else if (spaceType == "private-closed-reqs") {
@@ -111,7 +121,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
         gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
         allowRequests: true,
       },
-      apps: [0],
+      apps,
       metadata,
     };
   } else if (spaceType == "anon") {
@@ -122,7 +132,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
         access: Access.CLOSED,
         gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
       },
-      apps: [0],
+      apps,
       metadata,
     };
   }

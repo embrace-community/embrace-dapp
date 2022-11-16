@@ -1,9 +1,10 @@
 import "dotenv/config";
 import { ethers } from "ethers";
-import { formatBytes32String } from "ethers/lib/utils";
 
 import * as EmbraceApps from "../artifacts/contracts/EmbraceApps.sol/EmbraceApps.json";
 import { getSignerProvider, getWallet } from "./utils";
+
+// npx ts-node scripts/getApps 0x99d397319B258b0400129467ba4827799680D6B5 polygonMumbai
 
 async function main() {
   const contractAddress = process.argv[2];
@@ -20,7 +21,8 @@ async function main() {
   const contract = new ethers.Contract(contractAddress, EmbraceApps.abi, signer);
 
   const apps = await contract.getApps();
-  console.log(`There are currently ${apps.length} apps, ${JSON.stringify(apps[apps.length - 1])}`);
+  console.log(`There are currently ${apps.length} apps, ${JSON.stringify(apps)}`);
+  console.log(apps);
 }
 
 main().catch((error) => {

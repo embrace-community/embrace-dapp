@@ -1,22 +1,28 @@
 import { EmbraceApps } from "../utils/types";
 import Discussions from "../components/app/discussions";
-import Proposals from "../components/app/proposals";
+import Governance from "../components/app/governance";
 import Chat from "../components/app/chat";
+import Social from "../components/app/social";
 
 export const appMappings = {
+  [EmbraceApps.CHAT_SERVER]: {
+    title: "Chat",
+    route: "chat",
+    component: Chat,
+  },
   [EmbraceApps.DISCUSSIONS]: {
     title: "Discussions",
     route: "discussions",
     component: Discussions,
   },
-  [EmbraceApps.PROPOSALS]: {
-    title: "Proposals",
-    route: "proposals",
-    component: Proposals,
+  [EmbraceApps.SOCIAL]: {
+    title: "Social",
+    route: "social",
+    component: Social,
   },
-  [EmbraceApps.CHAT]: {
-    title: "Chat",
-    route: "chat",
-    component: Chat,
+  [EmbraceApps.GOVERNANCE]: {
+    title: "Governance",
+    route: "governance",
+    component: Governance,
   },
 };

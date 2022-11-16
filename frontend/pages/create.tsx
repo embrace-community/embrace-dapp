@@ -23,6 +23,7 @@ import { Access, MembershipGateToken, Visibility } from "../utils/types";
 export default function SpaceViewPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [currentStep, setCurrentStep] = useState<number>(1);
 
   const [deployedApps, setDeployedApps] = useState({
     isLoading: false,
@@ -50,6 +51,9 @@ export default function SpaceViewPage() {
   const [metadataCid, setMetadataCid] = useState("");
   const [tx, setTx] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [spaceCreationMessage, setSpaceCreationMessage] = useState<string>(
+    "We're just setting up your space"
+  );
 
   const isVisibilityPrivate =
     visibility === visOptions.findIndex((opt) => opt.id === Visibility.PRIVATE);
@@ -177,6 +181,20 @@ export default function SpaceViewPage() {
           allowRequests,
         };
 
+        contract.on("SpaceCreated", (spaceId, founder) => {
+          setSpaceCreationMessage("Space created! Redirecting to space...");
+
+          setTimeout(() => {
+            redirectToSpace();
+          }, 1000);
+        });
+
+        setTimeout(() => {
+          setSpaceCreationMessage(
+            "Making sure everything is ready for your community..."
+          );
+        }, 10000);
+
         const tx = await contract.createSpace(
           ethers.utils.formatBytes32String(handle),
           visibility,
@@ -188,10 +206,16 @@ export default function SpaceViewPage() {
           }
         );
 
-        console.log(`Creating spaces...tx ${JSON.stringify(tx)}`);
+        if (tx) {
+          console.log(`Creating spaces...tx ${JSON.stringify(tx)}`);
 
-        setTx(tx?.hash);
-        setShowModal(true);
+          setTx(tx?.hash);
+          setCurrentStep(3);
+          return;
+        }
+
+        console.error("TX not set: user likely rejected transaction");
+        // setShowModal(true);
       } else {
         console.error("No signer found");
       }
@@ -200,6 +224,11 @@ export default function SpaceViewPage() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function redirectToSpace() {
+    // TODO: Stop listening to events
+    router.push(`/spaces/${handle}`);
   }
 
   function onFinishModal() {
@@ -263,345 +292,292 @@ export default function SpaceViewPage() {
 
           <div className="max-w-lg pl-8">
             {isLoading && <Spinner />}
+            {currentStep === 1 && (
+              <>
+                <div className="mb-7">
+                  <label
+                    htmlFor="description"
+                    className="mb-2 block text-sm font-medium text-embracedark"
+                  >
+                    Avatar
+                  </label>
 
-            <div className="mb-7">
-              <label
-                htmlFor="description"
-                className="mb-2 block text-sm font-medium text-embracedark"
-              >
-                Avatar
-              </label>
+                  {image && (
+                    <img
+                      className="w-36 my-5 extrastyles-border-radius"
+                      src={URL.createObjectURL(image)}
+                    />
+                  )}
 
-              {image && (
-                <img
-                  className="w-36 my-5 extrastyles-border-radius"
-                  src={URL.createObjectURL(image)}
-                />
-              )}
-
-              <div className="mt-2">
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="text-sm text-violet-500
+                  <div className="mt-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="text-sm text-violet-500
                 file: file:py-1 file:px-6
                 file:rounded-full file:border-2
                 file:border-violet-500
                 file:text-sm file:font-medium
                 file:bg-transparent file:text-violet-500"
-                  onChange={(e) => handleFileChange(e)}
-                />
-              </div>
-            </div>
-
-            <div className="mb-7">
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-embracedark"
-              >
-                Name
-              </label>
-
-              <div className="mt-2">
-                <input
-                  type="text"
-                  name="name"
-                  id="name"
-                  className="block bg-transparent text-embracedark w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
-                  placeholder="The name of your new space"
-                  onChange={(e) => setName(e.target.value)}
-                  value={name}
-                />
-              </div>
-            </div>
-
-            <div className="mb-7">
-              <label
-                htmlFor="handle"
-                className="block text-sm font-medium text-embracedark"
-              >
-                Handle
-              </label>
-
-              <div className="mt-2">
-                <input
-                  type="text"
-                  name="handle"
-                  id="handle"
-                  className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
-                  placeholder="The handle of your new space"
-                  onChange={(e) => setHandle(e.target.value)}
-                  value={handle}
-                />
-              </div>
-            </div>
-
-            <div className="mb-7">
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-embracedark"
-              >
-                About
-              </label>
-
-              <div className="mt-2">
-                <textarea
-                  name="description"
-                  id="description"
-                  className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
-                  placeholder="Description of new space"
-                  onChange={(e) => setDescription(e.target.value)}
-                  value={description}
-                />
-              </div>
-            </div>
-
-            <div className="mb-7">
-              <label className="block text-sm font-medium text-embracedark">
-                Visibility
-              </label>
-
-              <fieldset className="mt-2">
-                <legend className="sr-only">Visibility</legend>
-
-                <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
-                  {visOptions.map((visOption, i) => (
-                    <div key={visOption.id} className="flex items-center">
-                      <input
-                        id={`vis-${visOption.id}`}
-                        name="vis-method"
-                        type="radio"
-                        onChange={(e) =>
-                          setNextVisibility({
-                            e,
-                            setVisibility,
-                            i,
-                            membershipAccess,
-                            setMembershipAccess,
-                          })
-                        }
-                        checked={i === visibility}
-                        className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
-                      />
-                      <label
-                        htmlFor={`vis-${visOption.id}`}
-                        className="ml-2 block text-sm font-medium text-embracedark"
-                      >
-                        {visOption.title}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </fieldset>
-              <div className="mt-2 italic text-sm font-medium text-embracedark">
-                Public is open to everyone to join, private can require access
-                through a token or user membership requests, anonymous doesn't
-                track any identity.
-              </div>
-            </div>
-
-            <div
-              className={`transition-all duration-200 ${
-                isVisibilityAnon ? "opacity-100" : "opacity-0"
-              }`}
-            >
-              <div className="mb-7">
-                <label className="block text-sm font-medium text-embracedark">
-                  Membership Access
-                </label>
-                <fieldset className="mt-2">
-                  <legend className="sr-only">Membership Access</legend>
-
-                  <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
-                    {memberAccessOptions.map((memberAccessOption, i) => (
-                      <div
-                        key={`${memberAccessOption.id}-opt`}
-                        className={`flex items-center`}
-                      >
-                        <input
-                          id={`${memberAccessOption.id}`}
-                          name="member-access-method"
-                          type="radio"
-                          onChange={(e) =>
-                            setNextMembershipAccess({
-                              e,
-                              setMembershipAccess,
-                              i,
-                              visibility,
-                              setVisibility,
-                            })
-                          }
-                          checked={i === membershipAccess}
-                          className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
-                        />
-                        <label
-                          htmlFor={`${memberAccessOption.id}`}
-                          className="ml-2 block text-sm font-medium text-embracedark"
-                        >
-                          {memberAccessOption.title}
-                        </label>
-                      </div>
-                    ))}
+                      onChange={(e) => handleFileChange(e)}
+                    />
                   </div>
-                </fieldset>
+                </div>
 
-                <fieldset className="mt-2">
-                  <legend className="sr-only">Membership Token</legend>
-                  <div
-                    className={`sm:flex sm:items-center sm:space-y-0 sm:space-x-10 transition-all duration-200 ${
-                      isMembershipGated ? "opacity-100" : "opacity-0"
-                    }`}
+                <div className="mb-7">
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-embracedark"
                   >
-                    {memberTokenOptions.map((memberTokenOption, i) => {
-                      return (
-                        <div
-                          key={`member-${memberTokenOption.id}`}
-                          className="flex items-center"
-                        >
+                    Name
+                  </label>
+
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      name="name"
+                      id="name"
+                      className="block bg-transparent text-embracedark w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
+                      placeholder="The name of your new space"
+                      onChange={(e) => setName(e.target.value)}
+                      value={name}
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-7">
+                  <label
+                    htmlFor="handle"
+                    className="block text-sm font-medium text-embracedark"
+                  >
+                    Handle
+                  </label>
+
+                  <div className="mt-2">
+                    <input
+                      type="text"
+                      name="handle"
+                      id="handle"
+                      className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
+                      placeholder="The handle of your new space"
+                      onChange={(e) => setHandle(e.target.value)}
+                      value={handle}
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-7">
+                  <label
+                    htmlFor="description"
+                    className="block text-sm font-medium text-embracedark"
+                  >
+                    About
+                  </label>
+
+                  <div className="mt-2">
+                    <textarea
+                      name="description"
+                      id="description"
+                      className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
+                      placeholder="Description of new space"
+                      onChange={(e) => setDescription(e.target.value)}
+                      value={description}
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-7">
+                  <label className="block text-sm font-medium text-embracedark">
+                    Visibility
+                  </label>
+
+                  <fieldset className="mt-2">
+                    <legend className="sr-only">Visibility</legend>
+
+                    <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                      {visOptions.map((visOption, i) => (
+                        <div key={visOption.id} className="flex items-center">
                           <input
-                            id={`member-${memberTokenOption.id}`}
-                            name="member-token-method"
+                            id={`vis-${visOption.id}`}
+                            name="vis-method"
                             type="radio"
-                            onChange={(e) => {
-                              if (e.target.checked) setMembershipToken(i);
-                            }}
-                            checked={i === membershipToken}
+                            onChange={(e) =>
+                              setNextVisibility({
+                                e,
+                                setVisibility,
+                                i,
+                                membershipAccess,
+                                setMembershipAccess,
+                              })
+                            }
+                            checked={i === visibility}
                             className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
                           />
                           <label
-                            htmlFor={`member-${memberTokenOption.id}`}
+                            htmlFor={`vis-${visOption.id}`}
                             className="ml-2 block text-sm font-medium text-embracedark"
                           >
-                            {memberTokenOption.title}
+                            {visOption.title}
                           </label>
                         </div>
-                      );
-                    })}
-                  </div>
-
-                  <div
-                    className={`mt-2 transition-all duration-200 ${
-                      isMembershipGated ? "opacity-100" : "opacity-0"
-                    }`}
-                  >
-                    <input
-                      placeholder="Token Address"
-                      type="text"
-                      value={membershipTokenAddress}
-                      onChange={(e) =>
-                        setMembershipTokenAddress(e.target.value)
-                      }
-                      className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm`}
-                    />
-
-                    <div
-                      className={`mt-1 italic text-sm font-medium text-embracedark`}
-                    >
-                      Please choose the token standard and type in the address
-                      of the deployed contract.
+                      ))}
                     </div>
+                  </fieldset>
+                  <div className="mt-2 italic text-sm font-medium text-embracedark">
+                    Public is open to everyone to join, private can require
+                    access through a token or user membership requests,
+                    anonymous doesn't track any identity.
                   </div>
+                </div>
 
-                  <div
-                    className={`transition-all duration-200 ${
-                      isMembershipClosed ? "opacity-100" : "opacity-0"
-                    }`}
-                  >
-                    <div className={`sm:flex sm:items-center`}>
-                      <input
-                        id="allowMembershipRequests"
-                        aria-describedby="allowMembershipRequests"
-                        name="allowMembershipRequests"
-                        type="checkbox"
-                        checked={allowMembershipRequests}
-                        onChange={() =>
-                          allowMembershipRequests
-                            ? setAllowMembershipRequests(false)
-                            : setAllowMembershipRequests(true)
-                        }
-                        className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
-                      />
+                <div
+                  className={`transition-all duration-200 ${
+                    isVisibilityAnon ? "opacity-100" : "hidden"
+                  }`}
+                >
+                  <div className="mb-7">
+                    <label className="block text-sm font-medium text-embracedark">
+                      Membership Access
+                    </label>
+                    <fieldset className="mt-2">
+                      <legend className="sr-only">Membership Access</legend>
 
-                      <label
-                        htmlFor="allowMembershipRequests"
-                        className="ml-2 block text-sm font-medium text-embracedark"
-                      >
-                        Allow Requests
-                      </label>
-                    </div>
+                      <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                        {memberAccessOptions.map((memberAccessOption, i) => (
+                          <div
+                            key={`${memberAccessOption.id}-opt`}
+                            className={`flex items-center`}
+                          >
+                            <input
+                              id={`${memberAccessOption.id}`}
+                              name="member-access-method"
+                              type="radio"
+                              onChange={(e) =>
+                                setNextMembershipAccess({
+                                  e,
+                                  setMembershipAccess,
+                                  i,
+                                  visibility,
+                                  setVisibility,
+                                })
+                              }
+                              checked={i === membershipAccess}
+                              className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
+                            />
+                            <label
+                              htmlFor={`${memberAccessOption.id}`}
+                              className="ml-2 block text-sm font-medium text-embracedark"
+                            >
+                              {memberAccessOption.title}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </fieldset>
 
-                    <div
-                      className={`mt-1 italic text-sm font-medium text-embracedark transition-all duration-200 ${
-                        isVisibilityPrivate && isMembershipClosed
-                          ? "opacity-100"
-                          : "opacity-0"
+                    <fieldset
+                      className={`mt-2 transition-all duration-200 ${
+                        isMembershipGated ? "opacity-100" : "hidden"
                       }`}
                     >
-                      Are other users allowed to request access to the private
-                      space?
-                    </div>
-                  </div>
-                </fieldset>
-              </div>
-            </div>
+                      <legend className="sr-only">Membership Token</legend>
+                      <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10 transition-all duration-200">
+                        {memberTokenOptions.map((memberTokenOption, i) => {
+                          return (
+                            <div
+                              key={`member-${memberTokenOption.id}`}
+                              className="flex items-center"
+                            >
+                              <input
+                                id={`member-${memberTokenOption.id}`}
+                                name="member-token-method"
+                                type="radio"
+                                onChange={(e) => {
+                                  if (e.target.checked) setMembershipToken(i);
+                                }}
+                                checked={i === membershipToken}
+                                className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
+                              />
+                              <label
+                                htmlFor={`member-${memberTokenOption.id}`}
+                                className="ml-2 block text-sm font-medium text-embracedark"
+                              >
+                                {memberTokenOption.title}
+                              </label>
+                            </div>
+                          );
+                        })}
+                      </div>
 
-            <fieldset className="space-y-2 mt-12 mb-10">
-              <label className="block text-sm font-medium text-embracedark mb-3">
-                Apps
-              </label>
-
-              <legend className="sr-only">Apps</legend>
-
-              {deployedApps.isLoading ? (
-                <Spinner />
-              ) : (
-                deployedApps.apps.map((app, i) => {
-                  const name =
-                    app?.code && ethers.utils.parseBytes32String(app.code);
-
-                  return (
-                    <div
-                      key={`app-${i}`}
-                      className="relative flex items-start bg-white py-6 px-7"
-                    >
-                      <div className="flex h-5 items-center">
+                      <div
+                        className={`mt-2 transition-all duration-200 ${
+                          isMembershipGated ? "opacity-100" : "hidden"
+                        }`}
+                      >
                         <input
-                          id={name}
-                          aria-describedby={`${name}-app`}
-                          name={name}
-                          type="checkbox"
-                          checked={apps.includes(i)}
-                          onChange={() => {
-                            apps.includes(i)
-                              ? setApps(apps.filter((a) => a !== i))
-                              : setApps([...apps, i]);
-                          }}
-                          className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
+                          placeholder="Token Address"
+                          type="text"
+                          value={membershipTokenAddress}
+                          onChange={(e) =>
+                            setMembershipTokenAddress(e.target.value)
+                          }
+                          className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm`}
                         />
+
+                        <div
+                          className={`mt-1 italic text-sm font-medium text-embracedark`}
+                        >
+                          Please choose the token standard and type in the
+                          address of the deployed contract.
+                        </div>
                       </div>
 
-                      <div className="ml-3 text-sm">
-                        <label
-                          htmlFor={name}
-                          className="font-medium text-embracedark"
-                        >
-                          {name}
-                        </label>
+                      <div
+                        className={`transition-all duration-200 ${
+                          isMembershipClosed ? "opacity-100" : "hidden"
+                        }`}
+                      >
+                        <div className={`sm:flex sm:items-center`}>
+                          <input
+                            id="allowMembershipRequests"
+                            aria-describedby="allowMembershipRequests"
+                            name="allowMembershipRequests"
+                            type="checkbox"
+                            checked={allowMembershipRequests}
+                            onChange={() =>
+                              allowMembershipRequests
+                                ? setAllowMembershipRequests(false)
+                                : setAllowMembershipRequests(true)
+                            }
+                            className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
+                          />
 
-                        <p
-                          id={`${name}-description`}
-                          className="text-embracedark text-opacity-50"
+                          <label
+                            htmlFor="allowMembershipRequests"
+                            className="ml-2 block text-sm font-medium text-embracedark"
+                          >
+                            Allow Requests
+                          </label>
+                        </div>
+
+                        <div
+                          className={`mt-1 italic text-sm font-medium text-embracedark transition-all duration-200 ${
+                            isVisibilityPrivate && isMembershipClosed
+                              ? "opacity-100"
+                              : "hidden"
+                          }`}
                         >
-                          {deployedApps.appsMetadata?.[i]?.description}
-                        </p>
+                          Are other users allowed to request access to the
+                          private space?
+                        </div>
                       </div>
-                    </div>
-                  );
-                })
-              )}
-            </fieldset>
+                    </fieldset>
+                  </div>
+                </div>
+              </>
+            )}
 
-            {error && (
+            {error && currentStep == 1 && (
               <div className="border-y border-embracedark py-3">
                 <p className="block text-sm font-medium text-embracedark">
                   {error}
@@ -609,10 +585,8 @@ export default function SpaceViewPage() {
               </div>
             )}
 
-            {!name ||
-              !description ||
-              !handle ||
-              (!imageCid && (
+            {currentStep == 1 &&
+              (!name || !description || !handle || !imageCid) && (
                 <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
                   <p className="text-sm text-embracedark text-opacity-50 mb-2">
                     To create your space, it needs:
@@ -624,30 +598,126 @@ export default function SpaceViewPage() {
                     {!description && <li>• description</li>}
                   </ul>
                 </div>
-              ))}
+              )}
+
+            {currentStep === 2 && (
+              <fieldset className="space-y-2 mt-12 mb-10">
+                <label className="block text-sm font-medium text-embracedark mb-3">
+                  Apps
+                </label>
+
+                <legend className="sr-only">Apps</legend>
+
+                {deployedApps.isLoading ? (
+                  <Spinner />
+                ) : (
+                  deployedApps.apps.map((app, i) => {
+                    const name = app?.code;
+
+                    return (
+                      <div
+                        key={`app-${i}`}
+                        className="relative flex items-start bg-white py-6 px-7"
+                      >
+                        <div className="flex h-5 items-center">
+                          <input
+                            id={name}
+                            aria-describedby={`${name}-app`}
+                            name={name}
+                            type="checkbox"
+                            checked={apps.includes(i)}
+                            onChange={() => {
+                              apps.includes(i)
+                                ? setApps(apps.filter((a) => a !== i))
+                                : setApps([...apps, i]);
+                            }}
+                            className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
+                          />
+                        </div>
+
+                        <div className="ml-3 text-sm">
+                          <label
+                            htmlFor={name}
+                            className="font-medium text-embracedark"
+                          >
+                            {name}
+                          </label>
+
+                          <p
+                            id={`${name}-description`}
+                            className="text-embracedark text-opacity-50"
+                          >
+                            {deployedApps.appsMetadata?.[i]?.description}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </fieldset>
+            )}
+
+            {currentStep === 3 && (
+              <fieldset className="space-y-2 mt-12 mb-10">
+                <label className="block text-sm font-medium text-embracedark mb-3">
+                  {spaceCreationMessage}
+                </label>
+
+                <Spinner />
+              </fieldset>
+            )}
 
             <div className="flex flex-row mt-6 align-middle">
-              <Link
-                href="/"
-                className="mt-2 mr-4 text-violet-500 font-semibold underline"
-              >
-                cancel
-              </Link>
-              <button
-                className=" inline-flex items-center rounded-full border-violet-500 border-2 bg-transparent py-2 px-10 text-violet-500 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
-                disabled={
-                  !name ||
-                  !description ||
-                  !handle ||
-                  !imageCid ||
-                  (isVisibilityPrivate &&
-                    isMembershipGated &&
-                    !membershipTokenAddress)
-                }
-                onClick={() => onSubmit()}
-              >
-                {isLoading ? <Spinner /> : "create space!"}
-              </button>
+              {currentStep === 1 && (
+                <>
+                  <Link
+                    href="/"
+                    className="mt-2 mr-4 text-violet-500 font-semibold underline"
+                  >
+                    cancel
+                  </Link>
+                  <button
+                    className=" inline-flex items-center rounded-full border-violet-500 border-2 bg-transparent py-2 px-10 text-violet-500 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
+                    disabled={
+                      !name ||
+                      !description ||
+                      !handle ||
+                      !imageCid ||
+                      (isVisibilityPrivate &&
+                        isMembershipGated &&
+                        !membershipTokenAddress)
+                    }
+                    onClick={() => setCurrentStep(2)}
+                  >
+                    choose apps &rarr;
+                  </button>
+                </>
+              )}
+              {currentStep === 2 && (
+                <>
+                  <button
+                    onClick={(e) => setCurrentStep(1)}
+                    className="mt-2 mr-4 text-violet-500 font-semibold underline"
+                  >
+                    back
+                  </button>
+                  <button
+                    className=" inline-flex items-center rounded-full border-violet-500 border-2 bg-transparent py-2 px-10 text-violet-500 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
+                    disabled={
+                      !name ||
+                      !description ||
+                      !handle ||
+                      !imageCid ||
+                      (isVisibilityPrivate &&
+                        isMembershipGated &&
+                        !membershipTokenAddress)
+                    }
+                    onClick={() => onSubmit()}
+                  >
+                    {isLoading ? <Spinner /> : "create space!"}
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

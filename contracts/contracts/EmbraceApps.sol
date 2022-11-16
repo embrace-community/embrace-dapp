@@ -7,18 +7,18 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 contract EmbraceApps {
     using Counters for Counters.Counter;
 
-    Counters.Counter private _appIds;
+    Counters.Counter private _appIdCounter;
 
     struct App {
         uint256 id;
-        bytes32 code;
+        string code;
         address contractAddress;
         bool enabled;
         string metadata;
     }
 
-    uint256 private appId = 0;
     App[] public apps;
+    mapping(bytes32 => uint256) public codeToIndex;
     bytes32[] categories;
 
     address public owner;
@@ -28,9 +28,9 @@ contract EmbraceApps {
         _;
     }
 
-    modifier uniqueAppCode(bytes32 _appCode) {
+    modifier uniqueAppCode(string memory _appCode) {
         for (uint256 i = 0; i < apps.length; i++) {
-            require(apps[i].code != _appCode, "App code already exists.");
+            require(keccak256(bytes(apps[i].code)) != keccak256(bytes(_appCode)), "App code already exists.");
         }
         _;
     }
@@ -40,27 +40,29 @@ contract EmbraceApps {
     }
 
     function createApp(
-        bytes32 _code,
+        string memory _code,
         address _contractAddress,
-        bool _enabled,
-        string memory _metadata
+        string memory _metadata,
+        bool _enabled
     ) public onlyOwner uniqueAppCode(_code) {
-        _appIds.increment();
-
+        uint256 id = _appIdCounter.current();
         App memory app = App({
-            id: _appIds.current(),
+            id: id,
             code: _code,
             contractAddress: _contractAddress,
-            enabled: _enabled,
-            metadata: _metadata
+            metadata: _metadata,
+            enabled: _enabled
         });
 
         apps.push(app);
+        codeToIndex[keccak256(bytes(_code))] = id;
+
+        _appIdCounter.increment();
     }
 
-    function setAppContractAddress(bytes32 _code, address _contractAddress) public onlyOwner {
+    function setAppContractAddress(string memory _code, address _contractAddress) public onlyOwner {
         for (uint256 i = 0; i < apps.length; i++) {
-            if (apps[i].code == _code) {
+            if (keccak256(bytes(apps[i].code)) == keccak256(bytes(_code))) {
                 apps[i].contractAddress = _contractAddress;
             }
         }
@@ -81,12 +83,8 @@ contract EmbraceApps {
         return apps[_appId];
     }
 
-    function getAppByCode(bytes32 _code) public view returns (App memory) {
-        for (uint256 i = 0; i < apps.length; i++) {
-            if (apps[i].code == _code) {
-                return apps[i];
-            }
-        }
+    function getAppByCode(string memory _code) public view returns (App memory) {
+        codeToIndex[keccak256(bytes(_code))];
 
         revert("No app found");
     }

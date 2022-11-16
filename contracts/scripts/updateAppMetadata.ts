@@ -1,6 +1,5 @@
 import "dotenv/config";
 import { ethers } from "ethers";
-import { formatBytes32String } from "ethers/lib/utils";
 
 import * as EmbraceApps from "../artifacts/contracts/EmbraceApps.sol/EmbraceApps.json";
 import { getSignerProvider, getWallet } from "./utils";
