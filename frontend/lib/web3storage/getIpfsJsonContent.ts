@@ -30,4 +30,8 @@ async function getIpfsJsonContent(
   }
 }
 
-export default getIpfsJsonContent;
+function getFileUri(cid: string) {
+  return `https:/${cid}.ipfs.w3s.link/`;
+}
+
+export { getIpfsJsonContent, getFileUri };

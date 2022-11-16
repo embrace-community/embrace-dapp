@@ -5,7 +5,10 @@ import { useSigner, useAccount } from "wagmi";
 import AppLayout from "../../components/AppLayout";
 import embraceSpacesContract from "../../data/contractArtifacts/EmbraceSpaces.json";
 import Spinner from "../../components/Spinner";
-import getIpfsJsonContent from "../../lib/web3storage/getIpfsJsonContent";
+import {
+  getFileUri,
+  getIpfsJsonContent,
+} from "../../lib/web3storage/getIpfsJsonContent";
 import Header from "../../components/space/Header";
 import Apps from "../../components/space/Apps";
 import { EmbraceSpace, SpaceMembership } from "../../utils/types";
@@ -69,16 +72,8 @@ export default function SpaceViewPage() {
 
     async function getSpace(MyContract: Contract): Promise<void> {
       try {
-        console.log("getSpaceFromHandle", handleBytes32, router.query.handle);
         const space: EmbraceSpace = await MyContract.getSpaceFromHandle(
           handleBytes32
-        );
-
-        console.log(
-          "getSpaceFromHandle",
-          handleBytes32,
-          router.query.handle,
-          space
         );
 
         if (space) {
@@ -107,16 +102,13 @@ export default function SpaceViewPage() {
     if (!spaceData || metadataLoaded) return;
 
     async function loadSpaceMetadata() {
-      const metadata = (await getIpfsJsonContent(
-        spaceData.metadata,
-        "readAsText"
-      )) as Record<string, any>;
+      const metadata = (await getIpfsJsonContent(spaceData.metadata)) as Record<
+        string,
+        any
+      >;
 
       if (metadata?.image) {
-        metadata.image = (await getIpfsJsonContent(
-          metadata.image,
-          "readAsDataURL"
-        )) as string;
+        metadata.image = getFileUri(metadata.image);
       }
 
       // Update the spaceData object with the loaded metadata

@@ -1,7 +1,10 @@
 import { ethers } from "ethers";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import getIpfsJsonContent from "../lib/web3storage/getIpfsJsonContent";
+import {
+  getFileUri,
+  getIpfsJsonContent,
+} from "../lib/web3storage/getIpfsJsonContent";
 
 import { EmbraceSpace } from "../utils/types";
 
@@ -22,17 +25,13 @@ export default function SpaceCollection({
 
       for (const item of collection) {
         const jsonContent = (await getIpfsJsonContent(
-          item?.metadata,
-          "readAsText"
+          item?.metadata
         )) as Record<string, any>;
 
         jsonContents.push(jsonContent);
 
         if (jsonContent?.image) {
-          const image = (await getIpfsJsonContent(
-            jsonContent.image,
-            "readAsDataURL"
-          )) as string;
+          const image = getFileUri(jsonContent.image);
 
           images.push(image);
         } else {
