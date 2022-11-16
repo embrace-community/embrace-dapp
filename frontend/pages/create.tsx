@@ -140,14 +140,15 @@ export default function SpaceViewPage() {
       else {
         console.log("Uploaded json to ipfs, CID: ", cid);
         setMetadataCid(cid);
-        createSpace();
+        // Pass CID to createSpace as the state variable is not updated immediately
+        createSpace(cid);
       }
     } catch (err: any) {
       console.error(`Failed to save post to IPFS, ${err.message}`);
     }
   }
 
-  async function createSpace() {
+  async function createSpace(metadataCid: string) {
     try {
       if (signer) {
         const contract = new ethers.Contract(
