@@ -182,7 +182,10 @@ export default function SpaceViewPage() {
           visibility,
           spaceMembership,
           apps,
-          metadataCid
+          metadataCid,
+          {
+            gasLimit: 1000000,
+          }
         );
 
         console.log(`Creating spaces...tx ${JSON.stringify(tx)}`);
