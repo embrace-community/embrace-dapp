@@ -32,7 +32,7 @@ async function main() {
   const network = process.argv[6] || "localhost";
 
   const app = {
-    code: formatBytes32String(code),
+    code: code, // now stored as string for easy readibility
     contractAddress: appsAddress,
     metadata,
     enabled: true,

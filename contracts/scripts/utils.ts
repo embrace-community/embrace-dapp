@@ -58,6 +58,7 @@ function convertStringArrayToBytes32(array: string[]) {
 }
 
 const chainLinkAddressGoerli = "0x326c977e6efc84e512bb9c30f76e30c160ed06fb";
+const apps = [0, 1, 2];
 
 function getSpace(spaceType: any, handle: string, metadata: string) {
   if (spaceType == "public") {
@@ -68,7 +69,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
         access: Access.OPEN,
         gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
       },
-      apps: [0],
+      apps,
       metadata,
     };
   } else if (spaceType == "public-gated") {
@@ -82,7 +83,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
           tokenAddress: chainLinkAddressGoerli,
         },
       },
-      apps: [0],
+      apps,
       metadata,
     };
   } else if (spaceType == "private-gated") {
@@ -96,7 +97,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
           tokenAddress: chainLinkAddressGoerli,
         },
       },
-      apps: [0],
+      apps,
       metadata,
     };
   } else if (spaceType == "private-closed") {
@@ -108,7 +109,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
         gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
         allowRequests: false,
       },
-      apps: [0],
+      apps,
       metadata,
     };
   } else if (spaceType == "private-closed-reqs") {
@@ -120,7 +121,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
         gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
         allowRequests: true,
       },
-      apps: [0],
+      apps,
       metadata,
     };
   } else if (spaceType == "anon") {
@@ -131,7 +132,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
         access: Access.CLOSED,
         gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
       },
-      apps: [0],
+      apps,
       metadata,
     };
   }

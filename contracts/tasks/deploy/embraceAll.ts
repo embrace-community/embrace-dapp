@@ -45,16 +45,49 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
     const space = getSpace(spaces[i], spaces[i], metadata) as EmbraceSpace;
 
     if (space) {
-      // console.log(space.handle, space.visibility, space.membership, space.apps, space.metadata);
       await embraceSpaces.createSpace(
         formatBytes32String(space.handle),
         space.visibility,
         space.membership,
         space.apps,
         space.metadata,
+        {
+          gasLimit: 1000000,
+        },
       );
 
       console.log(`Created space ${space.handle}`);
+    }
+  }
+
+  // code: string, contractAddress: string, metadata: string
+  const apps = [
+    {
+      code: "Chat Server", // This should be short code i.e. CHAT
+      contractAddress: "0xE300bF5B76671A5C702F9E48B8e5e91cE8C8C282", // Contract not deployed yet or required for this app
+    },
+    {
+      code: "Discussions", // DISC
+      contractAddress: "0xE300bF5B76671A5C702F9E48B8e5e91cE8C8C282", // Contract not deployed yet or required for this app
+    },
+    {
+      code: "Social", // SOCIAL
+      contractAddress: "0xE300bF5B76671A5C702F9E48B8e5e91cE8C8C282", // Contract not deployed yet or required for this app
+    },
+  ];
+  // Currently this is not a real app CID, but it is a valid CID
+  const appMetadata = "bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa";
+  for (let j = 0; j < apps.length; j++) {
+    const app = apps[j];
+
+    if (app) {
+      const enabled = true;
+
+      await embraceApps.createApp(app.code, app.contractAddress, appMetadata, enabled, {
+        gasLimit: 1000000,
+      });
+
+      console.log(`Created app ${app.code}`);
     }
   }
 });

@@ -51,6 +51,9 @@ export default function SpaceViewPage() {
   const [metadataCid, setMetadataCid] = useState("");
   const [tx, setTx] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
+  const [spaceCreationMessage, setSpaceCreationMessage] = useState<string>(
+    "We're just setting up your space"
+  );
 
   const isVisibilityPrivate =
     visibility === visOptions.findIndex((opt) => opt.id === Visibility.PRIVATE);
@@ -178,6 +181,20 @@ export default function SpaceViewPage() {
           allowRequests,
         };
 
+        contract.on("SpaceCreated", (spaceId, founder) => {
+          setSpaceCreationMessage("Space created! Redirecting to space...");
+
+          setTimeout(() => {
+            redirectToSpace();
+          }, 1000);
+        });
+
+        setTimeout(() => {
+          setSpaceCreationMessage(
+            "Making sure everything is ready for your community..."
+          );
+        }, 10000);
+
         const tx = await contract.createSpace(
           ethers.utils.formatBytes32String(handle),
           visibility,
@@ -207,6 +224,11 @@ export default function SpaceViewPage() {
     } finally {
       setIsLoading(false);
     }
+  }
+
+  function redirectToSpace() {
+    // TODO: Stop listening to events
+    router.push(`/spaces/${handle}`);
   }
 
   function onFinishModal() {
@@ -555,7 +577,30 @@ export default function SpaceViewPage() {
               </>
             )}
 
-            {currentStep === 1 && (
+            {error && currentStep == 1 && (
+              <div className="border-y border-embracedark py-3">
+                <p className="block text-sm font-medium text-embracedark">
+                  {error}
+                </p>
+              </div>
+            )}
+
+            {currentStep == 1 &&
+              (!name || !description || !handle || !imageCid) && (
+                <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
+                  <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                    To create your space, it needs:
+                  </p>
+                  <ul className="text-sm text-embracedark text-opacity-50">
+                    {!imageCid && <li>• an avatar</li>}
+                    {!name && <li>• a name</li>}
+                    {!handle && <li>• a handle</li>}
+                    {!description && <li>• description</li>}
+                  </ul>
+                </div>
+              )}
+
+            {currentStep === 2 && (
               <fieldset className="space-y-2 mt-12 mb-10">
                 <label className="block text-sm font-medium text-embracedark mb-3">
                   Apps
@@ -567,8 +612,7 @@ export default function SpaceViewPage() {
                   <Spinner />
                 ) : (
                   deployedApps.apps.map((app, i) => {
-                    const name =
-                      app?.code && ethers.utils.parseBytes32String(app.code);
+                    const name = app?.code;
 
                     return (
                       <div
@@ -613,28 +657,15 @@ export default function SpaceViewPage() {
               </fieldset>
             )}
 
-            {error && currentStep == 1 && (
-              <div className="border-y border-embracedark py-3">
-                <p className="block text-sm font-medium text-embracedark">
-                  {error}
-                </p>
-              </div>
-            )}
+            {currentStep === 3 && (
+              <fieldset className="space-y-2 mt-12 mb-10">
+                <label className="block text-sm font-medium text-embracedark mb-3">
+                  {spaceCreationMessage}
+                </label>
 
-            {currentStep == 1 &&
-              (!name || !description || !handle || !imageCid) && (
-                <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
-                  <p className="text-sm text-embracedark text-opacity-50 mb-2">
-                    To create your space, it needs:
-                  </p>
-                  <ul className="text-sm text-embracedark text-opacity-50">
-                    {!imageCid && <li>• an avatar</li>}
-                    {!name && <li>• a name</li>}
-                    {!handle && <li>• a handle</li>}
-                    {!description && <li>• description</li>}
-                  </ul>
-                </div>
-              )}
+                <Spinner />
+              </fieldset>
+            )}
 
             <div className="flex flex-row mt-6 align-middle">
               {currentStep === 1 && (
@@ -665,7 +696,7 @@ export default function SpaceViewPage() {
               {currentStep === 2 && (
                 <>
                   <button
-                    onClick={(e) => setCurrentStep}
+                    onClick={(e) => setCurrentStep(1)}
                     className="mt-2 mr-4 text-violet-500 font-semibold underline"
                   >
                     back

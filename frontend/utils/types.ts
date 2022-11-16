@@ -49,9 +49,10 @@ export type SpaceMetaData = {
 };
 
 export enum EmbraceApps {
-  DISCUSSIONS = 0,
-  PROPOSALS = 1,
-  CHAT = 2,
+  CHAT_SERVER = 0,
+  DISCUSSIONS = 1,
+  SOCIAL = 2,
+  GOVERNANCE = 3,
 }
 
 export type SpaceMembership = {
