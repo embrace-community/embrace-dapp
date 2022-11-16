@@ -20,35 +20,11 @@ import { SpaceContext } from "../lib/SpaceContext";
 import "../styles/extrastyles.css";
 import "../styles/globals.css";
 
-const evmosTestnetChain: Chain = {
-  id: 9000,
-  name: "Evmos Testnet",
-  network: "evmos-testnet",
-  nativeCurrency: {
-    decimals: 18,
-    name: "TEVMOS",
-    symbol: "TEVMOS",
-  },
-  rpcUrls: {
-    default: "https://eth.bd.evmos.dev:8545",
-  },
-  blockExplorers: {
-    default: { name: "SnowTrace", url: "https://evm.evmos.dev/" },
-  },
-  testnet: true,
-};
-
 const { chains, provider } = configureChains(
-  [chain.goerli, chain.localhost, evmosTestnetChain],
+  [chain.polygonMumbai, chain.goerli],
   [
     infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY! }),
     publicProvider(),
-    jsonRpcProvider({
-      rpc: (chain) => {
-        if (chain.id !== evmosTestnetChain.id) return null;
-        return { http: chain.rpcUrls.default };
-      },
-    }),
   ]
 );
 

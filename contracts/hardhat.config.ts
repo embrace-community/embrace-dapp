@@ -25,18 +25,18 @@ const chainIds = {
   goerli: 5,
   hardhat: 1337,
   mainnet: 1,
-  evmos_testnet: 9000,
+  polygonMumbai: 80001,
 };
 
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
   let jsonRpcUrl: string;
-  switch (chain) {
-    case "evmos_testnet":
-      jsonRpcUrl = "https://eth.bd.evmos.dev:8545";
-      break;
-    default:
-      jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
+  let chainName: string = chain;
+
+  if (chain === "polygonMumbai") {
+    chainName = "polygon-mumbai";
   }
+
+  jsonRpcUrl = "https://" + chainName + ".infura.io/v3/" + infuraApiKey;
   return {
     accounts: {
       count: 10,
@@ -67,7 +67,7 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: chainIds.hardhat,
     },
-    evmosTestnet: getChainConfig("evmos_testnet"),
+    polygonMumbai: getChainConfig("polygonMumbai"),
     goerli: getChainConfig("goerli"),
     mainnet: getChainConfig("mainnet"),
   },
