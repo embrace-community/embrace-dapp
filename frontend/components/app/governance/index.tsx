@@ -1,5 +1,5 @@
-export default function Proposals({ query, space }) {
-  console.log("proposals index.tsx", query, space);
+export default function Governance({ query, space }) {
+  console.log("Governance / proposals index.tsx", query, space);
   return (
     <>
       <button
@@ -20,7 +20,7 @@ export default function Proposals({ query, space }) {
       >
         + new proposal
       </button>
-      list proposals
+      list Governance/proposals
     </>
   );
 }
