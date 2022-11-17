@@ -21,7 +21,12 @@ import "../styles/extrastyles.css";
 import "../styles/globals.css";
 
 const { chains, provider } = configureChains(
-  [chain.polygonMumbai, chain.goerli],
+  [
+    chain.polygonMumbai,
+    chain.goerli,
+    ...(process.env.NODE_ENV === "development" ? [chain.localhost] : []),
+  ],
+
   [
     infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY! }),
     publicProvider(),

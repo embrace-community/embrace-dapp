@@ -47,8 +47,6 @@ export default function HomePage() {
         signer as Signer
       );
 
-      console.log(signer, "SIGNER");
-
       setAccountsContract(accountsContract);
     }
   }, [signer, isSignerLoading]);
@@ -127,8 +125,6 @@ export default function HomePage() {
       return !spaceIdsUserIsMember?.includes(spaceId);
     });
   }, [spaces, spaceIdsUserIsMember]);
-
-  console.log("yourSpaces", yourSpaces, spaceIdsUserIsMember);
 
   return (
     <div className="min-h-screen">
