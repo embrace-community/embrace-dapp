@@ -9,10 +9,9 @@ import Spinner from "../components/Spinner";
 import EmbraceAccounts from "../data/contractArtifacts/EmbraceAccounts.json";
 import EmbraceSpacesJson from "../data/contractArtifacts/EmbraceSpaces.json";
 import { EmbraceSpaces } from "../data/contractTypes";
-import { InternalSpace } from "../entities/space";
+import { InternalSpace, InternalSpaces } from "../entities/space";
 import { RootState } from "../state/reduxStore";
 import { setLoaded, setSpaces } from "../state/spaceSlice";
-import { EmbraceSpace } from "../types/space";
 
 export default function HomePage() {
   const spacesState = useSelector((state: RootState) => state.spaces);
@@ -41,13 +40,10 @@ export default function HomePage() {
 
   useEffect(() => {
     if (!isSpacesLoading && !spacesState.loaded && contractSpaces) {
-      dispatch(
-        setSpaces(
-          InternalSpace.from_dto(
-            contractSpaces as EmbraceSpaces.SpaceStructOutput[]
-          )
-        )
+      const internalSpaces = InternalSpaces.from_dto(
+        contractSpaces as EmbraceSpaces.SpaceStructOutput[]
       );
+      dispatch(setSpaces(internalSpaces));
       dispatch(setLoaded(true));
     }
   }, [spacesState.spaces, contractSpaces]);
@@ -109,7 +105,7 @@ export default function HomePage() {
         const spaceIdsIsMember: number[] = [];
 
         for (let i in spacesState.spaces) {
-          const space = spacesState.spaces[i] as EmbraceSpace;
+          const space: InternalSpace = spacesState.spaces[i];
           const spaceId = space.id;
 
           if (accountSpaces.includes(spaceId)) {
@@ -126,25 +122,24 @@ export default function HomePage() {
   }, [spacesState.spaces, signer, accountSpaces]);
 
   const yourSpaces = useMemo(() => {
+    console.dir(spacesState.spaces);
+
     if (!spacesState.spaces) return [];
 
-    return (spacesState.spaces as EmbraceSpace[]).filter((_, i) => {
+    return spacesState.spaces.filter((space: InternalSpace) => {
       if (!Array.isArray(spaceIdsUserIsMember)) return false;
 
-      let spaceId: number = spacesState.spaces[i].id;
-
-      return spaceIdsUserIsMember?.includes(spaceId);
+      return spaceIdsUserIsMember?.includes(space.id);
     });
   }, [spacesState.spaces, spaceIdsUserIsMember]);
 
   const allSpaces = useMemo(() => {
     if (!spacesState.spaces) return [];
 
-    return (spacesState.spaces as EmbraceSpace[]).filter((_, i) => {
+    return spacesState.spaces.filter((space: InternalSpace) => {
       if (!Array.isArray(spaceIdsUserIsMember)) return false;
-      let spaceId: number = spacesState.spaces[i].id;
 
-      return !spaceIdsUserIsMember?.includes(spaceId);
+      return !spaceIdsUserIsMember?.includes(space.id);
     });
   }, [spacesState.spaces, spaceIdsUserIsMember]);
 

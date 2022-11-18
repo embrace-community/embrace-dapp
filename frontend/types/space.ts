@@ -1,5 +1,3 @@
-import { BigNumber } from "ethers";
-
 export enum Visibility {
   PUBLIC,
   PRIVATE,
@@ -19,18 +17,18 @@ export enum MembershipGateToken {
   ERC1155,
 }
 
-type MembershipGate = {
+export type MembershipGate = {
   token: MembershipGateToken;
   tokenAddress: string;
 };
 
-type Membership = {
+export type Membership = {
   access: Access;
   gate: MembershipGate;
   allowRequests: boolean;
 };
 
-export type EmbraceSpace = {
+export type Space = {
   id: number;
   handle: string;
   founder: string;

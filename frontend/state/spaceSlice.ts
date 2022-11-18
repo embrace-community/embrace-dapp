@@ -1,8 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { EmbraceSpace } from "../types/space";
+import { InternalSpace } from "../entities/space";
 
 export interface SpacesState {
-  spaces: EmbraceSpace[];
+  spaces: InternalSpace[];
   loaded: boolean;
 }
 
@@ -25,7 +25,6 @@ export const spacesSlice = createSlice({
   },
 });
 
-// Action creators are generated for each case reducer function
 export const { setSpaces, setLoaded } = spacesSlice.actions;
 
 export default spacesSlice.reducer;

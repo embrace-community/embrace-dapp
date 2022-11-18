@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { EmbraceSpace } from "../../types/space";
+import { Space } from "../../types/space";
 import { appMappings } from "../../lib/AppMappings";
 
 export default function Navigation({
@@ -7,7 +7,7 @@ export default function Navigation({
   currentApp,
   setCurrentApp,
 }: {
-  space: EmbraceSpace;
+  space: Space;
   currentApp: number;
   setCurrentApp: (index: number) => void;
 }) {

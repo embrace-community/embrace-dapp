@@ -11,7 +11,7 @@ import {
 } from "../../lib/web3storage/getIpfsJsonContent";
 import Header from "../../components/space/Header";
 import Apps from "../../components/space/Apps";
-import { EmbraceSpace, SpaceMembership } from "../../types/space";
+import { Space, SpaceMembership } from "../../types/space";
 
 export default function SpaceViewPage() {
   const { data: signer, isLoading: isSignerLoading } = useSigner();
@@ -72,7 +72,7 @@ export default function SpaceViewPage() {
 
     async function getSpace(MyContract: Contract): Promise<void> {
       try {
-        const space: EmbraceSpace = await MyContract.getSpaceFromHandle(
+        const space: Space = await MyContract.getSpaceFromHandle(
           handleBytes32
         );
 

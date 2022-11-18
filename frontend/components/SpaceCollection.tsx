@@ -6,14 +6,14 @@ import {
   getIpfsJsonContent,
 } from "../lib/web3storage/getIpfsJsonContent";
 
-import { EmbraceSpace } from "../types/space";
+import { Space } from "../types/space";
 
 export default function SpaceCollection({
   title,
   collection,
 }: {
   title: string;
-  collection: EmbraceSpace[];
+  collection: Space[];
 }) {
   const [_jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
   const [metadataImg, setMetadataImg] = useState<string[]>([]);

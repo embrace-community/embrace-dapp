@@ -1,12 +1,12 @@
 import { Router } from "next/router";
-import { EmbraceSpace } from "../../../types/space";
+import { Space } from "../../../types/space";
 
 export default function Social({
   query,
   space,
 }: {
   query: Router["query"];
-  space: EmbraceSpace;
+  space: Space;
 }) {
   console.log("chat index.tsx", query, space);
   return <>Social / Lens</>;
