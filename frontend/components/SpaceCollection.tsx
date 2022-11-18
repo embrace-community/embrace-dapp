@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   getFileUri,
   getIpfsJsonContent,
