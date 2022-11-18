@@ -4,7 +4,7 @@ import {
   Access,
   Visibility,
   SpaceMembership,
-} from "../../utils/types";
+} from "../../types/space";
 
 export default function Header({
   space,

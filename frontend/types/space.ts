@@ -31,15 +31,15 @@ type Membership = {
 };
 
 export type EmbraceSpace = {
-  id: BigNumber;
+  id: number;
   handle: string;
   founder: string;
   visibility: Visibility;
+  membership: Membership;
   apps: number[];
   // metadata: SpaceMetaData;
   metadata: string;
   memberCount: number;
-  membership: Membership;
 };
 
 export type SpaceMetaData = {
@@ -47,13 +47,6 @@ export type SpaceMetaData = {
   description: string;
   image: string;
 };
-
-export enum EmbraceApps {
-  CHAT_SERVER = 0,
-  DISCUSSIONS = 1,
-  SOCIAL = 2,
-  GOVERNANCE = 3,
-}
 
 export type SpaceMembership = {
   isActive: boolean;

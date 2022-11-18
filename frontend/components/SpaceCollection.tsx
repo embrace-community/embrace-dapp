@@ -6,7 +6,7 @@ import {
   getIpfsJsonContent,
 } from "../lib/web3storage/getIpfsJsonContent";
 
-import { EmbraceSpace } from "../utils/types";
+import { EmbraceSpace } from "../types/space";
 
 export default function SpaceCollection({
   title,

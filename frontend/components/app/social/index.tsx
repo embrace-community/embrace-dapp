@@ -1,5 +1,5 @@
 import { Router } from "next/router";
-import { EmbraceSpace } from "../../../utils/types";
+import { EmbraceSpace } from "../../../types/space";
 
 export default function Social({
   query,

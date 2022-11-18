@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { EmbraceSpace } from "../../utils/types";
+import { EmbraceSpace } from "../../types/space";
 import { appMappings } from "../../lib/AppMappings";
 
 export default function Navigation({

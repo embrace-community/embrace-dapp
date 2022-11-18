@@ -1,6 +1,6 @@
 import { Router, useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { EmbraceSpace } from "../../utils/types";
+import { EmbraceSpace } from "../../types/space";
 import { appMappings } from "../../lib/AppMappings";
 import Navigation from "./Navigation";
 

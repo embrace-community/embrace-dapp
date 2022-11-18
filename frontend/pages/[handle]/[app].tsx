@@ -11,7 +11,7 @@ import {
 } from "../../lib/web3storage/getIpfsJsonContent";
 import Header from "../../components/space/Header";
 import Apps from "../../components/space/Apps";
-import { EmbraceSpace, SpaceMembership } from "../../utils/types";
+import { EmbraceSpace, SpaceMembership } from "../../types/space";
 
 export default function SpaceViewPage() {
   const { data: signer, isLoading: isSignerLoading } = useSigner();
