@@ -51,14 +51,6 @@ export default function HomePage() {
     }
   }, [spacesStore.loaded, contractSpaces]);
 
-  // If no account is connected, then this will stop loading to display the community spaces
-  useEffect(() => {
-    if (!isSignerLoading && !signer && allSpacesLoaded) {
-      dispatch(setCommunitySpaces(allSpaces));
-      dispatch(setLoaded(true));
-    }
-  }, [signer, isSignerLoading, allSpacesLoaded]);
-
   // Once the signer is loaded, initialize the accounts contract
   useEffect(() => {
     if (!isSignerLoading && signer) {
@@ -110,6 +102,17 @@ export default function HomePage() {
 
     getAccountSpaces(accountsContract);
   }, [accountsContract, signer, isSignerLoading]);
+
+  // TODO:ERROR - THIS IS BEING CALLED EVEN WHEN AN ACCOUNT IS CONNECTED
+  // THIS CAUSES THE 'YOUR SPACES' TO FLASH ON THE PAGE AND THE IMAGES ARE OFTEN LOST
+  // HOWEVER THIS CODE IS NEEDED OTHERWISE THE SPACES WILL NEVER SHOW WHEN AN ACCOUNT IS NOT CONNECTED
+  // If no account is connected, then this will stop loading to display the community spaces
+  useEffect(() => {
+    if (!isSignerLoading && !signer && allSpacesLoaded) {
+      // dispatch(setCommunitySpaces(allSpaces));
+      // dispatch(setLoaded(true));
+    }
+  }, [signer, isSignerLoading, allSpacesLoaded]);
 
   return (
     <div className="min-h-screen">
