@@ -1,4 +1,4 @@
-import { EmbraceApps } from "../utils/types";
+import { EmbraceApps } from "../types/app";
 import Discussions from "../components/app/discussions";
 import Governance from "../components/app/governance";
 import Chat from "../components/app/chat";

@@ -18,7 +18,7 @@ import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import getWeb3StorageClient from "../lib/web3storage/client";
 import { getIpfsJsonContent } from "../lib/web3storage/getIpfsJsonContent";
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
-import { Access, MembershipGateToken, Visibility } from "../utils/types";
+import { Access, MembershipGateToken, Visibility } from "../types/space";
 
 export default function SpaceViewPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -430,149 +430,139 @@ export default function SpaceViewPage() {
                   </div>
                 </div>
 
-                <div
-                  className={`transition-all duration-200 ${
-                    isVisibilityAnon ? "opacity-100" : "hidden"
-                  }`}
-                >
-                  <div className="mb-7">
-                    <label className="block text-sm font-medium text-embracedark">
-                      Membership Access
-                    </label>
-                    <fieldset className="mt-2">
-                      <legend className="sr-only">Membership Access</legend>
+                <div className={`mb-7 ${isVisibilityAnon ? "" : "hidden"}`}>
+                  <label className="block text-sm font-medium text-embracedark">
+                    Membership Access
+                  </label>
+                  <fieldset className="mt-2">
+                    <legend className="sr-only">Membership Access</legend>
 
-                      <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
-                        {memberAccessOptions.map((memberAccessOption, i) => (
+                    <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                      {memberAccessOptions.map((memberAccessOption, i) => (
+                        <div
+                          key={`${memberAccessOption.id}-opt`}
+                          className={`flex items-center`}
+                        >
+                          <input
+                            id={`${memberAccessOption.id}`}
+                            name="member-access-method"
+                            type="radio"
+                            onChange={(e) =>
+                              setNextMembershipAccess({
+                                e,
+                                setMembershipAccess,
+                                i,
+                                visibility,
+                                setVisibility,
+                              })
+                            }
+                            checked={i === membershipAccess}
+                            className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
+                          />
+                          <label
+                            htmlFor={`${memberAccessOption.id}`}
+                            className="ml-2 block text-sm font-medium text-embracedark"
+                          >
+                            {memberAccessOption.title}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </fieldset>
+
+                  <fieldset
+                    className={`mt-2 ${isMembershipGated ? "" : "hidden"}`}
+                  >
+                    <legend className="sr-only">Membership Token</legend>
+                    <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                      {memberTokenOptions.map((memberTokenOption, i) => {
+                        return (
                           <div
-                            key={`${memberAccessOption.id}-opt`}
-                            className={`flex items-center`}
+                            key={`member-${memberTokenOption.id}`}
+                            className="flex items-center"
                           >
                             <input
-                              id={`${memberAccessOption.id}`}
-                              name="member-access-method"
+                              id={`member-${memberTokenOption.id}`}
+                              name="member-token-method"
                               type="radio"
-                              onChange={(e) =>
-                                setNextMembershipAccess({
-                                  e,
-                                  setMembershipAccess,
-                                  i,
-                                  visibility,
-                                  setVisibility,
-                                })
-                              }
-                              checked={i === membershipAccess}
+                              onChange={(e) => {
+                                if (e.target.checked) setMembershipToken(i);
+                              }}
+                              checked={i === membershipToken}
                               className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
                             />
                             <label
-                              htmlFor={`${memberAccessOption.id}`}
+                              htmlFor={`member-${memberTokenOption.id}`}
                               className="ml-2 block text-sm font-medium text-embracedark"
                             >
-                              {memberAccessOption.title}
+                              {memberTokenOption.title}
                             </label>
                           </div>
-                        ))}
-                      </div>
-                    </fieldset>
+                        );
+                      })}
+                    </div>
+                  </fieldset>
 
-                    <fieldset
-                      className={`mt-2 transition-all duration-200 ${
-                        isMembershipGated ? "opacity-100" : "hidden"
-                      }`}
+                  <fieldset
+                    className={`mt-2 ${isMembershipGated ? "" : "hidden"}`}
+                  >
+                    <input
+                      placeholder="Token Address"
+                      type="text"
+                      value={membershipTokenAddress}
+                      onChange={(e) =>
+                        setMembershipTokenAddress(e.target.value)
+                      }
+                      className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm`}
+                    />
+
+                    <div
+                      className={`mt-1 italic text-sm font-medium text-embracedark`}
                     >
-                      <legend className="sr-only">Membership Token</legend>
-                      <div className="sm:flex sm:items-center sm:space-y-0 sm:space-x-10 transition-all duration-200">
-                        {memberTokenOptions.map((memberTokenOption, i) => {
-                          return (
-                            <div
-                              key={`member-${memberTokenOption.id}`}
-                              className="flex items-center"
-                            >
-                              <input
-                                id={`member-${memberTokenOption.id}`}
-                                name="member-token-method"
-                                type="radio"
-                                onChange={(e) => {
-                                  if (e.target.checked) setMembershipToken(i);
-                                }}
-                                checked={i === membershipToken}
-                                className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
-                              />
-                              <label
-                                htmlFor={`member-${memberTokenOption.id}`}
-                                className="ml-2 block text-sm font-medium text-embracedark"
-                              >
-                                {memberTokenOption.title}
-                              </label>
-                            </div>
-                          );
-                        })}
-                      </div>
+                      Please choose the token standard and type in the address
+                      of the deployed contract.
+                    </div>
+                  </fieldset>
 
-                      <div
-                        className={`mt-2 transition-all duration-200 ${
-                          isMembershipGated ? "opacity-100" : "hidden"
-                        }`}
-                      >
+                  <fieldset
+                    className={`mt-2 ${isMembershipClosed ? "" : "hidden"}`}
+                  >
+                    <div>
+                      <div className={`sm:flex sm:items-center`}>
                         <input
-                          placeholder="Token Address"
-                          type="text"
-                          value={membershipTokenAddress}
-                          onChange={(e) =>
-                            setMembershipTokenAddress(e.target.value)
+                          id="allowMembershipRequests"
+                          aria-describedby="allowMembershipRequests"
+                          name="allowMembershipRequests"
+                          type="checkbox"
+                          checked={allowMembershipRequests}
+                          onChange={() =>
+                            allowMembershipRequests
+                              ? setAllowMembershipRequests(false)
+                              : setAllowMembershipRequests(true)
                           }
-                          className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm`}
+                          className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
                         />
 
-                        <div
-                          className={`mt-1 italic text-sm font-medium text-embracedark`}
+                        <label
+                          htmlFor="allowMembershipRequests"
+                          className="ml-2 block text-sm font-medium text-embracedark"
                         >
-                          Please choose the token standard and type in the
-                          address of the deployed contract.
-                        </div>
+                          Allow Requests
+                        </label>
                       </div>
 
                       <div
-                        className={`transition-all duration-200 ${
-                          isMembershipClosed ? "opacity-100" : "hidden"
+                        className={`mt-1 italic text-sm font-medium text-embracedark ${
+                          isVisibilityPrivate && isMembershipClosed
+                            ? ""
+                            : "hidden"
                         }`}
                       >
-                        <div className={`sm:flex sm:items-center`}>
-                          <input
-                            id="allowMembershipRequests"
-                            aria-describedby="allowMembershipRequests"
-                            name="allowMembershipRequests"
-                            type="checkbox"
-                            checked={allowMembershipRequests}
-                            onChange={() =>
-                              allowMembershipRequests
-                                ? setAllowMembershipRequests(false)
-                                : setAllowMembershipRequests(true)
-                            }
-                            className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
-                          />
-
-                          <label
-                            htmlFor="allowMembershipRequests"
-                            className="ml-2 block text-sm font-medium text-embracedark"
-                          >
-                            Allow Requests
-                          </label>
-                        </div>
-
-                        <div
-                          className={`mt-1 italic text-sm font-medium text-embracedark transition-all duration-200 ${
-                            isVisibilityPrivate && isMembershipClosed
-                              ? "opacity-100"
-                              : "hidden"
-                          }`}
-                        >
-                          Are other users allowed to request access to the
-                          private space?
-                        </div>
+                        Are other users allowed to request access to the private
+                        space?
                       </div>
-                    </fieldset>
-                  </div>
+                    </div>
+                  </fieldset>
                 </div>
               </>
             )}

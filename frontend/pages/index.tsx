@@ -1,15 +1,22 @@
-import { useContractRead, useSigner } from "wagmi";
 import { BigNumber, Contract, Signer } from "ethers";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useContractRead, useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
-import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
 import EmbraceAccounts from "../data/contractArtifacts/EmbraceAccounts.json";
-import { EmbraceSpace } from "../utils/types";
+import EmbraceSpacesJson from "../data/contractArtifacts/EmbraceSpaces.json";
+import { EmbraceSpaces } from "../data/contractTypes";
+import { InternalSpace, InternalSpaces } from "../entities/space";
+import { RootState } from "../store/store";
+import { setLoaded, setSpaces } from "../store/slices/space";
 
 export default function HomePage() {
+  const spacesState = useSelector((state: RootState) => state.spaces);
+  const dispatch = useDispatch();
+
   const { data: signer, isLoading: isSignerLoading } = useSigner();
 
   const [spaceIdsUserIsMember, setSpaceIdsUserIsMember] = useState<number[]>(
@@ -21,15 +28,25 @@ export default function HomePage() {
 
   // Wagmi hook to load all community spaces
   const {
-    data: spaces,
+    data: contractSpaces,
     error: _spacesError,
     isLoading: isSpacesLoading,
   } = useContractRead({
     address: process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-    abi: EmbraceSpaces.abi,
+    abi: EmbraceSpacesJson.abi,
     functionName: "getSpaces",
     args: [],
   });
+
+  useEffect(() => {
+    if (!isSpacesLoading && !spacesState.loaded && contractSpaces) {
+      const internalSpaces = InternalSpaces.from_dto(
+        contractSpaces as EmbraceSpaces.SpaceStructOutput[]
+      );
+      dispatch(setSpaces(internalSpaces));
+      dispatch(setLoaded(true));
+    }
+  }, [spacesState.spaces, contractSpaces]);
 
   // If no account is connected, then this will stop loading to display the public spaces
   useEffect(() => {
@@ -46,8 +63,6 @@ export default function HomePage() {
         EmbraceAccounts.abi,
         signer as Signer
       );
-
-      console.log(signer, "SIGNER");
 
       setAccountsContract(accountsContract);
     }
@@ -84,14 +99,14 @@ export default function HomePage() {
   // Only run if there is a signer and the account spaces are loaded
   useEffect(() => {
     const getYourSpaces = async () => {
-      if (!spaces) return [];
+      if (!spacesState.spaces) return [];
 
       if (signer) {
         const spaceIdsIsMember: number[] = [];
 
-        for (let i in spaces) {
-          const space = spaces[i] as EmbraceSpace;
-          const spaceId = BigNumber.from(space.id).toNumber();
+        for (let i in spacesState.spaces) {
+          const space: InternalSpace = spacesState.spaces[i];
+          const spaceId = space.id;
 
           if (accountSpaces.includes(spaceId)) {
             spaceIdsIsMember.push(spaceId);
@@ -104,31 +119,29 @@ export default function HomePage() {
     };
 
     getYourSpaces();
-  }, [spaces, signer, accountSpaces]);
+  }, [spacesState.spaces, signer, accountSpaces]);
 
   const yourSpaces = useMemo(() => {
-    if (!spaces) return [];
+    console.dir(spacesState.spaces);
 
-    return (spaces as EmbraceSpace[]).filter((_, i) => {
+    if (!spacesState.spaces) return [];
+
+    return spacesState.spaces.filter((space: InternalSpace) => {
       if (!Array.isArray(spaceIdsUserIsMember)) return false;
-      let spaceId: number = spaces[i].id.toNumber();
 
-      return spaceIdsUserIsMember?.includes(spaceId);
+      return spaceIdsUserIsMember?.includes(space.id);
     });
-  }, [spaces, spaceIdsUserIsMember]);
+  }, [spacesState.spaces, spaceIdsUserIsMember]);
 
   const allSpaces = useMemo(() => {
-    if (!spaces) return [];
+    if (!spacesState.spaces) return [];
 
-    return (spaces as EmbraceSpace[]).filter((_, i) => {
+    return spacesState.spaces.filter((space: InternalSpace) => {
       if (!Array.isArray(spaceIdsUserIsMember)) return false;
-      let spaceId: number = spaces[i].id.toNumber();
 
-      return !spaceIdsUserIsMember?.includes(spaceId);
+      return !spaceIdsUserIsMember?.includes(space.id);
     });
-  }, [spaces, spaceIdsUserIsMember]);
-
-  console.log("yourSpaces", yourSpaces, spaceIdsUserIsMember);
+  }, [spacesState.spaces, spaceIdsUserIsMember]);
 
   return (
     <div className="min-h-screen">
@@ -138,23 +151,7 @@ export default function HomePage() {
             <Link href="/create">
               <button
                 type="button"
-                className="
-                inline-flex
-                items-center
-                rounded-full
-                border-violet-500
-                border-2
-                bg-transparent
-                py-4
-                px-12
-                text-violet-500
-                shadow-sm
-                focus:outline-none
-                focus:ring-none
-                mb-11
-                font-semibold
-                text-xl
-                mt-5"
+                className="inline-flex items-center rounded-full border-violet-500 border-2 bg-transparent py-4 px-12 text-violet-500 shadow-sm focus:outline-none focus:ring-none mb-11 font-semibold text-xl mt-5"
               >
                 + new space
               </button>

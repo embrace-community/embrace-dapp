@@ -1,4 +1,4 @@
-import { Access, MembershipGateToken, Visibility } from "../../../utils/types";
+import { Access, MembershipGateToken, Visibility } from "../../../types/space";
 
 export const visOptions = [
   { id: Visibility.PUBLIC, title: "Public" },
