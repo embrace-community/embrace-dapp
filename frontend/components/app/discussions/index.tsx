@@ -1,6 +1,6 @@
 import { Router } from "next/router";
 import { useEffect, useState } from "react";
-import { EmbraceSpace } from "../../../utils/types";
+import { Space } from "../../../types/space";
 import Topics from "./Topics";
 
 export default function Discussions({
@@ -8,7 +8,7 @@ export default function Discussions({
   space,
 }: {
   query: Router["query"];
-  space: EmbraceSpace;
+  space: Space;
 }) {
   const [topicId, setTopicId] = useState<number>();
   const [newTopic, setNewTopic] = useState<boolean>(false);
@@ -24,20 +24,7 @@ export default function Discussions({
     <>
       {!topicId && (
         <button
-          className="
-                        rounded-full
-                        border-violet-500
-                        border-2
-                        bg-transparent
-                        py-4
-                        px-12
-                        text-violet-500
-                        shadow-sm
-                        focus:outline-none
-                        focus:ring-none
-                        mb-7
-                        font-semibold
-                        text-xl"
+          className="rounded-full border-violet-500 border-2 bg-transparent py-4 px-12 text-violet-500 shadow-sm focus:outline-none focus:ring-none mb-7 font-semibold text-xl"
           onClick={(e) => setNewTopic(true)}
         >
           + new topic

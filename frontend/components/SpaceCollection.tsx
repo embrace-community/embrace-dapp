@@ -1,19 +1,19 @@
 import { ethers } from "ethers";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   getFileUri,
   getIpfsJsonContent,
 } from "../lib/web3storage/getIpfsJsonContent";
 
-import { EmbraceSpace } from "../utils/types";
+import { Space } from "../types/space";
 
 export default function SpaceCollection({
   title,
   collection,
 }: {
   title: string;
-  collection: EmbraceSpace[];
+  collection: Space[];
 }) {
   const [_jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
   const [metadataImg, setMetadataImg] = useState<string[]>([]);

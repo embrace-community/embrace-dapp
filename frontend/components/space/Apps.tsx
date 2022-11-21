@@ -1,6 +1,6 @@
 import { Router, useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { EmbraceSpace } from "../../utils/types";
+import { Space } from "../../types/space";
 import { appMappings } from "../../lib/AppMappings";
 import Navigation from "./Navigation";
 
@@ -9,7 +9,7 @@ export default function Apps({
   space,
 }: {
   query: Router["query"];
-  space: EmbraceSpace;
+  space: Space;
 }) {
   const [currentApp, setCurrentApp] = useState(0);
   const [appSelected, setAppSelected] = useState(false);
