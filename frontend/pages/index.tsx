@@ -10,8 +10,8 @@ import EmbraceAccounts from "../data/contractArtifacts/EmbraceAccounts.json";
 import EmbraceSpacesJson from "../data/contractArtifacts/EmbraceSpaces.json";
 import { EmbraceSpaces } from "../data/contractTypes";
 import { InternalSpace, InternalSpaces } from "../entities/space";
-import { RootState } from "../state/reduxStore";
-import { setLoaded, setSpaces } from "../state/spaceSlice";
+import { RootState } from "../store/store";
+import { setLoaded, setSpaces } from "../store/slices/space";
 
 export default function HomePage() {
   const spacesState = useSelector((state: RootState) => state.spaces);

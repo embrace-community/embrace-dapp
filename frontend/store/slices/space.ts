@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { InternalSpace } from "../entities/space";
+import { InternalSpace } from "../../entities/space";
 
 export interface SpacesState {
   spaces: InternalSpace[];

@@ -16,7 +16,7 @@ import { apolloClient } from "../lib/ApolloClient";
 import { CeramicContext, composeDbClient } from "../lib/CeramicContext";
 import { colors } from "../lib/constants";
 import { SpaceContext } from "../lib/SpaceContext";
-import { store } from "../state/reduxStore";
+import { store } from "../store/store";
 import "../styles/extrastyles.css";
 import "../styles/globals.css";
 
