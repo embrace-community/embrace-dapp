@@ -144,85 +144,11 @@ export default function SpaceViewPage() {
       else {
         console.log("Uploaded json to ipfs, CID: ", cid);
         setMetadataCid(cid);
-        // Pass CID to createSpace as the state variable is not updated immediately
-        createSpace(cid);
+        // useEffect will trigger createSpace once CID is set
+        // createSpace(cid);
       }
     } catch (err: any) {
       console.error(`Failed to save post to IPFS, ${err.message}`);
-    }
-  }
-
-  async function createSpace(metadataCid: string) {
-    try {
-      if (signer) {
-        const contract = new ethers.Contract(
-          process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-          EmbraceSpaces.abi,
-          signer as ethers.Signer
-        );
-
-        let allowRequests = false;
-        if (isVisibilityPrivate! && isMembershipClosed) {
-          allowRequests = allowMembershipRequests;
-        }
-
-        const spaceMembership = {
-          access: memberAccessOptions[membershipAccess].id,
-
-          gate: {
-            token: isMembershipGated
-              ? membershipToken + 1
-              : MembershipGateToken.NONE,
-            tokenAddress: membershipTokenAddress
-              ? membershipTokenAddress
-              : ethers.constants.AddressZero,
-          },
-
-          allowRequests,
-        };
-
-        contract.on("SpaceCreated", (spaceId, founder) => {
-          setSpaceCreationMessage("Space created! Redirecting to space...");
-
-          setTimeout(() => {
-            redirectToSpace();
-          }, 1000);
-        });
-
-        setTimeout(() => {
-          setSpaceCreationMessage(
-            "Making sure everything is ready for your community..."
-          );
-        }, 10000);
-
-        const tx = await contract.createSpace(
-          ethers.utils.formatBytes32String(handle),
-          visibility,
-          spaceMembership,
-          apps,
-          metadataCid,
-          {
-            gasLimit: 1000000,
-          }
-        );
-
-        if (tx) {
-          console.log(`Creating spaces...tx ${JSON.stringify(tx)}`);
-
-          setTx(tx?.hash);
-          setCurrentStep(3);
-          return;
-        }
-
-        console.error("TX not set: user likely rejected transaction");
-        // setShowModal(true);
-      } else {
-        console.error("No signer found");
-      }
-    } catch (err: any) {
-      console.error(`Failed to create space ${err.message}`);
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -273,6 +199,86 @@ export default function SpaceViewPage() {
 
     getApps();
   }, [signer, deployedApps]);
+
+  useEffect(() => {
+    if (!metadataCid || !signer) return;
+
+    async function createSpace() {
+      try {
+        if (signer) {
+          const contract = new ethers.Contract(
+            process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
+            EmbraceSpaces.abi,
+            signer as ethers.Signer
+          );
+
+          let allowRequests = false;
+          if (isVisibilityPrivate! && isMembershipClosed) {
+            allowRequests = allowMembershipRequests;
+          }
+
+          const spaceMembership = {
+            access: memberAccessOptions[membershipAccess].id,
+
+            gate: {
+              token: isMembershipGated
+                ? membershipToken + 1
+                : MembershipGateToken.NONE,
+              tokenAddress: membershipTokenAddress
+                ? membershipTokenAddress
+                : ethers.constants.AddressZero,
+            },
+
+            allowRequests,
+          };
+
+          contract.on("SpaceCreated", (spaceId, founder) => {
+            setSpaceCreationMessage("Space created! Redirecting to space...");
+
+            setTimeout(() => {
+              redirectToSpace();
+            }, 1000);
+          });
+
+          setTimeout(() => {
+            setSpaceCreationMessage(
+              "Making sure everything is ready for your community..."
+            );
+          }, 10000);
+
+          const tx = await contract.createSpace(
+            ethers.utils.formatBytes32String(handle),
+            visibility,
+            spaceMembership,
+            apps,
+            metadataCid,
+            {
+              gasLimit: 1000000,
+            }
+          );
+
+          if (tx) {
+            console.log(`Creating spaces...tx ${JSON.stringify(tx)}`);
+
+            setTx(tx?.hash);
+            setCurrentStep(3);
+            return;
+          }
+
+          console.error("TX not set: user likely rejected transaction");
+          // setShowModal(true);
+        } else {
+          console.error("No signer found");
+        }
+      } catch (err: any) {
+        console.error(`Failed to create space ${err.message}`);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    createSpace();
+  }, [metadataCid]);
 
   return (
     <>
