@@ -11,20 +11,21 @@ import EmbraceSpacesJson from "../data/contractArtifacts/EmbraceSpaces.json";
 import { EmbraceSpaces } from "../data/contractTypes";
 import { InternalSpace, InternalSpaces } from "../entities/space";
 import { RootState } from "../store/store";
-import { setLoaded, setSpaces } from "../store/slices/space";
+import {
+  setLoaded,
+  setCommunitySpaces,
+  setYourSpaces,
+} from "../store/slices/space";
 
 export default function HomePage() {
-  const spacesState = useSelector((state: RootState) => state.spaces);
+  const spacesStore = useSelector((state: RootState) => state.spaces);
   const dispatch = useDispatch();
 
-  const { data: signer, isLoading: isSignerLoading } = useSigner();
+  const [allSpaces, setAllSpaces] = useState<InternalSpace[]>([]);
+  const [allSpacesLoaded, setAllSpacesLoaded] = useState<boolean>(false);
 
-  const [spaceIdsUserIsMember, setSpaceIdsUserIsMember] = useState<number[]>(
-    []
-  );
-  const [accountSpaces, setAccountSpaces] = useState<number[]>([]);
+  const { data: signer, isLoading: isSignerLoading } = useSigner();
   const [accountsContract, setAccountsContract] = useState<Contract>();
-  const [yourSpacesLoading, setYourSpacesLoading] = useState<boolean>(true);
 
   // Wagmi hook to load all community spaces
   const {
@@ -38,22 +39,25 @@ export default function HomePage() {
     args: [],
   });
 
+  // This will load all spaces from the contract
   useEffect(() => {
-    if (!isSpacesLoading && !spacesState.loaded && contractSpaces) {
+    if (!isSpacesLoading && !spacesStore.loaded && contractSpaces) {
       const internalSpaces = InternalSpaces.from_dto(
         contractSpaces as EmbraceSpaces.SpaceStructOutput[]
       );
-      dispatch(setSpaces(internalSpaces));
+
+      setAllSpaces(internalSpaces);
+      setAllSpacesLoaded(true);
+    }
+  }, [spacesStore.loaded, contractSpaces]);
+
+  // If no account is connected, then this will stop loading to display the community spaces
+  useEffect(() => {
+    if (!isSignerLoading && !signer && allSpacesLoaded) {
+      dispatch(setCommunitySpaces(allSpaces));
       dispatch(setLoaded(true));
     }
-  }, [spacesState.spaces, contractSpaces]);
-
-  // If no account is connected, then this will stop loading to display the public spaces
-  useEffect(() => {
-    if (!isSignerLoading && !signer) {
-      setYourSpacesLoading(false);
-    }
-  }, [signer, isSignerLoading]);
+  }, [signer, isSignerLoading, allSpacesLoaded]);
 
   // Once the signer is loaded, initialize the accounts contract
   useEffect(() => {
@@ -68,80 +72,44 @@ export default function HomePage() {
     }
   }, [signer, isSignerLoading]);
 
-  // Once accounts contract initialized, set the your spaces array if signer is connected
+  // Once accounts contract initialized, set the user's spaces
   useEffect((): void => {
     if (!accountsContract || isSignerLoading || !signer) return;
 
-    async function getAccountSpaces(MyContract): Promise<void> {
+    async function getAccountSpaces(_accountsContract): Promise<void> {
       try {
         const address = await signer?.getAddress();
 
         // Gets spaces for the current account in account contract
-        const response = await MyContract.getSpaces(address);
+        const response = await _accountsContract.getSpaces(address);
 
         if (response.length > 0) {
           const spaceIds = response.map((spaceId) =>
             BigNumber.from(spaceId).toNumber()
           );
 
-          setAccountSpaces(spaceIds);
+          if (spaceIds) {
+            const yourSpaces = allSpaces?.filter((space) =>
+              spaceIds.includes(space.id)
+            );
+
+            dispatch(setYourSpaces(yourSpaces));
+          }
+
+          const communitySpaces = allSpaces?.filter((space) => {
+            return !spaceIds?.includes(space.id);
+          });
+
+          dispatch(setCommunitySpaces(communitySpaces));
+          dispatch(setLoaded(true));
         }
       } catch (err) {
         console.log("getAccountSpaces", err);
-      } finally {
-        setYourSpacesLoading(false);
       }
     }
 
     getAccountSpaces(accountsContract);
   }, [accountsContract, signer, isSignerLoading]);
-
-  // Only run if there is a signer and the account spaces are loaded
-  useEffect(() => {
-    const getYourSpaces = async () => {
-      if (!spacesState.spaces) return [];
-
-      if (signer) {
-        const spaceIdsIsMember: number[] = [];
-
-        for (let i in spacesState.spaces) {
-          const space: InternalSpace = spacesState.spaces[i];
-          const spaceId = space.id;
-
-          if (accountSpaces.includes(spaceId)) {
-            spaceIdsIsMember.push(spaceId);
-          }
-
-          setSpaceIdsUserIsMember(spaceIdsIsMember);
-          setYourSpacesLoading(false);
-        }
-      }
-    };
-
-    getYourSpaces();
-  }, [spacesState.spaces, signer, accountSpaces]);
-
-  const yourSpaces = useMemo(() => {
-    console.dir(spacesState.spaces);
-
-    if (!spacesState.spaces) return [];
-
-    return spacesState.spaces.filter((space: InternalSpace) => {
-      if (!Array.isArray(spaceIdsUserIsMember)) return false;
-
-      return spaceIdsUserIsMember?.includes(space.id);
-    });
-  }, [spacesState.spaces, spaceIdsUserIsMember]);
-
-  const allSpaces = useMemo(() => {
-    if (!spacesState.spaces) return [];
-
-    return spacesState.spaces.filter((space: InternalSpace) => {
-      if (!Array.isArray(spaceIdsUserIsMember)) return false;
-
-      return !spaceIdsUserIsMember?.includes(space.id);
-    });
-  }, [spacesState.spaces, spaceIdsUserIsMember]);
 
   return (
     <div className="min-h-screen">
@@ -158,17 +126,20 @@ export default function HomePage() {
             </Link>
           )}
 
-          {(isSpacesLoading || yourSpacesLoading) && <Spinner />}
+          {(isSpacesLoading || !spacesStore.loaded) && <Spinner />}
 
-          {!isSpacesLoading && !yourSpacesLoading && (
+          {!isSpacesLoading && spacesStore.loaded && (
             <>
-              {signer && yourSpaces.length > 0 && (
-                <SpaceCollection title="your spaces" collection={yourSpaces} />
+              {signer && spacesStore.yourSpaces.length > 0 && (
+                <SpaceCollection
+                  title="your spaces"
+                  collection={spacesStore.yourSpaces}
+                />
               )}
-              {allSpaces.length > 0 && (
+              {spacesStore.communitySpaces.length > 0 && (
                 <SpaceCollection
                   title="community spaces"
-                  collection={allSpaces}
+                  collection={spacesStore.communitySpaces}
                 />
               )}
             </>

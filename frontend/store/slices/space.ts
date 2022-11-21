@@ -2,29 +2,36 @@ import { createSlice } from "@reduxjs/toolkit";
 import { InternalSpace } from "../../entities/space";
 
 export interface SpacesState {
-  spaces: InternalSpace[];
   loaded: boolean;
+  communitySpaces: InternalSpace[];
+  yourSpaces: InternalSpace[];
 }
 
 const initialState: SpacesState = {
   loaded: false,
-  spaces: [],
+  communitySpaces: [],
+  yourSpaces: [],
 };
 
 export const spacesSlice = createSlice({
   name: "spaces",
   initialState,
   reducers: {
-    setSpaces: (state, action) => {
-      state.spaces = action.payload;
-    },
-
     setLoaded: (state, action) => {
       state.loaded = action.payload;
+    },
+
+    setCommunitySpaces: (state, action) => {
+      state.communitySpaces = action.payload;
+    },
+
+    setYourSpaces: (state, action) => {
+      state.yourSpaces = action.payload;
     },
   },
 });
 
-export const { setSpaces, setLoaded } = spacesSlice.actions;
+export const { setCommunitySpaces, setLoaded, setYourSpaces } =
+  spacesSlice.actions;
 
 export default spacesSlice.reducer;
