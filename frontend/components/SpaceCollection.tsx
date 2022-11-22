@@ -7,6 +7,7 @@ import {
 } from "../lib/web3storage/getIpfsJsonContent";
 
 import { Space } from "../types/space";
+import Spinner from "./Spinner";
 
 export default function SpaceCollection({
   title,
@@ -17,6 +18,7 @@ export default function SpaceCollection({
 }) {
   const [_jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
   const [metadataImg, setMetadataImg] = useState<string[]>([]);
+  const [metadataLoaded, setMetadataLoaded] = useState<boolean>(true);
 
   useEffect(() => {
     async function loadMetadataJson() {
@@ -24,34 +26,27 @@ export default function SpaceCollection({
       const images: string[] = [];
 
       for (const item of collection) {
-        let jsonContent, image;
-
-        // If metadata has already been loaded then use it
-        if (typeof item?.metadata === "object" && item?.metadata !== null) {
-          jsonContent = item.metadata;
-        } else {
-          jsonContent = (await getIpfsJsonContent(item?.metadata)) as Record<
-            string,
-            any
-          >;
-        }
+        const jsonContent = (await getIpfsJsonContent(
+          item?.metadata
+        )) as Record<string, any>;
 
         jsonContents.push(jsonContent);
 
         if (jsonContent?.image) {
-          image = getFileUri(jsonContent.image);
+          const image = getFileUri(jsonContent.image);
 
           images.push(image);
         } else {
           // So that images array maps correctly to collection of spaces otherwise images will not match up
           images.push("");
         }
-
-        // TODO: Update the store with the loaded metadata so it doesn't have to be loaded again
       }
 
+      //TODO: Consider loading the spaces one by one
+      // This way the images are shown on the UI as the metadata is loaded
       setJsonMetadata(jsonContents);
       setMetadataImg(images);
+      setMetadataLoaded(false);
     }
 
     loadMetadataJson();
@@ -67,6 +62,8 @@ export default function SpaceCollection({
         "no title"
       )}
       <div className="flex flex-row flex-wrap">
+        {metadataLoaded && <Spinner />}
+
         {collection &&
           collection.map((collectionItem, i) => {
             const handleString = collectionItem.handle
@@ -81,13 +78,13 @@ export default function SpaceCollection({
                 <div className="w-48 flex flex-col items-center">
                   <div className="w-32 h-32 mb-5 flex items-center justify-center">
                     <img
-                      className="extrastyles-collectionItem-img w-full"
+                      className="extrastyles-collectionItem-img w-full rounded-full"
                       src={metadataImg?.[i]}
                     />
                   </div>
 
                   <p className="text-embracedark font-semibold">
-                    {handleString}
+                    {_jsonMetadata?.[i]?.name}
                   </p>
                 </div>
               </Link>

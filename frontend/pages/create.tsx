@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useEffect, useState } from "react";
-import { useSigner } from "wagmi";
+import { useSigner, useWaitForTransaction } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import Modal from "../components/Modal";
 import {
@@ -231,6 +231,13 @@ export default function SpaceViewPage() {
             console.log(`Creating spaces...tx ${JSON.stringify(tx)}`);
 
             setTx(tx?.hash);
+            const { isLoading: isTxLoading, isSuccess: isTxSuccess } =
+              useWaitForTransaction({
+                hash: tx?.hash,
+              });
+
+            console.log("isTxLoading", isTxLoading, "isTxSuccess", isTxSuccess);
+
             setCurrentStep(3);
             return;
           }

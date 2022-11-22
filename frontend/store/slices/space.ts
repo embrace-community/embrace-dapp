@@ -1,5 +1,6 @@
-import { createSelector, createSlice } from "@reduxjs/toolkit";
+import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { InternalSpace } from "../../entities/space";
+import { SpaceMetaData } from "../../types/space";
 import { RootState } from "../store";
 
 export interface SpacesState {
@@ -30,13 +31,17 @@ export const spacesSlice = createSlice({
       state.yourSpaces = action.payload;
     },
 
-    setSpaceMetadata: (state, action) => {
-      state.yourSpaces = action.payload;
+    addCreatedSpace: (
+      state,
+      action: PayloadAction<{ space: InternalSpace }>
+    ) => {
+      // Allowed to mutate state directly in RTK
+      state.yourSpaces.push(action.payload.space);
     },
   },
 });
 
-export const { setCommunitySpaces, setLoaded, setYourSpaces } =
+export const { setCommunitySpaces, setLoaded, setYourSpaces, addCreatedSpace } =
   spacesSlice.actions;
 
 export const getSpaceById = createSelector(

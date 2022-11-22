@@ -2,7 +2,7 @@ import { BigNumber, Contract, Signer } from "ethers";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { useContractRead, useSigner } from "wagmi";
+import { useAccount, useContractRead, useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
@@ -15,7 +15,6 @@ import {
   setLoaded,
   setCommunitySpaces,
   setYourSpaces,
-  getSpaceById,
 } from "../store/slices/space";
 
 export default function HomePage() {
@@ -26,6 +25,7 @@ export default function HomePage() {
   const [allSpacesLoaded, setAllSpacesLoaded] = useState<boolean>(false);
 
   const { data: signer, isLoading: isSignerLoading } = useSigner();
+  const { address: accountAddress } = useAccount();
 
   // Wagmi hook to load all community spaces
   const {
@@ -48,6 +48,7 @@ export default function HomePage() {
 
       setAllSpaces(internalSpaces);
       setAllSpacesLoaded(true);
+      console.log("LOADING SPACES", internalSpaces, contractSpaces);
     }
   }, [spacesStore.loaded, contractSpaces]);
 
@@ -94,26 +95,16 @@ export default function HomePage() {
     }
 
     getAccountSpaces();
-  }, [signer, isSignerLoading]);
+  }, [signer, isSignerLoading, allSpaces]);
 
-  // TODO:ERROR - THIS IS BEING CALLED EVEN WHEN AN ACCOUNT IS CONNECTED
-  // THIS CAUSES THE 'YOUR SPACES' TO FLASH ON THE PAGE AND THE IMAGES ARE OFTEN LOST
-  // HOWEVER THIS CODE IS NEEDED OTHERWISE THE SPACES WILL NEVER SHOW WHEN AN ACCOUNT IS NOT CONNECTED
-  // If no account is connected, then this will stop loading to display the community spaces
+  /// BUG: With useSigner, there is a time on initial load when !isSignerLoading && !signer even when there is a signer
+  // To get round this we get the accountAddress to see if this is also empty
   useEffect(() => {
-    if (!isSignerLoading && !signer && allSpacesLoaded) {
-      console.log("no account connected", isSignerLoading, signer, allSpaces);
+    if (!isSignerLoading && !signer && !accountAddress && allSpacesLoaded) {
       dispatch(setCommunitySpaces(allSpaces));
       dispatch(setLoaded(true));
-    } else if (signer) {
-      console.log(
-        "account is NOW connected",
-        isSignerLoading,
-        signer,
-        allSpaces
-      );
     }
-  }, [signer, isSignerLoading, allSpacesLoaded]);
+  }, [signer, isSignerLoading, accountAddress, allSpacesLoaded]);
 
   return (
     <div className="min-h-screen">

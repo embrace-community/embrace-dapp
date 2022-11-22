@@ -1,9 +1,9 @@
 import { ApolloProvider } from "@apollo/client";
-import {
-  getDefaultWallets,
-  lightTheme,
-  RainbowKitProvider
-} from "@rainbow-me/rainbowkit";
+import { lightTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { connectorsForWallets } from "@rainbow-me/rainbowkit";
+
+import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
+
 import "@rainbow-me/rainbowkit/styles.css";
 import type { AppProps } from "next/app";
 import { useState } from "react";
@@ -32,10 +32,12 @@ const { chains, provider } = configureChains(
   ]
 );
 
-const { connectors } = getDefaultWallets({
-  appName: "Embrace.Community",
-  chains,
-});
+const connectors = connectorsForWallets([
+  {
+    groupName: "Recommended",
+    wallets: [metaMaskWallet({ chains })],
+  },
+]);
 
 const wagmiClient = createClient({
   autoConnect: true,
