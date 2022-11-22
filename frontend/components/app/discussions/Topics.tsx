@@ -32,12 +32,13 @@ export default function Topics({ spaceId }) {
   const { data, loading, error } = useQuery(DISCUSSION_TOPIC_QUERY, {
     onCompleted: (data) => {
       data = data.discussionTopicIndex.edges.filter(
-        (edge: any) => edge.node.spaceId === spaceId
+        (edge: any) => edge.node.spaceId === spaceId,
       );
     },
     onError: (error) => {
       console.log("error", error);
     },
+    context: { clientName: "compose" },
   });
 
   return (

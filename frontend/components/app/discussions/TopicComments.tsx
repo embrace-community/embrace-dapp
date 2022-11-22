@@ -60,6 +60,7 @@ export default function TopicComments() {
     onError: (error) => {
       console.log("error", error);
     },
+    context: { clientName: "compose" },
   });
 
   const [discussionTopicCommentMutation] = useMutation(
@@ -71,7 +72,7 @@ export default function TopicComments() {
       onError: (error) => {
         console.log("error", error);
       },
-    }
+    },
   );
 
   const createNewDiscussionTopicComment = async () => {
