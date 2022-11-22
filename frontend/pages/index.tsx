@@ -1,7 +1,7 @@
 import { BigNumber, Contract, Signer } from "ethers";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useContractRead, useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
@@ -15,17 +15,17 @@ import {
   setLoaded,
   setCommunitySpaces,
   setYourSpaces,
+  getSpaceById,
 } from "../store/slices/space";
 
 export default function HomePage() {
-  const spacesStore = useSelector((state: RootState) => state.spaces);
-  const dispatch = useDispatch();
+  const spacesStore = useAppSelector((state: RootState) => state.spaces);
+  const dispatch = useAppDispatch();
 
   const [allSpaces, setAllSpaces] = useState<InternalSpace[]>([]);
   const [allSpacesLoaded, setAllSpacesLoaded] = useState<boolean>(false);
 
   const { data: signer, isLoading: isSignerLoading } = useSigner();
-  const [accountsContract, setAccountsContract] = useState<Contract>();
 
   // Wagmi hook to load all community spaces
   const {
@@ -51,31 +51,24 @@ export default function HomePage() {
     }
   }, [spacesStore.loaded, contractSpaces]);
 
-  // Once the signer is loaded, initialize the accounts contract
-  useEffect(() => {
-    if (!isSignerLoading && signer) {
-      const accountsContract = new Contract(
-        process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
-        EmbraceAccounts.abi,
-        signer as Signer
-      );
-
-      setAccountsContract(accountsContract);
-    }
-  }, [signer, isSignerLoading]);
-
   // Once accounts contract initialized, set the user's spaces
   useEffect((): void => {
-    if (!accountsContract || isSignerLoading || !signer) return;
+    if (isSignerLoading || !signer) return;
 
-    async function getAccountSpaces(_accountsContract): Promise<void> {
+    async function getAccountSpaces(): Promise<void> {
       try {
+        const accountsContract = new Contract(
+          process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
+          EmbraceAccounts.abi,
+          signer as Signer
+        );
+
         const address = await signer?.getAddress();
 
         // Gets spaces for the current account in account contract
-        const response = await _accountsContract.getSpaces(address);
+        const response = await accountsContract.getSpaces(address);
 
-        if (response.length > 0) {
+        if (response.length > 0 && allSpaces.length) {
           const spaceIds = response.map((spaceId) =>
             BigNumber.from(spaceId).toNumber()
           );
@@ -100,8 +93,8 @@ export default function HomePage() {
       }
     }
 
-    getAccountSpaces(accountsContract);
-  }, [accountsContract, signer, isSignerLoading]);
+    getAccountSpaces();
+  }, [signer, isSignerLoading]);
 
   // TODO:ERROR - THIS IS BEING CALLED EVEN WHEN AN ACCOUNT IS CONNECTED
   // THIS CAUSES THE 'YOUR SPACES' TO FLASH ON THE PAGE AND THE IMAGES ARE OFTEN LOST
@@ -109,8 +102,16 @@ export default function HomePage() {
   // If no account is connected, then this will stop loading to display the community spaces
   useEffect(() => {
     if (!isSignerLoading && !signer && allSpacesLoaded) {
-      // dispatch(setCommunitySpaces(allSpaces));
-      // dispatch(setLoaded(true));
+      console.log("no account connected", isSignerLoading, signer, allSpaces);
+      dispatch(setCommunitySpaces(allSpaces));
+      dispatch(setLoaded(true));
+    } else if (signer) {
+      console.log(
+        "account is NOW connected",
+        isSignerLoading,
+        signer,
+        allSpaces
+      );
     }
   }, [signer, isSignerLoading, allSpacesLoaded]);
 

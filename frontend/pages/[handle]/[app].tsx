@@ -12,6 +12,8 @@ import {
 import Header from "../../components/space/Header";
 import Apps from "../../components/space/Apps";
 import { Space, SpaceMembership } from "../../types/space";
+import { useAppSelector } from "../../store/hooks";
+import { getSpaceById } from "../../store/slices/space";
 
 export default function SpaceViewPage() {
   const { data: signer, isLoading: isSignerLoading } = useSigner();
@@ -22,14 +24,13 @@ export default function SpaceViewPage() {
   const [isFounder, setIsFounder] = useState<boolean>(false);
   const [membership, setMembership] = useState<SpaceMembership>();
   const [connectedAddress, setConnectedAddress] = useState<string>("");
+  const getSpaceByIdSelector = useAppSelector(getSpaceById);
 
   const router = useRouter();
   const routerIsReady = router.isReady;
-  // Check if the account is a member of the space - must call contract isMember
-  // Check if account meets the membership requirements - must call contract meetsGateRequirements
-
   const account = useAccount();
 
+  // Set the connected account
   useEffect(() => {
     if (account.address) {
       setConnectedAddress(account.address);
@@ -47,7 +48,6 @@ export default function SpaceViewPage() {
         signer as Signer
       );
 
-      console.log(signer, "SIGNER");
       setContract(spacesContract);
 
       return;
@@ -66,15 +66,28 @@ export default function SpaceViewPage() {
   useEffect((): void => {
     if (!contract || !routerIsReady || spaceData) return;
 
+    // Check to see if the spaceId can be found in the store
+    // This will only work when routing inside the NextJs app
+    // I.e. from the homepage, or from create page
+    if (router.query.spaceId) {
+      const spaceId = Number(router.query.spaceId as string);
+      const space = getSpaceByIdSelector(spaceId);
+
+      // If it can then set the space data and prevent looking up the space data from the contract
+      if (space) {
+        setSpaceData(space);
+        setIsFounder(space.founder === connectedAddress);
+        return;
+      }
+    }
+
     const handleBytes32 = ethers.utils.formatBytes32String(
       router.query.handle as string
     );
 
     async function getSpace(MyContract: Contract): Promise<void> {
       try {
-        const space: Space = await MyContract.getSpaceFromHandle(
-          handleBytes32
-        );
+        const space: Space = await MyContract.getSpaceFromHandle(handleBytes32);
 
         if (space) {
           const apps = space.apps.map((app) => BigNumber.from(app).toNumber());
