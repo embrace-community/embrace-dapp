@@ -24,20 +24,30 @@ export default function SpaceCollection({
       const images: string[] = [];
 
       for (const item of collection) {
-        const jsonContent = (await getIpfsJsonContent(
-          item?.metadata
-        )) as Record<string, any>;
+        let jsonContent, image;
+
+        // If metadata has already been loaded then use it
+        if (typeof item?.metadata === "object" && item?.metadata !== null) {
+          jsonContent = item.metadata;
+        } else {
+          jsonContent = (await getIpfsJsonContent(item?.metadata)) as Record<
+            string,
+            any
+          >;
+        }
 
         jsonContents.push(jsonContent);
 
         if (jsonContent?.image) {
-          const image = getFileUri(jsonContent.image);
+          image = getFileUri(jsonContent.image);
 
           images.push(image);
         } else {
           // So that images array maps correctly to collection of spaces otherwise images will not match up
           images.push("");
         }
+
+        // TODO: Update the store with the loaded metadata so it doesn't have to be loaded again
       }
 
       setJsonMetadata(jsonContents);
@@ -66,7 +76,7 @@ export default function SpaceCollection({
             return (
               <Link
                 key={collectionItem.handle + i}
-                href={`/${handleString}/home`}
+                href={`/${handleString}/home?spaceId=${collectionItem.id}`}
               >
                 <div className="w-48 flex flex-col items-center">
                   <div className="w-32 h-32 mb-5 flex items-center justify-center">
