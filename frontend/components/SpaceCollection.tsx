@@ -75,7 +75,7 @@ export default function SpaceCollection({
                 key={collectionItem.handle + i}
                 href={`/${handleString}/home?spaceId=${collectionItem.id}`}
               >
-                <div className="w-48 flex flex-col items-center">
+                <div className="w-48 flex flex-col items-center py-3">
                   <div className="w-32 h-32 mb-5 flex items-center justify-center">
                     <img
                       className="extrastyles-collectionItem-img w-full rounded-full"

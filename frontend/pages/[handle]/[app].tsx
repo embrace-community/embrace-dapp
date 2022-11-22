@@ -1,9 +1,9 @@
 import { BigNumber, Contract, ethers, Signer } from "ethers";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useSigner, useAccount } from "wagmi";
+import { useAccount } from "wagmi";
 import AppLayout from "../../components/AppLayout";
-import embraceSpacesContract from "../../data/contractArtifacts/EmbraceSpaces.json";
+import useEmbraceContracts from "../../hooks/useEmbraceContracts";
 import Spinner from "../../components/Spinner";
 import {
   getFileUri,
@@ -16,10 +16,9 @@ import { useAppSelector } from "../../store/hooks";
 import { getSpaceById } from "../../store/slices/space";
 
 export default function SpaceViewPage() {
-  const { data: signer, isLoading: isSignerLoading } = useSigner();
+  const { spacesContract } = useEmbraceContracts();
   const [spaceData, setSpaceData] = useState<any>(null);
   const [metadataLoaded, setMetadataLoaded] = useState<any>(false);
-  const [contract, setContract] = useState<Contract>();
   const [memberInfoLoaded, setMemberInfoLoaded] = useState<boolean>(false);
   const [isFounder, setIsFounder] = useState<boolean>(false);
   const [membership, setMembership] = useState<SpaceMembership>();
@@ -37,34 +36,9 @@ export default function SpaceViewPage() {
     }
   }, [account]);
 
-  // Once the signer is loaded, initialize the accounts contract
-  useEffect((): void => {
-    if (isSignerLoading) return;
-
-    if (signer) {
-      const spacesContract = new Contract(
-        process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-        embraceSpacesContract.abi,
-        signer as Signer
-      );
-
-      setContract(spacesContract);
-
-      return;
-    }
-
-    const spacesContract = new Contract(
-      process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-      embraceSpacesContract.abi,
-      new ethers.providers.Web3Provider((window as any).ethereum)
-    );
-
-    setContract(spacesContract);
-  }, [signer, isSignerLoading]);
-
   // Once contract is initialized then get the space Id from the router handle and load the space data
   useEffect((): void => {
-    if (!contract || !routerIsReady || spaceData) return;
+    if (!routerIsReady || spaceData) return;
 
     // Check to see if the spaceId can be found in the store
     // This will only work when routing inside the NextJs app
@@ -81,13 +55,16 @@ export default function SpaceViewPage() {
       }
     }
 
+    // Space Id not found in store, so load it from the contract
     const handleBytes32 = ethers.utils.formatBytes32String(
       router.query.handle as string
     );
 
-    async function getSpace(MyContract: Contract): Promise<void> {
+    async function getSpace(): Promise<void> {
       try {
-        const space: Space = await MyContract.getSpaceFromHandle(handleBytes32);
+        const space: Space = await spacesContract?.getSpaceFromHandle(
+          handleBytes32
+        );
 
         if (space) {
           const apps = space.apps.map((app) => BigNumber.from(app).toNumber());
@@ -100,15 +77,15 @@ export default function SpaceViewPage() {
         console.log(
           "getSpace",
           err,
-          contract,
+          spacesContract,
           router.query.handle,
           handleBytes32
         );
       }
     }
 
-    getSpace(contract);
-  }, [contract]);
+    getSpace();
+  }, [routerIsReady]);
 
   // Once space data is loaded then get the space metadata
   useEffect(() => {
@@ -134,17 +111,17 @@ export default function SpaceViewPage() {
     loadSpaceMetadata();
   }, [spaceData, metadataLoaded]);
 
-  // Get the member count
+  // Get the member information for the connected address
   useEffect(() => {
-    if (!contract || !spaceData || memberInfoLoaded) return;
+    if (!spacesContract || !spaceData || memberInfoLoaded) return;
 
-    async function getMemberInfo(MyContract: Contract): Promise<void> {
+    async function getMemberInfo(): Promise<void> {
       const spaceId = BigNumber.from(spaceData.id).toNumber();
-      const memberCount = await MyContract.getMemberCount(spaceId);
+      const memberCount = await spacesContract?.getMemberCount(spaceId);
       const memberCountNumber = BigNumber.from(memberCount).toNumber();
 
       if (connectedAddress) {
-        const membership = await MyContract.getSpaceMember(
+        const membership = await spacesContract?.getSpaceMember(
           spaceId,
           connectedAddress
         );
@@ -158,16 +135,16 @@ export default function SpaceViewPage() {
       setMemberInfoLoaded(true);
     }
 
-    getMemberInfo(contract);
-  }, [contract, spaceData, metadataLoaded]);
+    getMemberInfo();
+  }, [spacesContract, spaceData, metadataLoaded]);
 
   const joinSpace = async () => {
-    if (!contract || !spaceData) return;
+    if (!spacesContract || !spaceData) return;
 
     const spaceId = BigNumber.from(spaceData.id).toNumber();
 
     try {
-      const tx = await contract.joinSpace(spaceId, {
+      const tx = await spacesContract.joinSpace(spaceId, {
         gasLimit: 1000000,
       });
       await tx.wait();
@@ -177,12 +154,12 @@ export default function SpaceViewPage() {
   };
 
   const requestJoinSpace = async () => {
-    if (!contract || !spaceData) return;
+    if (!spacesContract || !spaceData) return;
 
     const spaceId = BigNumber.from(spaceData.id).toNumber();
 
     try {
-      const tx = await contract.requestJoin(spaceId, {
+      const tx = await spacesContract.requestJoin(spaceId, {
         gasLimit: 1000000,
       });
       await tx.wait();
@@ -194,7 +171,7 @@ export default function SpaceViewPage() {
   return (
     <>
       <AppLayout title={spaceData?.metadata?.name}>
-        {spaceData ? (
+        {spaceData && metadataLoaded ? (
           <>
             <Header
               space={spaceData}

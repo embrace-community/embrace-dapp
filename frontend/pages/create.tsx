@@ -21,6 +21,7 @@ import saveToIpfs from "../lib/web3storage/saveToIpfs";
 import { Access, MembershipGateToken, Visibility } from "../types/space";
 
 export default function SpaceViewPage() {
+  const { appsContract, spacesContract } = useEmbraceContracts();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
@@ -125,14 +126,6 @@ export default function SpaceViewPage() {
     }
   }
 
-  function onFinishModal() {
-    setShowModal(false);
-
-    router.push("/");
-  }
-
-  const { appsContract } = useEmbraceContracts();
-
   useEffect(() => {
     async function getApps() {
       if (!signer || deployedApps.isLoading || deployedApps.loaded) return;
@@ -174,12 +167,6 @@ export default function SpaceViewPage() {
     async function createSpace() {
       try {
         if (signer) {
-          const contract = new ethers.Contract(
-            process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-            EmbraceSpaces.abi,
-            signer as ethers.Signer
-          );
-
           let allowRequests = false;
           if (isVisibilityPrivate! && isMembershipClosed) {
             allowRequests = allowMembershipRequests;
@@ -200,11 +187,16 @@ export default function SpaceViewPage() {
             allowRequests,
           };
 
-          contract.on("SpaceCreated", (spaceId, founder) => {
+          if (!spacesContract) {
+            console.error("SPACES CONTRACT NOT FOUND");
+            return;
+          }
+
+          spacesContract.on("SpaceCreated", (spaceId, founder) => {
             setSpaceCreationMessage("Space created! Redirecting to space...");
 
             setTimeout(() => {
-              contract.removeAllListeners();
+              spacesContract.removeAllListeners();
 
               redirectToSpace(spaceId, founder);
             }, 1000);
@@ -216,7 +208,7 @@ export default function SpaceViewPage() {
             );
           }, 10000);
 
-          const tx = await contract.createSpace(
+          const tx = await spacesContract.createSpace(
             ethers.utils.formatBytes32String(handle),
             visibility,
             spaceMembership,

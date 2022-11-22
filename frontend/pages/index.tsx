@@ -3,10 +3,10 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useAccount, useContractRead, useSigner } from "wagmi";
+import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
-import EmbraceAccounts from "../data/contractArtifacts/EmbraceAccounts.json";
 import EmbraceSpacesJson from "../data/contractArtifacts/EmbraceSpaces.json";
 import { EmbraceSpaces } from "../data/contractTypes";
 import { InternalSpace, InternalSpaces } from "../entities/space";
@@ -26,6 +26,7 @@ export default function HomePage() {
 
   const { data: signer, isLoading: isSignerLoading } = useSigner();
   const { address: accountAddress } = useAccount();
+  const { accountsContract } = useEmbraceContracts();
 
   // Wagmi hook to load all community spaces
   const {
@@ -57,17 +58,11 @@ export default function HomePage() {
     if (isSignerLoading || !signer) return;
 
     async function getAccountSpaces(): Promise<void> {
+      if (!accountsContract) return;
+
       try {
-        const accountsContract = new Contract(
-          process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
-          EmbraceAccounts.abi,
-          signer as Signer
-        );
-
-        const address = await signer?.getAddress();
-
         // Gets spaces for the current account in account contract
-        const response = await accountsContract.getSpaces(address);
+        const response = await accountsContract.getSpaces(accountAddress);
 
         if (response.length > 0 && allSpaces.length) {
           const spaceIds = response.map((spaceId) =>
