@@ -46,7 +46,7 @@ export default function Header({
         <div className="w-full flex flex-col items-center md:items-start md:flex-row md:pl-7 md:pr-10 pb-5">
           <div className="flex-1">
             <h1 className="font-semibold text-2xl mb-1">
-              {spaceMetadata.name}
+              {space?.metadata?.name}
             </h1>
             <div className="">
               <div className="w-full flex flex-row text-sm">

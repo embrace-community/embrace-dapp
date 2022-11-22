@@ -1,19 +1,20 @@
-import { BigNumber, Contract, ethers, Signer } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import AppLayout from "../../components/AppLayout";
-import useEmbraceContracts from "../../hooks/useEmbraceContracts";
+import Apps from "../../components/space/Apps";
+import Header from "../../components/space/Header";
 import Spinner from "../../components/Spinner";
+import useEmbraceContracts from "../../hooks/useEmbraceContracts";
 import {
   getFileUri,
   getIpfsJsonContent,
 } from "../../lib/web3storage/getIpfsJsonContent";
-import Header from "../../components/space/Header";
-import Apps from "../../components/space/Apps";
 import { Space, SpaceMembership } from "../../types/space";
 import { useAppSelector } from "../../store/hooks";
 import { getSpaceById } from "../../store/slices/space";
+import { spacesContractAddress } from "../../utils/envs";
 
 export default function SpaceViewPage() {
   const { spacesContract } = useEmbraceContracts();

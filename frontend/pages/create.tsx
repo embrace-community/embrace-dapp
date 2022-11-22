@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useEffect, useState } from "react";
-import { useSigner, useAccount } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import Modal from "../components/Modal";
 import {
@@ -20,6 +20,7 @@ import saveToIpfs from "../lib/web3storage/saveToIpfs";
 import { useAppDispatch } from "../store/hooks";
 import { addCreatedSpace } from "../store/slices/space";
 import { Access, MembershipGateToken, Space, Visibility } from "../types/space";
+import { blockchainExplorerUrl } from "../utils/envs";
 
 export default function SpaceViewPage() {
   const { appsContract, spacesContract } = useEmbraceContracts();
@@ -788,7 +789,7 @@ export default function SpaceViewPage() {
             To see your transaction in the blockchain explorer,{" "}
             <a
               target="_blank"
-              href={`${process.env.NEXT_PUBLIC_BLOCKEXPLORER_URL}/${tx}`}
+              href={`${blockchainExplorerUrl}/${tx}`}
               className="text-violet-500"
             >
               please following this link

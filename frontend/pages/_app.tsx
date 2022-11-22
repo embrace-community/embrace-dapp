@@ -1,10 +1,11 @@
 import { ApolloProvider } from "@apollo/client";
-import { lightTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { connectorsForWallets } from "@rainbow-me/rainbowkit";
-
-import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
-
+import {
+  connectorsForWallets,
+  lightTheme,
+  RainbowKitProvider
+} from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
+import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
 import type { AppProps } from "next/app";
 import { useState } from "react";
 import { Provider } from "react-redux";
@@ -19,6 +20,7 @@ import { SpaceContext } from "../lib/SpaceContext";
 import { store } from "../store/store";
 import "../styles/extrastyles.css";
 import "../styles/globals.css";
+import { infuraApiKey } from "../utils/envs";
 
 const { chains, provider } = configureChains(
   [
@@ -26,10 +28,7 @@ const { chains, provider } = configureChains(
     chain.goerli,
     ...(process.env.NODE_ENV === "development" ? [chain.localhost] : []),
   ],
-  [
-    infuraProvider({ apiKey: process.env.NEXT_PUBLIC_INFURA_API_KEY! }),
-    publicProvider(),
-  ]
+  [infuraProvider({ apiKey: infuraApiKey }), publicProvider()]
 );
 
 const connectors = connectorsForWallets([

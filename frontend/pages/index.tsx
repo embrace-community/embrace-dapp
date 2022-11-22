@@ -1,21 +1,22 @@
 import { BigNumber } from "ethers";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { useAccount, useContractRead, useSigner } from "wagmi";
-import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
 import EmbraceSpacesJson from "../data/contractArtifacts/EmbraceSpaces.json";
 import { EmbraceSpaces } from "../data/contractTypes";
 import { InternalSpace, InternalSpaces } from "../entities/space";
-import { RootState } from "../store/store";
+import useEmbraceContracts from "../hooks/useEmbraceContracts";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
-  setLoaded,
   setCommunitySpaces,
+  setLoaded,
   setYourSpaces,
 } from "../store/slices/space";
+import { RootState } from "../store/store";
+import { spacesContractAddress } from "../utils/envs";
 
 export default function HomePage() {
   const spacesStore = useAppSelector((state: RootState) => state.spaces);
@@ -34,7 +35,7 @@ export default function HomePage() {
     error: _spacesError,
     isLoading: isSpacesLoading,
   } = useContractRead({
-    address: process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
+    address: spacesContractAddress,
     abi: EmbraceSpacesJson.abi,
     functionName: "getSpaces",
     args: [],
