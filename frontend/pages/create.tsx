@@ -13,7 +13,6 @@ import {
   visOptions,
 } from "../components/pages/create/utils";
 import Spinner from "../components/Spinner";
-import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import getWeb3StorageClient from "../lib/web3storage/client";
 import { getIpfsJsonContent } from "../lib/web3storage/getIpfsJsonContent";

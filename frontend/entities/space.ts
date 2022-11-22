@@ -40,7 +40,7 @@ export class InternalSpace implements Space {
     public visibility: Visibility,
     public membership: Membership,
     public apps: number[],
-    public metadata: string | SpaceMetaData,
+    public metadata: string,
     public memberCount: number
   ) {}
 }

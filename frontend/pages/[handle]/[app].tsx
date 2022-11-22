@@ -19,7 +19,8 @@ export default function SpaceViewPage() {
   const { spacesContract } = useEmbraceContracts();
   const [spaceData, setSpaceData] = useState<any>(null);
   const [metadataLoaded, setMetadataLoaded] = useState<any>(false);
-  const [memberInfoLoaded, setMemberInfoLoaded] = useState<boolean>(false);
+  const [membershipInfoLoaded, setMembershipInfoLoaded] =
+    useState<boolean>(false);
   const [isFounder, setIsFounder] = useState<boolean>(false);
   const [membership, setMembership] = useState<SpaceMembership>();
   const [connectedAddress, setConnectedAddress] = useState<string>("");
@@ -113,9 +114,9 @@ export default function SpaceViewPage() {
 
   // Get the member information for the connected address
   useEffect(() => {
-    if (!spacesContract || !spaceData || memberInfoLoaded) return;
+    if (!spacesContract || !spaceData || membershipInfoLoaded) return;
 
-    async function getMemberInfo(): Promise<void> {
+    async function getMembershipInfo(): Promise<void> {
       const spaceId = BigNumber.from(spaceData.id).toNumber();
       const memberCount = await spacesContract?.getMemberCount(spaceId);
       const memberCountNumber = BigNumber.from(memberCount).toNumber();
@@ -132,10 +133,10 @@ export default function SpaceViewPage() {
       const spaceDataObj = { ...spaceData, memberCount: memberCountNumber };
 
       setSpaceData(spaceDataObj);
-      setMemberInfoLoaded(true);
+      setMembershipInfoLoaded(true);
     }
 
-    getMemberInfo();
+    getMembershipInfo();
   }, [spacesContract, spaceData, metadataLoaded]);
 
   const joinSpace = async () => {
@@ -177,6 +178,7 @@ export default function SpaceViewPage() {
               space={spaceData}
               isFounder={isFounder}
               membership={membership}
+              membershipInfoLoaded={membershipInfoLoaded}
               joinSpace={joinSpace}
               requestJoinSpace={requestJoinSpace}
             />

@@ -1,4 +1,4 @@
-import { BigNumber, Contract, Signer } from "ethers";
+import { BigNumber } from "ethers";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
