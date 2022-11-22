@@ -5,8 +5,8 @@ import EmbraceSpacesJSON from "../data/contractArtifacts/EmbraceSpaces.json";
 import {
   accountsContractAddress,
   appContractAddress,
-  spacesContractAddress
-} from "../utils/envs";
+  spacesContractAddress,
+} from "../lib/envs";
 
 function useEmbraceContracts() {
   const { data: signer } = useSigner();

@@ -20,7 +20,7 @@ import { SpaceContext } from "../lib/SpaceContext";
 import { store } from "../store/store";
 import "../styles/extrastyles.css";
 import "../styles/globals.css";
-import { infuraApiKey } from "../utils/envs";
+import { infuraApiKey } from "../lib/envs";
 
 const { chains, provider } = configureChains(
   [

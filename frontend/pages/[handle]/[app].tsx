@@ -11,10 +11,9 @@ import {
   getFileUri,
   getIpfsJsonContent,
 } from "../../lib/web3storage/getIpfsJsonContent";
-import { Space, SpaceMembership } from "../../types/space";
 import { useAppSelector } from "../../store/hooks";
 import { getSpaceById } from "../../store/slices/space";
-import { spacesContractAddress } from "../../utils/envs";
+import { Space, SpaceMembership } from "../../types/space";
 
 export default function SpaceViewPage() {
   const { spacesContract } = useEmbraceContracts();

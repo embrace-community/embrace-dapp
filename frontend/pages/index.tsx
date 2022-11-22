@@ -9,14 +9,14 @@ import EmbraceSpacesJson from "../data/contractArtifacts/EmbraceSpaces.json";
 import { EmbraceSpaces } from "../data/contractTypes";
 import { InternalSpace, InternalSpaces } from "../entities/space";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
+import { spacesContractAddress } from "../lib/envs";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   setCommunitySpaces,
   setLoaded,
-  setYourSpaces,
+  setYourSpaces
 } from "../store/slices/space";
 import { RootState } from "../store/store";
-import { spacesContractAddress } from "../utils/envs";
 
 export default function HomePage() {
   const spacesStore = useAppSelector((state: RootState) => state.spaces);
