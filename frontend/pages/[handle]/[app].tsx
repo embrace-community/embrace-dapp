@@ -6,6 +6,7 @@ import AppLayout from "../../components/AppLayout";
 import Apps from "../../components/space/Apps";
 import Header from "../../components/space/Header";
 import Spinner from "../../components/Spinner";
+import { EmbraceSpaces } from "../../data/contractTypes";
 import useEmbraceContracts from "../../hooks/useEmbraceContracts";
 import {
   getFileUri,
@@ -13,21 +14,23 @@ import {
 } from "../../lib/web3storage/getIpfsJsonContent";
 import { useAppSelector } from "../../store/hooks";
 import { getSpaceById } from "../../store/slices/space";
-import { Space, SpaceMembership } from "../../types/space";
+import { Space, SpaceMembership, SpaceMetaData } from "../../types/space";
 
 export default function SpaceViewPage() {
   const { spacesContract } = useEmbraceContracts();
-  const [spaceData, setSpaceData] = useState<any>(null);
-  const [metadataLoaded, setMetadataLoaded] = useState<any>(false);
+
+  const [spaceData, setSpaceData] = useState<Space | null>(null);
+  const [metadataLoaded, setMetadataLoaded] = useState<boolean>(false);
+
+  const [isFounder, setIsFounder] = useState<boolean>(false);
   const [membershipInfoLoaded, setMembershipInfoLoaded] =
     useState<boolean>(false);
-  const [isFounder, setIsFounder] = useState<boolean>(false);
   const [membership, setMembership] = useState<SpaceMembership>();
   const getSpaceByIdSelector = useAppSelector(getSpaceById);
 
   const router = useRouter();
   const routerIsReady = router.isReady;
-  const account = useAccount();
+  const { address } = useAccount();
 
   // Once contract is initialized then get the space Id from the router handle and load the space data
   useEffect((): void => {
@@ -43,12 +46,9 @@ export default function SpaceViewPage() {
       // If it can then set the space data and prevent looking up the space data from the contract
       if (space) {
         setSpaceData(space);
-        setIsFounder(space.founder === account.address);
+        setIsFounder(space.founder === address);
         console.log(
-          "space found in store.  Founder=",
-          space.founder,
-          "connectedAddress",
-          account.address
+          `space found in store. Founder=${space.founder} connectedAddress=${address}`,
         );
         return;
       }
@@ -56,57 +56,50 @@ export default function SpaceViewPage() {
 
     // Space Id not found in store, so load it from the contract
     const handleBytes32 = ethers.utils.formatBytes32String(
-      router.query.handle as string
+      router.query.handle as string,
     );
 
     async function getSpace(): Promise<void> {
       try {
-        const space: Space = await spacesContract?.getSpaceFromHandle(
-          handleBytes32
-        );
+        const space: EmbraceSpaces.SpaceStructOutput =
+          await spacesContract?.getSpaceFromHandle(handleBytes32);
 
         if (space) {
-          const apps = space.apps.map((app) => BigNumber.from(app).toNumber());
-          // const apps = [0, 1, 2]; // TODO: temp for testing
-          const updatedSpace = { ...space, apps };
-          setSpaceData(updatedSpace);
-          setIsFounder(space.founder === account.address);
+          setSpaceData(SpaceUtil.from_dto(space));
+          setIsFounder(space.founder === address);
         }
-      } catch (err) {
-        console.log(
-          "getSpace",
-          err,
-          spacesContract,
-          router.query.handle,
-          handleBytes32
-        );
+      } catch (err: any) {
+        console.log(`An error occured getting the space data ${err.messag}`);
       }
     }
 
     getSpace();
-  }, [routerIsReady]);
+  }, [
+    address,
+    getSpaceByIdSelector,
+    router.query.handle,
+    router.query.spaceId,
+    routerIsReady,
+    spaceData,
+    spacesContract,
+  ]);
 
   // Once space data is loaded then get the space metadata
   useEffect(() => {
-    if (!spaceData || metadataLoaded) return;
-
     async function loadSpaceMetadata() {
+      if (!spaceData || metadataLoaded) return;
+
       // if metadata is an object then it's already loaded so no need to fetch from ipfs
-      if (
-        typeof spaceData.metadata !== "object" &&
-        spaceData.metadata !== null
-      ) {
+      if (!spaceData?.metadata && spaceData?.metadata) {
         const metadata = (await getIpfsJsonContent(
-          spaceData.metadata
-        )) as Record<string, any>;
+          spaceData.metadata,
+        )) as SpaceMetaData;
 
         if (metadata?.image) {
           metadata.image = getFileUri(metadata.image);
         }
 
-        // Update the spaceData object with the loaded metadata
-        const spaceDataObj = { ...spaceData, metadata };
-        setSpaceData(spaceDataObj);
+        setSpaceData({ ...spaceData, loadedMetadata: metadata });
       }
 
       setMetadataLoaded(true);
@@ -117,30 +110,34 @@ export default function SpaceViewPage() {
 
   // Get the member information for the connected address
   useEffect(() => {
-    if (!spacesContract || !spaceData || membershipInfoLoaded) return;
-
     async function getMembershipInfo(): Promise<void> {
-      const spaceId = BigNumber.from(spaceData.id).toNumber();
+      if (!spacesContract || !spaceData || membershipInfoLoaded) return;
+
+      const spaceId = BigNumber.from(spaceData.id!).toNumber();
       const memberCount = await spacesContract?.getMemberCount(spaceId);
       const memberCountNumber = BigNumber.from(memberCount).toNumber();
 
-      if (account.address) {
+      if (address) {
         const membership = await spacesContract?.getSpaceMember(
           spaceId,
-          account.address
+          address,
         );
 
         setMembership(membership);
+        setMembershipInfoLoaded(true);
       }
 
-      const spaceDataObj = { ...spaceData, memberCount: memberCountNumber };
-
-      setSpaceData(spaceDataObj);
-      setMembershipInfoLoaded(true);
+      setSpaceData({ ...spaceData, memberCount: memberCountNumber });
     }
 
     getMembershipInfo();
-  }, [spacesContract, spaceData, metadataLoaded]);
+  }, [
+    spacesContract,
+    spaceData,
+    metadataLoaded,
+    membershipInfoLoaded,
+    address,
+  ]);
 
   const joinSpace = async () => {
     if (!spacesContract || !spaceData) return;
