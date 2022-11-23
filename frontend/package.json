@@ -17,6 +17,7 @@
     "@ceramicnetwork/3id-did-resolver": "^2.6.0",
     "@ceramicnetwork/http-client": "^2.10.0",
     "@composedb/client": "^0.3.0",
+    "@huddle01/huddle01-client": "^0.0.7",
     "@rainbow-me/rainbowkit": "^0.7.4",
     "@reduxjs/toolkit": "^1.9.0",
     "@tailwindcss/forms": "^0.5.3",

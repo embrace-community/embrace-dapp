@@ -1,5 +1,6 @@
 import { Router } from "next/router";
 import { Space } from "../../../types/space";
+import VideoCalling from "./VideoCalling";
 
 export default function Chat({
   query,
@@ -9,7 +10,5 @@ export default function Chat({
   space: Space;
 }) {
   console.log("chat index.tsx", query, space);
-  return (
-    <>chat server - allow text chat, initiate video call, initiate audio call</>
-  );
+  return <VideoCalling />;
 }

@@ -2,10 +2,16 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      "localhost",
-      "https://bafkreih5noddbpvsuprh4gmhpiyx47gd6z2pripwqelwspqtxumtauyjra.ipfs.w3s.link/",
-    ],
+    // Unsure if this is working or needed
+    domains: ["localhost", "https://*.ipfs.w3s.link/"],
+  },
+  webpack: (config, options) => {
+    config.module.rules.push({
+      test: /\.(ts)x?$/,
+      use: [options.defaultLoaders.babel],
+    });
+
+    return config;
   },
 };
 

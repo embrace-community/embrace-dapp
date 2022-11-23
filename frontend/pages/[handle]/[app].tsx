@@ -1,4 +1,4 @@
-import { BigNumber, Contract, ethers, Signer } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
