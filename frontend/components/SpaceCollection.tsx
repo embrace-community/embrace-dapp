@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   getFileUri,
   getIpfsJsonContent,
@@ -9,11 +9,6 @@ import {
 import { Space } from "../types/space";
 import Spinner from "./Spinner";
 import PlaceholderLoading from "react-placeholder-loading";
-
-// type MetadataImage = {
-//   src: string;
-//   loaded: boolean;
-// };
 
 export default function SpaceCollection({
   title,
