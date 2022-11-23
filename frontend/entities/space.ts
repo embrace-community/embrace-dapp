@@ -1,5 +1,5 @@
 import { EmbraceSpaces } from "../data/contractTypes/EmbraceSpaces";
-import { Membership, Space, Visibility } from "../types/space";
+import { Membership, Space, SpaceMetaData, Visibility } from "../types/space";
 
 export class InternalSpaces {
   constructor(public spaces: InternalSpace[]) {}
@@ -40,7 +40,7 @@ export class InternalSpace implements Space {
     public visibility: Visibility,
     public membership: Membership,
     public apps: number[],
-    public metadata: string,
+    public metadata: string | SpaceMetaData,
     public memberCount: number
   ) {}
 }
