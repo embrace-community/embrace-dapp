@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   images: {
     // Unsure if this is working or needed
     domains: ["localhost", "https://*.ipfs.w3s.link/"],
