@@ -23,19 +23,11 @@ export default function SpaceViewPage() {
     useState<boolean>(false);
   const [isFounder, setIsFounder] = useState<boolean>(false);
   const [membership, setMembership] = useState<SpaceMembership>();
-  const [connectedAddress, setConnectedAddress] = useState<string>("");
   const getSpaceByIdSelector = useAppSelector(getSpaceById);
 
   const router = useRouter();
   const routerIsReady = router.isReady;
   const account = useAccount();
-
-  // Set the connected account
-  useEffect(() => {
-    if (account.address) {
-      setConnectedAddress(account.address);
-    }
-  }, [account]);
 
   // Once contract is initialized then get the space Id from the router handle and load the space data
   useEffect((): void => {
@@ -51,11 +43,12 @@ export default function SpaceViewPage() {
       // If it can then set the space data and prevent looking up the space data from the contract
       if (space) {
         setSpaceData(space);
-        setIsFounder(space.founder === connectedAddress);
+        setIsFounder(space.founder === account.address);
         console.log(
           "space found in store.  Founder=",
           space.founder,
-          connectedAddress
+          "connectedAddress",
+          account.address
         );
         return;
       }
@@ -77,7 +70,7 @@ export default function SpaceViewPage() {
           // const apps = [0, 1, 2]; // TODO: temp for testing
           const updatedSpace = { ...space, apps };
           setSpaceData(updatedSpace);
-          setIsFounder(space.founder === connectedAddress);
+          setIsFounder(space.founder === account.address);
         }
       } catch (err) {
         console.log(
@@ -131,10 +124,10 @@ export default function SpaceViewPage() {
       const memberCount = await spacesContract?.getMemberCount(spaceId);
       const memberCountNumber = BigNumber.from(memberCount).toNumber();
 
-      if (connectedAddress) {
+      if (account.address) {
         const membership = await spacesContract?.getSpaceMember(
           spaceId,
-          connectedAddress
+          account.address
         );
 
         setMembership(membership);
