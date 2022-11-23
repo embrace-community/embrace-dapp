@@ -49,7 +49,6 @@ export default function HomePage() {
 
       setAllSpaces(internalSpaces);
       setAllSpacesLoaded(true);
-      console.log("LOADING SPACES", internalSpaces, contractSpaces);
     }
   }, [spacesStore.loaded, contractSpaces]);
 

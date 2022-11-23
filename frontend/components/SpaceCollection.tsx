@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   getFileUri,
   getIpfsJsonContent,
@@ -8,6 +8,12 @@ import {
 
 import { Space } from "../types/space";
 import Spinner from "./Spinner";
+import PlaceholderLoading from "react-placeholder-loading";
+
+// type MetadataImage = {
+//   src: string;
+//   loaded: boolean;
+// };
 
 export default function SpaceCollection({
   title,
@@ -17,7 +23,10 @@ export default function SpaceCollection({
   collection: Space[];
 }) {
   const [_jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
-  const [metadataImg, setMetadataImg] = useState<string[]>([]);
+  const [metadataImages, setMetadataImages] = useState<string[]>([]);
+  const [metadataImagesLoaded, setMetadataImagesLoaded] = useState<number[]>(
+    []
+  );
   const [metadataLoaded, setMetadataLoaded] = useState<boolean>(true);
 
   useEffect(() => {
@@ -26,31 +35,40 @@ export default function SpaceCollection({
       const images: string[] = [];
 
       for (const item of collection) {
-        const jsonContent = (await getIpfsJsonContent(
-          item?.metadata
-        )) as Record<string, any>;
+        if (typeof item.metadata !== "object" && item.metadata !== null) {
+          const jsonContent = (await getIpfsJsonContent(
+            item?.metadata as string
+          )) as Record<string, any>;
 
-        jsonContents.push(jsonContent);
+          jsonContents.push(jsonContent);
 
-        if (jsonContent?.image) {
-          const image = getFileUri(jsonContent.image);
+          if (jsonContent?.image) {
+            const src = getFileUri(jsonContent.image);
 
-          images.push(image);
+            images.push(src);
+          } else {
+            // So that images array maps correctly to collection of spaces otherwise images will not match up
+            images.push("");
+          }
         } else {
-          // So that images array maps correctly to collection of spaces otherwise images will not match up
-          images.push("");
+          jsonContents.push(item.metadata);
+          images.push(item.metadata?.image);
         }
+
+        setJsonMetadata(jsonContents);
+        setMetadataImages(images);
       }
 
-      //TODO: Consider loading the spaces one by one
-      // This way the images are shown on the UI as the metadata is loaded
-      setJsonMetadata(jsonContents);
-      setMetadataImg(images);
-      setMetadataLoaded(false);
+      setMetadataLoaded(true);
     }
 
     loadMetadataJson();
   }, [collection]);
+
+  function setImageLoaded(index: number) {
+    const imagesLoaded = [...metadataImagesLoaded, index];
+    setMetadataImagesLoaded(imagesLoaded);
+  }
 
   return (
     <div className="w-full border-t-2 border-embracedark border-opacity-5 pb-14 flex flex-col">
@@ -62,9 +80,10 @@ export default function SpaceCollection({
         "no title"
       )}
       <div className="flex flex-row flex-wrap">
-        {metadataLoaded && <Spinner />}
+        {!metadataLoaded && <Spinner />}
 
-        {collection &&
+        {metadataLoaded &&
+          collection &&
           collection.map((collectionItem, i) => {
             const handleString = collectionItem.handle
               ? ethers.utils.parseBytes32String(collectionItem.handle)
@@ -76,15 +95,28 @@ export default function SpaceCollection({
                 href={`/${handleString}/home?spaceId=${collectionItem.id}`}
               >
                 <div className="w-48 flex flex-col items-center py-3">
-                  <div className="w-32 h-32 mb-5 flex items-center justify-center">
+                  <div className="w-32 h-32 mb-5 flex items-center justify-center z-10">
                     <img
                       className="extrastyles-collectionItem-img w-full rounded-full"
-                      src={metadataImg?.[i]}
+                      src={metadataImages?.[i]}
+                      onLoad={() => {
+                        setImageLoaded(i);
+                      }}
                     />
                   </div>
 
+                  {!metadataImagesLoaded.includes(i) && (
+                    <div className="absolute">
+                      <PlaceholderLoading
+                        shape="circle"
+                        width={128}
+                        height={128}
+                      />
+                    </div>
+                  )}
+
                   <p className="text-embracedark font-semibold">
-                    {_jsonMetadata?.[i]?.name}
+                    {handleString}
                   </p>
                 </div>
               </Link>

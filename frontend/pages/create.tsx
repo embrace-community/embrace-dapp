@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useEffect, useState } from "react";
-import { useSigner, useWaitForTransaction } from "wagmi";
+import { useSigner, useAccount } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import Modal from "../components/Modal";
 import {
@@ -17,7 +17,9 @@ import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import getWeb3StorageClient from "../lib/web3storage/client";
 import { getIpfsJsonContent } from "../lib/web3storage/getIpfsJsonContent";
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
-import { Access, MembershipGateToken, Visibility } from "../types/space";
+import { useAppDispatch } from "../store/hooks";
+import { addCreatedSpace } from "../store/slices/space";
+import { Access, MembershipGateToken, Space, Visibility } from "../types/space";
 
 export default function SpaceViewPage() {
   const { appsContract, spacesContract } = useEmbraceContracts();
@@ -25,6 +27,10 @@ export default function SpaceViewPage() {
   const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { data: signer } = useSigner();
+  const { address: accountAddress } = useAccount();
 
   const [deployedApps, setDeployedApps] = useState({
     isLoading: false,
@@ -44,13 +50,16 @@ export default function SpaceViewPage() {
     useState<string>("");
   const [allowMembershipRequests, setAllowMembershipRequests] =
     useState<boolean>(false);
+  const [transactionError, setTransactionError] = useState<boolean>(false);
+  const [transactionRejected, setTransactionRejected] =
+    useState<boolean>(false);
 
   const [apps, setApps] = useState<number[]>([]);
   const [image, setImage] = useState<null | File>(null);
   const [imageCid, setImageCid] = useState<string>("");
 
   const [metadataCid, setMetadataCid] = useState("");
-  const [tx, setTx] = useState<string>("");
+  const [tx, setTx] = useState<any>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [spaceCreationMessage, setSpaceCreationMessage] = useState<string>(
     "We're just setting up your space"
@@ -92,9 +101,6 @@ export default function SpaceViewPage() {
       setIsImageLoading(false);
     }
   }
-
-  const { data: signer } = useSigner();
-  const router = useRouter();
 
   // When submitting the form save the metadata IPFS and create the space once the metadata CID is set
   async function onSubmit() {
@@ -165,81 +171,90 @@ export default function SpaceViewPage() {
 
     async function createSpace() {
       try {
-        if (signer) {
-          let allowRequests = false;
-          if (isVisibilityPrivate! && isMembershipClosed) {
-            allowRequests = allowMembershipRequests;
-          }
+        let allowRequests = false;
+        if (isVisibilityPrivate! && isMembershipClosed) {
+          allowRequests = allowMembershipRequests;
+        }
 
-          const spaceMembership = {
-            access: memberAccessOptions[membershipAccess].id,
+        const spaceMembership = {
+          access: memberAccessOptions[membershipAccess].id,
 
-            gate: {
-              token: isMembershipGated
-                ? membershipToken + 1
-                : MembershipGateToken.NONE,
-              tokenAddress: membershipTokenAddress
-                ? membershipTokenAddress
-                : ethers.constants.AddressZero,
-            },
+          gate: {
+            token: isMembershipGated
+              ? membershipToken + 1
+              : MembershipGateToken.NONE,
+            tokenAddress: membershipTokenAddress
+              ? membershipTokenAddress
+              : ethers.constants.AddressZero,
+          },
 
-            allowRequests,
-          };
+          allowRequests,
+        };
 
-          if (!spacesContract) {
-            console.error("SPACES CONTRACT NOT FOUND");
-            return;
-          }
+        if (!spacesContract) {
+          console.error("SPACES CONTRACT NOT FOUND");
+          return;
+        }
 
-          spacesContract.on("SpaceCreated", (spaceId, founder) => {
-            setSpaceCreationMessage("Space created! Redirecting to space...");
+        // Create space object to be saved in store upon creation
+        // Save the space to the store along with the metadata object
+        const space: Space = {
+          id: 0,
+          handle: ethers.utils.formatBytes32String(handle),
+          founder: accountAddress as string,
+          metadata: {
+            name,
+            description,
+            image: image ? URL.createObjectURL(image) : "",
+          },
+          visibility,
+          apps,
+          membership: spaceMembership,
+          memberCount: 1,
+        };
 
-            setTimeout(() => {
-              spacesContract.removeAllListeners();
-
-              redirectToSpace(spaceId, founder);
-            }, 1000);
-          });
+        spacesContract.on("SpaceCreated", (spaceId, founder) => {
+          setSpaceCreationMessage("Space created! Redirecting to space...");
 
           setTimeout(() => {
-            setSpaceCreationMessage(
-              "Making sure everything is ready for your community..."
-            );
-          }, 10000);
+            spacesContract.removeAllListeners();
 
-          const tx = await spacesContract.createSpace(
-            ethers.utils.formatBytes32String(handle),
-            visibility,
-            spaceMembership,
-            apps,
-            metadataCid,
-            {
-              gasLimit: 1000000,
-            }
+            redirectToSpace(spaceId, founder, space);
+          }, 1000);
+        });
+
+        setTimeout(() => {
+          setSpaceCreationMessage(
+            "Making sure everything is ready for your community..."
           );
+        }, 10000);
 
-          if (tx) {
-            console.log(`Creating spaces...tx ${JSON.stringify(tx)}`);
-
-            setTx(tx?.hash);
-            const { isLoading: isTxLoading, isSuccess: isTxSuccess } =
-              useWaitForTransaction({
-                hash: tx?.hash,
-              });
-
-            console.log("isTxLoading", isTxLoading, "isTxSuccess", isTxSuccess);
-
-            setCurrentStep(3);
-            return;
+        const tx = await spacesContract.createSpace(
+          ethers.utils.formatBytes32String(handle),
+          visibility,
+          spaceMembership,
+          apps,
+          metadataCid,
+          {
+            gasLimit: 1000000,
           }
+        );
 
-          setMetadataCid(""); // TODO: Doesn't work as expected Reset metadata CID to re-trigger createSpace again if tx fails
-          console.error("TX not set: user likely rejected transaction");
-        } else {
-          console.error("No signer found");
+        if (tx) {
+          console.log(`Creating spaces...tx ${JSON.stringify(tx)}`);
+
+          setTx(tx?.hash);
+          setCurrentStep(3);
+
+          return;
         }
+
+        console.error("TX not set: user likely rejected transaction");
       } catch (err: any) {
-        console.error(`Failed to create space ${err.message}`);
+        // Most likely user rejected the transaction
+        setTransactionRejected(true);
+        setMetadataCid(""); // reset metadata CID if transaction is rejected at first (allows user to retry)
+        console.error(`Failed to create space: ${err.message}`);
       } finally {
         setIsLoading(false);
       }
@@ -262,25 +277,33 @@ export default function SpaceViewPage() {
         `${data.name.replaceAll(" ", "_")}.json`
       )) as string;
 
-      if (!cid) console.error("Failed to save post to IPFS");
-      else {
+      if (cid) {
         console.log("Uploaded json to ipfs, CID: ", cid);
-        setMetadataCid(cid);
         // useEffect will trigger createSpace once CID is set
+        setMetadataCid(cid);
+        return;
       }
+
+      console.error("Failed to save post to IPFS");
     } catch (err: any) {
       console.error(`Failed to save post to IPFS, ${err.message}`);
     }
   }
 
-  function redirectToSpace(spaceId, founder) {
+  async function redirectToSpace(spaceId, founder, spaceObject?: Space) {
     const spaceIdNum = ethers.BigNumber.from(spaceId).toNumber();
-    console.log("Redirecting to space: ", spaceIdNum, founder);
+    console.log("Redirecting to space: ", spaceIdNum, founder, spaceObject);
 
-    // Check the spaces contract every second to see if the space can be accessed on the contract
-    // Once it can then redirect to the space
+    if (spaceObject) {
+      const spaceWithId: Space = { ...spaceObject, id: spaceIdNum };
+      console.log("spaceWithId", spaceWithId);
+      dispatch(addCreatedSpace(spaceWithId));
 
-    // Save the space to the store along with the metadata object
+      router.push(`/${handle}/home?spaceId=${spaceIdNum}`);
+    } else {
+      // Shouldn't happen, but just in case
+      alert("Something went wrong, please try again later.");
+    }
   }
 
   return (
@@ -656,21 +679,46 @@ export default function SpaceViewPage() {
               </fieldset>
             )}
 
-            {currentStep == 2 && !apps.length && (
+            {currentStep == 2 && (
               <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
-                <p className="text-sm text-embracedark text-opacity-50 mb-2">
-                  To create your space, it needs at least one app
-                </p>
+                {!apps.length && (
+                  <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                    To create your space, it needs at least one app
+                  </p>
+                )}
+
+                {transactionRejected && (
+                  <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                    Transaction has been rejected, please try again.
+                  </p>
+                )}
               </div>
             )}
 
             {currentStep === 3 && (
               <fieldset className="space-y-2 mt-12 mb-10">
-                <label className="block text-sm font-medium text-embracedark mb-3">
-                  {spaceCreationMessage}
-                </label>
-
-                <Spinner />
+                {transactionError ? (
+                  <>
+                    <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
+                      <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                        There has been an error creating your space
+                      </p>
+                    </div>
+                    <a
+                      className="text-sm text-embracedark text-opacity-70 mt-2 underline cursor-pointer"
+                      onClick={(e) => setCurrentStep(2)}
+                    >
+                      back to try again
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    <label className="block text-sm font-medium text-embracedark mb-3">
+                      {spaceCreationMessage}
+                    </label>
+                    <Spinner />
+                  </>
+                )}
               </fieldset>
             )}
 
@@ -694,12 +742,16 @@ export default function SpaceViewPage() {
                         isMembershipGated &&
                         !membershipTokenAddress)
                     }
-                    onClick={() => setCurrentStep(2)}
+                    onClick={() => {
+                      setCurrentStep(2);
+                      setTransactionRejected(false);
+                    }}
                   >
                     choose apps &rarr;
                   </button>
                 </>
               )}
+
               {currentStep === 2 && (
                 <>
                   <button

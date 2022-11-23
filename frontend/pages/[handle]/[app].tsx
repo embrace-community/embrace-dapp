@@ -52,6 +52,11 @@ export default function SpaceViewPage() {
       if (space) {
         setSpaceData(space);
         setIsFounder(space.founder === connectedAddress);
+        console.log(
+          "space found in store.  Founder=",
+          space.founder,
+          connectedAddress
+        );
         return;
       }
     }
@@ -93,19 +98,24 @@ export default function SpaceViewPage() {
     if (!spaceData || metadataLoaded) return;
 
     async function loadSpaceMetadata() {
-      const metadata = (await getIpfsJsonContent(spaceData.metadata)) as Record<
-        string,
-        any
-      >;
+      // if metadata is an object then it's already loaded so no need to fetch from ipfs
+      if (
+        typeof spaceData.metadata !== "object" &&
+        spaceData.metadata !== null
+      ) {
+        const metadata = (await getIpfsJsonContent(
+          spaceData.metadata
+        )) as Record<string, any>;
 
-      if (metadata?.image) {
-        metadata.image = getFileUri(metadata.image);
+        if (metadata?.image) {
+          metadata.image = getFileUri(metadata.image);
+        }
+
+        // Update the spaceData object with the loaded metadata
+        const spaceDataObj = { ...spaceData, metadata };
+        setSpaceData(spaceDataObj);
       }
 
-      // Update the spaceData object with the loaded metadata
-      const spaceDataObj = { ...spaceData, metadata };
-
-      setSpaceData(spaceDataObj);
       setMetadataLoaded(true);
     }
 

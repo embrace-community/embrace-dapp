@@ -35,7 +35,7 @@ export type Space = {
   visibility: Visibility;
   membership: Membership;
   apps: number[];
-  metadata: string;
+  metadata: string | SpaceMetaData;
   memberCount: number;
 };
 
