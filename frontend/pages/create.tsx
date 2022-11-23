@@ -171,6 +171,9 @@ export default function SpaceViewPage() {
 
     async function createSpace() {
       try {
+        setTransactionError(false);
+        setTransactionRejected(false);
+
         let allowRequests = false;
         if (isVisibilityPrivate! && isMembershipClosed) {
           allowRequests = allowMembershipRequests;
