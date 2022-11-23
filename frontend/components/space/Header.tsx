@@ -4,6 +4,8 @@ import {
   Access,
   Visibility,
   SpaceMembership,
+  Space,
+  SpaceMetaData,
 } from "../../types/space";
 
 export default function Header({
@@ -14,7 +16,7 @@ export default function Header({
   joinSpace,
   requestJoinSpace,
 }: {
-  space: any;
+  space: Space;
   isFounder: boolean;
   membership: SpaceMembership | undefined;
   membershipInfoLoaded: boolean;
@@ -27,13 +29,16 @@ export default function Header({
   const allowRequests = space.membership.allowRequests;
   const [aboutShow, toggleAboutShow] = useState(false);
 
+  console.log(isFounder, "isFounder", space.founder);
+  const spaceMetadata: SpaceMetaData = space.metadata as SpaceMetaData;
+
   return (
     <div className="w-full flex flex-col extrastyles-specialpadding2">
       <div className="w-full flex flex-col md:flex-row justify-start items-center md:items-start border-b-2 border-embracedark border-opacity-5 mb-4">
-        {space?.metadata?.image ? (
+        {spaceMetadata.image ? (
           <img
             className="w-20 h-20 extrastyles-border-radius extrastyles-negmarg-avatar bg-white"
-            src={space?.metadata?.image}
+            src={spaceMetadata.image}
           />
         ) : (
           <span className="w-28 h-28 extrastyles-border-radius extrastyles-negmarg-avatar"></span>
@@ -41,7 +46,7 @@ export default function Header({
         <div className="w-full flex flex-col items-center md:items-start md:flex-row md:pl-7 md:pr-10 pb-5">
           <div className="flex-1">
             <h1 className="font-semibold text-2xl mb-1">
-              {space?.metadata?.name}
+              {spaceMetadata.name}
             </h1>
             <div className="">
               <div className="w-full flex flex-row text-sm">
@@ -88,7 +93,7 @@ export default function Header({
               <div className={aboutShow ? "" : "hidden"}>
                 <div className="w-full flex flex-row mt-5 text-sm">
                   <p className="text-embracedark">
-                    {space?.metadata?.description}
+                    {spaceMetadata.description}
                   </p>
                 </div>
                 <div className="w-full flex flex-row mt-2 text-sm ">
