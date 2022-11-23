@@ -14,7 +14,7 @@ export default function SpaceIndexPage() {
   }, [isReady]);
 
   return (
-    <AppLayout>
+    <AppLayout title="Community Page">
       <div className="p-10">
         <Spinner />
       </div>
