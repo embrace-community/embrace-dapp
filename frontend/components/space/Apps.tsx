@@ -76,21 +76,27 @@ export default function Apps({
   };
 
   return (
-    <>
+    <div className="w-full flex flex-col items-start flex-1">
       <Navigation
         space={space}
         currentApp={currentApp}
         setCurrentApp={setApp}
       />
-      <div className="relative flex flex-col min-w-0 break-words bg-white w-full">
-        <div className="tab-content tab-space">
-          <div className="block">
+      <div className="w-full flex flex-col items-start flex-1 bg-white">
+        {appSelected && renderApp()}
+      </div>
+
+      {/* <div className="flex-1"></div>
+      <div className="flex flex-col min-w-0 break-words w-full flex-1">
+        <div className="tab-content tab-space ">
+          <div className="block flex-1 ">
             <div className="flex flex-col w-full pl-32 pt-14 justify-start items-start">
               {appSelected && renderApp()}
             </div>
           </div>
         </div>
-      </div>
-    </>
+      </div> */}
+
+    </div>
   );
 }

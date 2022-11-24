@@ -12,10 +12,9 @@ export default function Navigation({
   setCurrentApp: (index: number) => void;
 }) {
   return (
-    <div className="flex">
-      <div className="w-full">
+      <div className="w-full flex">
         <ul
-          className="flex mb-0 list-none flex-row extrastyles-specialpadding2"
+          className="w-full flex mb-0 list-none flex-row extrastyles-specialpadding2"
           role="tablist"
         >
           {Object.keys(appMappings).map((appId) => {
@@ -48,6 +47,5 @@ export default function Navigation({
           })}
         </ul>
       </div>
-    </div>
   );
 }

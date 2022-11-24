@@ -10,6 +10,11 @@ export default function Chat({
 }) {
   console.log("chat index.tsx", query, space);
   return (
-    <>chat server - allow text chat, initiate video call, initiate audio call</>
+    <div className="w-full flex flex-1 h-full flex-row">
+      <p>test</p>
+      <p>test</p>
+      <p>test</p>
+
+      </div>
   );
 }
