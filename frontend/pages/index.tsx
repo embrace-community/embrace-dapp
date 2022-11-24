@@ -82,6 +82,9 @@ export default function HomePage() {
 
           dispatch(setCommunitySpaces(communitySpaces));
           dispatch(setLoaded(true));
+        } else {
+          dispatch(setCommunitySpaces(allSpaces));
+          dispatch(setLoaded(true));
         }
       } catch (err) {
         console.log("getAccountSpaces", err);

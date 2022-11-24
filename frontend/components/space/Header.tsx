@@ -29,7 +29,6 @@ export default function Header({
   const allowRequests = space.membership.allowRequests;
   const [aboutShow, toggleAboutShow] = useState(false);
 
-  console.log(isFounder, "isFounder", space.founder);
   const spaceMetadata: SpaceMetaData = space.metadata as SpaceMetaData;
 
   return (

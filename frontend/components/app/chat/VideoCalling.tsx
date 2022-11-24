@@ -6,8 +6,9 @@ import {
   useRootStore,
 } from "@huddle01/huddle01-client";
 import PeerVideoAudioElem from "./PeerVideoAudioElem";
+import { useAccount } from "wagmi";
 
-export default function VideoCalling() {
+export default function VideoCalling({ handle }) {
   const huddleClient = getHuddleClient("YOUR_API_KEY");
   const stream = useRootStore((state) => state.stream);
   const enableStream = useRootStore((state) => state.enableStream);
@@ -19,30 +20,27 @@ export default function VideoCalling() {
   const roomState = useRootStore((state) => state.roomState);
   const micPaused = useRootStore((state) => state.isMicPaused);
   const [allowPeersToAutoJoin, setAllowPeersToAutoJoin] = useState(true);
+  const account = useAccount();
 
   const joinCall = async () => {
-    const roomId = "embrace.community/space-handle/random-id-stored-in-lit";
+    // For private / anon spaces then need to create a random room and save it to Ceramic / LIT
+    // so that only space members can find the room and join the call
+    const roomId = `embrace.community/${handle}`;
+    console.log("Joining room", roomId);
     try {
-      await huddleClient.join(roomId, {
-        address: "0x15900c698ee356E6976e5645394F027F0704c8Eb",
-        wallet: "",
-        ens: "axit.eth",
-      });
+      await enableStream();
 
-      console.log("joined");
+      const walletData = {
+        address: account.address as string,
+        wallet: "",
+        ens: "",
+      };
+
+      await huddleClient.join(roomId, walletData);
     } catch (error) {
       console.log({ error });
     }
   };
-
-  useEffect(() => {
-    async function startCall() {
-      await enableStream();
-      await joinCall();
-    }
-
-    startCall();
-  }, []);
 
   useEffect(() => {
     if (allowPeersToAutoJoin) {
@@ -58,6 +56,8 @@ export default function VideoCalling() {
     }
   }, [stream]);
 
+  console.log(roomState);
+
   return (
     <HuddleClientProvider value={huddleClient}>
       <>
@@ -72,6 +72,7 @@ export default function VideoCalling() {
               ></video>
             )}
             <div>
+              <span>Room state: {roomState.joined.toString()} </span>
               {!micPaused && (
                 <button onClick={() => huddleClient.muteMic()}>Mute Mic</button>
               )}

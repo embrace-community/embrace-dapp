@@ -10,5 +10,5 @@ export default function Chat({
   space: Space;
 }) {
   console.log("chat index.tsx", query, space);
-  return <VideoCalling />;
+  return <VideoCalling handle={query.handle} />;
 }
