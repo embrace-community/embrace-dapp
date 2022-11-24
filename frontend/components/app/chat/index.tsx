@@ -10,5 +10,12 @@ export default function Chat({
   space: Space;
 }) {
   console.log("chat index.tsx", query, space);
-  return <VideoCalling handle={query.handle} />;
+  return (
+    <div className="w-full flex flex-1 h-full flex-row">
+      <p>test</p>
+      <p>test</p>
+      <p>test</p>
+      <VideoCalling handle={query.handle} />
+    </div>
+  );
 }
