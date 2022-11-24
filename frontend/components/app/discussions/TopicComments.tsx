@@ -99,12 +99,12 @@ export default function TopicComments() {
         onClick={() => createNewDiscussionTopicComment()}
         className="
                         rounded-full
-                        border-violet-500
+                        border-indigo-500
                         border-2
                         bg-transparent
                         py-4
                         px-12
-                        text-violet-500
+                        text-indigo-500
                         shadow-sm
                         focus:outline-none
                         focus:ring-none

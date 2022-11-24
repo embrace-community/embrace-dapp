@@ -24,7 +24,7 @@ export default function Discussions({
     <div className="flex flex-col w-full pl-32 pt-14 justify-start items-start">
       {!topicId && (
         <button
-          className="rounded-full border-violet-500 border-2 bg-transparent py-4 px-12 text-violet-500 shadow-sm focus:outline-none focus:ring-none mb-7 font-semibold text-xl"
+          className="rounded-full border-indigo-500 border-2 bg-transparent py-4 px-12 text-indigo-500 shadow-sm focus:outline-none focus:ring-none mb-7 font-semibold text-xl"
           onClick={(e) => setNewTopic(true)}
         >
           + new topic
