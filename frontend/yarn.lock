@@ -4289,16 +4289,6 @@ http-errors@^1.7.2:
     statuses ">= 1.5.0 < 2"
     toidentifier "1.0.1"
 
-huddle01-client@^1.1.20:
-  version "1.1.20"
-  resolved "https://registry.yarnpkg.com/huddle01-client/-/huddle01-client-1.1.20.tgz#fc6fc8908e71c6452dadda9d56a2ad301944a70c"
-  integrity sha512-33116c6yz4Ol7rXmLVg84gyFYLtH2NnLRafFIBRi0XMozo3H5hCRAjYGNhiAPqchvr+Ny4iqj/tC7+ntny5e+w==
-  dependencies:
-    bowser "^2.11.0"
-    events "^3.3.0"
-    mediasoup-client "^3.6.33"
-    protoo-client "^4.0.6"
-
 iconv-lite@^0.6.2:
   version "0.6.3"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.6.3.tgz#a52f80bf38da1952eb5c681790719871a1a72501"
@@ -5265,7 +5255,7 @@ media-query-parser@^2.0.2:
   dependencies:
     "@babel/runtime" "^7.12.5"
 
-mediasoup-client@^3.6.33, mediasoup-client@^3.6.51:
+mediasoup-client@^3.6.51:
   version "3.6.62"
   resolved "https://registry.yarnpkg.com/mediasoup-client/-/mediasoup-client-3.6.62.tgz#095b96c1769bda6eb63e2c9f7d313df360d5a0da"
   integrity sha512-P4/BM7HEf7XZdF3OHirOsbSwJhghyec0tZnzDlOTEZqxdRek0tnu1QWcm4cioBSyvMG1TXi9lwicxB/qUgzQ1g==
