@@ -4,7 +4,7 @@ import {
   HuddleClientProvider,
   getHuddleClient,
   useRootStore,
-} from "@huddle01/huddle01-client";
+} from "../../../lib/huddle01-client";
 import PeerVideoAudioElem from "./PeerVideoAudioElem";
 import { useAccount } from "wagmi";
 
