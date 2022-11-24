@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useEffect, useState } from "react";
-import { useSigner } from "wagmi";
+import { useSigner, useAccount } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import Modal from "../components/Modal";
 import {
@@ -13,17 +13,24 @@ import {
   visOptions,
 } from "../components/pages/create/utils";
 import Spinner from "../components/Spinner";
-import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import getWeb3StorageClient from "../lib/web3storage/client";
 import { getIpfsJsonContent } from "../lib/web3storage/getIpfsJsonContent";
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
-import { Access, MembershipGateToken, Visibility } from "../types/space";
+import { useAppDispatch } from "../store/hooks";
+import { addCreatedSpace } from "../store/slices/space";
+import { Access, MembershipGateToken, Space, Visibility } from "../types/space";
 
 export default function SpaceViewPage() {
+  const { appsContract, spacesContract } = useEmbraceContracts();
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { data: signer } = useSigner();
+  const { address: accountAddress } = useAccount();
 
   const [deployedApps, setDeployedApps] = useState({
     isLoading: false,
@@ -43,13 +50,16 @@ export default function SpaceViewPage() {
     useState<string>("");
   const [allowMembershipRequests, setAllowMembershipRequests] =
     useState<boolean>(false);
+  const [transactionError, setTransactionError] = useState<boolean>(false);
+  const [transactionRejected, setTransactionRejected] =
+    useState<boolean>(false);
 
   const [apps, setApps] = useState<number[]>([]);
   const [image, setImage] = useState<null | File>(null);
   const [imageCid, setImageCid] = useState<string>("");
 
   const [metadataCid, setMetadataCid] = useState("");
-  const [tx, setTx] = useState<string>("");
+  const [tx, setTx] = useState<any>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [spaceCreationMessage, setSpaceCreationMessage] = useState<string>(
     "We're just setting up your space"
@@ -76,7 +86,7 @@ export default function SpaceViewPage() {
     if (!uploadedFile) return;
 
     try {
-      setIsLoading(true);
+      setIsImageLoading(true);
 
       const uploadedCid = await getWeb3StorageClient().put([uploadedFile], {
         wrapWithDirectory: false,
@@ -88,12 +98,9 @@ export default function SpaceViewPage() {
     } catch (err: any) {
       console.log("Error: ", err.message);
     } finally {
-      setIsLoading(false);
+      setIsImageLoading(false);
     }
   }
-
-  const { data: signer } = useSigner();
-  const router = useRouter();
 
   // When submitting the form save the metadata IPFS and create the space once the metadata CID is set
   async function onSubmit() {
@@ -121,123 +128,8 @@ export default function SpaceViewPage() {
       }
     } catch (err: any) {
       console.error(`Failed to save metadata ${err.message}`);
-    } finally {
-      setIsLoading(false);
     }
   }
-
-  async function sendMetadataToIpfs() {
-    const data = {
-      name,
-      description,
-      image: imageCid,
-      handle,
-    };
-
-    try {
-      const cid = (await saveToIpfs(
-        data,
-        `${data.name.replaceAll(" ", "_")}.json`
-      )) as string;
-
-      if (!cid) console.error("Failed to save post to IPFS");
-      else {
-        console.log("Uploaded json to ipfs, CID: ", cid);
-        setMetadataCid(cid);
-        // Pass CID to createSpace as the state variable is not updated immediately
-        createSpace(cid);
-      }
-    } catch (err: any) {
-      console.error(`Failed to save post to IPFS, ${err.message}`);
-    }
-  }
-
-  async function createSpace(metadataCid: string) {
-    try {
-      if (signer) {
-        const contract = new ethers.Contract(
-          process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-          EmbraceSpaces.abi,
-          signer as ethers.Signer
-        );
-
-        let allowRequests = false;
-        if (isVisibilityPrivate! && isMembershipClosed) {
-          allowRequests = allowMembershipRequests;
-        }
-
-        const spaceMembership = {
-          access: memberAccessOptions[membershipAccess].id,
-
-          gate: {
-            token: isMembershipGated
-              ? membershipToken + 1
-              : MembershipGateToken.NONE,
-            tokenAddress: membershipTokenAddress
-              ? membershipTokenAddress
-              : ethers.constants.AddressZero,
-          },
-
-          allowRequests,
-        };
-
-        contract.on("SpaceCreated", (spaceId, founder) => {
-          setSpaceCreationMessage("Space created! Redirecting to space...");
-
-          setTimeout(() => {
-            redirectToSpace();
-          }, 1000);
-        });
-
-        setTimeout(() => {
-          setSpaceCreationMessage(
-            "Making sure everything is ready for your community..."
-          );
-        }, 10000);
-
-        const tx = await contract.createSpace(
-          ethers.utils.formatBytes32String(handle),
-          visibility,
-          spaceMembership,
-          apps,
-          metadataCid,
-          {
-            gasLimit: 1000000,
-          }
-        );
-
-        if (tx) {
-          console.log(`Creating spaces...tx ${JSON.stringify(tx)}`);
-
-          setTx(tx?.hash);
-          setCurrentStep(3);
-          return;
-        }
-
-        console.error("TX not set: user likely rejected transaction");
-        // setShowModal(true);
-      } else {
-        console.error("No signer found");
-      }
-    } catch (err: any) {
-      console.error(`Failed to create space ${err.message}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  function redirectToSpace() {
-    // TODO: Stop listening to events
-    router.push(`/spaces/${handle}`);
-  }
-
-  function onFinishModal() {
-    setShowModal(false);
-
-    router.push("/");
-  }
-
-  const { appsContract } = useEmbraceContracts();
 
   useEffect(() => {
     async function getApps() {
@@ -274,6 +166,149 @@ export default function SpaceViewPage() {
     getApps();
   }, [signer, deployedApps]);
 
+  useEffect(() => {
+    if (!metadataCid || !signer) return;
+
+    async function createSpace() {
+      try {
+        setTransactionError(false);
+        setTransactionRejected(false);
+
+        let allowRequests = false;
+        if (isVisibilityPrivate! && isMembershipClosed) {
+          allowRequests = allowMembershipRequests;
+        }
+
+        const spaceMembership = {
+          access: memberAccessOptions[membershipAccess].id,
+
+          gate: {
+            token: isMembershipGated
+              ? membershipToken + 1
+              : MembershipGateToken.NONE,
+            tokenAddress: membershipTokenAddress
+              ? membershipTokenAddress
+              : ethers.constants.AddressZero,
+          },
+
+          allowRequests,
+        };
+
+        if (!spacesContract) {
+          console.error("SPACES CONTRACT NOT FOUND");
+          return;
+        }
+
+        // Create space object to be saved in store upon creation
+        // Save the space to the store along with the metadata object
+        const space: Space = {
+          id: 0,
+          handle: ethers.utils.formatBytes32String(handle),
+          founder: accountAddress as string,
+          metadata: {
+            name,
+            description,
+            image: image ? URL.createObjectURL(image) : "",
+          },
+          visibility,
+          apps,
+          membership: spaceMembership,
+          memberCount: 1,
+        };
+
+        spacesContract.on("SpaceCreated", (spaceId, founder) => {
+          setSpaceCreationMessage("Space created! Redirecting to space...");
+
+          setTimeout(() => {
+            spacesContract.removeAllListeners();
+
+            redirectToSpace(spaceId, founder, space);
+          }, 1000);
+        });
+
+        setTimeout(() => {
+          setSpaceCreationMessage(
+            "Making sure everything is ready for your community..."
+          );
+        }, 10000);
+
+        const tx = await spacesContract.createSpace(
+          ethers.utils.formatBytes32String(handle),
+          visibility,
+          spaceMembership,
+          apps,
+          metadataCid,
+          {
+            gasLimit: 1000000,
+          }
+        );
+
+        if (tx) {
+          console.log(`Creating spaces...tx ${JSON.stringify(tx)}`);
+
+          setTx(tx?.hash);
+          setCurrentStep(3);
+
+          return;
+        }
+
+        console.error("TX not set: user likely rejected transaction");
+      } catch (err: any) {
+        // Most likely user rejected the transaction
+        setTransactionRejected(true);
+        setMetadataCid(""); // reset metadata CID if transaction is rejected at first (allows user to retry)
+        console.error(`Failed to create space: ${err.message}`);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    createSpace();
+  }, [metadataCid]);
+
+  async function sendMetadataToIpfs() {
+    const data = {
+      name,
+      description,
+      image: imageCid,
+      handle,
+    };
+
+    try {
+      const cid = (await saveToIpfs(
+        data,
+        `${data.name.replaceAll(" ", "_")}.json`
+      )) as string;
+
+      if (cid) {
+        console.log("Uploaded json to ipfs, CID: ", cid);
+        // useEffect will trigger createSpace once CID is set
+        setMetadataCid(cid);
+        return;
+      }
+
+      console.error("Failed to save post to IPFS");
+    } catch (err: any) {
+      console.error(`Failed to save post to IPFS, ${err.message}`);
+    }
+  }
+
+  async function redirectToSpace(spaceId, founder, spaceObject?: Space) {
+    const spaceIdNum = ethers.BigNumber.from(spaceId).toNumber();
+    console.log("Redirecting to space: ", spaceIdNum, founder, spaceObject);
+
+    if (spaceObject) {
+      const spaceWithId: Space = { ...spaceObject, id: spaceIdNum };
+      console.log("spaceWithId", spaceWithId);
+      dispatch(addCreatedSpace(spaceWithId));
+
+      router.push(`/${handle}/home?spaceId=${spaceIdNum}`);
+    } else {
+      // Shouldn't happen, but just in case
+      alert("Something went wrong, please try again later.");
+    }
+  }
+
   return (
     <>
       <AppLayout title="Create Space">
@@ -291,7 +326,7 @@ export default function SpaceViewPage() {
           </div>
 
           <div className="max-w-lg pl-8">
-            {isLoading && <Spinner />}
+            {isImageLoading && <Spinner />}
             {currentStep === 1 && (
               <>
                 <div className="mb-7">
@@ -567,7 +602,7 @@ export default function SpaceViewPage() {
               </>
             )}
 
-            {error && currentStep == 1 && (
+            {error && (currentStep == 1 || currentStep == 2) && (
               <div className="border-y border-embracedark py-3">
                 <p className="block text-sm font-medium text-embracedark">
                   {error}
@@ -647,13 +682,46 @@ export default function SpaceViewPage() {
               </fieldset>
             )}
 
+            {currentStep == 2 && (
+              <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
+                {!apps.length && (
+                  <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                    To create your space, it needs at least one app
+                  </p>
+                )}
+
+                {transactionRejected && (
+                  <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                    Transaction has been rejected, please try again.
+                  </p>
+                )}
+              </div>
+            )}
+
             {currentStep === 3 && (
               <fieldset className="space-y-2 mt-12 mb-10">
-                <label className="block text-sm font-medium text-embracedark mb-3">
-                  {spaceCreationMessage}
-                </label>
-
-                <Spinner />
+                {transactionError ? (
+                  <>
+                    <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
+                      <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                        There has been an error creating your space
+                      </p>
+                    </div>
+                    <a
+                      className="text-sm text-embracedark text-opacity-70 mt-2 underline cursor-pointer"
+                      onClick={(e) => setCurrentStep(2)}
+                    >
+                      back to try again
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    <label className="block text-sm font-medium text-embracedark mb-3">
+                      {spaceCreationMessage}
+                    </label>
+                    <Spinner />
+                  </>
+                )}
               </fieldset>
             )}
 
@@ -677,12 +745,16 @@ export default function SpaceViewPage() {
                         isMembershipGated &&
                         !membershipTokenAddress)
                     }
-                    onClick={() => setCurrentStep(2)}
+                    onClick={() => {
+                      setCurrentStep(2);
+                      setTransactionRejected(false);
+                    }}
                   >
                     choose apps &rarr;
                   </button>
                 </>
               )}
+
               {currentStep === 2 && (
                 <>
                   <button
@@ -693,15 +765,7 @@ export default function SpaceViewPage() {
                   </button>
                   <button
                     className=" inline-flex items-center rounded-full border-violet-500 border-2 bg-transparent py-2 px-10 text-violet-500 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
-                    disabled={
-                      !name ||
-                      !description ||
-                      !handle ||
-                      !imageCid ||
-                      (isVisibilityPrivate &&
-                        isMembershipGated &&
-                        !membershipTokenAddress)
-                    }
+                    disabled={!apps.length}
                     onClick={() => onSubmit()}
                   >
                     {isLoading ? <Spinner /> : "create space!"}
@@ -733,10 +797,7 @@ export default function SpaceViewPage() {
           </>
         }
         footer={
-          <button
-            className="px-6 py-2.5 bg-violet-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-violet-500 hover:shadow-lg focus:bg-violet-500 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-violet-800 active:shadow-lg transition duration-150 ease-in-out"
-            onClick={() => onFinishModal()}
-          >
+          <button className="px-6 py-2.5 bg-violet-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-violet-500 hover:shadow-lg focus:bg-violet-500 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-violet-800 active:shadow-lg transition duration-150 ease-in-out">
             Close & return to Spaces
           </button>
         }
