@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { useState } from "react";
 import {
   MembershipGateToken,
@@ -5,7 +6,6 @@ import {
   Visibility,
   SpaceMembership,
   Space,
-  SpaceMetaData,
 } from "../../types/space";
 
 export default function Header({
@@ -33,10 +33,13 @@ export default function Header({
   return (
     <div className="w-full flex flex-col extrastyles-specialpadding2">
       <div className="w-full flex flex-col md:flex-row justify-start items-center md:items-start border-b-2 border-embracedark border-opacity-5 mb-4">
-        {space.metadata?.image ? (
-          <img
+        {space.loadedMetadata?.image ? (
+          <Image
             className="w-20 h-20 extrastyles-border-radius extrastyles-negmarg-avatar bg-white"
-            src={space.metadata?.image}
+            src={space.loadedMetadata?.image}
+            alt="Space Image"
+            height={20}
+            width={20}
           />
         ) : (
           <span className="w-28 h-28 extrastyles-border-radius extrastyles-negmarg-avatar"></span>
@@ -44,7 +47,7 @@ export default function Header({
         <div className="w-full flex flex-col items-center md:items-start md:flex-row md:pl-7 md:pr-10 pb-5">
           <div className="flex-1">
             <h1 className="font-semibold text-2xl mb-1">
-              {space?.metadata?.name}
+              {space.loadedMetadata?.name}
             </h1>
             <div className="">
               <div className="w-full flex flex-row text-sm">
@@ -58,25 +61,27 @@ export default function Header({
 
                 {!membership?.isActive && (
                   <p className="text-embracedark opacity-50">
-                    You're not a member
+                    You&apos;re not a member
                   </p>
                 )}
                 {membership?.isActive && (
                   <div className="flex flex-row">
-                    <img
+                    <Image
                       className="h-5 w-5 rounded-full mr-3"
                       src="https://api.multiavatar.com/Binx Bond.svg"
-                      alt=""
+                      alt="Avatar"
+                      height={5}
+                      width={5}
                     />
                     <p className="text-embracedark opacity-50">
-                      You're a member
+                      You&apos;re a member
                     </p>
                   </div>
                 )}
                 {membership?.isAdmin && (
                   <div className="flex flex-row">
                     <p className="text-embracedark opacity-50">
-                      You're an admin
+                      You&apos;re an admin
                     </p>
                   </div>
                 )}
@@ -91,7 +96,7 @@ export default function Header({
               <div className={aboutShow ? "" : "hidden"}>
                 <div className="w-full flex flex-row mt-5 text-sm">
                   <p className="text-embracedark">
-                    {space.metadata?.description}
+                    {space.loadedMetadata?.description}
                   </p>
                 </div>
                 <div className="w-full flex flex-row mt-2 text-sm ">

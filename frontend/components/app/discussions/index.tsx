@@ -18,7 +18,7 @@ export default function Discussions({
     if (query.id) {
       setTopicId(parseInt(query.id as string));
     }
-  }, []);
+  }, [query.id]);
 
   return (
     <div className="flex flex-col w-full pl-32 pt-14 justify-start items-start">

@@ -7,7 +7,6 @@ import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
 import EmbraceSpacesJson from "../data/contractArtifacts/EmbraceSpaces.json";
 import { EmbraceSpaces } from "../data/contractTypes";
-import { InternalSpace, InternalSpaces } from "../entities/space";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import { spacesContractAddress } from "../lib/envs";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
@@ -17,24 +16,21 @@ import {
   setYourSpaces
 } from "../store/slices/space";
 import { RootState } from "../store/store";
+import { Space } from "../types/space";
+import { SpaceUtil } from "../types/space-type-utils";
 
 export default function HomePage() {
   const spacesStore = useAppSelector((state: RootState) => state.spaces);
   const dispatch = useAppDispatch();
 
-  const [allSpaces, setAllSpaces] = useState<InternalSpace[]>([]);
-  const [allSpacesLoaded, setAllSpacesLoaded] = useState<boolean>(false);
+  const [allSpaces, setAllSpaces] = useState<Space[]>([]);
 
   const { data: signer, isLoading: isSignerLoading } = useSigner();
   const { address: accountAddress } = useAccount();
   const { accountsContract } = useEmbraceContracts();
 
   // Wagmi hook to load all community spaces
-  const {
-    data: contractSpaces,
-    error: _spacesError,
-    isLoading: isSpacesLoading,
-  } = useContractRead({
+  const { data: contractSpaces, isLoading: isSpacesLoading } = useContractRead({
     address: spacesContractAddress,
     abi: EmbraceSpacesJson.abi,
     functionName: "getSpaces",
@@ -44,18 +40,18 @@ export default function HomePage() {
   // This will load all spaces from the contract
   useEffect(() => {
     if (!isSpacesLoading && !spacesStore.loaded && contractSpaces) {
-      const internalSpaces = InternalSpaces.from_dto(
-        contractSpaces as EmbraceSpaces.SpaceStructOutput[]
+      const spaces = (contractSpaces as EmbraceSpaces.SpaceStructOutput[]).map(
+        (contractSpace) => SpaceUtil.from_dto(contractSpace),
       );
 
-      setAllSpaces(internalSpaces);
-      setAllSpacesLoaded(true);
+      setAllSpaces(spaces);
+      dispatch(setLoaded(true));
     }
-  }, [spacesStore.loaded, contractSpaces]);
+  }, [spacesStore.loaded, contractSpaces, isSpacesLoading, dispatch]);
 
   // Once accounts contract initialized, set the user's spaces
   useEffect((): void => {
-    if (isSignerLoading || !signer) return;
+    if (isSignerLoading || !signer || !spacesStore.loaded) return;
 
     async function getAccountSpaces(): Promise<void> {
       if (!accountsContract) return;
@@ -66,12 +62,12 @@ export default function HomePage() {
 
         if (response.length > 0 && allSpaces.length) {
           const spaceIds = response.map((spaceId) =>
-            BigNumber.from(spaceId).toNumber()
+            BigNumber.from(spaceId).toNumber(),
           );
 
           if (spaceIds) {
             const yourSpaces = allSpaces?.filter((space) =>
-              spaceIds.includes(space.id)
+              spaceIds.includes(space.id),
             );
 
             dispatch(setYourSpaces(yourSpaces));
@@ -90,16 +86,31 @@ export default function HomePage() {
     }
 
     getAccountSpaces();
-  }, [signer, isSignerLoading, allSpaces]);
+  }, [
+    accountAddress,
+    accountsContract,
+    allSpaces,
+    dispatch,
+    isSignerLoading,
+    signer,
+    spacesStore.loaded,
+  ]);
 
   /// BUG: With useSigner, there is a time on initial load when !isSignerLoading && !signer even when there is a signer
   // To get round this we get the accountAddress to see if this is also empty
   useEffect(() => {
-    if (!isSignerLoading && !signer && !accountAddress && allSpacesLoaded) {
+    if (!isSignerLoading && !signer && !accountAddress && spacesStore.loaded) {
       dispatch(setCommunitySpaces(allSpaces));
       dispatch(setLoaded(true));
     }
-  }, [signer, isSignerLoading, accountAddress, allSpacesLoaded]);
+  }, [
+    signer,
+    isSignerLoading,
+    accountAddress,
+    dispatch,
+    allSpaces,
+    spacesStore.loaded,
+  ]);
 
   return (
     <div className="min-h-screen">

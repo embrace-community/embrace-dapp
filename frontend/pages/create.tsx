@@ -1,7 +1,8 @@
 import { ethers } from "ethers";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { useAccount, useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import Modal from "../components/Modal";
@@ -14,13 +15,13 @@ import {
 } from "../components/pages/create/utils";
 import Spinner from "../components/Spinner";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
+import { blockchainExplorerUrl } from "../lib/envs";
 import getWeb3StorageClient from "../lib/web3storage/client";
 import { getIpfsJsonContent } from "../lib/web3storage/getIpfsJsonContent";
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
 import { useAppDispatch } from "../store/hooks";
 import { addCreatedSpace } from "../store/slices/space";
 import { Access, MembershipGateToken, Space, Visibility } from "../types/space";
-import { blockchainExplorerUrl } from "../utils/envs";
 
 export default function SpaceViewPage() {
   const { appsContract, spacesContract } = useEmbraceContracts();
@@ -63,7 +64,7 @@ export default function SpaceViewPage() {
   const [tx, setTx] = useState<any>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [spaceCreationMessage, setSpaceCreationMessage] = useState<string>(
-    "We're just setting up your space"
+    "We're just setting up your space",
   );
 
   const isVisibilityPrivate =
@@ -107,14 +108,14 @@ export default function SpaceViewPage() {
   async function onSubmit() {
     if (!name || !description || !handle || !imageCid) {
       setError(
-        "Please give your space a name, a handle, an avatar and a description/about"
+        "Please give your space a name, a handle, an avatar and a description/about",
       );
       return;
     }
 
     if (isVisibilityPrivate && isMembershipGated && !membershipTokenAddress) {
       setError(
-        "Please provide a token address if you want the membershipAccess to be token gated."
+        "Please provide a token address if you want the membershipAccess to be token gated.",
       );
       return;
     }
@@ -132,6 +133,25 @@ export default function SpaceViewPage() {
     }
   }
 
+  const redirectToSpace = useCallback(
+    async (spaceId, founder, spaceObject?: Space) => {
+      const spaceIdNum = ethers.BigNumber.from(spaceId).toNumber();
+      console.log("Redirecting to space: ", spaceIdNum, founder, spaceObject);
+
+      if (spaceObject) {
+        const spaceWithId: Space = { ...spaceObject, id: spaceIdNum };
+        console.log("spaceWithId", spaceWithId);
+        dispatch(addCreatedSpace(spaceWithId));
+
+        router.push(`/${handle}/home?spaceId=${spaceIdNum}`);
+      } else {
+        // Shouldn't happen, but just in case
+        alert("Something went wrong, please try again later.");
+      }
+    },
+    [dispatch, handle, router],
+  );
+
   useEffect(() => {
     async function getApps() {
       if (!signer || deployedApps.isLoading || deployedApps.loaded) return;
@@ -145,7 +165,7 @@ export default function SpaceViewPage() {
         for (const app of apps) {
           const appMetadata = (await getIpfsJsonContent(
             app.metadata,
-            "readAsText"
+            "readAsText",
           )) as Record<string, any>;
           appsMetadata.push(appMetadata);
         }
@@ -165,7 +185,7 @@ export default function SpaceViewPage() {
     }
 
     getApps();
-  }, [signer, deployedApps]);
+  }, [signer, deployedApps, appsContract]);
 
   useEffect(() => {
     if (!metadataCid || !signer) return;
@@ -229,7 +249,7 @@ export default function SpaceViewPage() {
 
         setTimeout(() => {
           setSpaceCreationMessage(
-            "Making sure everything is ready for your community..."
+            "Making sure everything is ready for your community...",
           );
         }, 10000);
 
@@ -241,7 +261,7 @@ export default function SpaceViewPage() {
           metadataCid,
           {
             gasLimit: 1000000,
-          }
+          },
         );
 
         if (tx) {
@@ -265,7 +285,26 @@ export default function SpaceViewPage() {
     }
 
     createSpace();
-  }, [metadataCid]);
+  }, [
+    accountAddress,
+    allowMembershipRequests,
+    apps,
+    description,
+    handle,
+    image,
+    isMembershipClosed,
+    isMembershipGated,
+    isVisibilityPrivate,
+    membershipAccess,
+    membershipToken,
+    membershipTokenAddress,
+    metadataCid,
+    name,
+    redirectToSpace,
+    signer,
+    spacesContract,
+    visibility,
+  ]);
 
   async function sendMetadataToIpfs() {
     const data = {
@@ -278,7 +317,7 @@ export default function SpaceViewPage() {
     try {
       const cid = (await saveToIpfs(
         data,
-        `${data.name.replaceAll(" ", "_")}.json`
+        `${data.name.replaceAll(" ", "_")}.json`,
       )) as string;
 
       if (cid) {
@@ -294,22 +333,6 @@ export default function SpaceViewPage() {
     }
   }
 
-  async function redirectToSpace(spaceId, founder, spaceObject?: Space) {
-    const spaceIdNum = ethers.BigNumber.from(spaceId).toNumber();
-    console.log("Redirecting to space: ", spaceIdNum, founder, spaceObject);
-
-    if (spaceObject) {
-      const spaceWithId: Space = { ...spaceObject, id: spaceIdNum };
-      console.log("spaceWithId", spaceWithId);
-      dispatch(addCreatedSpace(spaceWithId));
-
-      router.push(`/${handle}/home?spaceId=${spaceIdNum}`);
-    } else {
-      // Shouldn't happen, but just in case
-      alert("Something went wrong, please try again later.");
-    }
-  }
-
   return (
     <>
       <AppLayout title="Create Space">
@@ -318,12 +341,12 @@ export default function SpaceViewPage() {
             <h1 className="text-embracedark text-opacity-20 text-sm mt-2 mb-8">
               creating a new space
             </h1>
-            <a
+            <Link
               className="text-sm text-embracedark text-opacity-70 mt-2 ml-6 underline"
               href="/"
             >
               cancel
-            </a>
+            </Link>
           </div>
 
           <div className="max-w-lg pl-8">
@@ -339,9 +362,12 @@ export default function SpaceViewPage() {
                   </label>
 
                   {image && (
-                    <img
-                      className="w-36 my-5 extrastyles-border-radius"
+                    <Image
+                      className="w-36 h-36 rounded-full my-5 extrastyles-border-radius"
                       src={URL.createObjectURL(image)}
+                      alt="image to upload"
+                      width={36}
+                      height={36}
                     />
                   )}
 
@@ -349,12 +375,7 @@ export default function SpaceViewPage() {
                     <input
                       type="file"
                       accept="image/*"
-                      className="text-sm text-violet-500
-                file: file:py-1 file:px-6
-                file:rounded-full file:border-2
-                file:border-violet-500
-                file:text-sm file:font-medium
-                file:bg-transparent file:text-violet-500"
+                      className="text-sm text-violet-500 file: file:py-1 file:px-6 file:rounded-full file:border-2 file:border-violet-500 file:text-sm file:font-medium file:bg-transparent file:text-violet-500"
                       onChange={(e) => handleFileChange(e)}
                     />
                   </div>
@@ -462,7 +483,7 @@ export default function SpaceViewPage() {
                   <div className="mt-2 italic text-sm font-medium text-embracedark">
                     Public is open to everyone to join, private can require
                     access through a token or user membership requests,
-                    anonymous doesn't track any identity.
+                    anonymous doesn&apos;t track any identity.
                   </div>
                 </div>
 
@@ -716,12 +737,12 @@ export default function SpaceViewPage() {
                     </a>
                   </>
                 ) : (
-                  <>
+                  <div className="text-center">
                     <label className="block text-sm font-medium text-embracedark mb-3">
                       {spaceCreationMessage}
                     </label>
                     <Spinner />
-                  </>
+                  </div>
                 )}
               </fieldset>
             )}
@@ -789,6 +810,7 @@ export default function SpaceViewPage() {
             To see your transaction in the blockchain explorer,{" "}
             <a
               target="_blank"
+              rel="noreferrer"
               href={`${blockchainExplorerUrl}/${tx}`}
               className="text-violet-500"
             >

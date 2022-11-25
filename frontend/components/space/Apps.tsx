@@ -17,13 +17,11 @@ export default function Apps({
   const router = useRouter();
 
   // FIXME: Apps loading multiple times
-  // console.log("Apps LOADING multiple times", query);
+  console.log("Apps LOADING multiple times", query);
 
   const changeRouteShallowIfNew = useCallback(
     (route: string, removeParams = true) => {
       if (router.route !== route) {
-        console.log("route", route, router);
-
         // Update the router to reflect the new app
         router.query.app = route;
 

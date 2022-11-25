@@ -14,7 +14,8 @@ import {
 } from "../../lib/web3storage/getIpfsJsonContent";
 import { useAppSelector } from "../../store/hooks";
 import { getSpaceById } from "../../store/slices/space";
-import { Space, SpaceMembership } from "../../types/space";
+import { Space, SpaceMembership, SpaceMetadata } from "../../types/space";
+import { SpaceUtil } from "../../types/space-type-utils";
 
 export default function SpaceViewPage() {
   const { spacesContract } = useEmbraceContracts();
@@ -90,10 +91,10 @@ export default function SpaceViewPage() {
       if (!spaceData || metadataLoaded) return;
 
       // if metadata is an object then it's already loaded so no need to fetch from ipfs
-      if (!spaceData?.metadata && spaceData?.metadata) {
+      if (!spaceData?.loadedMetadata && spaceData?.metadata) {
         const metadata = (await getIpfsJsonContent(
           spaceData.metadata,
-        )) as SpaceMetaData;
+        )) as SpaceMetadata;
 
         if (metadata?.image) {
           metadata.image = getFileUri(metadata.image);
@@ -171,7 +172,7 @@ export default function SpaceViewPage() {
 
   return (
     <>
-      <AppLayout title={spaceData?.metadata?.name}>
+      <AppLayout title={spaceData?.loadedMetadata?.name}>
         {spaceData && metadataLoaded ? (
           <>
             <Header

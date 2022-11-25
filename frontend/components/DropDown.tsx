@@ -34,8 +34,12 @@ export default function DropDown({
         type="button"
         id="dropdownMenuButton1"
         data-bs-toggle="dropdown"
-        aria-expanded={`${show}`}
-        onClick={() => setShow((prevState) => !prevState)}
+        aria-expanded={show}
+        onClick={() => {
+          if (items?.length === 0) return;
+
+          setShow((prevState) => !prevState);
+        }}
       >
         {title}
 

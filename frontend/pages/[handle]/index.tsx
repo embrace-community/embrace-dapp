@@ -4,14 +4,16 @@ import AppLayout from "../../components/AppLayout";
 import Spinner from "../../components/Spinner";
 
 export default function SpaceIndexPage() {
-  const { isReady, push, query } = useRouter();
+  const { isReady, push, query, route } = useRouter();
 
   useEffect(() => {
-    if (isReady) {
-      const handle = query.handle;
-      push(`/${handle}/home`);
+    const handle = query.handle;
+    const newRoute = `/${handle}/home`;
+
+    if (isReady && route !== newRoute) {
+      push(newRoute);
     }
-  }, [isReady]);
+  }, [isReady, push, query.handle, route]);
 
   return (
     <AppLayout title="Community Page">

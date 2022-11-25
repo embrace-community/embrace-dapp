@@ -9,7 +9,8 @@ import {
 function useGetProfiles(reqParams: ProfileQueryRequest = {}) {
   const { address, isConnected, isConnecting, isDisconnected } = useAccount();
 
-  if (!address || !isConnected || isConnecting || isDisconnected) return;
+  const shouldCallApi =
+    !address || !isConnected || isConnecting || isDisconnected;
 
   const request: ProfileQueryRequest = {
     ownedBy: [address],
@@ -21,6 +22,7 @@ function useGetProfiles(reqParams: ProfileQueryRequest = {}) {
     {
       variables: { request },
       context: { clientName: "lens" },
+      skip: !shouldCallApi,
     },
   );
 

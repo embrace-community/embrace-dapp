@@ -17,10 +17,11 @@ export default function Social({
   const [currentPage, setCurrentPage] = useState(1);
 
   const profiles = useGetProfiles({
-    ownedBy: ["0x806346b423dDB4727C1f5dC718886430aA7CE9cF"],
+    // ownedBy: ["0x806346b423dDB4727C1f5dC718886430aA7CE9cF"],
   });
   const publications = useGetPublications({
-    profileId: "0xac", // selectedProfile?.id,
+    profileId: selectedProfile?.id,
+    // profileId: "0xac",
     // limit: 10,
   });
 
@@ -41,7 +42,10 @@ export default function Social({
       <h3 className="mt-10">Posts</h3>
       {publications?.items?.map((item: Publication) => {
         return (
-          <div className="rounded-lg border-gray-400 border-2 mt-2">
+          <div
+            key={item.id}
+            className="rounded-lg border-gray-400 border-2 mt-2"
+          >
             {item.metadata?.name} -{" "}
             {item?.createdAt && new Date(item.createdAt).toLocaleString()}
           </div>
