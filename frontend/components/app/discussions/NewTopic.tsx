@@ -3,7 +3,6 @@ import { gql, useMutation } from "@apollo/client";
 import { useAccount } from "wagmi";
 import { useContext, useState } from "react";
 import { CeramicContext } from "../../../lib/CeramicContext";
-import { SpaceContext } from "../../../lib/SpaceContext";
 import DiscussionTopic from "./TopicItem";
 import { authenticationWithCeramic } from "../../../hooks/useAuthenticateCeramic";
 
@@ -43,7 +42,6 @@ export default function Topics() {
   const threeId = new ThreeIdConnect();
   const composeDbClient = useContext(CeramicContext);
 
-  const [spaceId, setSpaceId] = useContext(SpaceContext);
   const [title, setTitle] = useState("New Topic default title");
   const [content, setContent] = useState("topic content");
   const account = useAccount();
@@ -72,7 +70,7 @@ export default function Topics() {
               title,
               content,
               address: account.address,
-              spaceId,
+              // spaceId,
             },
           },
         },

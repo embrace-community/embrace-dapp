@@ -5,7 +5,6 @@ import { Provider as StateProvider } from "react-redux";
 import ClientOnlyWrapper from "../components/ClientOnlyWrapper";
 import { apolloClient } from "../lib/ApolloClient";
 import { CeramicContext, composeDbClient } from "../lib/CeramicContext";
-import { SpaceContext } from "../lib/SpaceContext";
 import WalletProvider from "../lib/WalletProvider";
 import { store } from "../store/store";
 import "../styles/extrastyles.css";
@@ -20,11 +19,9 @@ export default function App({ Component, pageProps }: AppProps) {
         <StateProvider store={store}>
           <WalletProvider>
             <CeramicContext.Provider value={composeDbClient}>
-              <SpaceContext.Provider value={space}>
-                <ClientOnlyWrapper>
-                  <Component {...pageProps} />
-                </ClientOnlyWrapper>
-              </SpaceContext.Provider>
+              <ClientOnlyWrapper>
+                <Component {...pageProps} />
+              </ClientOnlyWrapper>
             </CeramicContext.Provider>
           </WalletProvider>
         </StateProvider>
