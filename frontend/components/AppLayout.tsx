@@ -24,26 +24,20 @@ export default function AppLayout({
 
       <Nav />
 
-      <div className="w-full flex flex-1 flex-col justify-start items-start">
-        <main>
-          <div className="w-full">
-            {isOnWrongNetwork ? (
-              <div className="text-center text-embracedark">
-                <p className="text-2xl">
-                  Please switch to chain{" "}
-                  {chains?.find((c: Chain) => c.id === deployedChainId)?.name}
-                </p>
+      <main className="w-full flex flex-1 flex-col justify-start items-start">
+        {isOnWrongNetwork ? (
+          <div className="w-full text-center text-embracedark">
+            <p className="text-2xl">
+              Please switch to chain{" "}
+              {chains?.find((c: Chain) => c.id === deployedChainId)?.name}
+            </p>
 
-                <p className="my-5 text-xl">
-                  You are currently on {chain?.name}
-                </p>
-              </div>
-            ) : (
-              children
-            )}
+            <p className="my-5 text-xl">You are currently on {chain?.name}</p>
           </div>
-        </main>
-      </div>
+        ) : (
+          children
+        )}
+      </main>
     </div>
   );
 }
