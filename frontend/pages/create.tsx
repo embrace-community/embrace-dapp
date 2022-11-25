@@ -226,10 +226,12 @@ export default function SpaceViewPage() {
           id: 0,
           handle: ethers.utils.formatBytes32String(handle),
           founder: accountAddress as string,
-          metadata: {
+          metadata: metadataCid,
+          loadedMetadata: {
             name,
             description,
             image: image ? URL.createObjectURL(image) : "",
+            handle: ethers.utils.formatBytes32String(handle),
           },
           visibility,
           apps,
