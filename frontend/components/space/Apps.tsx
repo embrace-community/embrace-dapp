@@ -1,7 +1,7 @@
 import { Router, useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { Space } from "../../types/space";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { appMappings } from "../../lib/AppMappings";
+import { Space } from "../../types/space";
 import Navigation from "./Navigation";
 
 export default function Apps({
@@ -11,30 +11,59 @@ export default function Apps({
   query: Router["query"];
   space: Space;
 }) {
-  const [currentApp, setCurrentApp] = useState(0);
-  const [appSelected, setAppSelected] = useState(false);
+  const prevSelectedApp = useRef(-1);
+  const [currentApp, setCurrentApp] = useState(-1);
+
   const router = useRouter();
 
   // FIXME: Apps loading multiple times
-  console.log("Apps LOADING multiple times", query);
+  // console.log("Apps LOADING multiple times", query);
 
-  // On first render, if there is an app in the query then set the current app to that app
+  const changeRouteShallowIfNew = useCallback(
+    (route: string, removeParams = true) => {
+      if (router.route !== route) {
+        console.log("route", route, router);
+
+        // Update the router to reflect the new app
+        router.query.app = route;
+
+        // Reset the query params
+        if (removeParams)
+          router.query = {
+            handle: router.query.handle,
+            app: router.query.app,
+          };
+
+        // Change the route URL without reloading the page
+        router.push(router, undefined, { shallow: true });
+      }
+    },
+    [router],
+  );
+
   useEffect(() => {
-    if (!query.app || appSelected) return;
+    if (!query.app) return;
 
     const appId = Object.keys(appMappings).findIndex(
-      (appId) => appMappings[appId].route === query.app
+      (appId) => appMappings[appId].route === query.app,
     );
 
-    // App cannot be found so select the first app as default
-    if (appId === -1) {
-      setCurrentApp(0);
-    } else {
-      setCurrentApp(appId);
+    if (appId !== -1 && prevSelectedApp.current === appId) {
+      // nothing changed
+      return;
     }
 
-    setAppSelected(true);
-  }, []);
+    // Need to account for first render (-1)
+    const selectedAppId = appId === -1 ? 0 : appId;
+
+    // Load the route for the related appId
+    const route = appMappings[selectedAppId].route;
+    changeRouteShallowIfNew(route, false);
+
+    // App cannot be found so select the first app as default
+    setCurrentApp(selectedAppId);
+    prevSelectedApp.current = selectedAppId;
+  }, [changeRouteShallowIfNew, currentApp, query.app, router]);
 
   // Method to dynamically render the current app component
   const renderApp = () => {
@@ -42,48 +71,21 @@ export default function Apps({
     return <Component query={query} space={space} />;
   };
 
-  // Whenever the current app changes then update the URI to reflect the new app
-  useEffect(() => {
-    if (appSelected) {
-      // Load the route for the current App
-      const route = appMappings[currentApp].route;
-      // Update the router to reflect the new app
-      router.query.app = route;
-
-      // Change the route URL without reloading the page
-      router.push(router, undefined, {
-        shallow: true,
-      });
-    }
-  }, [currentApp]);
-
-  // This ensures query params are removed when changing pages
-  // I.e. /discussions?id=1223: id should be removed when switching to /proposals
-  const setApp = (newApp: number) => {
-    if (appSelected) {
-      // If the newly selected app differs from the current app then remove the query params
-      if (newApp !== currentApp) {
-        // Reset the query params
-        router.query = {
-          handle: router.query.handle,
-          app: router.query.app,
-        };
-      }
-
-      // Set current app
-      setCurrentApp(newApp);
-    }
-  };
+  function onAppChange(appId: number) {
+    // Load the route for the current App
+    const route = appMappings[appId].route;
+    changeRouteShallowIfNew(route);
+  }
 
   return (
     <div className="w-full flex flex-col items-start flex-1">
       <Navigation
         space={space}
         currentApp={currentApp}
-        setCurrentApp={setApp}
+        setCurrentApp={onAppChange}
       />
       <div className="w-full flex flex-col pl-32 pt-14 justify-start items-start flex-1 bg-white">
-        {appSelected && renderApp()}
+        {currentApp !== -1 && renderApp()}
       </div>
     </div>
   );
