@@ -1,8 +1,8 @@
 import { ThreeIdConnect } from "@3id/connect";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import { useAccount } from "wagmi";
 import { useContext, useState } from "react";
-import { authenticationWithCeramic, useAuthenticateCeramic } from "../../../hooks/useAuthenticateCeramic";
+import { useAccount } from "wagmi";
+import { authenticationWithCeramic } from "../../../hooks/useAuthenticateCeramic";
 import { CeramicContext } from "../../../lib/CeramicContext";
 import { SpaceContext } from "../../../lib/SpaceContext";
 import DiscussionTopicComment from "./TopicComment";
@@ -77,11 +77,7 @@ export default function TopicComments() {
 
   const createNewDiscussionTopicComment = async () => {
     // await useAuthenticateCeramic(threeId, composeDbClient);
-    await authenticationWithCeramic(
-      window.ethereum,
-      threeId,
-      composeDbClient,
-    );
+    await authenticationWithCeramic(window.ethereum, threeId, composeDbClient);
 
     discussionTopicCommentMutation({
       variables: {
