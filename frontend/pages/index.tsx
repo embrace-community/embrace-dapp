@@ -13,7 +13,7 @@ import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   setCommunitySpaces,
   setLoaded,
-  setYourSpaces
+  setYourSpaces,
 } from "../store/slices/space";
 import { RootState } from "../store/store";
 import { Space } from "../types/space";

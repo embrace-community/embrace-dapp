@@ -4,7 +4,7 @@ import {
   PaginatedProfileResult,
   ProfileQueryRequest,
   ProfilesQuery,
-} from "../../../types/lens-generated";
+} from "../../types/lens-generated";
 
 function useGetProfiles(reqParams: ProfileQueryRequest = {}) {
   const { address, isConnected, isConnecting, isDisconnected } = useAccount();

@@ -1,10 +1,12 @@
 import { Router } from "next/router";
 import { useState } from "react";
-import useGetPublications from "../../../hooks/app/chat/useGetPublications";
-import useGetProfiles from "../../../hooks/app/chat/useProfiles";
-import { Profile, Publication } from "../../../types/lens-generated";
+import { Address, useAccount, useSignMessage } from "wagmi";
+import useGetDefaultProfile from "../../../hooks/lens/useGetDefaultProfile";
+import useGetPublications from "../../../hooks/lens/useGetPublications";
+import { LocalStorageKey } from "../../../lib/enums";
+import { Publication } from "../../../types/lens-generated";
 import { Space } from "../../../types/space";
-import DropDown from "../../DropDown";
+import lensAuthentication from "./lensAuthentication";
 
 export default function Social({
   query,
@@ -13,31 +15,53 @@ export default function Social({
   query: Router["query"];
   space: Space;
 }) {
-  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const { address } = useAccount();
+  const { signMessageAsync } = useSignMessage();
 
-  const profiles = useGetProfiles({
-    // ownedBy: ["0x806346b423dDB4727C1f5dC718886430aA7CE9cF"],
+  const [currentPage, setCurrentPage] = useState(1);
+  const [profileName, setProfileName] = useState("");
+
+  const lensDefaultProfile = space.loadedMetadata?.lensDefaultProfile || "";
+  const lensWallet: Address = space.loadedMetadata?.lensWallet || space.founder;
+
+  // we're assuming for now that the publisher of the space has set
+  // a default lens profile which he uses for publishing
+  const defaultProfile = useGetDefaultProfile({
+    ethereumAddress: lensWallet,
+    shouldSkip: !!lensDefaultProfile,
   });
+
   const publications = useGetPublications({
-    profileId: selectedProfile?.id,
+    profileId: lensDefaultProfile || defaultProfile,
     // profileId: "0xac",
     // limit: 10,
+    shouldSkip: !lensDefaultProfile && !defaultProfile,
   });
+
+  async function createLensProfile() {
+    const lensAccessKey = localStorage.getItem(LocalStorageKey.LensAccessToken);
+
+    if (!lensAccessKey) {
+      const authentication = await lensAuthentication({
+        address: lensWallet,
+        signMessageAsync,
+      });
+    }
+  }
+
+  // publish new metadata if user has a new default Profile
+  // useEffect(() => {
+  // if(space.loadedMetadata && )
+  // }, []);
 
   return (
     <div>
-      <DropDown
-        title={<div>Please select your profile</div>}
-        items={profiles?.items?.map((item: Profile) => {
-          return (
-            <span key={item.id}>
-              {item.name}, {item.handle}
-            </span>
-          );
-        })}
-        onSelectItem={(profile) => setSelectedProfile(profile)}
-      />
+      {address === lensWallet && !defaultProfile && (
+        <div>
+          <input onChange={(e) => setProfileName(e.target.value)} />
+          <button onClick={() => createLensProfile()}>Create Profile</button>
+        </div>
+      )}
 
       <h3 className="mt-10">Posts</h3>
       {publications?.items?.map((item: Publication) => {
