@@ -32,7 +32,7 @@
     "react-dom": "18.2.0",
     "react-placeholder-loading": "^0.5.30",
     "react-redux": "^8.0.5",
-    "wagmi": "^0.8.1",
+    "wagmi": "^0.8.6",
     "web3.storage": "^4.4.0"
   },
   "devDependencies": {
