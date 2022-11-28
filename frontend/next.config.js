@@ -5,12 +5,12 @@ const nextConfig = {
     domains: ["localhost"],
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '**.ipfs.w3s.link',
+        protocol: "https",
+        hostname: "**.ipfs.w3s.link",
       },
       {
-        protocol: 'https',
-        hostname: '**api.multiavatar.com**',
+        protocol: "https",
+        hostname: "**api.multiavatar.com**",
       },
     ],
   },

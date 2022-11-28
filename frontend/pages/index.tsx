@@ -79,6 +79,9 @@ export default function HomePage() {
 
           dispatch(setCommunitySpaces(communitySpaces));
           dispatch(setLoaded(true));
+        } else {
+          dispatch(setCommunitySpaces(allSpaces));
+          dispatch(setLoaded(true));
         }
       } catch (err) {
         console.log("getAccountSpaces", err);
@@ -120,7 +123,7 @@ export default function HomePage() {
             <Link href="/create">
               <button
                 type="button"
-                className="inline-flex items-center rounded-full border-violet-500 border-2 bg-transparent py-4 px-12 text-violet-500 shadow-sm focus:outline-none focus:ring-none mb-11 font-semibold text-xl mt-5"
+                className="inline-flex items-center rounded-full border-violet-700 border-2 bg-transparent py-4 px-12 text-violet-700 shadow-sm focus:outline-none focus:ring-none mb-11 font-semibold text-xl mt-5"
               >
                 + new space
               </button>

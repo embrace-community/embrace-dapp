@@ -1,5 +1,6 @@
 import { Router } from "next/router";
 import { Space } from "../../../types/space";
+import VideoCalling from "./VideoCalling";
 
 export default function Chat({
   query,
@@ -14,7 +15,7 @@ export default function Chat({
       <p>test</p>
       <p>test</p>
       <p>test</p>
-
-      </div>
+      <VideoCalling handle={query.handle} />
+    </div>
   );
 }

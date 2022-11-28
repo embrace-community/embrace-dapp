@@ -59,6 +59,14 @@ export default function SpaceCollection({
     loadMetadataJson();
   }, [collection]);
 
+  // Set all images as loaded after 15 seconds i.e. timed out which will hide all loading placeholders
+  useEffect(() => {
+    setTimeout(() => {
+      setMetadataImagesLoaded(collection.map((_, index) => index));
+      console.log("Some images amy have timed out");
+    }, 15000);
+  }, [collection]);
+
   function setImageLoaded(index: number) {
     const imagesLoaded = [...metadataImagesLoaded, index];
     setMetadataImagesLoaded(imagesLoaded);
@@ -103,6 +111,7 @@ export default function SpaceCollection({
                         onError={() => setImageError(i)}
                         height={32}
                         width={32}
+                        unoptimized
                       />
                     )}
                   </div>

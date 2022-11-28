@@ -40,6 +40,7 @@ export default function Header({
             alt="Space Image"
             height={20}
             width={20}
+            unoptimized
           />
         ) : (
           <span className="w-28 h-28 extrastyles-border-radius extrastyles-negmarg-avatar"></span>
@@ -64,6 +65,15 @@ export default function Header({
                     You&apos;re not a member
                   </p>
                 )}
+
+                {membership?.isAdmin && (
+                  <div className="flex flex-row">
+                    <p className="text-embracedark opacity-50">
+                      You&apos;re an admin
+                    </p>
+                  </div>
+                )}
+
                 {membership?.isActive && (
                   <div className="flex flex-row">
                     <Image
@@ -119,50 +129,72 @@ export default function Header({
             </div>
           </div>
 
-          <div className="mt-6 mb-6 md:my-0">
-            {/* When Public Open space and not a member allow joining */}
-            {space?.membership.access == Access.OPEN &&
-              space?.visibility == Visibility.PUBLIC &&
-              !membership?.isActive && (
-                <button
-                  className="rounded-full border-violet-500 border-2 bg-transparent text-violet-500 text-sm font-semibold py-2 px-7"
-                  onClick={() => joinSpace()}
-                >
-                  join space
-                </button>
+          {membershipInfoLoaded && (
+            <div className="mt-6 mb-6 md:my-0">
+              {/* When Public Open space and not a member allow joining */}
+              {space.membership.access == Access.OPEN &&
+                space.visibility == Visibility.PUBLIC &&
+                !membership?.isActive && (
+                  <button
+                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
+                    onClick={() => joinSpace()}
+                  >
+                    join space
+                  </button>
+                )}
+
+              {/* When Private Closed space which allows requests. Address not a member and no pending request, then allow requests */}
+              {space?.membership?.access == Access.CLOSED &&
+                space?.visibility == Visibility.PRIVATE &&
+                space?.membership?.allowRequests &&
+                !membership?.isActive &&
+                !membership?.isRequest && (
+                  <button
+                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
+                    onClick={() => requestJoinSpace()}
+                  >
+                    request to join
+                  </button>
+                )}
+              {membership?.isRequest && (
+                <p className="text-embracedark opacity-20 text-right">
+                  Request pending...
+                </p>
               )}
 
-            {/* When Private Closed space which allows requests. Address not a member and no pending request, then allow requests */}
-            {space?.membership.access == Access.CLOSED &&
-              space?.visibility == Visibility.PRIVATE &&
-              space?.membership?.allowRequests &&
-              !membership?.isActive &&
-              !membership?.isRequest && (
-                <button
-                  className="rounded-full border-violet-500 border-2 bg-transparent text-violet-500 text-sm font-semibold py-2 px-7"
-                  onClick={() => requestJoinSpace()}
-                >
-                  request to join
-                </button>
-              )}
-            {membership?.isRequest && (
-              <p className="text-embracedark opacity-20 text-right">
-                Request pending...
-              </p>
-            )}
+              {/* When Private Closed space which allows requests. Address not a member and no pending request, then allow requests */}
+              {space?.membership.access == Access.CLOSED &&
+                space?.visibility == Visibility.PRIVATE &&
+                space?.membership?.allowRequests &&
+                !membership?.isActive &&
+                !membership?.isRequest && (
+                  <button
+                    className="rounded-full border-violet-500 border-2 bg-transparent text-violet-500 text-sm font-semibold py-2 px-7"
+                    onClick={() => requestJoinSpace()}
+                  >
+                    request to join
+                  </button>
+                )}
 
-            {/* Gated space and not a member then allow join 
+              {membership?.isRequest && (
+                <p className="text-embracedark opacity-20 text-right">
+                  Request pending...
+                </p>
+              )}
+
+              {/* Gated space and not a member then allow join 
             TODO: Only show if the account meets the gate requirements*/}
-            {space?.membership?.access == Access.GATED &&
-              !membership?.isActive && (
-                <button
-                  className="rounded-full border-violet-500 border-2 bg-transparent text-violet-500 text-sm font-semibold py-2 px-7"
-                  onClick={() => requestJoinSpace()}
-                >
-                  join gated space
-                </button>
-              )}
-          </div>
+              {space?.membership?.access == Access.GATED &&
+                !membership?.isActive && (
+                  <button
+                    className="rounded-full border-violet-500 border-2 bg-transparent text-violet-500 text-sm font-semibold py-2 px-7"
+                    onClick={() => requestJoinSpace()}
+                  >
+                    join gated space
+                  </button>
+                )}
+            </div>
+          )}
         </div>
       </div>
     </div>
