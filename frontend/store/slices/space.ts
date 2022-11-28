@@ -1,12 +1,11 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { InternalSpace } from "../../entities/space";
 import { Space } from "../../types/space";
 import { RootState } from "../store";
 
 export interface SpacesState {
   loaded: boolean;
-  communitySpaces: InternalSpace[];
-  yourSpaces: InternalSpace[];
+  communitySpaces: Space[];
+  yourSpaces: Space[];
 }
 
 const initialState: SpacesState = {
@@ -46,7 +45,7 @@ export const { setCommunitySpaces, setLoaded, setYourSpaces, addCreatedSpace } =
 export const getSpaceById = createSelector(
   (state: RootState) => state.spaces.yourSpaces,
   (state: RootState) => state.spaces.communitySpaces,
-  (yourSpaces: InternalSpace[], communitySpaces: InternalSpace[]) => {
+  (yourSpaces: Space[], communitySpaces: Space[]) => {
     return (id: number) => {
       const space = yourSpaces.find((space) => space.id === id);
 
@@ -56,7 +55,7 @@ export const getSpaceById = createSelector(
 
       return space;
     };
-  }
+  },
 );
 
 export default spacesSlice.reducer;

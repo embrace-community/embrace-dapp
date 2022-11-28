@@ -9,9 +9,8 @@ export default function Nav() {
         <Icons.Logo />
       </Link>
       <div className="flex-1"></div>
-      <>
-        <ConnectButton label="Connect" />
-      </>
+
+      <ConnectButton label="Connect" />
     </div>
   );
 }
