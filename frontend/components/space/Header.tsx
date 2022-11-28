@@ -57,11 +57,22 @@ export default function Header({
                 </p>
                 <p className="text-embracedark opacity-20 mx-4">|</p>
 
-                {!membership?.isActive && (
-                  <p className="text-embracedark opacity-50">
-                    You're not a member
-                  </p>
+                {isFounder && (
+                  <div className="flex flex-row">
+                    <p className="text-embracedark opacity-50">
+                      You are the founder
+                    </p>
+                  </div>
                 )}
+
+                {membership?.isAdmin && (
+                  <div className="flex flex-row">
+                    <p className="text-embracedark opacity-50">
+                      You're an admin
+                    </p>
+                  </div>
+                )}
+
                 {membership?.isActive && (
                   <div className="flex flex-row">
                     <img
@@ -74,19 +85,11 @@ export default function Header({
                     </p>
                   </div>
                 )}
-                {membership?.isAdmin && (
-                  <div className="flex flex-row">
-                    <p className="text-embracedark opacity-50">
-                      You're an admin
-                    </p>
-                  </div>
-                )}
-                {isFounder && (
-                  <div className="flex flex-row">
-                    <p className="text-embracedark opacity-50">
-                      You are the founder
-                    </p>
-                  </div>
+
+                {!membership?.isActive && (
+                  <p className="text-embracedark opacity-50">
+                    You're not a member
+                  </p>
                 )}
               </div>
               <div className={aboutShow ? "" : "hidden"}>
@@ -122,7 +125,7 @@ export default function Header({
                 space.visibility == Visibility.PUBLIC &&
                 !membership?.isActive && (
                   <button
-                    className="rounded-full border-indigo-500 border-2 bg-transparent text-indigo-500 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
                     onClick={() => joinSpace()}
                   >
                     join space
@@ -136,7 +139,7 @@ export default function Header({
                 !membership?.isActive &&
                 !membership?.isRequest && (
                   <button
-                    className="rounded-full border-indigo-500 border-2 bg-transparent text-indigo-500 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
                   >
                     request to join
@@ -153,7 +156,7 @@ export default function Header({
               {space.membership.access == Access.GATED &&
                 !membership?.isActive && (
                   <button
-                    className="rounded-full border-indigo-500 border-2 bg-transparent text-indigo-500 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
                   >
                     join gated space

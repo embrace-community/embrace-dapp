@@ -30,7 +30,7 @@ export default function Navigation({
                 className={
                   "text-sm mr-12 py-3 block leading-normal " +
                   (currentApp === appIdNum
-                    ? "border-b-4 border-indigo-500 font-semibold"
+                    ? "border-b-4 border-violet-700 font-semibold"
                     : "font-normal")
                 }
                 onClick={(e) => {

@@ -1,3 +1,3 @@
 export const colors = {
-  main: "#6366f1",
+  main: "#7c3aed",
 };
