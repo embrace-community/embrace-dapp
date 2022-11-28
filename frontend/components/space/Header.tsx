@@ -40,6 +40,7 @@ export default function Header({
             alt="Space Image"
             height={20}
             width={20}
+            unoptimized
           />
         ) : (
           <span className="w-28 h-28 extrastyles-border-radius extrastyles-negmarg-avatar"></span>

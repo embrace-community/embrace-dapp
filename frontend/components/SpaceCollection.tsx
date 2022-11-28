@@ -111,6 +111,7 @@ export default function SpaceCollection({
                         onError={() => setImageError(i)}
                         height={32}
                         width={32}
+                        unoptimized
                       />
                     )}
                   </div>
