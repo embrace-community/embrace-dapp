@@ -161,37 +161,39 @@ export default function Header({
                 </p>
               )}
 
-            {/* When Private Closed space which allows requests. Address not a member and no pending request, then allow requests */}
-            {space?.membership.access == Access.CLOSED &&
-              space?.visibility == Visibility.PRIVATE &&
-              space?.membership?.allowRequests &&
-              !membership?.isActive &&
-              !membership?.isRequest && (
-                <button
-                  className="rounded-full border-violet-500 border-2 bg-transparent text-violet-500 text-sm font-semibold py-2 px-7"
-                  onClick={() => requestJoinSpace()}
-                >
-                  request to join
-                </button>
-              )}
-            {membership?.isRequest && (
-              <p className="text-embracedark opacity-20 text-right">
-                Request pending...
-              </p>
-            )}
+              {/* When Private Closed space which allows requests. Address not a member and no pending request, then allow requests */}
+              {space?.membership.access == Access.CLOSED &&
+                space?.visibility == Visibility.PRIVATE &&
+                space?.membership?.allowRequests &&
+                !membership?.isActive &&
+                !membership?.isRequest && (
+                  <button
+                    className="rounded-full border-violet-500 border-2 bg-transparent text-violet-500 text-sm font-semibold py-2 px-7"
+                    onClick={() => requestJoinSpace()}
+                  >
+                    request to join
+                  </button>
+                )}
 
-            {/* Gated space and not a member then allow join 
-            TODO: Only show if the account meets the gate requirements*/}
-            {space?.membership?.access == Access.GATED &&
-              !membership?.isActive && (
-                <button
-                  className="rounded-full border-violet-500 border-2 bg-transparent text-violet-500 text-sm font-semibold py-2 px-7"
-                  onClick={() => requestJoinSpace()}
-                >
-                  join gated space
-                </button>
+              {membership?.isRequest && (
+                <p className="text-embracedark opacity-20 text-right">
+                  Request pending...
+                </p>
               )}
-          </div>
+
+              {/* Gated space and not a member then allow join 
+            TODO: Only show if the account meets the gate requirements*/}
+              {space?.membership?.access == Access.GATED &&
+                !membership?.isActive && (
+                  <button
+                    className="rounded-full border-violet-500 border-2 bg-transparent text-violet-500 text-sm font-semibold py-2 px-7"
+                    onClick={() => requestJoinSpace()}
+                  >
+                    join gated space
+                  </button>
+                )}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -87,7 +87,10 @@ export default function VideoCalling({ handle }) {
           <div className="col-span-1">
             <div>
               {Object.values(peers).map((peer) => (
-                <PeerVideoAudioElem peerIdAtIndex={peer.peerId} />
+                <PeerVideoAudioElem
+                  key={peer.peerId}
+                  peerIdAtIndex={peer.peerId}
+                />
               ))}
             </div>
           </div>
