@@ -68,7 +68,7 @@ export default function Header({
                 {membership?.isAdmin && (
                   <div className="flex flex-row">
                     <p className="text-embracedark opacity-50">
-                      You're an admin
+                      You&apos;re an admin
                     </p>
                   </div>
                 )}
