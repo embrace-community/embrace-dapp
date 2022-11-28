@@ -1,10 +1,18 @@
+import { SignMessageArgs } from "@wagmi/core";
+import { Address } from "wagmi";
 import { authenticate } from "../../../api/lens/authenticate";
 import { getChallenge } from "../../../api/lens/getChallenge";
 import { LocalStorageKey } from "../../../lib/enums";
+import { AuthenticationResult } from "../../../types/lens-generated";
 
 export default async function lensAuthentication({
   address,
   signMessageAsync,
+}: {
+  address: Address;
+  signMessageAsync: (
+    args?: SignMessageArgs | undefined,
+  ) => Promise<`0x${string}`>;
 }) {
   try {
     const challenge = await getChallenge({ address });
@@ -24,16 +32,7 @@ export default async function lensAuthentication({
       );
     }
 
-    localStorage.setItem(
-      LocalStorageKey.LensAccessToken,
-      authentication.accessToken,
-    );
-    localStorage.setItem(
-      LocalStorageKey.LensRefreshToken,
-      authentication.refreshToken,
-    );
-
-    return authentication;
+    return authentication as AuthenticationResult;
   } catch (e: any) {
     console.error(
       `An error while authenticating on lens occured. Please try again: ${e.message}.`,

@@ -50,7 +50,7 @@ export type SpaceMetadata = {
   image: string;
   handle: string;
   lensWallet?: Address;
-  lensDefaultProfile?: string;
+  lensDefaultProfileId?: string;
 };
 
 export type SpaceMembership = {

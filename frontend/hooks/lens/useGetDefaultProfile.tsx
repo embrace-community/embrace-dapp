@@ -3,6 +3,7 @@ import { useAccount } from "wagmi";
 import {
   DefaultProfileRequest,
   DefaultProfileQuery,
+  Profile,
 } from "../../types/lens-generated";
 
 function useGetDefaultProfile(
@@ -36,7 +37,7 @@ function useGetDefaultProfile(
 
   const profile = result?.data?.defaultProfile;
 
-  return profile as DefaultProfileQuery | undefined;
+  return profile as Profile | undefined;
 }
 
 const GET_DEFAULT_PROFILE = gql`

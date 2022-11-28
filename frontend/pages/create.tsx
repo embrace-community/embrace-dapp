@@ -764,7 +764,7 @@ export default function SpaceViewPage() {
                     cancel
                   </Link>
                   <button
-                    className=" inline-flex items-center rounded-full border-violet-700 border-2 bg-transparent py-2 px-10 text-violet-700 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
+                    className="inline-flex items-center rounded-full border-violet-500 border-2 bg-transparent py-2 px-10 text-violet-500 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
                     disabled={
                       !name ||
                       !description ||
