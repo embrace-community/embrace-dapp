@@ -4,10 +4,10 @@ import { CeramicClient } from "@ceramicnetwork/http-client";
 import { DID } from "dids";
 import { ComposeClient } from "@composedb/client";
 
-const AuthenticateWithEthereum = async (
+export const authenticationWithCeramic = async (
   ethereumProvider: any,
   threeId: ThreeIdConnect,
-  composeDbClient: ComposeClient
+  composeDbClient: ComposeClient,
 ) => {
   // Request accounts from the Ethereum provider
   const accounts = await ethereumProvider.request({
@@ -36,13 +36,17 @@ const AuthenticateWithEthereum = async (
   composeDbClient.setDID(did);
 };
 
-export const useAuthenticateCeramic = async (
-  threeId: ThreeIdConnect,
-  composeDbClient
-) => {
-  if (window.ethereum == null) {
-    throw new Error("No injected Ethereum provider");
-  }
+// export const useAuthenticateCeramic = async (
+//   threeId: ThreeIdConnect,
+//   composeDbClient,
+// ) => {
+//   useEffect(() => {
+//     async function x() {
+//       await authenticationWithCeramic(window.ethereum, threeId, composeDbClient);
+//     }
+//   }, [deps]);
 
-  await AuthenticateWithEthereum(window.ethereum, threeId, composeDbClient);
-};
+//   if (window.ethereum == null) {
+//     throw new Error("No injected Ethereum provider");
+//   }
+// };

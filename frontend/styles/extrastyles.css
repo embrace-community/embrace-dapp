@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
 .homelink {
   width: 184px;
@@ -18,15 +18,17 @@
 .extrastyles-border-radius {
   border-radius: 50%;
 }
-.extrastyles-negmarg-avatar  {
+.extrastyles-negmarg-avatar {
   margin-bottom: 20px;
 }
 @media (min-width: 768px) {
   .extrastyles-specialpadding2 {
     padding: 30px 0 0 6.8vw;
   }
-  .extrastyles-negmarg-avatar  {
+  .extrastyles-negmarg-avatar {
     margin-bottom: -50px;
   }
 }
-textarea { resize: none; }
+textarea {
+  resize: none;
+}

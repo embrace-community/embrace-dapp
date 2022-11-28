@@ -18,10 +18,10 @@ export default function Discussions({
     if (query.id) {
       setTopicId(parseInt(query.id as string));
     }
-  }, []);
+  }, [query.id]);
 
   return (
-    <div className="flex flex-col w-full pl-32 pt-14 justify-start items-start">
+    <div className="flex flex-col w-full justify-start items-start">
       {!topicId && (
         <button
           className="rounded-full border-violet-700 border-2 bg-transparent py-4 px-12 text-violet-700 shadow-sm focus:outline-none focus:ring-none mb-7 font-semibold text-xl"

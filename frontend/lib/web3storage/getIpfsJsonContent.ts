@@ -1,12 +1,13 @@
 import getFileContent from "./getFileContent";
 import getWeb3StorageClient from "./client";
-import { Web3File } from "web3.storage";
+import { CIDString, Web3File } from "web3.storage";
+import { ipfsGateway } from "../urls";
 
 const web3StorageClient = getWeb3StorageClient();
 
 async function getIpfsJsonContent(
   cid: string,
-  readAs: "readAsText" | "readAsDataURL" | "none" = "readAsText"
+  readAs: "readAsText" | "readAsDataURL" | "none" = "readAsText",
 ): Promise<string | Web3File | undefined | Record<string, any>> {
   try {
     let res = await web3StorageClient.get(cid);
@@ -18,7 +19,7 @@ async function getIpfsJsonContent(
 
       let fileContent: string | Record<string, any> = await getFileContent(
         file,
-        readAs
+        readAs,
       );
 
       if (readAs === "readAsText") fileContent = JSON.parse(fileContent);
@@ -30,8 +31,8 @@ async function getIpfsJsonContent(
   }
 }
 
-function getFileUri(cid: string) {
-  return `https://${cid}.ipfs.w3s.link/`;
+function getFileUri(cid: CIDString) {
+  return `https://${cid}.${ipfsGateway}/`;
 }
 
 export { getIpfsJsonContent, getFileUri };

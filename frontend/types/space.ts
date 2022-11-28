@@ -1,3 +1,5 @@
+import { CIDString } from "web3.storage";
+
 export enum Visibility {
   PUBLIC,
   PRIVATE,
@@ -35,18 +37,28 @@ export type Space = {
   visibility: Visibility;
   membership: Membership;
   apps: number[];
-  metadata: string | SpaceMetaData;
+  metadata: CIDString;
+  loadedMetadata?: SpaceMetadata;
   memberCount: number;
+  image?: string;
 };
 
-export type SpaceMetaData = {
+export type SpaceMetadata = {
   name: string;
   description: string;
   image: string;
+  handle: string;
 };
 
 export type SpaceMembership = {
   isActive: boolean;
   isAdmin: boolean;
   isRequest: boolean;
+};
+
+export type AppMetadata = {
+  name: string;
+  description: string;
+  logo: string;
+  image: string;
 };

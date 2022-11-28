@@ -1,4 +1,4 @@
-const Logo = ({
+const getLogo = ({
   // style = {},
   // fill = "white",
   width = "140px",
@@ -52,4 +52,7 @@ const Logo = ({
     </g>
   </svg>
 );
-export default { Logo };
+
+const Logo = getLogo({});
+
+export default Logo;

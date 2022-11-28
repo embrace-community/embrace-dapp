@@ -21,7 +21,7 @@ export default function Navigation({
           const appIdNum = parseInt(appId); // map keys are strings
           const app = appMappings[appIdNum];
 
-          if (!space.apps.includes(appIdNum)) return null;
+          if (!space?.apps.includes(appIdNum)) return null;
 
           return (
             <div className="-mb-px last:mr-0 text-center" key={appIdNum}>
