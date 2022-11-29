@@ -1,5 +1,3 @@
-import { SignMessageArgs } from "@wagmi/core";
-import { LocalStorageKey } from "./enums";
 import {
   ApolloClient,
   ApolloLink,
@@ -8,11 +6,14 @@ import {
   InMemoryCache,
   Observable,
 } from "@apollo/client";
-import { composeDbClient } from "./CeramicContext";
-import { lensApiUrl } from "./urls";
 import { onError } from "@apollo/client/link/error";
+import { SignMessageArgs } from "@wagmi/core";
 import { Address } from "wagmi";
 import lensAuthentication from "../components/app/social/lensAuthentication";
+import { composeDbClient } from "./CeramicContext";
+import { LocalStorageKey } from "./enums";
+import { parseJwt } from "./jwt";
+import { lensApiUrl } from "./urls";
 
 // Create a custom ApolloLink using the ComposeClient instance to execute operations
 const composeLink = new ApolloLink((operation) => {
@@ -52,14 +53,28 @@ const lensAuthLink = new ApolloLink((operation, forward) => {
 });
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
+  console.log(window.ethereum);
+
   if (graphQLErrors)
-    graphQLErrors.forEach(({ message, locations, path }) =>
+    graphQLErrors.forEach(async ({ message, locations, path, extensions }) => {
+      if (extensions?.code === "UNAUTHENTICATED") {
+        console.log("Not / no longer authenticated.");
+        // TODO: Add refreshtoken re-authentication
+
+        console.log(
+          "Removing Keys from localStorage. Need to freshly authenticate again.",
+        );
+
+        localStorage.removeItem(LocalStorageKey.LensAccessToken);
+        localStorage.removeItem(LocalStorageKey.LensRefreshToken);
+      }
+
       console.log(
         `[GraphQL error]: Message: ${message}, Location: ${JSON.stringify(
           locations,
         )}, Path: ${path}`,
-      ),
-    );
+      );
+    });
 
   if (networkError) console.log(`[Network error]: ${networkError}`);
 });
@@ -83,7 +98,7 @@ export const apolloClient = new ApolloClient({
   ),
 });
 
-export default async function signInIfNotAuthenticated(
+export default async function lensAuthenticationIfNeeded(
   address: Address,
   signMessageAsync: (
     args?: SignMessageArgs | undefined,
@@ -91,10 +106,21 @@ export default async function signInIfNotAuthenticated(
 ) {
   const lensAccessKey = localStorage.getItem(LocalStorageKey.LensAccessToken);
 
+  let justRefreshToken = false;
+
+  if (lensAccessKey) {
+    const jwt = parseJwt(lensAccessKey);
+
+    const isAccessTokenExpired = new Date(jwt?.exp * 1e3) < new Date();
+
+    if (isAccessTokenExpired) justRefreshToken = true;
+  }
+
   if (!lensAccessKey) {
     const authentication = await lensAuthentication({
       address,
       signMessageAsync,
+      justRefreshToken,
     });
 
     localStorage.setItem(

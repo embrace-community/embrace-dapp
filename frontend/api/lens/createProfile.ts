@@ -9,10 +9,10 @@ import {
 export async function createProfile(request: CreateProfileRequest) {
   const result = await apolloClient.mutate<
     CreateProfileMutation,
-    CreateProfileRequest
+    { request: CreateProfileRequest }
   >({
     mutation: CREATE_PROFILE,
-    variables: request,
+    variables: { request },
     context: { clientName: "lensAuth" },
   });
 
@@ -22,20 +22,19 @@ export async function createProfile(request: CreateProfileRequest) {
 }
 
 const CREATE_PROFILE = gql`
-  mutation CreateProfile(
-    $handle: Handle!
-    $profilePictureUri: Url
-    $followNFTURI: FollowModuleParams
-    $followModule: Url
-  ) {
+  mutation CreateProfile($request: CreateProfileRequest!) # $handle: Handle!
+  # $profilePictureUri: Url
+  # $followNFTURI: FollowModuleParams
+  # $followModule: Url
+  {
     createProfile(
-      request: {
-        handle: $handle
-        profilePictureUri: $profilePictureUri
-        followNFTURI: $followNFTURI
-        followModule: $followModule
-      }
-    ) {
+      request: $request # {
+    ) # handle: $handle
+    # profilePictureUri: $profilePictureUri
+    # followNFTURI: $followNFTURI
+    # followModule: $followModule
+    # }
+    {
       ... on RelayerResult {
         txHash
       }
