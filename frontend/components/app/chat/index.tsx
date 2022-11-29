@@ -1,5 +1,6 @@
 import { Router } from "next/router";
 import { Space } from "../../../types/space";
+import ChatMessenger from "./ChatMessenger";
 import VideoCalling from "./VideoCalling";
 
 export default function Chat({
@@ -9,13 +10,11 @@ export default function Chat({
   query: Router["query"];
   space: Space;
 }) {
-  console.log("chat index.tsx", query, space);
+  // console.log("chat index.tsx", query, space);
   return (
     <div className="w-full flex flex-1 h-full flex-row">
-      <p>test</p>
-      <p>test</p>
-      <p>test</p>
-      <VideoCalling handle={query.handle} />
+      {/* <ChatMessenger handle={query.handle} /> */}
+      {/* <VideoCalling handle={query.handle} /> */}
     </div>
   );
 }

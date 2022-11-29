@@ -1,15 +1,15 @@
 // lib
-import { types as mediasoupTypes, Device } from 'mediasoup-client';
-import protooClient from 'protoo-client';
-import axios from 'axios';
+import { types as mediasoupTypes, Device } from "mediasoup-client";
+import protooClient from "protoo-client";
+import axios from "axios";
 
 //utils
-import logger from './logger';
-import { getProtooUrl } from '../urlFactory';
+import logger from "./logger";
+import { getProtooUrl } from "../urlFactory";
 import {
   PC_PROPRIETARY_CONSTRAINTS,
   WEBCAM_SIMULCAST_ENCODINGS,
-} from '../constants';
+} from "../constants";
 import {
   GetHuddleStoreType,
   GetPortStoreType,
@@ -20,7 +20,7 @@ import {
   RequestMethods,
   TLiveStreamObject,
   TWalletData,
-} from '../schema';
+} from "../schema";
 import {
   IChatText,
   IDeviceSwitch,
@@ -43,15 +43,15 @@ import {
   IStreamData,
   ILayoutSchemaType,
   MediaConsumer,
-} from '../store/storeTypes';
+} from "../store/storeTypes";
 import {
   EEnableHostControl,
   EDisableHostControl,
-} from '../schema/enums/EHostControlType';
-import { disableFigment } from '../utils/figment';
-import { triggerIframeEvent } from '../Iframe';
-import getDeviceType from '../utils/getDeviceType';
-import { now } from '../utils/dateHandler';
+} from "../schema/enums/EHostControlType";
+import { disableFigment } from "../utils/figment";
+import { triggerIframeEvent } from "../Iframe";
+import getDeviceType from "../utils/getDeviceType";
+import { now } from "../utils/dateHandler";
 
 let getHuddleStore: GetHuddleStoreType;
 let getPortStore: GetPortStoreType;
@@ -138,7 +138,7 @@ export class HuddleStore {
     pauseTracks();
   }
 
-  toggleFigmentStream(toggle: 'enable' | 'disable' | 'switch') {
+  toggleFigmentStream(toggle: "enable" | "disable" | "switch") {
     const { toggleFigmentStream } = getHuddleStore();
     toggleFigmentStream(toggle);
   }
@@ -164,13 +164,13 @@ export class HuddleStore {
 
   removeProducerMedia(producerType: MediaConsumerTypes) {
     const { removeProducerMedia } = getHuddleStore();
-    logger.info('removed producer cam');
+    logger.info("removed producer cam");
     removeProducerMedia(producerType);
   }
 
   updateProducerMedia(
     producerType: MediaConsumerTypes,
-    producer: MediaConsumer
+    producer: MediaConsumer,
   ) {
     const { updateProducerMedia } = getHuddleStore();
     updateProducerMedia(producerType, producer);
@@ -204,7 +204,7 @@ export class HuddleStore {
   addConsumerMedia(
     peerId: string,
     consumerType: MediaConsumerTypes,
-    consumer: MediaConsumer
+    consumer: MediaConsumer,
   ) {
     const { addConsumerMedia } = getHuddleStore();
     addConsumerMedia(peerId, consumerType, consumer);
@@ -258,7 +258,7 @@ export class HuddleStore {
     const chats: IChatText = {
       peerId: fromId,
       displayName: this.getPeerDisplayName(fromId) || this.getDisplayName(),
-      type: 'text',
+      type: "text",
       timestamp,
       message,
     };
@@ -343,7 +343,7 @@ export class HuddleStore {
     hostId: string,
     meId: string,
     hostControls: THostControls,
-    coHostIds: string[] | undefined
+    coHostIds: string[] | undefined,
   ) {
     const { initHostControls } = getHuddleStore();
     initHostControls(hostId, meId, hostControls, coHostIds);
@@ -457,9 +457,9 @@ export class HuddleStore {
   setLastNForNewPeerJoined() {
     if (this.getIsRoomJoined()) {
       logger.error({
-        type: 'error',
+        type: "error",
         message:
-          'setLastNForNewPeerJoined() | Already Joined Room cannot set again',
+          "setLastNForNewPeerJoined() | Already Joined Room cannot set again",
         meta: {
           isJoined: this.getIsRoomJoined(),
         },
@@ -475,8 +475,8 @@ export class HuddleStore {
     this.addActiveViewPort(peerIds.length);
 
     logger.info({
-      logType: 'setLastNForNewPeerJoined',
-      message: '** Setting LastN for New Peer that Joined **',
+      logType: "setLastNForNewPeerJoined",
+      message: "** Setting LastN for New Peer that Joined **",
       meta: {
         peerIds,
         lastN: this.getLastNPeerIds(),
@@ -496,14 +496,14 @@ export class HuddleStore {
   addMissingPeerToLastN() {
     const { lastNPeerIds } = getHuddleStore();
     const missingPeerToLastN = this.getPeerIds().filter(
-      peerId => !lastNPeerIds.includes(peerId)
+      (peerId) => !lastNPeerIds.includes(peerId),
     )[0];
     if (missingPeerToLastN) {
       logger.info({
-        logType: 'addAllPeersToLastN',
+        logType: "addAllPeersToLastN",
         meta: { missingPeerToLastN },
         message:
-          'This peer is not in lastNPeerIds, so we add it to lastNPeerIds',
+          "This peer is not in lastNPeerIds, so we add it to lastNPeerIds",
       });
       this.addPeerToLastN(missingPeerToLastN);
     }
@@ -541,7 +541,7 @@ export class HuddleStore {
 
   async disableAllCamStreams() {
     this.disableCamStream();
-    this.toggleFigmentStream('disable');
+    this.toggleFigmentStream("disable");
     await disableFigment();
   }
 
@@ -588,11 +588,11 @@ export class HuddleStore {
     const activeViewPorts = this.getActiveViewPortIds();
     const numOfViewPorts = activeViewPorts.size;
 
-    Array.from(activeViewPorts).forEach(peerId => {
+    Array.from(activeViewPorts).forEach((peerId) => {
       if (!peers[peerId]) {
         logger.warn({
-          logType: 'deactivateLastN',
-          message: 'Peer not found in peers | Removing from activeViewPorts',
+          logType: "deactivateLastN",
+          message: "Peer not found in peers | Removing from activeViewPorts",
           meta: {
             peerId,
           },
@@ -607,9 +607,9 @@ export class HuddleStore {
         peers[peerId]
       ) {
         logger.warn({
-          logType: 'deactivateLastN',
+          logType: "deactivateLastN",
           message:
-            'Peer not found in activeViewPorts | Adding to activeViewPorts',
+            "Peer not found in activeViewPorts | Adding to activeViewPorts",
           meta: {
             peerId,
           },
@@ -624,9 +624,9 @@ export class HuddleStore {
   setActiveViewPortForNewPeer() {
     if (this.getIsRoomJoined()) {
       logger.error({
-        type: 'error',
+        type: "error",
         message:
-          'setLastNForNewPeerJoined() | Already Joined Room cannot set again',
+          "setLastNForNewPeerJoined() | Already Joined Room cannot set again",
         meta: {
           isJoined: this.getIsRoomJoined(),
         },
@@ -691,7 +691,7 @@ class RoomSocketClient extends HuddleStore {
   socket: null | protooClient.Peer;
   apiKey: string | undefined;
 
-  constructor(apiKey: ProtooUrlData['apiKey']) {
+  constructor(apiKey: ProtooUrlData["apiKey"]) {
     super();
 
     this.socket = null;
@@ -723,7 +723,7 @@ class RoomSocketClient extends HuddleStore {
 
     this.socket = new protooClient.Peer(protooTransport);
 
-    logger.info({ type: 'info', message: 'setSocket', socket: this.socket });
+    logger.info({ type: "info", message: "setSocket", socket: this.socket });
   }
 
   async startRecording() {
@@ -732,10 +732,10 @@ class RoomSocketClient extends HuddleStore {
 
     try {
       this.setStartRecording();
-      await this.socket.request('startRecording');
+      await this.socket.request("startRecording");
     } catch (error) {
-      logger.error({ type: 'error', message: 'startRecording', error });
-      throw new Error('Error starting recording');
+      logger.error({ type: "error", message: "startRecording", error });
+      throw new Error("Error starting recording");
     }
   }
 
@@ -744,34 +744,34 @@ class RoomSocketClient extends HuddleStore {
     if (!this.recordingStatus()) return;
 
     try {
-      await this.socket.request('stopRecording');
+      await this.socket.request("stopRecording");
       this.setStopRecording();
     } catch (error) {
-      logger.error({ type: 'error', message: 'stopRecording', error });
+      logger.error({ type: "error", message: "stopRecording", error });
     }
   }
 
   async startLiveStreaming(
     platform: IStreamingPlatform,
-    streamObj?: TLiveStreamObject
+    streamObj?: TLiveStreamObject,
   ) {
     if (!this.socket) return;
 
     try {
       this.startStreaming(platform);
       if (streamObj) {
-        await this.socket.request('startStreaming', {
+        await this.socket.request("startStreaming", {
           platform: platform,
           rtmpEndpoint: `${streamObj.streamLink}/${streamObj.streamKey}`,
         });
-      } else await this.socket.request('startStreaming', { platform });
+      } else await this.socket.request("startStreaming", { platform });
 
       logger.info({
         streamObj,
       });
     } catch (error) {
-      logger.error({ type: 'error', message: 'startStreaming', error });
-      throw new Error('Error while starting streamer');
+      logger.error({ type: "error", message: "startStreaming", error });
+      throw new Error("Error while starting streamer");
     }
   }
 
@@ -780,9 +780,9 @@ class RoomSocketClient extends HuddleStore {
 
     try {
       this.stopStreaming(platform);
-      await this.socket.request('stopStreaming');
+      await this.socket.request("stopStreaming");
     } catch (error) {
-      logger.error({ type: 'error', message: 'stopStreaming', error });
+      logger.error({ type: "error", message: "stopStreaming", error });
     }
   }
 
@@ -790,12 +790,12 @@ class RoomSocketClient extends HuddleStore {
     if (!this.socket) return;
 
     try {
-      await this.socket.request('sendData', {
-        type: 'sharedFile',
+      await this.socket.request("sendData", {
+        type: "sharedFile",
         payload: fileDetails,
       });
     } catch (error) {
-      logger.error({ type: 'error', message: 'stopStreaming', error });
+      logger.error({ type: "error", message: "stopStreaming", error });
     }
   }
 }
@@ -807,7 +807,7 @@ class RoomMediasoupClient extends RoomSocketClient {
   consumers: Map<string, mediasoupTypes.Consumer> = new Map();
   _turn: RTCIceServer[] = [];
 
-  constructor(apiKey: ProtooUrlData['apiKey']) {
+  constructor(apiKey: ProtooUrlData["apiKey"]) {
     super(apiKey);
     this.mediasoupDevice = null;
     this.sendTransport = null;
@@ -817,7 +817,7 @@ class RoomMediasoupClient extends RoomSocketClient {
   async createMediasoupTransport(producing: boolean, consuming: boolean) {
     if (!this.mediasoupDevice || !this.socket) return;
 
-    const transportInfo = await this.socket.request('createWebRtcTransport', {
+    const transportInfo = await this.socket.request("createWebRtcTransport", {
       producing,
       consuming,
       sctpCapabilities: this.mediasoupDevice.sctpCapabilities,
@@ -844,46 +844,46 @@ class RoomMediasoupClient extends RoomSocketClient {
     });
 
     this.sendTransport.on(
-      'connect',
+      "connect",
       ({ dtlsParameters }, callback, errback) => {
         this.socket
-          ?.request('connectWebRtcTransport', {
+          ?.request("connectWebRtcTransport", {
             transportId: this.sendTransport?.id,
             dtlsParameters,
           })
           .then(callback)
           .catch(errback);
-      }
+      },
     );
 
     this.sendTransport.on(
-      'produce',
+      "produce",
       async ({ kind, rtpParameters, appData }, callback, errback) => {
         try {
-          const { id } = await this.socket?.request('produce', {
+          const { id } = await this.socket?.request("produce", {
             transportId: this.sendTransport?.id,
             kind,
             rtpParameters,
             appData,
-            paused: appData.type === 'mic' ? this.isMicPaused() : false,
+            paused: appData.type === "mic" ? this.isMicPaused() : false,
           });
 
           callback({ id });
         } catch (error: any) {
           errback(error);
         }
-      }
+      },
     );
 
     this.sendTransport.on(
-      'producedata',
+      "producedata",
       async (
         { sctpStreamParameters, label, protocol, appData },
         callback,
-        errback
+        errback,
       ) => {
         try {
-          const { id } = await this.socket?.request('produceData', {
+          const { id } = await this.socket?.request("produceData", {
             transportId: this.sendTransport?.id,
             sctpStreamParameters,
             label,
@@ -895,7 +895,7 @@ class RoomMediasoupClient extends RoomSocketClient {
         } catch (error: any) {
           errback(error);
         }
-      }
+      },
     );
   }
 
@@ -917,20 +917,20 @@ class RoomMediasoupClient extends RoomSocketClient {
     });
 
     this.recvTransport.on(
-      'connect',
+      "connect",
       (
         { dtlsParameters },
         callback,
-        errback // eslint-disable-line no-shadow
+        errback, // eslint-disable-line no-shadow
       ) => {
         this.socket
-          ?.request('connectWebRtcTransport', {
+          ?.request("connectWebRtcTransport", {
             transportId: this.recvTransport?.id,
             dtlsParameters,
           })
           .then(callback)
           .catch(errback);
-      }
+      },
     );
   }
 
@@ -940,15 +940,15 @@ class RoomMediasoupClient extends RoomSocketClient {
     this.mediasoupDevice = new Device();
 
     const routerRtpCapabilities = await this.socket.request(
-      'getRouterRtpCapabilities'
+      "getRouterRtpCapabilities",
     );
 
     await this.mediasoupDevice.load({ routerRtpCapabilities });
-    logger.info('mediasoupDevice loaded');
+    logger.info("mediasoupDevice loaded");
 
     // Check whether we can produce video to the router.
-    if (!this.mediasoupDevice.canProduce('video')) {
-      logger.warn('cannot produce video');
+    if (!this.mediasoupDevice.canProduce("video")) {
+      logger.warn("cannot produce video");
 
       // TODO: Abort next steps.
     }
@@ -994,14 +994,14 @@ export default class HuddleClient extends RoomMediasoupClient {
   async changeAvatarUrl(avatarUrl: string) {
     if (!this.socket)
       return logger.error({
-        type: 'error',
-        message: 'changeAvatarUrl',
-        error: 'no socket',
+        type: "error",
+        message: "changeAvatarUrl",
+        error: "no socket",
       });
 
     try {
       this.setMeAvatarUrl(avatarUrl);
-      await this.socket.request('changeAvatarUrl', { avatarUrl });
+      await this.socket.request("changeAvatarUrl", { avatarUrl });
     } catch (error) {
       console.error(error);
     }
@@ -1009,8 +1009,8 @@ export default class HuddleClient extends RoomMediasoupClient {
 
   async sendDM(message: string, toId: string, fromId: string) {
     try {
-      await this.socket?.request('sendData', {
-        type: 'dm',
+      await this.socket?.request("sendData", {
+        type: "dm",
         payload: { message, toId, fromId, timestamp: now() },
       });
     } catch (error) {
@@ -1019,8 +1019,8 @@ export default class HuddleClient extends RoomMediasoupClient {
   }
   async toggleRaiseHand(isHandRaised: boolean) {
     try {
-      await this.socket?.request('sendData', {
-        type: 'raiseHand',
+      await this.socket?.request("sendData", {
+        type: "raiseHand",
         payload: { isHandRaised },
       });
       this.toggleMeHandRaise(isHandRaised);
@@ -1030,8 +1030,8 @@ export default class HuddleClient extends RoomMediasoupClient {
   }
   async sendReaction(reaction: Reaction) {
     try {
-      await this.socket?.request('sendData', {
-        type: 'reaction',
+      await this.socket?.request("sendData", {
+        type: "reaction",
         payload: { reaction },
       });
       this.addMeReaction(reaction);
@@ -1043,19 +1043,19 @@ export default class HuddleClient extends RoomMediasoupClient {
   async allowLobbyPeerToJoinRoom(peerIdToAdmit: string) {
     if (!this.socket) return;
 
-    this.socket.request('allowRoomJoin', { peerIdToAdmit });
+    this.socket.request("allowRoomJoin", { peerIdToAdmit });
   }
 
   async allowAllLobbyPeersToJoinRoom() {
     if (!this.socket) return;
 
-    this.socket.request('admitAll');
+    this.socket.request("admitAll");
   }
 
   async disallowLobbyPeerFromJoiningRoom(peerIdToDisallow: string) {
     if (!this.socket) return;
 
-    this.socket.request('disallowRoomJoin', {
+    this.socket.request("disallowRoomJoin", {
       peerIdToDisallow,
     });
   }
@@ -1063,25 +1063,25 @@ export default class HuddleClient extends RoomMediasoupClient {
   async disallowAllLobbyPeerFromJoiningRoom() {
     if (!this.socket) return;
 
-    this.socket.request('denyAll');
+    this.socket.request("denyAll");
   }
 
   async requestLobby(
     displayName: string,
     avatarUrl: string,
-    walletData: TWalletData
+    walletData: TWalletData,
   ) {
-    if (!this.socket) return logger.error({ type: 'error', msg: 'no socket' });
+    if (!this.socket) return logger.error({ type: "error", msg: "no socket" });
 
-    const { host } = await this.socket.request('lobby', {
+    const { host } = await this.socket.request("lobby", {
       displayName,
       avatarUrl,
       walletData,
     });
 
     logger.info({
-      type: 'info',
-      msg: 'requestLobby()',
+      type: "info",
+      msg: "requestLobby()",
       data: { host, meId: this.peerId },
     });
 
@@ -1094,10 +1094,10 @@ export default class HuddleClient extends RoomMediasoupClient {
     this.setSocket(roomId, this.peerId);
 
     if (!this.socket)
-      return logger.error({ type: 'error', msg: 'join() no socket' });
+      return logger.error({ type: "error", msg: "join() no socket" });
 
-    this.socket.on('open', async () => {
-      logger.info({ type: 'info', msg: 'socket open' });
+    this.socket.on("open", async () => {
+      logger.info({ type: "info", msg: "socket open" });
 
       const avatarUrl = this.getAvatarUrl();
 
@@ -1113,34 +1113,38 @@ export default class HuddleClient extends RoomMediasoupClient {
 
     // TODO: can utilize this for reconnection wen we change internet connection or user drop for few seconds.
     // This can be achieved my maintaining a recoonection state and updating UI according to it
-    this.socket.on('failed', () => {
+    this.socket.on("failed", () => {
       logger.info({
-        type: 'error',
-        text: 'WebSocket connection failed',
+        type: "error",
+        text: "WebSocket connection failed",
       });
+      this.joining = false;
     });
 
-    this.socket.on('disconnected', () => {
+    this.socket.on("disconnected", () => {
       logger.info({
-        type: 'error',
-        text: 'WebSocket  disconnected',
+        type: "error",
+        text: "WebSocket  disconnected",
       });
+      this.joining = false;
     });
 
-    this.socket.on('close', () => {
-      logger.info({ type: 'error', text: 'WebSocket  closed' });
+    this.socket.on("close", () => {
+      logger.info({ type: "error", text: "WebSocket  closed" });
       // TODO: Close mediasoup transports
       // TODO: Close Cam and Mic Stream;
       this.recvTransport?.close();
       this.sendTransport?.close();
       this.disableCamStream();
+      this.joining = false;
     });
 
-    this.socket.on('request', async (request, accept, _reject) => {
+    this.socket.on("request", async (request, accept, _reject) => {
+      this.joining = false;
       const promises: Promise<void>[] = [];
       const requestMethods: RequestMethods = {
         newConsumer: async () => {
-          logger.info({ type: 'info', msg: 'newConsumer', data: request.data });
+          logger.info({ type: "info", msg: "newConsumer", data: request.data });
 
           const {
             peerId,
@@ -1167,10 +1171,10 @@ export default class HuddleClient extends RoomMediasoupClient {
             // Store in the map.
             this.consumers.set(consumer.id, consumer);
 
-            consumer.on('transportclose', () => {
+            consumer.on("transportclose", () => {
               logger.info({
-                type: 'info',
-                msg: 'consumer transport closed',
+                type: "info",
+                msg: "consumer transport closed",
                 data: {
                   consumerId: consumer.id,
                   peerId: consumer.appData?.peerId,
@@ -1191,31 +1195,31 @@ export default class HuddleClient extends RoomMediasoupClient {
 
             this.addConsumerMedia(peerId, appData.type, consumerToAdd);
 
-            if (appData.type === 'mic') {
+            if (appData.type === "mic") {
               if (consumerToAdd.isPaused) {
                 this.pauseConsumerMedia(peerId, appData.type);
               } else this.addStreamToHark(consumer.track, peerId);
             }
 
-            if (appData.type === 'share') {
+            if (appData.type === "share") {
               logger.info({
-                type: 'info',
-                msg: 'newConsumer | Screen Share Enabled',
+                type: "info",
+                msg: "newConsumer | Screen Share Enabled",
                 peerId,
               });
               this.enableScreenShare(peerId);
             }
-            if (appData.type === 'shareAudio') {
+            if (appData.type === "shareAudio") {
               logger.info({
-                type: 'info',
-                msg: 'newConsumer | Screenshare Audio Share Enabled',
+                type: "info",
+                msg: "newConsumer | Screenshare Audio Share Enabled",
                 peerId,
               });
             }
             accept();
 
-            if (appData.type === 'cam' && this.getBandwidthSaver()) {
-              promises.push(this.pauseConsumer(id, peerId, 'cam'));
+            if (appData.type === "cam" && this.getBandwidthSaver()) {
+              promises.push(this.pauseConsumer(id, peerId, "cam"));
             }
           } catch (error) {
             logger.error({ type: error, error });
@@ -1228,14 +1232,15 @@ export default class HuddleClient extends RoomMediasoupClient {
       await Promise.all(promises);
     });
 
-    this.socket.on('notification', notification => {
+    this.socket.on("notification", (notification) => {
+      this.joining = false;
       const notifMethods: NotifMethods = {
         peerAvatarUrlChanged: () => {
-          logger.info({ type: 'info', msg: 'peerAvatarUrlChanged' });
+          logger.info({ type: "info", msg: "peerAvatarUrlChanged" });
           const { peerId, avatarUrl } = notification.data;
 
           // * iframeApi
-          triggerIframeEvent('avatar-url-changed', {
+          triggerIframeEvent("avatar-url-changed", {
             peerId,
             avatarUrl,
           });
@@ -1244,22 +1249,22 @@ export default class HuddleClient extends RoomMediasoupClient {
         },
 
         joinRoomPermissionGranted: () => {
-          logger.info({ type: 'info', msg: 'joinRoomPermissionGranted' });
+          logger.info({ type: "info", msg: "joinRoomPermissionGranted" });
           this.joinRoom();
         },
 
         joinRoomPermissionDenied: () => {
-          this.close('denied');
-          logger.info({ type: 'info', msg: 'joinRoomPermissionDenied' });
+          this.close("denied");
+          logger.info({ type: "info", msg: "joinRoomPermissionDenied" });
         },
 
         roomClosedByHost: () => {
-          this.close('closedByHost');
-          logger.info({ type: 'info', msg: 'roomClosedByHost' });
+          this.close("closedByHost");
+          logger.info({ type: "info", msg: "roomClosedByHost" });
         },
         kickedByHost: () => {
-          this.close('kicked');
-          logger.info({ type: 'info', msg: 'kickedByHost' });
+          this.close("kicked");
+          logger.info({ type: "info", msg: "kickedByHost" });
         },
 
         newLobbyPeer: () => {
@@ -1267,8 +1272,8 @@ export default class HuddleClient extends RoomMediasoupClient {
           this.addLobbyPeer(data.lobbyPeers);
 
           logger.info({
-            type: 'info',
-            msg: 'newLobbyPeer',
+            type: "info",
+            msg: "newLobbyPeer",
             data: notification.data,
           });
         },
@@ -1276,10 +1281,10 @@ export default class HuddleClient extends RoomMediasoupClient {
         newPeer: () => {
           const peer = notification.data;
 
-          if (peer.id === 'recorder_bot') {
+          if (peer.id === "recorder_bot") {
             logger.info({
-              type: 'info',
-              message: 'Recorder Bot has entered the room...',
+              type: "info",
+              message: "Recorder Bot has entered the room...",
               meta: {
                 peerId: peer.id,
               },
@@ -1300,9 +1305,9 @@ export default class HuddleClient extends RoomMediasoupClient {
           };
 
           // * iframe api
-          triggerIframeEvent('peer-join', newPeer);
+          triggerIframeEvent("peer-join", newPeer);
 
-          this.setScreenShareLayout(this.isBot, 'sideBarGridView');
+          this.setScreenShareLayout(this.isBot, "sideBarGridView");
 
           this.addPeer(peer.id, newPeer);
 
@@ -1311,18 +1316,18 @@ export default class HuddleClient extends RoomMediasoupClient {
           if (this.getSpaceLeftInViewport() > 0) this.addPeerViewPort(peer.id);
 
           logger.info({
-            type: 'info',
-            msg: 'newPeer',
+            type: "info",
+            msg: "newPeer",
             data: notification.data,
           });
 
-          this.setNotificationSounds('peerJoin');
+          this.setNotificationSounds("peerJoin");
         },
 
         peerClosed: () => {
           const { peerId } = notification.data;
 
-          if (peerId === 'recorder_bot') return;
+          if (peerId === "recorder_bot") return;
 
           this.removeChat(peerId);
           this.removePeerViewPort(peerId);
@@ -1335,16 +1340,16 @@ export default class HuddleClient extends RoomMediasoupClient {
 
           this.removePeer(peerId);
 
-          this.setScreenShareLayout(this.isBot, 'sideBarView');
+          this.setScreenShareLayout(this.isBot, "sideBarView");
 
-          triggerIframeEvent('peer-left', { peerId });
+          triggerIframeEvent("peer-left", { peerId });
 
           logger.info({
-            type: 'info',
-            msg: 'peerClosed',
+            type: "info",
+            msg: "peerClosed",
             data: notification.data,
           });
-          this.setNotificationSounds('peerLeave');
+          this.setNotificationSounds("peerLeave");
 
           this.removeStreamFromHark(peerId);
         },
@@ -1353,37 +1358,37 @@ export default class HuddleClient extends RoomMediasoupClient {
           this.addLobbyPeer(data.lobbyPeers);
 
           logger.info({
-            type: 'info',
-            msg: 'updatedPeersArray',
+            type: "info",
+            msg: "updatedPeersArray",
             data: notification.data,
           });
         },
         consumerClosed: () => {
           const { consumerId } = notification.data;
           const consumer = this.consumers.get(consumerId);
-          logger.info({ type: 'info', msg: 'consumerClosed', consumer });
+          logger.info({ type: "info", msg: "consumerClosed", consumer });
           if (!consumer) return;
           const {
             appData: { type, peerId },
           } = consumer;
 
-          if (type === 'share') {
+          if (type === "share") {
             logger.info({
-              type: 'info',
-              msg: 'newConsumer | Screen Share Disabled',
+              type: "info",
+              msg: "newConsumer | Screen Share Disabled",
               peerId,
             });
-            this.disableScreenShare('grid');
+            this.disableScreenShare("grid");
           }
 
-          if (type === 'mic') this.removeStreamFromHark(peerId as string);
+          if (type === "mic") this.removeStreamFromHark(peerId as string);
 
           consumer.close();
           this.consumers.delete(consumerId);
 
           this.removeConsumerMedia(
             peerId as string,
-            type as MediaConsumerTypes
+            type as MediaConsumerTypes,
           );
         },
         consumerPaused: () => {
@@ -1394,11 +1399,11 @@ export default class HuddleClient extends RoomMediasoupClient {
           const {
             appData: { type, peerId },
           } = consumer;
-          logger.info({ type: 'info', msg: 'consumerPaused', consumer });
+          logger.info({ type: "info", msg: "consumerPaused", consumer });
 
           consumer.pause();
 
-          if (type === 'mic') {
+          if (type === "mic") {
             this.pauseConsumerMedia(peerId as string, type);
             this.removeStreamFromHark(peerId as string);
           }
@@ -1410,31 +1415,31 @@ export default class HuddleClient extends RoomMediasoupClient {
           const {
             appData: { type, peerId },
           } = consumer;
-          logger.info({ type: 'info', msg: 'consumerResumed', consumer });
+          logger.info({ type: "info", msg: "consumerResumed", consumer });
 
           consumer.resume();
 
-          if (type === 'mic') {
+          if (type === "mic") {
             this.resumeConsumerMedia(peerId as string, type);
             this.addStreamToHark(consumer.track, peerId as string);
           }
         },
-        'recording-started': () => {
+        "recording-started": () => {
           this.setStartRecording();
           this.toggleRecording(true);
-          logger.info({ type: 'info', msg: 'recording-started' });
+          logger.info({ type: "info", msg: "recording-started" });
         },
-        'recording-stopped': () => {
+        "recording-stopped": () => {
           this.setStopRecording();
           this.toggleRecording(false);
-          logger.info({ type: 'info', msg: 'recording-stopped' });
+          logger.info({ type: "info", msg: "recording-stopped" });
         },
         recordingUrl: () => {
           const { s3URL, ipfsURL, size, duration } = notification.data;
 
           logger.info({
-            type: 'info',
-            msg: 'recording-stopped',
+            type: "info",
+            msg: "recording-stopped",
             s3URL,
             ipfsURL,
           });
@@ -1447,16 +1452,16 @@ export default class HuddleClient extends RoomMediasoupClient {
         },
         getAllRecordings: () => {
           const recordingURls = notification.data;
-          logger.info('Got all recordings');
+          logger.info("Got all recordings");
           logger.info({ recordingURls });
           this.setRecordings(recordingURls);
         },
-        'disabled-last-N': () => {
+        "disabled-last-N": () => {
           const peerIds = this.getPeerIds();
 
           logger.info({
-            type: 'info',
-            msg: 'disabled-last-N',
+            type: "info",
+            msg: "disabled-last-N",
             meta: {
               peerIds,
             },
@@ -1465,7 +1470,7 @@ export default class HuddleClient extends RoomMediasoupClient {
           if (this.isLastNActive()) this.deactivateLastN();
         },
 
-        'updated-last-N': () => {
+        "updated-last-N": () => {
           const { lastNPeers, mostInactivePeerIdInLastN } = <LastNData>(
             notification.data
           );
@@ -1476,19 +1481,19 @@ export default class HuddleClient extends RoomMediasoupClient {
             : lastNPeers.filter((peerId: string) =>
                 mostInactivePeerIdInLastN
                   ? peerId !== mostInactivePeerIdInLastN
-                  : lastNPeers[lastNPeers.length - 1] !== peerId
+                  : lastNPeers[lastNPeers.length - 1] !== peerId,
               );
 
           logger.info({
-            type: 'info',
-            msg: 'updated-last-N | Updaing with new lastNPeers',
+            type: "info",
+            msg: "updated-last-N | Updaing with new lastNPeers",
           });
 
           if (!this.isLastNActive()) this.activateLastN();
 
           this.setActiveViewPort(lastNArr);
         },
-        'updated-network-strength': () => {
+        "updated-network-strength": () => {
           const { networkStrength } = notification.data;
 
           this.setNetworkStats(networkStrength);
@@ -1497,39 +1502,39 @@ export default class HuddleClient extends RoomMediasoupClient {
         receiveData: () => {
           const { type, payload } = notification.data;
           // For Better understandlibility of code used if-else :)
-          if (type === 'dm') {
+          if (type === "dm") {
             const { toId, fromId, message, timestamp } = payload;
-            if (toId === 'mainRoom') {
-              this.setChat(message, 'mainRoom', fromId, timestamp);
-              if (fromId !== this.peerId) this.increaseUnread('mainRoom');
+            if (toId === "mainRoom") {
+              this.setChat(message, "mainRoom", fromId, timestamp);
+              if (fromId !== this.peerId) this.increaseUnread("mainRoom");
             } else {
               const swappedId = fromId;
               this.setChat(message, swappedId, fromId, timestamp);
               this.increaseUnread(fromId);
             }
             if (fromId !== this.peerId) {
-              this.setNotificationSounds('chat');
+              this.setNotificationSounds("chat");
             }
           }
-          if (type === 'reaction') {
+          if (type === "reaction") {
             const { peerId, reaction } = payload;
             if (this.peerId !== peerId) this.addReaction(peerId, reaction);
           }
-          if (type === 'raiseHand') {
+          if (type === "raiseHand") {
             const { peerId, isHandRaised } = payload;
             this.togglePeerHandRaise(peerId, isHandRaised);
           }
 
-          if (type === 'sharedFile') {
+          if (type === "sharedFile") {
             const { peerId, fileDetails } = payload;
             this.addSharedFile(fileDetails);
             this.setChat(
               "I've shared a file, please check it out from shared files tab.",
-              'mainRoom',
+              "mainRoom",
               peerId,
-              now()
+              now(),
             );
-            this.increaseUnread('mainRoom');
+            this.increaseUnread("mainRoom");
           }
         },
 
@@ -1538,18 +1543,18 @@ export default class HuddleClient extends RoomMediasoupClient {
           const enableHostControlFuncs: IEnableHostControl = {
             enableHostOnlyVideo: () => {
               // this.disableWebcam();
-              this.setSingleHostControl('allowVideo', false);
+              this.setSingleHostControl("allowVideo", false);
             },
             enableHostOnlyAudio: () => {
               // this.muteMic();
-              this.setSingleHostControl('allowAudio', false);
+              this.setSingleHostControl("allowAudio", false);
             },
             enableHostOnlyScreenShare: () => {
               // this.disableShare();
-              this.setSingleHostControl('allowScreenShare', false);
+              this.setSingleHostControl("allowScreenShare", false);
             },
             enableHostOnlyChat: () => {
-              this.setSingleHostControl('allowChat', false);
+              this.setSingleHostControl("allowChat", false);
             },
           };
           enableHostControlFuncs[type]();
@@ -1558,28 +1563,28 @@ export default class HuddleClient extends RoomMediasoupClient {
           const { type } = notification.data;
           const disableHostControlFuncs: IDisableHostControl = {
             disableHostOnlyVideo: () => {
-              this.setSingleHostControl('allowVideo', true);
+              this.setSingleHostControl("allowVideo", true);
             },
             disableHostOnlyAudio: () => {
-              this.setSingleHostControl('allowAudio', true);
+              this.setSingleHostControl("allowAudio", true);
             },
             disableHostOnlyScreenShare: () => {
-              this.setSingleHostControl('allowScreenShare', true);
+              this.setSingleHostControl("allowScreenShare", true);
             },
             disableHostOnlyChat: () => {
-              this.setSingleHostControl('allowChat', true);
+              this.setSingleHostControl("allowChat", true);
             },
           };
           disableHostControlFuncs[type]();
         },
         hostIs: () => {
           const { hostId } = notification.data;
-          logger.info({ type: 'info', msg: 'hostIs' });
+          logger.info({ type: "info", msg: "hostIs" });
           this.setHost(hostId);
         },
         updatedCoHosts: () => {
           const { coHosts } = notification.data;
-          logger.info({ type: 'info', msg: 'updatedCoHosts' });
+          logger.info({ type: "info", msg: "updatedCoHosts" });
           this.setCoHosts(coHosts);
         },
         muteMe: () => {
@@ -1594,7 +1599,7 @@ export default class HuddleClient extends RoomMediasoupClient {
 
         streamStarted: () => {
           const { stream, platform } = notification.data;
-          logger.info('stream started', { stream });
+          logger.info("stream started", { stream });
           if (stream.id) {
             const streamData: IStreamData = {
               isLive: true,
@@ -1608,26 +1613,26 @@ export default class HuddleClient extends RoomMediasoupClient {
 
         streamStopped: () => {
           const { platform } = notification.data;
-          logger.info('stream started');
+          logger.info("stream started");
 
           this.stopStreaming(platform);
         },
 
         recordingOrStreamingError: () => {
           const { type } = notification.data; // ONE MORE PARAMETER MSG WITH MSG OF ERROR
-          if (type == 'record') {
+          if (type == "record") {
             this.setRecordingEnded();
           }
-          if (type == 'stream') {
-            this.stopStreaming('livepeer');
+          if (type == "stream") {
+            this.stopStreaming("livepeer");
           }
         },
-        'room-lock-state': () => {
+        "room-lock-state": () => {
           const { isRoomLocked } = notification.data;
           this.setRoomLockState(isRoomLocked);
         },
         downlinkBwe: () => {
-          logger.info('downlinkBwe event :', notification.data);
+          logger.info("downlinkBwe event :", notification.data);
         },
       };
 
@@ -1651,7 +1656,7 @@ export default class HuddleClient extends RoomMediasoupClient {
 
       try {
         const { data: turn } = await axios.get(
-          'https://jbzp43rb25.execute-api.ap-south-1.amazonaws.com/turn'
+          "https://jbzp43rb25.execute-api.ap-south-1.amazonaws.com/turn",
         );
         const turnServers = turn.servers as ITurnServerType[];
 
@@ -1662,7 +1667,7 @@ export default class HuddleClient extends RoomMediasoupClient {
 
         this._turn = fixedTurnServers || [];
       } catch (err) {
-        logger.error('error fetching turn servers', err);
+        logger.error("error fetching turn servers", err);
       }
 
       // Do not create sendtranport for bot
@@ -1670,7 +1675,7 @@ export default class HuddleClient extends RoomMediasoupClient {
       if (!this.isBot) await this.createSendTransport();
       await this.createRecvTransport();
 
-      const joinedData = await this.socket.request('join', {
+      const joinedData = await this.socket.request("join", {
         displayName: this.getDisplayName(),
         rtpCapabilities: this.mediasoupDevice.rtpCapabilities,
         sctpCapabilities: this.mediasoupDevice.sctpCapabilities,
@@ -1700,7 +1705,7 @@ export default class HuddleClient extends RoomMediasoupClient {
       } = joinedData;
 
       peers.forEach((peer: INewPeerState & { id: string }) => {
-        if (peer.id !== 'recorder_bot') {
+        if (peer.id !== "recorder_bot") {
           const newPeer: INewPeerState = {
             peerId: peer.id,
             displayName: peer.displayName,
@@ -1717,18 +1722,18 @@ export default class HuddleClient extends RoomMediasoupClient {
       });
 
       if (!hostControls.allowVideo) {
-        this.toggleProducerMedia('cam', 'off');
+        this.toggleProducerMedia("cam", "off");
         await this.disableAllCamStreams();
       }
 
-      if (!this.getProducerState('cam') && hostControls.allowVideo)
+      if (!this.getProducerState("cam") && hostControls.allowVideo)
         await this.enableWebcam();
 
       const micPaused = this.isMicPaused();
       await this.enableMic();
 
       if (!hostControls.allowAudio || micPaused) {
-        this.toggleProducerMedia('mic', 'off');
+        this.toggleProducerMedia("mic", "off");
         await this.muteMic();
       }
 
@@ -1752,7 +1757,7 @@ export default class HuddleClient extends RoomMediasoupClient {
       }
       this.setSharedFiles(sharedFiles);
       if (isRecordingOrStreaming) {
-        if (typeOfStreamingOrRecording == 'record') {
+        if (typeOfStreamingOrRecording == "record") {
           this.toggleRecording(true);
         }
       }
@@ -1760,7 +1765,7 @@ export default class HuddleClient extends RoomMediasoupClient {
       const numOfPeersToSwitchView = this.isBot ? 3 : 2;
 
       if (this.getPeerIds().length > numOfPeersToSwitchView) {
-        this.setLayoutView('sideBarGridView');
+        this.setLayoutView("sideBarGridView");
       }
 
       this.setJoined();
@@ -1769,17 +1774,17 @@ export default class HuddleClient extends RoomMediasoupClient {
       // Temp alert
 
       logger.error({
-        type: 'error',
+        type: "error",
         error,
         message: "Couldn't join room",
-        loc: 'RoomProvider.tsx -> joinRoom()',
+        loc: "RoomProvider.tsx -> joinRoom()",
       });
     }
   }
 
   async enableWebcam(figmentDisable: boolean = true) {
     if (!this.sendTransport) return;
-    const isCamPaused = this.getProducerState('cam');
+    const isCamPaused = this.getProducerState("cam");
 
     try {
       if (isCamPaused && figmentDisable) {
@@ -1791,8 +1796,8 @@ export default class HuddleClient extends RoomMediasoupClient {
 
       if (!stream) {
         logger.error({
-          type: 'error',
-          msg: 'enableWebcam() | No Stream Enabled',
+          type: "error",
+          msg: "enableWebcam() | No Stream Enabled",
         });
         return;
       }
@@ -1815,7 +1820,7 @@ export default class HuddleClient extends RoomMediasoupClient {
         encodings,
         codecOptions,
         appData: {
-          type: 'cam',
+          type: "cam",
           share: false,
         },
       });
@@ -1825,84 +1830,84 @@ export default class HuddleClient extends RoomMediasoupClient {
         track: this._webcamProducer.track as MediaStreamTrack,
         isPaused: false,
         peerId: this.peerId,
-        appData: { type: 'cam', peerId: this.peerId },
+        appData: { type: "cam", peerId: this.peerId },
       };
 
-      this.addProducerMedia('cam', webcamProd);
+      this.addProducerMedia("cam", webcamProd);
 
       logger.info({
-        type: 'info',
-        msg: 'enableWebcam',
+        type: "info",
+        msg: "enableWebcam",
         webcamProducer: this._webcamProducer,
       });
 
-      this._webcamProducer.on('transportclose', async () => {
+      this._webcamProducer.on("transportclose", async () => {
         logger.info({
-          type: 'info',
-          msg: 'enableWebcam | transportclose',
+          type: "info",
+          msg: "enableWebcam | transportclose",
           webcamProducer: this._webcamProducer,
         });
-        this.removeProducerMedia('cam');
+        this.removeProducerMedia("cam");
 
-        this.toggleFigmentStream('disable');
+        this.toggleFigmentStream("disable");
 
         await disableFigment();
         this._webcamProducer = null;
       });
 
-      this._webcamProducer.on('trackended', async () => {
+      this._webcamProducer.on("trackended", async () => {
         logger.info({
-          type: 'info',
-          msg: 'enableWebcam | trackended',
+          type: "info",
+          msg: "enableWebcam | trackended",
           webcamProducer: this._webcamProducer,
         });
         logger.info({
-          type: 'error',
-          text: 'Webcam disconnected!',
+          type: "error",
+          text: "Webcam disconnected!",
         });
         this.disableWebcam().catch(() => {});
       });
 
       logger.info({
-        type: 'info',
-        msg: 'Webcam enabled',
+        type: "info",
+        msg: "Webcam enabled",
         webcamProducer: this._webcamProducer,
       });
     } catch (error) {
-      logger.error({ type: 'error', error });
+      logger.error({ type: "error", error });
     }
   }
 
   async disableWebcam(figmentDisable: boolean = true) {
     if (!this.socket) {
-      logger.error({ type: 'error', msg: 'disableWebcam() | No socket' });
+      logger.error({ type: "error", msg: "disableWebcam() | No socket" });
       return;
     }
     if (!this._webcamProducer) {
-      logger.info({ type: 'info', msg: 'disableWebcam | No Producer' });
+      logger.info({ type: "info", msg: "disableWebcam | No Producer" });
       return;
     }
 
-    logger.info('webcamProducer is on');
+    logger.info("webcamProducer is on");
     this._webcamProducer.track?.stop();
     this._webcamProducer.close();
 
-    this.removeProducerMedia('cam');
+    this.removeProducerMedia("cam");
 
     try {
-      await this.socket.request('closeProducer', {
+      await this.socket.request("closeProducer", {
         producerId: this._webcamProducer.id,
       });
       this._webcamProducer = null;
 
       if (figmentDisable) {
-        this.toggleFigmentStream('disable');
+        this.toggleFigmentStream("disable");
 
         await disableFigment();
 
         logger.info({
-          type: 'info',
-          msg: 'disableWebcam | figment disabled',
+          type: "info",
+          msg: "disableWebcam | figment disabled",
         });
       }
 
@@ -1912,16 +1917,16 @@ export default class HuddleClient extends RoomMediasoupClient {
 
       if (stream) {
         logger.info({
-          type: 'info',
-          msg: 'disableWebcam | stream Still Enabled',
+          type: "info",
+          msg: "disableWebcam | stream Still Enabled",
           stream,
         });
       }
 
-      logger.info('server closed producer');
+      logger.info("server closed producer");
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error closing server-side webcam Producer: ${error}`,
       });
     }
@@ -1937,14 +1942,14 @@ export default class HuddleClient extends RoomMediasoupClient {
       await this.disableWebcam();
       await this.enableWebcam();
     } catch (error) {
-      logger.error({ type: 'error', msg: 'changeWebcam()', error });
+      logger.error({ type: "error", msg: "changeWebcam()", error });
     }
     this._loading = false;
   }
 
   async pauseVideo() {
     logger.info({
-      msg: 'pauseVideo()',
+      msg: "pauseVideo()",
       _webcamProducer: this._webcamProducer,
       this: this,
     });
@@ -1958,13 +1963,13 @@ export default class HuddleClient extends RoomMediasoupClient {
     this._webcamProducer.pause();
 
     try {
-      await this.socket.request('pauseProducer', {
+      await this.socket.request("pauseProducer", {
         producerId: this._webcamProducer.id,
       });
-      if (this._webcamProducer !== null) this.removeProducerMedia('cam');
+      if (this._webcamProducer !== null) this.removeProducerMedia("cam");
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error pausing server-side webcam Producer: ${error}`,
       });
     }
@@ -1979,20 +1984,20 @@ export default class HuddleClient extends RoomMediasoupClient {
     this.micProducer.close();
 
     logger.info({
-      type: 'info',
+      type: "info",
       text: `disableMic()`,
     });
 
     this.removeStreamFromHark(this.peerId);
 
     try {
-      await this.socket.request('closeProducer', {
+      await this.socket.request("closeProducer", {
         producerId: this.micProducer.id,
       });
-      this.removeProducerMedia('mic');
+      this.removeProducerMedia("mic");
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error closing server-side mic Producer: ${error}`,
       });
     }
@@ -2022,8 +2027,8 @@ export default class HuddleClient extends RoomMediasoupClient {
 
       if (!stream) {
         logger.error({
-          type: 'error',
-          msg: 'enableMic() | No Stream Enabled',
+          type: "error",
+          msg: "enableMic() | No Stream Enabled",
         });
         return;
       }
@@ -2034,7 +2039,7 @@ export default class HuddleClient extends RoomMediasoupClient {
       this.micProducer = await this.sendTransport.produce({
         track,
         appData: {
-          type: 'mic',
+          type: "mic",
           share: false,
         },
       });
@@ -2044,19 +2049,19 @@ export default class HuddleClient extends RoomMediasoupClient {
         track: this.micProducer.track as MediaStreamTrack,
         isPaused: false,
         peerId: this.peerId,
-        appData: { type: 'mic', peerId: this.peerId },
+        appData: { type: "mic", peerId: this.peerId },
       };
 
-      if (this.micProducer !== null) this.addProducerMedia('mic', micProd);
+      if (this.micProducer !== null) this.addProducerMedia("mic", micProd);
 
-      this.micProducer.on('transportclose', () => {
+      this.micProducer.on("transportclose", () => {
         this.micProducer = null;
       });
 
-      this.micProducer.on('trackended', async () => {
+      this.micProducer.on("trackended", async () => {
         logger.info({
-          type: 'error',
-          text: 'Microphone disconnected!',
+          type: "error",
+          text: "Microphone disconnected!",
         });
         try {
           await this.disableMic();
@@ -2064,12 +2069,12 @@ export default class HuddleClient extends RoomMediasoupClient {
         } catch (error) {
           //this will/should never get printed, but just in case :)
           alert(
-            'error in switching audio input sources, please refresh your tab'
+            "error in switching audio input sources, please refresh your tab",
           );
         }
       });
     } catch (error) {
-      logger.error({ type: 'error | enableMic() ', error });
+      logger.error({ type: "error | enableMic() ", error });
     }
   }
 
@@ -2089,7 +2094,7 @@ export default class HuddleClient extends RoomMediasoupClient {
       await this.enableMic();
       await this.unmuteMic();
     } catch (error) {
-      logger.error({ type: 'error', msg: 'changeMic()', error });
+      logger.error({ type: "error", msg: "changeMic()", error });
     } finally {
       this._loading = false;
     }
@@ -2100,7 +2105,7 @@ export default class HuddleClient extends RoomMediasoupClient {
    */
   async muteMic() {
     logger.info({
-      msg: 'muteMic()',
+      msg: "muteMic()",
       this: this,
     });
 
@@ -2111,13 +2116,13 @@ export default class HuddleClient extends RoomMediasoupClient {
     this.micProducer.pause();
 
     try {
-      await this.socket.request('pauseProducer', {
+      await this.socket.request("pauseProducer", {
         producerId: this.micProducer.id,
       });
 
-      if (this.micProducer !== null) this.toggleProducerMedia('mic', 'off');
+      if (this.micProducer !== null) this.toggleProducerMedia("mic", "off");
     } catch (error) {
-      logger.info('muteMic() | failed: %o', error);
+      logger.info("muteMic() | failed: %o", error);
     }
   }
 
@@ -2127,18 +2132,18 @@ export default class HuddleClient extends RoomMediasoupClient {
   async unmuteMic() {
     //logger.debug("unmuteMic()");
     logger.info({
-      msg: 'unmuteMic()',
+      msg: "unmuteMic()",
       this: this,
     });
     if (!this.socket) {
-      logger.info('unmuteMic() | no socket');
+      logger.info("unmuteMic() | no socket");
       return;
     }
 
     if (!this.micProducer) {
       logger.info({
-        type: 'info',
-        msg: 'unmuteMic() | micProducer is null enabling mic',
+        type: "info",
+        msg: "unmuteMic() | micProducer is null enabling mic",
       });
       await this.enableMic();
       return;
@@ -2147,24 +2152,24 @@ export default class HuddleClient extends RoomMediasoupClient {
     this.micProducer.resume();
 
     try {
-      await this.socket.request('resumeProducer', {
+      await this.socket.request("resumeProducer", {
         producerId: this.micProducer.id,
       });
 
-      if (this.micProducer !== null) this.toggleProducerMedia('mic', 'on');
+      if (this.micProducer !== null) this.toggleProducerMedia("mic", "on");
     } catch (error) {
-      logger.info('unmuteMic() | failed: %o', error);
+      logger.info("unmuteMic() | failed: %o", error);
     }
   }
 
   async enableShare() {
     if (!this.mediasoupDevice || !this.sendTransport) {
-      logger.error('enableShare() | cannot produce audio');
+      logger.error("enableShare() | cannot produce audio");
       return;
     }
 
-    if (!this.mediasoupDevice.canProduce('video')) {
-      logger.error('enableShare() | cannot produce video');
+    if (!this.mediasoupDevice.canProduce("video")) {
+      logger.error("enableShare() | cannot produce video");
 
       return;
     }
@@ -2174,7 +2179,7 @@ export default class HuddleClient extends RoomMediasoupClient {
     try {
       let constraints = {
         video: {
-          displaySurface: 'monitor',
+          displaySurface: "monitor",
           logicalSurface: true,
           cursor: true,
           width: { max: 1920 },
@@ -2195,7 +2200,7 @@ export default class HuddleClient extends RoomMediasoupClient {
       this._shareVideoProducer = await this.sendTransport.produce({
         track,
         appData: {
-          type: 'share',
+          type: "share",
           share: true,
         },
       });
@@ -2205,7 +2210,7 @@ export default class HuddleClient extends RoomMediasoupClient {
         this._shareAudioProducer = await this.sendTransport.produce({
           track: audioTrack,
           appData: {
-            type: 'shareAudio',
+            type: "shareAudio",
             share: true,
           },
         });
@@ -2216,11 +2221,11 @@ export default class HuddleClient extends RoomMediasoupClient {
         peerId: this.peerId,
         track: this._shareVideoProducer.track as MediaStreamTrack,
         isPaused: this._shareVideoProducer.paused,
-        appData: { type: 'share', peerId: this.peerId },
+        appData: { type: "share", peerId: this.peerId },
       };
 
       if (this._shareVideoProducer !== null)
-        this.addProducerMedia('share', shareProd);
+        this.addProducerMedia("share", shareProd);
 
       if (this._shareAudioProducer !== null) {
         const shareAudioProd: MediaConsumer = {
@@ -2228,47 +2233,47 @@ export default class HuddleClient extends RoomMediasoupClient {
           peerId: this.peerId,
           track: this._shareAudioProducer.track as MediaStreamTrack,
           isPaused: this._shareAudioProducer.paused,
-          appData: { type: 'shareAudio', peerId: this.peerId },
+          appData: { type: "shareAudio", peerId: this.peerId },
         };
-        this.addProducerMedia('shareAudio', shareAudioProd);
+        this.addProducerMedia("shareAudio", shareAudioProd);
         logger.info({
-          type: 'info',
-          msg: 'Share Audio enabled',
+          type: "info",
+          msg: "Share Audio enabled",
           shareVideoProducer: this._shareAudioProducer,
           shareAudioProd: shareAudioProd,
         });
       }
 
-      this._shareVideoProducer.on('transportclose', async () => {
+      this._shareVideoProducer.on("transportclose", async () => {
         await this.disableShare();
       });
 
-      this._shareVideoProducer.on('trackended', async () => {
+      this._shareVideoProducer.on("trackended", async () => {
         logger.info({
-          type: 'error',
-          text: 'shareScreen Disconnected!',
+          type: "error",
+          text: "shareScreen Disconnected!",
         });
         try {
           await this.disableShare();
         } catch (error) {
           alert(
-            'error in switching audio input sources, please refresh your tab'
+            "error in switching audio input sources, please refresh your tab",
           );
         }
       });
 
       logger.info({
-        type: 'info',
-        msg: 'Share enabled',
+        type: "info",
+        msg: "Share enabled",
         shareProducer: this._shareVideoProducer,
       });
       this.enableScreenShare(this.peerId);
     } catch (error) {
       if (track) {
         track.stop();
-        this.disableScreenShare('grid');
+        this.disableScreenShare("grid");
       }
-      logger.error({ type: 'error', error });
+      logger.error({ type: "error", error });
     }
   }
 
@@ -2277,32 +2282,32 @@ export default class HuddleClient extends RoomMediasoupClient {
 
     this._shareVideoProducer.close();
 
-    this.removeProducerMedia('share');
+    this.removeProducerMedia("share");
 
     if (this._shareAudioProducer !== null) {
       this._shareAudioProducer.close();
-      this.removeProducerMedia('shareAudio');
+      this.removeProducerMedia("shareAudio");
     }
     try {
-      await this.socket.request('closeProducer', {
+      await this.socket.request("closeProducer", {
         producerId: this._shareVideoProducer.id,
       });
-      logger.info('closed server side share producer');
+      logger.info("closed server side share producer");
       if (this._shareAudioProducer) {
-        await this.socket.request('closeProducer', {
+        await this.socket.request("closeProducer", {
           producerId: this._shareAudioProducer.id,
         });
-        logger.info('closed server side audio share producer');
+        logger.info("closed server side audio share producer");
       }
       logger.info({
-        type: 'info',
-        msg: 'Share disabled',
+        type: "info",
+        msg: "Share disabled",
         shareProducer: this._shareVideoProducer,
       });
-      this.disableScreenShare('grid');
+      this.disableScreenShare("grid");
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error closing server-side share Producer: ${error}`,
       });
     }
@@ -2314,24 +2319,24 @@ export default class HuddleClient extends RoomMediasoupClient {
     if (!this.socket) return;
 
     try {
-      await this.socket.request('emailRecordingUrl', { to, url });
+      await this.socket.request("emailRecordingUrl", { to, url });
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error emailing recording url: ${error}`,
       });
     }
   }
 
   async getClientNetworkStats() {
-    logger.debug('getClientNetworkStats()');
+    logger.debug("getClientNetworkStats()");
     if (!this.socket) return;
 
-    const stats = await this.socket.request('getClientNetworkStats', {
-      audioProducerId: this.micProducer?.id || '',
-      videoProducerId: this._webcamProducer?.id || '',
-      sendTransportId: this.sendTransport?.id || '',
-      recvTransportId: this.recvTransport?.id || '',
+    const stats = await this.socket.request("getClientNetworkStats", {
+      audioProducerId: this.micProducer?.id || "",
+      videoProducerId: this._webcamProducer?.id || "",
+      sendTransportId: this.sendTransport?.id || "",
+      recvTransportId: this.recvTransport?.id || "",
     });
 
     logger.info({ stats });
@@ -2342,15 +2347,15 @@ export default class HuddleClient extends RoomMediasoupClient {
   // Host control Functions
   async handleEnableHostControl(
     control: EEnableHostControl,
-    controlType: keyof THostControls
+    controlType: keyof THostControls,
   ) {
     if (!this.socket) return;
     try {
-      await this.socket.request('handleEnableHostControl', { control });
+      await this.socket.request("handleEnableHostControl", { control });
       this.setSingleHostControl(controlType, false);
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error enabling host control: ${error}`,
       });
     }
@@ -2358,16 +2363,16 @@ export default class HuddleClient extends RoomMediasoupClient {
 
   async handleDisableHostControl(
     control: EDisableHostControl,
-    controlType: keyof THostControls
+    controlType: keyof THostControls,
   ) {
     if (!this.socket) return;
     try {
-      logger.info('huddlecliend handledisable', { control });
-      await this.socket.request('handleDisableHostControl', { control });
+      logger.info("huddlecliend handledisable", { control });
+      await this.socket.request("handleDisableHostControl", { control });
       this.setSingleHostControl(controlType, true);
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error disabling host control: ${error}`,
       });
     }
@@ -2376,10 +2381,10 @@ export default class HuddleClient extends RoomMediasoupClient {
   async makeACohost(coHostId: string) {
     if (!this.socket) return;
     try {
-      await this.socket.request('makeACoHost', { coHostId });
+      await this.socket.request("makeACoHost", { coHostId });
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error making a cohost: ${error}`,
       });
     }
@@ -2387,10 +2392,10 @@ export default class HuddleClient extends RoomMediasoupClient {
   async removeACohost(coHostId: string) {
     if (!this.socket) return;
     try {
-      await this.socket.request('removeACoHost', { coHostId });
+      await this.socket.request("removeACoHost", { coHostId });
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error making a cohost: ${error}`,
       });
     }
@@ -2398,10 +2403,10 @@ export default class HuddleClient extends RoomMediasoupClient {
   async kickPeerFromRoom(peerIdToKick: string) {
     if (!this.socket) return;
     try {
-      await this.socket.request('kickPeerFromRoom', { peerIdToKick });
+      await this.socket.request("kickPeerFromRoom", { peerIdToKick });
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error kicking peer from room: ${error}`,
       });
     }
@@ -2411,11 +2416,11 @@ export default class HuddleClient extends RoomMediasoupClient {
     if (!this.socket) return;
 
     try {
-      await this.socket.request('closeRoomForEverybody');
+      await this.socket.request("closeRoomForEverybody");
       this.close();
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error closeRoomForEverybody: ${error}`,
       });
     }
@@ -2424,10 +2429,10 @@ export default class HuddleClient extends RoomMediasoupClient {
   async disablePeerMic(peerId: string) {
     if (!this.socket) return;
     try {
-      await this.socket.request('mutePeer', { peerId });
+      await this.socket.request("mutePeer", { peerId });
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error mutePeer: ${error}`,
       });
     }
@@ -2435,10 +2440,10 @@ export default class HuddleClient extends RoomMediasoupClient {
   async disablePeerCam(peerId: string) {
     if (!this.socket) return;
     try {
-      await this.socket.request('disablePeerCam', { peerId });
+      await this.socket.request("disablePeerCam", { peerId });
     } catch (error) {
       logger.error({
-        type: 'error',
+        type: "error",
         text: `Error disablePeerCam: ${error}`,
       });
     }
@@ -2448,7 +2453,7 @@ export default class HuddleClient extends RoomMediasoupClient {
     if (!this.socket) return;
 
     try {
-      await this.socket.request('muteEveryone');
+      await this.socket.request("muteEveryone");
     } catch (error) {
       throw new Error(`Cant mute everyone ${error}`);
     }
@@ -2457,7 +2462,7 @@ export default class HuddleClient extends RoomMediasoupClient {
   async toggleRoomLock() {
     if (!this.socket) return;
     try {
-      await this.socket.request('toggleRoomLock', {
+      await this.socket.request("toggleRoomLock", {
         state: !this.getRoomLockState(),
       });
     } catch (error) {
@@ -2468,7 +2473,7 @@ export default class HuddleClient extends RoomMediasoupClient {
   async pauseConsumer(
     consumerId: string,
     peerId: string,
-    type: MediaConsumerTypes
+    type: MediaConsumerTypes,
   ) {
     if (!this.consumers.has(consumerId) || !this.socket) return;
 
@@ -2477,19 +2482,19 @@ export default class HuddleClient extends RoomMediasoupClient {
 
       if (!consumer) return;
 
-      this.socket.request('pauseConsumer', { consumerId: consumerId });
+      this.socket.request("pauseConsumer", { consumerId: consumerId });
 
       consumer.pause();
       this.pauseConsumerMedia(peerId, type);
     } catch (err) {
-      logger.error({ type: 'error', text: `Error pausing consumer ${err}` });
+      logger.error({ type: "error", text: `Error pausing consumer ${err}` });
     }
   }
 
   async resumeConsumer(
     consumerId: string,
     peerId: string,
-    type: MediaConsumerTypes
+    type: MediaConsumerTypes,
   ) {
     if (!this.consumers.has(consumerId) || !this.socket) return;
 
@@ -2497,12 +2502,12 @@ export default class HuddleClient extends RoomMediasoupClient {
       const consumer = this.consumers.get(consumerId);
 
       if (!consumer) return;
-      this.socket.request('resumeConsumer', { consumerId: consumerId });
+      this.socket.request("resumeConsumer", { consumerId: consumerId });
 
       consumer.resume();
       this.resumeConsumerMedia(peerId, type);
     } catch (err) {
-      logger.error({ type: 'error', text: `Error pausing consumer ${err}` });
+      logger.error({ type: "error", text: `Error pausing consumer ${err}` });
     }
   }
 
@@ -2512,8 +2517,8 @@ export default class HuddleClient extends RoomMediasoupClient {
       if (peer.consumers && peer.consumers.cam?.id) {
         promises.push(
           toggle
-            ? this.pauseConsumer(peer.consumers.cam.id, peerId, 'cam')
-            : this.resumeConsumer(peer.consumers.cam.id, peerId, 'cam')
+            ? this.pauseConsumer(peer.consumers.cam.id, peerId, "cam")
+            : this.resumeConsumer(peer.consumers.cam.id, peerId, "cam"),
         );
       }
     });
@@ -2522,8 +2527,8 @@ export default class HuddleClient extends RoomMediasoupClient {
 
   close(dropReason?: IDropReason) {
     if (!this.socket) return;
-    this.setDropState(dropReason || 'left');
+    this.setDropState(dropReason || "left");
     this.socket.close();
-    triggerIframeEvent('me-left', { peerId: this.peerId });
+    triggerIframeEvent("me-left", { peerId: this.peerId });
   }
 }
