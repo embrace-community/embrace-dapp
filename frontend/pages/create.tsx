@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { useAccount, useSigner } from "wagmi";
+import { Address, useAccount, useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import Modal from "../components/Modal";
 import {
@@ -225,7 +225,7 @@ export default function SpaceViewPage() {
         const space: Space = {
           id: 0,
           handle: ethers.utils.formatBytes32String(handle),
-          founder: accountAddress as string,
+          founder: accountAddress as Address,
           metadata: metadataCid,
           loadedMetadata: {
             name,
