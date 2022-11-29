@@ -154,18 +154,25 @@ export default function Chat({
       <div className="w-[25vw] min-h-0 flex flex-col">
         <ul className="grow overflow-auto h-[1px] pl-[6.8vw] pt-10 pb-20">
           {jimmmysroomsofwonderandmystery.map((room, i) => {
-            return <li className="py-[5px]">{room}</li>;
+            return (
+              <li key={i} className="py-[5px]">
+                {room}
+              </li>
+            );
           })}
         </ul>
       </div>
       <div className="flex-1 min-h-0 flex flex-col">
         <div className="w-full min-h-1 h-[50%] bg-black  flex flex-col">
           <div className="grow h-[1px] overflow-auto flex flex-row flex-wrap justify-center align-top py-6">
-            {jimmmysroomsofwonderandmystery.map((room, i) => {
+            {[0, 1, 2, 3, 4].map((room, i) => {
               return (
-                <div className="w-[180px] h-[110px] py-[10px] px-[10px] flex flex-col justify-center align-middle">
+                <div
+                  key={i}
+                  className="w-[180px] h-[110px] py-[10px] px-[10px] flex flex-col justify-center align-middle"
+                >
                   <div className="bg-white w-full h-full">
-                    I'm a videoscreen!
+                    I&apos;m a videoscreen!
                   </div>
                 </div>
               );
@@ -175,7 +182,7 @@ export default function Chat({
         <div className="grow overflow-auto h-[1px]">
           <div className="pt-8">
             {jimmmyswordsofwisdomandguidance.map((msgcontent, i) => {
-              return <Chatmsg msgcontent={msgcontent} />;
+              return <Chatmsg key={i} msgcontent={msgcontent} />;
             })}
           </div>
         </div>
