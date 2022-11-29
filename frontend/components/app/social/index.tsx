@@ -15,6 +15,7 @@ import Button from "../../Button";
 import DropDown from "../../DropDown";
 import Spinner from "../../Spinner";
 import "easymde/dist/easymde.min.css";
+import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -108,6 +109,56 @@ export default function Social({
     }
   }
 
+  async function createPost() {
+    // const ipfsResult = await saveToIpfs({
+    //   version: "2.0.0",
+    //   mainContentFocus: PublicationMainFocus.TEXT_ONLY,
+    //   metadata_id: uuidv4(),
+    //   description: "Description",
+    //   locale: "en-US",
+    //   content: "Content",
+    //   external_url: null,
+    //   image: null,
+    //   imageMimeType: null,
+    //   name: "Name",
+    //   attributes: [],
+    //   tags: ["using_api_examples"],
+    //   appId: "api_examples_github",
+    // });
+    // console.log("create post: ipfs result", ipfsResult);
+    // // hard coded to make the code example clear
+    // const createPostRequest = {
+    //   profileId: defaultProfile?.id,
+    //   contentURI: `ipfs://${ipfsResult.path}`,
+    //   collectModule: {
+    //     // feeCollectModule: {
+    //     //   amount: {
+    //     //     currency: currencies.enabledModuleCurrencies.map(
+    //     //       (c: any) => c.address
+    //     //     )[0],
+    //     //     value: '0.000001',
+    //     //   },
+    //     //   recipient: address,
+    //     //   referralFee: 10.5,
+    //     // },
+    //     // revertCollectModule: true,
+    //     freeCollectModule: { followerOnly: true },
+    //     // limitedFeeCollectModule: {
+    //     //   amount: {
+    //     //     currency: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
+    //     //     value: '2',
+    //     //   },
+    //     //   collectLimit: '20000',
+    //     //   recipient: '0x3A5bd1E37b099aE3386D13947b6a90d97675e5e3',
+    //     //   referralFee: 0,
+    //     // },
+    //   },
+    //   referenceModule: {
+    //     followerOnlyReferenceModule: false,
+    //   },
+    // };
+  }
+
   // publish new metadata if user has a new default Profile
   // useEffect(() => {
   // if(space.loadedMetadata && )
@@ -156,20 +207,27 @@ export default function Social({
               </div>
             )}
 
-            <div className="mt-4">
+            <div className="mt-8">
               <h3>Posts</h3>
-              {publications?.items?.map((item: Publication) => {
-                return (
-                  <div
-                    key={item.id}
-                    className="rounded-lg border-gray-400 border-2 mt-2"
-                  >
-                    {item.metadata?.name} -{" "}
-                    {item?.createdAt &&
-                      new Date(item.createdAt).toLocaleString()}
-                  </div>
-                );
-              })}
+
+              <div className="mt-6">
+                {publications?.items?.length === 0 && (
+                  <div>No posts so far...</div>
+                )}
+
+                {publications?.items?.map((item: Publication) => {
+                  return (
+                    <div
+                      key={item.id}
+                      className="rounded-lg border-gray-400 border-2 mt-2"
+                    >
+                      {item.metadata?.name} -{" "}
+                      {item?.createdAt &&
+                        new Date(item.createdAt).toLocaleString()}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </>
         );
@@ -194,7 +252,7 @@ export default function Social({
 
                   <input
                     type="text"
-                    className="mt-2 w-72 block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
+                    className="mt-2 w-72 block bg-transparent text-gray-400 rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
                     value={defaultProfile?.handle}
                     disabled
                   />
@@ -221,7 +279,7 @@ export default function Social({
                 </div>
 
                 <div className="mt-8">
-                  <h3>Modify existing profile</h3>
+                  <h3>Modify existing profiles</h3>
                   <div className="mt-4 flex items-center">
                     <DropDown
                       title={
