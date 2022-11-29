@@ -16,9 +16,6 @@ export default function Apps({
 
   const router = useRouter();
 
-  // FIXME: Apps loading multiple times
-  console.log("Apps LOADING multiple times", query);
-
   const changeRouteShallowIfNew = useCallback(
     (route: string, removeParams = true) => {
       if (router.route !== route) {
@@ -66,6 +63,8 @@ export default function Apps({
   // Method to dynamically render the current app component
   const renderApp = () => {
     const Component = appMappings[currentApp].component;
+    // FIXME: Apps loading multiple times
+    console.log("Whole Apps component rendering multiple times");
     return <Component query={query} space={space} />;
   };
 
