@@ -2,6 +2,7 @@ import { ApolloProvider } from "@apollo/client";
 import type { AppProps } from "next/app";
 import { useState } from "react";
 import { Provider as StateProvider } from "react-redux";
+import { useSigner } from "wagmi";
 import ClientOnlyWrapper from "../components/ClientOnlyWrapper";
 import { apolloClient } from "../lib/ApolloClient";
 import { CeramicContext, composeDbClient } from "../lib/CeramicContext";
