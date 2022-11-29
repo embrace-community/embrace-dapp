@@ -21,7 +21,7 @@ export default function Apps({
 
   const changeRouteShallowIfNew = useCallback(
     (route: string, removeParams = true) => {
-      if (router.route !== route) {
+      if (router.query?.app !== route) {
         // Update the router to reflect the new app
         router.query.app = route;
 
@@ -32,8 +32,10 @@ export default function Apps({
             app: router.query.app,
           };
 
+        const newUrl = `/${router.query.handle}/${router.query.app}`;
+
         // Change the route URL without reloading the page
-        router.push(router, undefined, { shallow: true });
+        router.push(newUrl, undefined, { shallow: true });
       }
     },
     [router],
@@ -82,7 +84,7 @@ export default function Apps({
         currentApp={currentApp}
         setCurrentApp={onAppChange}
       />
-      <div className="w-full flex flex-col pl-32 pt-14 justify-start items-start flex-1 bg-white">
+      <div className="w-full flex flex-col px-32 pt-14 justify-start items-start flex-1 bg-white">
         {currentApp !== -1 && renderApp()}
       </div>
     </div>

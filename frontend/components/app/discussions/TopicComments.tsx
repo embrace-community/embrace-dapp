@@ -4,7 +4,6 @@ import { useContext, useState } from "react";
 import { useAccount } from "wagmi";
 import { authenticationWithCeramic } from "../../../hooks/useAuthenticateCeramic";
 import { CeramicContext } from "../../../lib/CeramicContext";
-import { SpaceContext } from "../../../lib/SpaceContext";
 import DiscussionTopicComment from "./TopicComment";
 
 // We get all the topics and then filter on the frontend as
@@ -48,7 +47,6 @@ export default function TopicComments() {
   const threeId = new ThreeIdConnect();
   const composeDbClient = useContext(CeramicContext);
 
-  const [spaceId, setSpaceId] = useContext(SpaceContext);
   const [title, setTitle] = useState("New Topic default title");
   const [content, setContent] = useState("topic content");
   const account = useAccount();
@@ -87,7 +85,7 @@ export default function TopicComments() {
               "kjzl6kcym7w8ya26fgzodhklnsp5ivop1i3jevcz0nd5edzqhyhstnynjolw4wz",
             content: "I like this",
             address: "0x...Hdk",
-            spaceId,
+            // spaceId,
           },
         },
       },
@@ -99,20 +97,7 @@ export default function TopicComments() {
       {loading && <div>Loading...</div>}
       <button
         onClick={() => createNewDiscussionTopicComment()}
-        className="
-                        rounded-full
-                        border-violet-700
-                        border-2
-                        bg-transparent
-                        py-4
-                        px-12
-                        text-violet-700
-                        shadow-sm
-                        focus:outline-none
-                        focus:ring-none
-                        mb-7
-                        font-semibold
-                        text-xl"
+        className="rounded-full border-violet-700 border-2 bg-transparent py-4 px-12 text-violet-700 shadow-sm focus:outline-none focus:ring-none mb-7 font-semibold text-xl"
       >
         Create Comment
       </button>
@@ -121,7 +106,7 @@ export default function TopicComments() {
         <div>
           <ul>
             {data.discussionTopicCommentIndex.edges
-              .filter((edge: any) => edge.node.spaceId === spaceId)
+              // .filter((edge: any) => edge.node.spaceId === spaceId)
               .map((edge: any) => (
                 <DiscussionTopicComment
                   key={edge.node.id}

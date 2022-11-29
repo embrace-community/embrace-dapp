@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { useAccount, useSigner } from "wagmi";
+import { Address, useAccount, useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import Modal from "../components/Modal";
 import {
@@ -225,7 +225,7 @@ export default function SpaceViewPage() {
         const space: Space = {
           id: 0,
           handle: ethers.utils.formatBytes32String(handle),
-          founder: accountAddress as string,
+          founder: accountAddress as Address,
           metadata: metadataCid,
           loadedMetadata: {
             name,
@@ -764,7 +764,7 @@ export default function SpaceViewPage() {
                     cancel
                   </Link>
                   <button
-                    className=" inline-flex items-center rounded-full border-violet-700 border-2 bg-transparent py-2 px-10 text-violet-700 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
+                    className="inline-flex items-center rounded-full border-violet-500 border-2 bg-transparent py-2 px-10 text-violet-500 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
                     disabled={
                       !name ||
                       !description ||
