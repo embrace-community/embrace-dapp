@@ -112,7 +112,8 @@ export default function SpaceViewPage() {
   // Get the member information for the connected address
   useEffect(() => {
     async function getMembershipInfo(): Promise<void> {
-      if (!spacesContract || !spaceData || membershipInfoLoaded) return;
+      if (!spacesContract || !spaceData || !address || membershipInfoLoaded)
+        return;
 
       const spaceId = BigNumber.from(spaceData.id!).toNumber();
       const memberCount = await spacesContract?.getMemberCount(spaceId);
@@ -169,6 +170,9 @@ export default function SpaceViewPage() {
       console.log("requestJoin", err);
     }
   };
+
+  // FIXME: Apps loading multiple times
+  console.log("Whole Space page component rendering multiple times");
 
   return (
     <>

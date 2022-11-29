@@ -12,15 +12,15 @@ const PeerVideoAudioElem: React.FC<Props> = ({ peerIdAtIndex }) => {
   const peerCamTrack = useHuddleStore(
     useCallback(
       (state) => state.peers[peerIdAtIndex]?.consumers?.cam,
-      [peerIdAtIndex]
-    )
+      [peerIdAtIndex],
+    ),
   )?.track;
 
   const peerMicTrack = useHuddleStore(
     useCallback(
       (state) => state.peers[peerIdAtIndex]?.consumers?.mic,
-      [peerIdAtIndex]
-    )
+      [peerIdAtIndex],
+    ),
   )?.track;
 
   const getStream = (_track: MediaStreamTrack) => {
@@ -58,6 +58,10 @@ const PeerVideoAudioElem: React.FC<Props> = ({ peerIdAtIndex }) => {
       audioRef.current.srcObject = getStream(peerMicTrack);
     }
   }, [peerMicTrack]);
+
+  if (!peerCamTrack) {
+    return null;
+  }
 
   return (
     <div style={{ width: "100%" }}>

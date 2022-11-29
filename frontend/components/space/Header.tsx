@@ -66,14 +66,6 @@ export default function Header({
                   </p>
                 )}
 
-                {membership?.isAdmin && (
-                  <div className="flex flex-row">
-                    <p className="text-embracedark opacity-50">
-                      You&apos;re an admin
-                    </p>
-                  </div>
-                )}
-
                 {membership?.isActive && (
                   <div className="flex flex-row">
                     <Image
@@ -83,22 +75,29 @@ export default function Header({
                       height={5}
                       width={5}
                     />
+                  </div>
+                )}
+
+                {membership?.isActive && isFounder && (
+                  <div className="flex flex-row">
                     <p className="text-embracedark opacity-50">
-                      You&apos;re a member
+                      You are the founder
                     </p>
                   </div>
                 )}
-                {membership?.isAdmin && (
+
+                {membership?.isActive && membership?.isAdmin && !isFounder && (
                   <div className="flex flex-row">
                     <p className="text-embracedark opacity-50">
                       You&apos;re an admin
                     </p>
                   </div>
                 )}
-                {isFounder && (
+
+                {membership?.isActive && !membership?.isAdmin && !isFounder && (
                   <div className="flex flex-row">
                     <p className="text-embracedark opacity-50">
-                      You are the founder
+                      You&apos;re a member
                     </p>
                   </div>
                 )}

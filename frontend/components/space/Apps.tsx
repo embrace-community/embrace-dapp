@@ -1,8 +1,9 @@
 import { Router, useRouter } from "next/router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { appMappings } from "../../lib/AppMappings";
 import { Space } from "../../types/space";
 import Navigation from "./Navigation";
+import RenderCurrentApp from "../app/RenderCurrentApp";
 
 export default function Apps({
   query,
@@ -15,9 +16,6 @@ export default function Apps({
   const [currentApp, setCurrentApp] = useState(-1);
 
   const router = useRouter();
-
-  // FIXME: Apps loading multiple times
-  console.log("Apps LOADING multiple times", query);
 
   const changeRouteShallowIfNew = useCallback(
     (route: string, removeParams = true) => {
@@ -65,12 +63,6 @@ export default function Apps({
     prevSelectedApp.current = selectedAppId;
   }, [changeRouteShallowIfNew, currentApp, query.app, router]);
 
-  // Method to dynamically render the current app component
-  const renderApp = () => {
-    const Component = appMappings[currentApp].component;
-    return <Component query={query} space={space} />;
-  };
-
   function onAppChange(appId: number) {
     // Load the route for the current App
     const route = appMappings[appId].route;
@@ -84,8 +76,14 @@ export default function Apps({
         currentApp={currentApp}
         setCurrentApp={onAppChange}
       />
-      <div className="w-full flex flex-col px-32 pt-14 justify-start items-start flex-1 bg-white">
-        {currentApp !== -1 && renderApp()}
+      <div className="w-full flex flex-col pl-32 pt-14 justify-start items-start flex-1 bg-white">
+        {currentApp !== -1 && (
+          <RenderCurrentApp
+            currentApp={currentApp}
+            query={query}
+            space={space}
+          />
+        )}
       </div>
     </div>
   );
