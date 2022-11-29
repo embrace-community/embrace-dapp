@@ -4,15 +4,21 @@ import {
   PublicationsQuery,
   PublicationsQueryRequest,
   PublicationTypes,
-} from "../../../types/lens-generated";
+} from "../../types/lens-generated";
 
-function useGetPublications(reqParams: PublicationsQueryRequest) {
+function useGetPublications(
+  reqParams: PublicationsQueryRequest & { shouldSkip?: boolean } = {
+    shouldSkip: false,
+  },
+) {
+  const shouldSkipCallApi = !reqParams.profileId || reqParams.shouldSkip;
+
+  delete reqParams.shouldSkip;
+
   const request = {
     publicationTypes: [PublicationTypes.Post],
     ...reqParams,
   };
-
-  if (!request.profileId) return;
 
   const result = useQuery<
     PublicationsQuery,
@@ -20,6 +26,7 @@ function useGetPublications(reqParams: PublicationsQueryRequest) {
   >(GET_PUBLICATIONS, {
     variables: { request },
     context: { clientName: "lens" },
+    skip: shouldSkipCallApi,
   });
 
   const publications = result?.data?.publications;

@@ -1,28 +1,25 @@
 import { gql, useQuery } from "@apollo/client";
-import { useAccount } from "wagmi";
 import {
   PaginatedProfileResult,
   ProfileQueryRequest,
   ProfilesQuery,
-} from "../../../types/lens-generated";
+} from "../../types/lens-generated";
 
-function useGetProfiles(reqParams: ProfileQueryRequest = {}) {
-  const { address, isConnected, isConnecting, isDisconnected } = useAccount();
+function useGetProfiles(
+  request: ProfileQueryRequest & { shouldSkip?: boolean } = {
+    shouldSkip: false,
+  },
+) {
+  const shouldSkipCallApi = !request.ownedBy || request.shouldSkip;
 
-  const shouldCallApi =
-    !address || !isConnected || isConnecting || isDisconnected;
-
-  const request: ProfileQueryRequest = {
-    ownedBy: [address],
-    ...reqParams,
-  };
+  delete request.shouldSkip;
 
   const result = useQuery<ProfilesQuery, { request: ProfileQueryRequest }>(
     GET_PROFILES,
     {
       variables: { request },
       context: { clientName: "lens" },
-      skip: !shouldCallApi,
+      skip: shouldSkipCallApi,
     },
   );
 

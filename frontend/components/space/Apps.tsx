@@ -19,7 +19,7 @@ export default function Apps({
 
   const changeRouteShallowIfNew = useCallback(
     (route: string, removeParams = true) => {
-      if (router.route !== route) {
+      if (router.query?.app !== route) {
         // Update the router to reflect the new app
         router.query.app = route;
 
@@ -30,8 +30,10 @@ export default function Apps({
             app: router.query.app,
           };
 
+        const newUrl = `/${router.query.handle}/${router.query.app}`;
+
         // Change the route URL without reloading the page
-        router.push(router, undefined, { shallow: true });
+        router.push(newUrl, undefined, { shallow: true });
       }
     },
     [router],

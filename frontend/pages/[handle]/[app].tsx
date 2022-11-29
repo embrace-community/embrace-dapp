@@ -70,7 +70,7 @@ export default function SpaceViewPage() {
           setIsFounder(space.founder === address);
         }
       } catch (err: any) {
-        console.log(`An error occured getting the space data ${err.messag}`);
+        console.error(`An error occured getting the space data ${err.message}`);
       }
     }
 

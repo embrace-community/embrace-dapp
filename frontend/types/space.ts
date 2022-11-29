@@ -1,3 +1,4 @@
+import { Address } from "wagmi";
 import { CIDString } from "web3.storage";
 
 export enum Visibility {
@@ -33,7 +34,7 @@ export type Membership = {
 export type Space = {
   id: number;
   handle: string;
-  founder: string;
+  founder: Address;
   visibility: Visibility;
   membership: Membership;
   apps: number[];
@@ -48,6 +49,8 @@ export type SpaceMetadata = {
   description: string;
   image: string;
   handle: string;
+  lensWallet?: Address;
+  lensDefaultProfileId?: string;
 };
 
 export type SpaceMembership = {
