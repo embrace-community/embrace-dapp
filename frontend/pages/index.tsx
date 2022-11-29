@@ -60,7 +60,7 @@ export default function HomePage() {
         // Gets spaces for the current account in account contract
         const response = await accountsContract.getSpaces(accountAddress);
 
-        if (response.length > 0 && allSpaces.length) {
+        if (allSpaces.length) {
           const spaceIds = response.map((spaceId) =>
             BigNumber.from(spaceId).toNumber(),
           );
