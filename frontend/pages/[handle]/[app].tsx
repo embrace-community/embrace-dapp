@@ -171,6 +171,9 @@ export default function SpaceViewPage() {
     }
   };
 
+  // FIXME: Apps loading multiple times
+  console.log("Whole Space page component rendering multiple times");
+
   return (
     <>
       <AppLayout title={spaceData?.loadedMetadata?.name}>

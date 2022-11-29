@@ -13,7 +13,7 @@ export default function Chat({
   // console.log("chat index.tsx", query, space);
   return (
     <div className="w-full flex flex-1 h-full flex-row">
-      {/* <ChatMessenger handle={query.handle} /> */}
+      <ChatMessenger handle={query.handle} />
       {/* <VideoCalling handle={query.handle} /> */}
     </div>
   );
