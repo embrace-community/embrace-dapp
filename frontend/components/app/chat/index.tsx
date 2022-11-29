@@ -113,16 +113,25 @@ export default function Chat({
   return (
 
     <div className="w-full flex flex-row grow min-h-0">
-      <div className="w-[360px] min-h-0 flex flex-col">
-        <div  className="grow overflow-auto h-[1px] pl-[6.8vw] pt-10 pb-20">
-              <ul>
+      <div className="w-[25vw] min-h-0 flex flex-col">
+        <ul  className="grow overflow-auto h-[1px] pl-[6.8vw] pt-10 pb-20">
               {jimmmysroomsofwonderandmystery.map((room,i)=> {
                 return (<li className="py-[5px]">{room}</li>)
               })}
             </ul>
-        </div>
       </div>
       <div className="flex-1 min-h-0 flex flex-col">
+        <div className="w-full min-h-1 h-[50%] bg-black  flex flex-col">
+          <div className="grow h-[1px] overflow-auto flex flex-row flex-wrap justify-center align-top py-6">
+          {jimmmysroomsofwonderandmystery.map((room,i)=> {
+                  return (
+                    <div className="w-[180px] h-[110px] py-[10px] px-[10px] flex flex-col justify-center align-middle">
+                    <div className="bg-white w-full h-full">I'm a videoscreen!</div>
+                    </div>
+                  )
+                })}
+          </div>
+        </div>
         <div  className="grow overflow-auto h-[1px]">
           <div  className="pt-8">
                   {jimmmyswordsofwisdomandguidance.map((msgcontent,i)=> {
@@ -130,7 +139,7 @@ export default function Chat({
                 })}
           </div>
         </div>
-        <div className="pt-5 pb-10">
+        <div className="pt-2 pb-8">
          <input
             type="text"
             name="name"
@@ -141,7 +150,7 @@ export default function Chat({
 
         </div>
       </div>
-      <div className="w-[290px] min-h-0 flex flex-col pl-10 pt-10">
+      <div className="w-[25vw] min-w-[290px] min-h-0 flex flex-col pl-10 pt-10">
         <div  className="grow overflow-auto h-[1px]">
          <button
             className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
@@ -152,7 +161,7 @@ export default function Chat({
           <button
             className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4"
           >
-            <Icons.Audio extraClass=" mr-2"/>
+            <Icons.Audio allClass="w-6 h-6 mr-2"/>
             channel audio call
           </button>
         </div>
