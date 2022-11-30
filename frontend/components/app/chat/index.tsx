@@ -2,8 +2,11 @@ import { Router } from "next/router";
 import { Space } from "../../../types/space";
 import ChatMessenger from "./ChatMessenger";
 import VideoCalling from "./VideoCalling";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Icons from "../../Icons";
+import useXmtp from "../../../hooks/useXmtp";
+import { Client, DecodedMessage, Message } from "@xmtp/xmtp-js";
+import { format } from "date-fns";
 
 const Chatmsg = ({ msgcontent }) => {
   return (
@@ -13,7 +16,7 @@ const Chatmsg = ({ msgcontent }) => {
         <p className="font-semibold text-[12px] opacity-50 ml-3">
           {msgcontent ? msgcontent.sender.name : ""}
           <span className="font-normal ml-4">
-            {msgcontent ? msgcontent.date : ""}
+            {msgcontent ? msgcontent.date.toString() : ""}
           </span>
         </p>
       </div>
@@ -33,6 +36,120 @@ export default function Chat({
 }) {
   const [showLeftMenu, toggleShowLeftMenu] = useState(true);
   const [showRightMenu, toggleShowRightMenu] = useState(true);
+  const channel = "general";
+  const spaceConversationId = `embrace.community/${query.handle}/chat/${channel}`;
+  const [chatMessages, setChatMessages] = useState<any[] | null>([]);
+  const [fetchNewChatMessages, setFetchNewChatMessages] = useState(true);
+  const [lastMessageDate, setLastMessageDate] = useState<Date | null>(null);
+  const [xmtpClient, setXmtpClient] = useState<Client | null>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const xmtp = useXmtp();
+  const spaceMembers = [
+    "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+    "0x725Acc62323480E9565fBbfAC8573908e4EEF883",
+    "0xB64A31a65701f01a1e63844216f3DbbCC9b3cF2C",
+  ]; // Need to get from contract
+
+  const initXmtp = useCallback(async () => {
+    if (xmtpClient) return;
+
+    const client = await xmtp.auth();
+    if (!client) return;
+
+    setXmtpClient(client);
+  }, [xmtp, xmtpClient]);
+
+  useEffect(() => {
+    initXmtp();
+  }, [initXmtp]);
+
+  useEffect(() => {
+    const getMessages = async () => {
+      if (xmtpClient && fetchNewChatMessages) {
+        const messages = await xmtp.getGroupMessages(
+          xmtpClient,
+          spaceConversationId,
+          lastMessageDate,
+        );
+
+        const mappedMessages = messages?.map((msg) => {
+          return {
+            sender: {
+              name: msg.senderAddress,
+              avatar: "",
+            },
+            msg: msg.content,
+            date: format(msg.sent, "dd/MM/yyyy"),
+            time: null,
+          };
+        });
+
+        if (mappedMessages && mappedMessages.length > 0) {
+          if (lastMessageDate && chatMessages) {
+            setChatMessages([...chatMessages, ...mappedMessages]);
+          } else {
+            setChatMessages(mappedMessages);
+          }
+        }
+
+        setFetchNewChatMessages(false);
+        setLastMessageDate(new Date(Date.now()));
+        scrollToBottom();
+      }
+    };
+
+    getMessages();
+  }, [
+    spaceConversationId,
+    xmtp,
+    xmtpClient,
+    fetchNewChatMessages,
+    lastMessageDate,
+    chatMessages,
+  ]);
+
+  const sendMessage = async (message: string) => {
+    if (xmtpClient) {
+      console.log("SENDING MESSAGE", spaceMembers, message);
+
+      await xmtp.sendGroupMessage(
+        xmtpClient,
+        spaceMembers,
+        message,
+        spaceConversationId,
+      );
+
+      // add message to chatMessages
+      // const newMessage = {
+      //   sender: {
+      //     name: xmtpClient.address,
+      //     avatar: "",
+      //   },
+      //   msg: message,
+      //   date: format(new Date(), "dd/MM/yyyy"),
+      //   time: null,
+      // };
+
+      // setChatMessages((prev) => [...prev, newMessage]);
+      // scrollToBottom();
+    }
+  };
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      console.log("interval");
+      setFetchNewChatMessages(true);
+    }, 2000);
+
+    return () => {
+      console.log("clearing interval");
+      clearInterval(interval);
+    };
+  }, []);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "auto" });
+  };
 
   const jimmmysroomsofwonderandmystery = [
     "Main channel",
@@ -54,98 +171,6 @@ export default function Chat({
     "Guests",
     "Embros4life",
   ];
-  const jimmmyswordsofwisdomandguidance = [
-    {
-      sender: {
-        name: "Jimmy",
-        avatar: "",
-      },
-      msg: "Did you ever consider: a horse?",
-      date: "yesterday",
-      time: "11:45",
-    },
-    {
-      sender: {
-        name: "Jimmy",
-        avatar: "",
-      },
-      msg: "Vestibulum luctus ullamcorper suscipit. Integer maximus iaculis risus, quis pharetra dolor molestie vel. Suspendisse euismod, quam sit amet dictum auctor, ligula ante laoreet nisi, ac mollis eros arcu sit amet turpis. Pellentesque lacinia felis at arcu condimentum eleifend. Duis placerat, ipsum eget pretium vehicula, nisl nisi hendrerit tellus, a semper felis orci et sapien. Aliquam maximus tempus augue, aliquam gravida tellus aliquam quis. Nam viverra facilisis est...",
-      date: "yesterday",
-      time: "11:45",
-    },
-    {
-      sender: {
-        name: "Jimmy",
-        avatar: "",
-      },
-      msg: "Hello? Anyone here? God Im so lonely",
-      date: "yesterday",
-      time: "11:45",
-    },
-    {
-      sender: {
-        name: "Jimmy",
-        avatar: "",
-      },
-      msg: "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-      date: "yesterday",
-      time: "11:45",
-    },
-    {
-      sender: {
-        name: "Jimmy",
-        avatar: "",
-      },
-      msg: "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-      date: "yesterday",
-      time: "11:45",
-    },
-    {
-      sender: {
-        name: "Jimmy",
-        avatar: "",
-      },
-      msg: "Did you ever consider: a horse?",
-      date: "yesterday",
-      time: "11:45",
-    },
-    {
-      sender: {
-        name: "Jimmy",
-        avatar: "",
-      },
-      msg: "Vestibulum luctus ullamcorper suscipit. Integer maximus iaculis risus, quis pharetra dolor molestie vel. Suspendisse euismod, quam sit amet dictum auctor, ligula ante laoreet nisi, ac mollis eros arcu sit amet turpis. Pellentesque lacinia felis at arcu condimentum eleifend. Duis placerat, ipsum eget pretium vehicula, nisl nisi hendrerit tellus, a semper felis orci et sapien. Aliquam maximus tempus augue, aliquam gravida tellus aliquam quis. Nam viverra facilisis est...",
-      date: "yesterday",
-      time: "11:45",
-    },
-    {
-      sender: {
-        name: "Jimmy",
-        avatar: "",
-      },
-      msg: "Hello? Anyone here? God Im so lonely",
-      date: "yesterday",
-      time: "11:45",
-    },
-    {
-      sender: {
-        name: "Jimmy",
-        avatar: "",
-      },
-      msg: "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-      date: "yesterday",
-      time: "11:45",
-    },
-    {
-      sender: {
-        name: "Jimmy",
-        avatar: "",
-      },
-      msg: "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-      date: "yesterday",
-      time: "11:45",
-    },
-  ];
 
   console.log("chat index.tsx", query, space);
 
@@ -163,7 +188,7 @@ export default function Chat({
         </ul>
       </div>
       <div className="flex-1 min-h-0 flex flex-col">
-        <div className="w-full min-h-1 h-[50%] bg-black  flex flex-col">
+        <div className="w-full min-h-1 h-[50%] bg-black flex flex-col hidden">
           <div className="grow h-[1px] overflow-auto flex flex-row flex-wrap justify-center align-top py-6">
             {[0, 1, 2, 3, 4].map((room, i) => {
               return (
@@ -181,9 +206,11 @@ export default function Chat({
         </div>
         <div className="grow overflow-auto h-[1px]">
           <div className="pt-8">
-            {jimmmyswordsofwisdomandguidance.map((msgcontent, i) => {
-              return <Chatmsg key={i} msgcontent={msgcontent} />;
-            })}
+            {chatMessages &&
+              chatMessages.map((msgcontent, i) => {
+                return <Chatmsg key={i} msgcontent={msgcontent} />;
+              })}
+            <div ref={messagesEndRef} className="h-0" />
           </div>
         </div>
         <div className="pt-2 pb-8">
@@ -191,8 +218,14 @@ export default function Chat({
             type="text"
             name="name"
             id="name"
-            className="w-[90%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
+            className="w-[90%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
             placeholder="your message"
+            onKeyUp={(e) => {
+              if (e.key === "Enter") {
+                sendMessage(e.currentTarget.value);
+                e.currentTarget.value = "";
+              }
+            }}
           />
         </div>
       </div>
@@ -231,7 +264,7 @@ export default function Chat({
     //         type="text"
     //         name="name"
     //         id="name"
-    //         className="w-[90%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
+    //         className="w-[90%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
     //         placeholder="your message"
     //       />
     //       </div>

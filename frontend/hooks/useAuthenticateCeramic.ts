@@ -35,18 +35,3 @@ export const authenticationWithCeramic = async (
   // The Ceramic client can create and update streams using the authenticated DID
   composeDbClient.setDID(did);
 };
-
-// export const useAuthenticateCeramic = async (
-//   threeId: ThreeIdConnect,
-//   composeDbClient,
-// ) => {
-//   useEffect(() => {
-//     async function x() {
-//       await authenticationWithCeramic(window.ethereum, threeId, composeDbClient);
-//     }
-//   }, [deps]);
-
-//   if (window.ethereum == null) {
-//     throw new Error("No injected Ethereum provider");
-//   }
-// };
