@@ -31,11 +31,11 @@ export default function Header({
   const [aboutShow, toggleAboutShow] = useState(false);
 
   return (
-    <div className="w-full flex flex-col pl-8 md:pl-[6.8vw]">
+    <div className="w-full flex flex-col pt-8 md:pl-[6.8vw]">
       <div className="w-full flex flex-col md:flex-row justify-start items-center md:items-start border-b-2 border-embracedark border-opacity-5 mb-4">
         {space.loadedMetadata?.image ? (
           <Image
-            className="w-20 h-20 rounded-full mb-5 md:-m-12 bg-white"
+            className="w-20 h-20 rounded-full mb-5 bg-white"
             src={space.loadedMetadata?.image}
             alt="Space Image"
             height={20}
@@ -43,7 +43,7 @@ export default function Header({
             unoptimized
           />
         ) : (
-          <span className="w-28 h-28 rounded-full mb-5 md:-m-12"></span>
+          <span className="w-28 h-28 rounded-full mb-5"></span>
         )}
         <div className="w-full flex flex-col items-center md:items-start md:flex-row md:pl-7 md:pr-10 pb-5">
           <div className="flex-1">
