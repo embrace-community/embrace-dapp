@@ -252,7 +252,7 @@ export default function Social({
 
                   <input
                     type="text"
-                    className="mt-2 w-72 block bg-transparent text-gray-400 rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
+                    className="mt-2 w-72 block bg-transparent text-gray-400 rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
                     value={defaultProfile?.handle}
                     disabled
                   />
@@ -263,13 +263,13 @@ export default function Social({
                   <div className="flex items-center rounded-md mt-2">
                     <input
                       type="text"
-                      className="w-72 block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-500 focus:ring-violet-500 focus:bg-white sm:text-sm"
+                      className="w-72 block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
                       placeholder="The name of your new lens profile"
                       onChange={(e) => setProfileName(e.target.value)}
                       value={profileName}
                     />
                     <button
-                      className="ml-4 border-violet-500 text-violet-500 disabled:opacity-20  border-2 rounded-md px-2 py-2"
+                      className="ml-4 border-violet-700 text-violet-700 disabled:opacity-20  border-2 rounded-md px-2 py-2"
                       onClick={() => createLensProfile()}
                       disabled={!profileName || isLoading}
                     >
@@ -322,7 +322,7 @@ export default function Social({
                         Delete Profile
                       </button>
                       <button
-                        className="ml-4 border-violet-500 text-violet-500 disabled:opacity-20  border-2 rounded-md px-2 py-2"
+                        className="ml-4 border-violet-700 text-violet-700 disabled:opacity-20  border-2 rounded-md px-2 py-2"
                         onClick={async () => {
                           if (!selectedProfile) return;
 

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { Address, useAccount, useSigner } from "wagmi";
+import { Address, useAccount } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import Modal from "../components/Modal";
 import {
@@ -15,6 +15,7 @@ import {
 } from "../components/pages/create/utils";
 import Spinner from "../components/Spinner";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
+import useSigner from "../hooks/useSigner";
 import { blockchainExplorerUrl } from "../lib/envs";
 import getWeb3StorageClient from "../lib/web3storage/client";
 import { getIpfsJsonContent } from "../lib/web3storage/getIpfsJsonContent";
@@ -31,7 +32,7 @@ export default function SpaceViewPage() {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { data: signer } = useSigner();
+  const { signer } = useSigner();
   const { address: accountAddress } = useAccount();
 
   const [deployedApps, setDeployedApps] = useState({
@@ -764,7 +765,7 @@ export default function SpaceViewPage() {
                     cancel
                   </Link>
                   <button
-                    className="inline-flex items-center rounded-full border-violet-500 border-2 bg-transparent py-2 px-10 text-violet-500 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
+                    className="inline-flex items-center rounded-full border-violet-700 border-2 bg-transparent py-2 px-10 text-violet-700 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
                     disabled={
                       !name ||
                       !description ||
@@ -827,7 +828,7 @@ export default function SpaceViewPage() {
           </>
         }
         footer={
-          <button className="px-6 py-2.5 bg-violet-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-violet-700 hover:shadow-lg focus:bg-violet-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-violet-800 active:shadow-lg transition duration-150 ease-in-out">
+          <button className="px-6 py-2.5 bg-violet-700 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-violet-700 hover:shadow-lg focus:bg-violet-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-violet-800 active:shadow-lg transition duration-150 ease-in-out">
             Close & return to Spaces
           </button>
         }

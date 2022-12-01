@@ -168,7 +168,7 @@ export default function Header({
                 !membership?.isActive &&
                 !membership?.isRequest && (
                   <button
-                    className="rounded-full border-violet-500 border-2 bg-transparent text-violet-500 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
                   >
                     request to join
@@ -186,7 +186,7 @@ export default function Header({
               {space?.membership?.access == Access.GATED &&
                 !membership?.isActive && (
                   <button
-                    className="rounded-full border-violet-500 border-2 bg-transparent text-violet-500 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
                   >
                     join gated space

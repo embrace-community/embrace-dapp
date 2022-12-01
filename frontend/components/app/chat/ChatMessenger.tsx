@@ -1,12 +1,11 @@
 import { Client, DecodedMessage } from "@xmtp/xmtp-js";
 import { Signer } from "ethers";
 
-import { useCallback, useEffect, useState } from "react";
-import { useAccount, useSigner } from "wagmi";
+import { useEffect, useState } from "react";
+import useSigner from "../../../hooks/useSigner";
 
 export default function ChatMessenger({ handle }) {
-  const { data: signer } = useSigner();
-  const { address: currentAddress } = useAccount();
+  const { signer } = useSigner();
   const [xmtpClient, setXmtpClient] = useState<Client | null>(null);
   const spaceConversationId = `embrace.community/${handle}/chat`;
 
@@ -42,18 +41,24 @@ export default function ChatMessenger({ handle }) {
   const sendMessage = async () => {
     if (!xmtpClient || !signer) return;
 
+    const currentAddress = xmtpClient.address;
+
     // Have to send the message to all members in the space
     for (const member of members) {
       let conversationId = spaceConversationId;
 
+      // If the member is the current account, then the conversationId needs to differ
+      // This way we can allow the user to send messages to themselves, then show their sent messages on the UI
+      // Instead of showing every message they have sent to each user (duplicated messages)
       if (member.toLowerCase() === (currentAddress as string).toLowerCase()) {
         conversationId = `${spaceConversationId}/${currentAddress}`;
       }
+
+      // Check the account has used XMTP before
       const canMessage = await xmtpClient.canMessage(member);
 
-      console.log(canMessage, "canMessage", member);
-
       if (canMessage) {
+        // Send the message if we can
         const conversation = await xmtpClient.conversations.newConversation(
           member,
           {
@@ -89,6 +94,7 @@ export default function ChatMessenger({ handle }) {
       );
 
       if (appConversations.length > 0) {
+        const currentAddress = xmtpClient.address;
         console.log(appConversations, "appConversations");
 
         // Merge messages from each conversation
@@ -100,14 +106,14 @@ export default function ChatMessenger({ handle }) {
               // My messages to the group (which I essentially sent to myself)
               if (
                 convo.context?.conversationId ===
-                `${spaceConversationId}/${xmtpClient.address}`
+                `${spaceConversationId}/${currentAddress}`
               ) {
                 conversationMsgs = await convo.messages();
               } else {
                 // Messages sent from anyone in the group to me
                 conversationMsgs = (await convo.messages()).filter(
                   (message: DecodedMessage) =>
-                    message.senderAddress !== xmtpClient.address,
+                    message.senderAddress !== currentAddress,
                 );
               }
 

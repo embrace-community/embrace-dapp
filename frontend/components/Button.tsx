@@ -18,7 +18,7 @@ export default function Button({
 }) {
   return (
     <button
-      className={`rounded-full border-violet-500 border-2 bg-transparent text-violet-500 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30  ${additionalClassName}`}
+      className={`rounded-full border-violet-700 border-2 bg-transparent text-violet-700 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30  ${additionalClassName}`}
       {...buttonProps}
     >
       {children}
