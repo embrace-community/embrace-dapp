@@ -111,7 +111,12 @@ export default function Chat({
             new Date(mappedMessages[mappedMessages.length - 1].sent),
               setLastMessageDate(new Date(Date.now()));
           }
+        } else {
+          // To show on UI that messages have been loaded but none exist
+          setChatMessages([]);
         }
+
+        console.log("mappedMessages", mappedMessages);
 
         setFetchNewChatMessages(false);
         setMessageAdded(false);
@@ -195,6 +200,10 @@ export default function Chat({
 
     console.log("Stream", huddle.stream);
     console.log("Roomstate", huddle.roomState);
+
+    return () => {
+      console.log("unmount");
+    };
   }, [huddle.stream, huddle.roomState, videoRef]);
 
   const jimmmysroomsofwonderandmystery = [
@@ -366,7 +375,7 @@ export default function Chat({
         </HuddleClientProvider>
         <div className="grow overflow-auto h-[1px]">
           <div className="pt-8">
-            {chatMessages ? (
+            {chatMessages && chatMessages?.length >= 0 ? (
               chatMessages.map((msg, i) => {
                 return <Chatmsg key={i} msg={msg} />;
               })
