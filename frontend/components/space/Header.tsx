@@ -31,7 +31,7 @@ export default function Header({
   const [aboutShow, toggleAboutShow] = useState(false);
 
   return (
-    <div className="w-full flex flex-col pl-8 md:pl-[6.8vw]">
+    <div className="w-full flex flex-col pt-8 md:pl-[6.8vw]">
       <div className="w-full flex flex-col md:flex-row justify-start items-center md:items-start border-b-2 border-embracedark border-opacity-5 mb-4">
         {space.loadedMetadata?.image ? (
           <Image
