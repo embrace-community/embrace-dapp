@@ -100,7 +100,7 @@ export default function SpaceCollection({
                 key={collectionItem.handle + i}
                 href={`/${handleString}/home?spaceId=${collectionItem.id}`}
               >
-                <div className="sm:w-[158px] w-48 flex flex-col items-center py-3">
+                <div className="w-[158px] md:w-48 flex flex-col items-center py-3">
                   <div className="w-32 h-32 mb-5 flex items-center justify-center z-10">
                     {metadataImages?.[i] && (
                       <Image

@@ -130,14 +130,16 @@ export default function HomePage() {
       <AppLayout title="Home">
         <div className="pt-8 pr-8 pb-28 pl-[6.8vw]">
           {signer && (
-            <Link href="/create">
-              <button
-                type="button"
-                className="inline-flex items-center rounded-full border-violet-700 border-2 bg-transparent py-4 px-12 text-violet-700 shadow-sm focus:outline-none focus:ring-none mb-11 font-semibold text-xl mt-5"
-              >
-                + new space
-              </button>
-            </Link>
+            <div className="flex items-center justify-center md:justify-start">
+              <Link href="/create">
+                <button
+                  type="button"
+                  className="inline-flex items-center rounded-full border-violet-700 border-2 bg-transparent py-4 px-12 text-violet-700 shadow-sm focus:outline-none focus:ring-none mb-11 font-semibold text-xl mt-5"
+                >
+                  + new space
+                </button>
+              </Link>
+            </div>
           )}
 
           {(isSpacesLoading || !spacesStore.loaded) && <Spinner />}
