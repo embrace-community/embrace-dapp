@@ -339,7 +339,7 @@ export default function SpaceViewPage() {
   return (
     <>
       <AppLayout title="Create Space">
-        <div className="flex flex-col pb-28 extrastyles-specialpadding">
+        <div className="flex flex-col pt-8 pr-8 pb-28 pl-[6.8vw]">
           <div className="w-full border-t-2 border-embracedark border-opacity-5 mb-6 flex flex-row align-middle">
             <h1 className="text-embracedark text-opacity-20 text-sm mt-2 mb-8">
               creating a new space
@@ -366,7 +366,7 @@ export default function SpaceViewPage() {
 
                   {image && (
                     <Image
-                      className="w-36 h-36 rounded-full my-5 extrastyles-border-radius"
+                      className="w-36 h-36 rounded-full my-5"
                       src={URL.createObjectURL(image)}
                       alt="image to upload"
                       width={36}
@@ -443,7 +443,7 @@ export default function SpaceViewPage() {
                     <textarea
                       name="description"
                       id="description"
-                      className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+                      className="block bg-transparent w-full resize-none text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
                       placeholder="Description of new space"
                       onChange={(e) => setDescription(e.target.value)}
                       value={description}

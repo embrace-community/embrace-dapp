@@ -104,7 +104,7 @@ export default function SpaceCollection({
                   <div className="w-32 h-32 mb-5 flex items-center justify-center z-10">
                     {metadataImages?.[i] && (
                       <Image
-                        className="extrastyles-collectionItem-img w-full rounded-full"
+                        className="w-full rounded-full"
                         src={metadataImages?.[i]}
                         alt="Space Logo"
                         onLoad={() => setImageLoaded(i)}

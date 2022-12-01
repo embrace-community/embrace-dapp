@@ -7,7 +7,7 @@ import { apolloClient } from "../lib/ApolloClient";
 import { CeramicContext, composeDbClient } from "../lib/CeramicContext";
 import WalletProvider from "../lib/WalletProvider";
 import { store } from "../store/store";
-import "../styles/extrastyles.css";
+// import "../styles/extrastyles.css";
 import "../styles/globals.css";
 
 export default function App({ Component, pageProps }: AppProps) {

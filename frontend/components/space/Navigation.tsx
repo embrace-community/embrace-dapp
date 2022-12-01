@@ -14,7 +14,7 @@ export default function Navigation({
   return (
     <div className="w-full flex">
       <ul
-        className="w-full flex mb-0 list-none flex-row extrastyles-specialpadding2"
+        className="w-full flex mb-0 list-none flex-row pl-8 md:pl-[6.8vw]"
         role="tablist"
       >
         {Object.keys(appMappings).map((appId) => {
