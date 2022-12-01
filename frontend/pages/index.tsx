@@ -1,7 +1,8 @@
 import { BigNumber } from "ethers";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAccount, useContractRead, useSigner } from "wagmi";
+import { useAccount, useContractRead } from "wagmi";
+import useSigner from "../hooks/useSigner";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
@@ -25,9 +26,11 @@ export default function HomePage() {
 
   const [allSpaces, setAllSpaces] = useState<Space[]>([]);
 
-  const { data: signer, isLoading: isSignerLoading } = useSigner();
+  const { signer, isLoading: isSignerLoading } = useSigner();
   const { address: accountAddress } = useAccount();
   const { accountsContract } = useEmbraceContracts();
+
+  // console.log(signer, isSignerLoading);
 
   // Wagmi hook to load all community spaces
   const { data: contractSpaces, isLoading: isSpacesLoading } = useContractRead({
@@ -44,6 +47,7 @@ export default function HomePage() {
         (contractSpace) => SpaceUtil.from_dto(contractSpace),
       );
 
+      console.log("spaces", spaces);
       setAllSpaces(spaces);
       dispatch(setLoaded(true));
     }
@@ -60,7 +64,7 @@ export default function HomePage() {
         // Gets spaces for the current account in account contract
         const response = await accountsContract.getSpaces(accountAddress);
 
-        if (allSpaces.length) {
+        if (response.length && allSpaces.length) {
           const spaceIds = response.map((spaceId) =>
             BigNumber.from(spaceId).toNumber(),
           );
@@ -79,7 +83,7 @@ export default function HomePage() {
 
           dispatch(setCommunitySpaces(communitySpaces));
           dispatch(setLoaded(true));
-        } else {
+        } else if (allSpaces.length) {
           dispatch(setCommunitySpaces(allSpaces));
           dispatch(setLoaded(true));
         }
@@ -102,7 +106,13 @@ export default function HomePage() {
   /// BUG: With useSigner, there is a time on initial load when !isSignerLoading && !signer even when there is a signer
   // To get round this we get the accountAddress to see if this is also empty
   useEffect(() => {
-    if (!isSignerLoading && !signer && !accountAddress && spacesStore.loaded) {
+    if (
+      !isSignerLoading &&
+      !signer &&
+      !accountAddress &&
+      spacesStore.loaded &&
+      allSpaces.length
+    ) {
       dispatch(setCommunitySpaces(allSpaces));
       dispatch(setLoaded(true));
     }

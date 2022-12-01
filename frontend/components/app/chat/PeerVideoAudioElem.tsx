@@ -32,6 +32,8 @@ const PeerVideoAudioElem: React.FC<Props> = ({ peerIdAtIndex }) => {
   useEffect(() => {
     const videoObj = videoRef.current;
 
+    console.log("peerCamTrack", peerCamTrack);
+
     if (videoObj && peerCamTrack) {
       videoObj.load();
       videoObj.srcObject = getStream(peerCamTrack);

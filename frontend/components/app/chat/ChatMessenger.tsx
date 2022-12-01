@@ -2,10 +2,10 @@ import { Client, DecodedMessage } from "@xmtp/xmtp-js";
 import { Signer } from "ethers";
 
 import { useEffect, useState } from "react";
-import { useSigner } from "wagmi";
+import useSigner from "../../../hooks/useSigner";
 
 export default function ChatMessenger({ handle }) {
-  const { data: signer } = useSigner();
+  const { signer } = useSigner();
   const [xmtpClient, setXmtpClient] = useState<Client | null>(null);
   const spaceConversationId = `embrace.community/${handle}/chat`;
 
