@@ -73,7 +73,7 @@ function useHuddle(handle: string) {
   const leaveCall = async () => {
     if (!huddleClient) return;
 
-    await huddleClient.closeRoomForEverybody();
+    await huddleClient.close();
     setHuddleClient(null);
   };
 
