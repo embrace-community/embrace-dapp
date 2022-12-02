@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import HuddleClient from "@huddle01/huddle01-client/HuddleClient/HuddleClient";
+import { useState } from "react";
 
 import {
   HuddleClientProvider,
   getHuddleClient,
   useRootStore,
 } from "../lib/huddle01-client";
-import { useAccount } from "wagmi";
 
 type WalletData = {
   address: string;
@@ -14,7 +14,6 @@ type WalletData = {
 };
 
 function useHuddle(handle: string) {
-  const huddleClient = getHuddleClient("YOUR_API_KEY");
   const stream = useRootStore((state) => state.stream);
   const enableStream = useRootStore((state) => state.enableStream);
   const pauseTracks = useRootStore((state) => state.pauseTracks);
@@ -23,12 +22,12 @@ function useHuddle(handle: string) {
   const peerId = useRootStore((state) => state.peerId);
   const lobbyPeers = useRootStore((state) => state.lobbyPeers);
   const roomState = useRootStore((state) => state.roomState);
-  const micPaused = useRootStore((state) => state.isMicPaused);
-  const account = useAccount();
+  const isMicPaused = useRootStore((state) => state.isMicPaused);
+
   const [peerIds, setPeerIds] = useState<string[]>([]);
   const [walletData, setWalletData] = useState<WalletData>();
   const [roomId, setRoomId] = useState<string>();
-  const [activeCallers, setActiveCallers] = useState<string[]>([]);
+  const [huddleClient, setHuddleClient] = useState<HuddleClient | null>();
 
   const initialise = async (address: string, roomId: string) => {
     const _walletData = {
@@ -37,17 +36,31 @@ function useHuddle(handle: string) {
       ens: "",
     };
 
+    const _huddleClient = getHuddleClient("YOUR_API_KEY");
+    setHuddleClient(_huddleClient);
     setWalletData(_walletData);
     setRoomId(roomId);
+  };
+
+  const reinitialise = async () => {
+    if (walletData && roomId) {
+      const _huddleClient = getHuddleClient("YOUR_API_KEY");
+      setHuddleClient(_huddleClient);
+
+      await enableStream();
+
+      await _huddleClient?.join(roomId, walletData);
+    }
   };
 
   const joinCall = async () => {
     // For private / anon spaces then need to create a random room and save it to Ceramic / LIT
     // so that only space members can find the room and join the call
     try {
-      if (!roomId || !walletData) return;
-
-      setActiveCallers([...activeCallers, walletData.address]);
+      if (!roomId || !walletData || !huddleClient) {
+        reinitialise();
+        return;
+      }
 
       await enableStream();
 
@@ -58,8 +71,10 @@ function useHuddle(handle: string) {
   };
 
   const leaveCall = async () => {
-    await huddleClient.close();
-    // huddleClient = undefined;
+    if (!huddleClient) return;
+
+    await huddleClient.closeRoomForEverybody();
+    setHuddleClient(null);
   };
 
   return {
@@ -74,13 +89,13 @@ function useHuddle(handle: string) {
       peerId,
       lobbyPeers,
       roomState,
-      micPaused,
+      isMicPaused,
       peerIds,
       setPeerIds,
       initialise,
       joinCall,
       leaveCall,
-      activeCallers,
+      reinitialise,
     },
   };
 }

@@ -1093,6 +1093,8 @@ export default class HuddleClient extends RoomMediasoupClient {
     this.joining = true;
     this.setSocket(roomId, this.peerId);
 
+    this.joining = false;
+
     if (!this.socket)
       return logger.error({ type: "error", msg: "join() no socket" });
 
@@ -1118,7 +1120,6 @@ export default class HuddleClient extends RoomMediasoupClient {
         type: "error",
         text: "WebSocket connection failed",
       });
-      this.joining = false;
     });
 
     this.socket.on("disconnected", () => {
@@ -1126,7 +1127,6 @@ export default class HuddleClient extends RoomMediasoupClient {
         type: "error",
         text: "WebSocket  disconnected",
       });
-      this.joining = false;
     });
 
     this.socket.on("close", () => {
@@ -1136,11 +1136,9 @@ export default class HuddleClient extends RoomMediasoupClient {
       this.recvTransport?.close();
       this.sendTransport?.close();
       this.disableCamStream();
-      this.joining = false;
     });
 
     this.socket.on("request", async (request, accept, _reject) => {
-      this.joining = false;
       const promises: Promise<void>[] = [];
       const requestMethods: RequestMethods = {
         newConsumer: async () => {
@@ -1233,7 +1231,6 @@ export default class HuddleClient extends RoomMediasoupClient {
     });
 
     this.socket.on("notification", (notification) => {
-      this.joining = false;
       const notifMethods: NotifMethods = {
         peerAvatarUrlChanged: () => {
           logger.info({ type: "info", msg: "peerAvatarUrlChanged" });
