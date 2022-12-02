@@ -29,8 +29,6 @@ export default function WalletProvider({ children }: { children: ReactNode }) {
     },
   ]);
 
-  console.log("connectors", connectorsForWallets);
-
   const wagmiClient = createClient({
     autoConnect: true,
     connectors,

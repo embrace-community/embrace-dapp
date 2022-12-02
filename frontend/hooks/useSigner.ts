@@ -11,7 +11,6 @@ export default function useSigner() {
 
   useEffect(() => {
     if (signer && !coreStore.wagmiSigner?.signer) {
-      console.log(signer, coreStore.wagmiSigner?.signer);
       dispatch(setSigner({ signer, isLoading }));
     }
   }, [signer, dispatch, coreStore.wagmiSigner?.signer, isLoading]);
