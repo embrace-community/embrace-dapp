@@ -10,6 +10,20 @@ import { useAppSelector } from "../../../store/hooks";
 import { RootState } from "../../../store/store";
 import useHuddle from "../../../hooks/useHuddle";
 import PeerVideoAudioElem from "./PeerVideoAudioElem";
+import classNames from "classnames";
+import HuddleClient from "../../../lib/huddle01-client/HuddleClient/HuddleClient";
+
+const ChatNotification = ({ notification }) => {
+  if (notification.endsWith("VIDEO_CALL_STARTED")) {
+    return (
+      <div className="opacity-50 px-2 text-[14px]">
+        <Icons.Video extraClass=" mr-2" /> Video call started
+      </div>
+    );
+  }
+
+  return notification;
+};
 
 const Chatmsg = ({ msg }) => {
   return (
@@ -23,7 +37,13 @@ const Chatmsg = ({ msg }) => {
           </span>
         </p>
       </div>
-      <p className="text-[14px] leading-[24px]">{msg ? msg.content : ""}</p>
+      {msg && msg.content.startsWith("NOTIFY=") ? (
+        <ChatNotification notification={msg.content} />
+      ) : (
+        <p className="text-[14px] leading-[24px] px-2">
+          {msg ? msg.content : ""}
+        </p>
+      )}
     </div>
   );
 };
@@ -37,8 +57,9 @@ export default function Chat({
 }) {
   const [showLeftMenu, toggleShowLeftMenu] = useState(true);
   const [showRightMenu, toggleShowRightMenu] = useState(true);
-  const channel = "general";
-  const spaceConversationId = `embrace.community/${query.handle}/chat/${channel}`;
+  const [channel, setChannel] = useState("general");
+  const [conversationId, setConversationId] = useState("");
+  const [channelChanged, setChannelChanged] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[] | null>(null);
   const [fetchNewChatMessages, setFetchNewChatMessages] = useState(true);
   const [messageAdded, setMessageAdded] = useState(true);
@@ -72,14 +93,23 @@ export default function Chat({
     };
 
     init();
-  }, [xmtp, xmtpClient, signer, huddle, spaceConversationId, query.handle]);
+  }, [xmtp, xmtpClient, signer, huddle, conversationId, query.handle]);
 
   useEffect(() => {
     const getMessages = async () => {
-      if (xmtpClient && (fetchNewChatMessages || messageAdded)) {
-        console.log("getting messages");
+      if (
+        xmtpClient &&
+        (fetchNewChatMessages || messageAdded || channelChanged)
+      ) {
+        console.log("getting messages", conversationId);
+
+        // If we are on a new channel, we need to fetch the messages from the start
+        if (channelChanged) {
+          setLastMessageDate(null);
+        }
+
         const messages = await xmtp.getGroupMessages(
-          spaceConversationId,
+          conversationId,
           lastMessageDate,
         );
 
@@ -96,8 +126,11 @@ export default function Chat({
         });
 
         if (mappedMessages && mappedMessages.length > 0) {
-          // We are only added new messages to the state
-          if (lastMessageDate && chatMessages) {
+          if (channelChanged) {
+            setChatMessages(mappedMessages);
+            console.log(mappedMessages, "new channel messages");
+          } else if (lastMessageDate && chatMessages) {
+            // We are only added new messages to the state
             setChatMessages([...chatMessages, ...mappedMessages]);
           } else {
             // We are loading all messages available
@@ -111,7 +144,7 @@ export default function Chat({
             new Date(mappedMessages[mappedMessages.length - 1].sent),
               setLastMessageDate(new Date(Date.now()));
           }
-        } else {
+        } else if (!chatMessages || channelChanged) {
           // To show on UI that messages have been loaded but none exist
           setChatMessages([]);
         }
@@ -120,25 +153,33 @@ export default function Chat({
 
         setFetchNewChatMessages(false);
         setMessageAdded(false);
+        setChannelChanged(false);
       }
     };
 
     getMessages();
   }, [
-    spaceConversationId,
+    conversationId,
     xmtp,
     xmtpClient,
     fetchNewChatMessages,
     messageAdded,
     lastMessageDate,
     chatMessages,
+    channelChanged,
   ]);
+
+  // Whenever channel is changed then this will update the conversationId and trigger messages to be loaded
+  useEffect(() => {
+    setConversationId(`embrace.community/${query.handle}/chat/${channel}`);
+    setChannelChanged(true);
+  }, [channel, query.handle]);
 
   const sendMessage = async (message: string) => {
     if (xmtpClient && message.length) {
       console.log("SENDING MESSAGE", spaceMembers, message);
 
-      await xmtp.sendGroupMessage(spaceMembers, message, spaceConversationId);
+      await xmtp.sendGroupMessage(spaceMembers, message, conversationId);
 
       setTimeout(() => {
         setMessageAdded(true);
@@ -151,7 +192,6 @@ export default function Chat({
     if (!xmtpClient) return;
 
     const interval = setInterval(() => {
-      console.log("interval");
       setFetchNewChatMessages(true);
     }, 10000);
 
@@ -172,7 +212,7 @@ export default function Chat({
   useEffect(() => {
     if (huddle.lobbyPeers.length > 0) {
       try {
-        huddle.client.allowAllLobbyPeersToJoinRoom();
+        huddle.client?.allowAllLobbyPeersToJoinRoom();
       } catch (error) {
         console.log({ error });
       }
@@ -185,7 +225,9 @@ export default function Chat({
       huddle.peers !== huddlePeers.current
     ) {
       console.log("PEERS", huddle.peers);
-      const peerIds = Object.values(huddle.peers).map((peer) => peer.peerId);
+      const peerIds = Object.values(huddle.peers).map((peer) => {
+        return peer.peerId;
+      });
 
       huddlePeers.current = huddle.peers;
       huddle.setPeerIds(peerIds);
@@ -195,42 +237,28 @@ export default function Chat({
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.srcObject = huddle.stream;
-      console.log("set video");
     }
-
-    console.log("Stream", huddle.stream);
-    console.log("Roomstate", huddle.roomState);
-
-    return () => {
-      console.log("unmount");
-    };
   }, [huddle.stream, huddle.roomState, videoRef]);
 
-  const jimmmysroomsofwonderandmystery = [
-    "Main channel",
-    "Guests",
-    "Embros4life",
-    "Main channel",
-    "Guests",
-    "Embros4life",
-    "Main channel",
-    "Guests",
-    "Embros4life",
-    "Main channel",
-    "Guests",
-    "Embros4life",
-    "Main channel",
-    "Guests",
-    "Embros4life",
-    "Main channel",
-    "Guests",
-    "Embros4life",
-  ];
+  const channels = ["general", "introductions", "development", "support"];
+
+  const joinCall = async () => {
+    // Show loader somehow
+    // Join call
+    const call = await huddle.joinCall();
+    console.log(call, "joinCall");
+
+    // Send Push Protocol notification to space members to join call
+  };
+
+  const toggleMicrophone = async () => {
+    huddle.isMicPaused ? huddle.client?.unmuteMic() : huddle.client?.muteMic();
+  };
 
   console.log("chat index.tsx", query, space);
 
   // TODO: Page will stay blank if the user doesn't sign XMTP transaction
-  if (!xmtpClient)
+  if (!xmtpClient && signer)
     return (
       <>
         <Spinner />
@@ -240,20 +268,27 @@ export default function Chat({
   return (
     <div className="w-full flex flex-row grow min-h-0">
       <div className="w-[15vw] min-h-0 flex flex-col">
-        <ul className="grow overflow-auto h-[1px] pl-[2vw] pt-8 pb-20">
-          {jimmmysroomsofwonderandmystery.map((room, i) => {
+        <ul className="grow overflow-auto h-[1px] pl-[2vw] pt-4 pb-20">
+          {channels.map((_channel, i) => {
             return (
-              <li key={i} className="py-[5px]">
-                {room}
+              <li
+                key={i}
+                className={classNames({
+                  "py-[5px] cursor-pointer rounded-md p-2 mr-5": true,
+                  "bg-neutral-300 text-white underline": channel === _channel,
+                })}
+                onClick={() => setChannel(_channel)}
+              >
+                #{_channel}
               </li>
             );
           })}
         </ul>
       </div>
       <div className="flex-1 min-h-0 flex flex-col">
-        <HuddleClientProvider value={huddle.client}>
+        <HuddleClientProvider value={huddle.client as HuddleClient}>
           {huddle.client && huddle.roomState.joined && (
-            <div className="w-full min-h-1 h-[70%] bg-black flex flex-col">
+            <div className="w-full min-h-1 h-[66%] bg-black flex flex-col mb-2">
               <div className="grow h-[1px] overflow-auto flex flex-row flex-wrap justify-center align-top relative">
                 {videoRef && (
                   <div className="border-gray-100 border-2 h-[85px] w-[150px] absolute right-5 bottom-5 overflow-hidden">
@@ -373,8 +408,47 @@ export default function Chat({
             </div>
           )}
         </HuddleClientProvider>
+        {!huddle.roomState.joined && (
+          <div className="w-full h-[44px] bg-transparent flex flex-row justify-end ">
+            <div className="flex flex-col justify-center align-middle">
+              <button
+                onClick={(e) => joinCall()}
+                className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold m-2 p-2 flex flex-row items-center"
+              >
+                <Icons.Video />
+              </button>
+            </div>
+          </div>
+        )}
+        {huddle.roomState.joined && (
+          <div className="w-full h-[44px] bg-transparent flex flex-row justify-center">
+            <div className="flex flex-col justify-center align-middle">
+              <button
+                onClick={(e) => toggleMicrophone()}
+                className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold m-2 p-2 flex flex-row items-center"
+              >
+                {huddle.isMicPaused ? (
+                  <Icons.MicrophoneMute />
+                ) : (
+                  <Icons.Microphone />
+                )}
+              </button>
+            </div>
+
+            <div className="flex flex-col justify-center align-middle">
+              <button
+                onClick={(e) => {
+                  huddle.leaveCall();
+                }}
+                className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold m-2 p-2 flex flex-row items-center"
+              >
+                <Icons.HangUp />
+              </button>
+            </div>
+          </div>
+        )}
         <div className="grow overflow-auto h-[1px]">
-          <div className="pt-8">
+          <div className="pt-2">
             {chatMessages && chatMessages?.length >= 0 ? (
               chatMessages.map((msg, i) => {
                 return <Chatmsg key={i} msg={msg} />;
@@ -388,7 +462,7 @@ export default function Chat({
             <div ref={messagesEndRef} className="h-0" />
           </div>
         </div>
-        <div className="pt-2 pb-8">
+        <div className="pt-2 pb-6">
           {chatMessages && chatMessages.length == 0 && (
             <>
               <em>Start a conversation!</em>
@@ -409,20 +483,21 @@ export default function Chat({
           />
         </div>
       </div>
-      <div className="w-[15vw] min-w-[290px] min-h-0 flex flex-col pl-10 pt-8 ">
+      <div className="w-[15vw] min-w-[290px] min-h-0 flex flex-col pl-10 pt-4">
         <div className="grow overflow-auto h-[1px]">
           <button
-            onClick={(e) => huddle.joinCall()}
-            className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
+            onClick={(e) => joinCall()}
+            className="hidden rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
           >
             <Icons.Video extraClass=" mr-2" />
             join video call
           </button>
-          <div className="pt-8">
+          {/* TODO: Error with this count as when the call is ended the  */}
+          {/* <div>
             {huddle.peerIds.length > 0 && (
               <>There are {huddle.peerIds.length + 1} people in the call</>
             )}
-          </div>
+          </div> */}
           <button className="hidden rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4">
             <Icons.Audio allClass="w-6 h-6 mr-2" />
             join audio call
