@@ -1,9 +1,10 @@
 import {
-  getDefaultWallets,
+  connectorsForWallets,
   lightTheme,
   RainbowKitProvider,
 } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
+import { metaMaskWallet } from "@rainbow-me/rainbowkit/wallets";
 import { ReactNode } from "react";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { infuraProvider } from "wagmi/providers/infura";
@@ -18,15 +19,23 @@ export default function WalletProvider({ children }: { children: ReactNode }) {
       chain.goerli,
       ...(process.env.NODE_ENV === "development" ? [chain.localhost] : []),
     ],
-    [infuraProvider({ apiKey: infuraApiKey }), publicProvider()]
+    [infuraProvider({ apiKey: infuraApiKey }), publicProvider()],
   );
 
-  const { connectors } = getDefaultWallets({
-    appName: "Embrace.Community",
-    chains,
-  });
+  const connectors = connectorsForWallets([
+    {
+      groupName: "Recommended",
+      wallets: [metaMaskWallet({ chains })],
+    },
+  ]);
 
-  const wagmiClient = createClient({ autoConnect: true, connectors, provider });
+  console.log("connectors", connectorsForWallets);
+
+  const wagmiClient = createClient({
+    autoConnect: true,
+    connectors,
+    provider,
+  });
 
   return (
     <WagmiConfig client={wagmiClient}>
