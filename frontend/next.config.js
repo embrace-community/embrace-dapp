@@ -2,10 +2,23 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: [
-      "localhost",
-      "https://bafkreih5noddbpvsuprh4gmhpiyx47gd6z2pripwqelwspqtxumtauyjra.ipfs.w3s.link/",
+    domains: ["localhost"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.ipfs.w3s.link",
+      },
+      {
+        protocol: "https",
+        hostname: "**api.multiavatar.com**",
+      },
     ],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback.fs = false;
+    }
+    return config;
   },
 };
 

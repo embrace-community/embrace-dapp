@@ -1,14 +1,14 @@
 import { ethers } from "ethers";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import PlaceholderLoading from "react-placeholder-loading";
 import {
   getFileUri,
   getIpfsJsonContent,
 } from "../lib/web3storage/getIpfsJsonContent";
-
-import { Space } from "../types/space";
+import { Space, SpaceMetadata } from "../types/space";
 import Spinner from "./Spinner";
-import PlaceholderLoading from "react-placeholder-loading";
 
 export default function SpaceCollection({
   title,
@@ -20,37 +20,36 @@ export default function SpaceCollection({
   const [_jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
   const [metadataImages, setMetadataImages] = useState<string[]>([]);
   const [metadataImagesLoaded, setMetadataImagesLoaded] = useState<number[]>(
-    []
+    [],
   );
+  const [metadataImagesError, setMetadataImagesError] = useState<number[]>([]);
   const [metadataLoaded, setMetadataLoaded] = useState<boolean>(true);
 
   useEffect(() => {
     async function loadMetadataJson() {
-      const jsonContents: Record<string, any>[] = [];
+      const spaceMetadatas: SpaceMetadata[] = [];
       const images: string[] = [];
 
       for (const item of collection) {
-        if (typeof item.metadata !== "object" && item.metadata !== null) {
-          const jsonContent = (await getIpfsJsonContent(
-            item?.metadata as string
-          )) as Record<string, any>;
+        if (!item.loadedMetadata) {
+          const spaceMetadata = (await getIpfsJsonContent(
+            item.metadata,
+          )) as SpaceMetadata;
 
-          jsonContents.push(jsonContent);
+          spaceMetadatas.push(spaceMetadata);
 
-          if (jsonContent?.image) {
-            const src = getFileUri(jsonContent.image);
-
-            images.push(src);
+          if (spaceMetadata?.image) {
+            images.push(getFileUri(spaceMetadata.image));
           } else {
             // So that images array maps correctly to collection of spaces otherwise images will not match up
             images.push("");
           }
         } else {
-          jsonContents.push(item.metadata);
-          images.push(item.metadata?.image);
+          spaceMetadatas.push(item.loadedMetadata);
+          images.push(item.loadedMetadata?.image);
         }
 
-        setJsonMetadata(jsonContents);
+        setJsonMetadata(spaceMetadatas);
         setMetadataImages(images);
       }
 
@@ -60,9 +59,22 @@ export default function SpaceCollection({
     loadMetadataJson();
   }, [collection]);
 
+  // Set all images as loaded after 15 seconds i.e. timed out which will hide all loading placeholders
+  useEffect(() => {
+    setTimeout(() => {
+      setMetadataImagesLoaded(collection.map((_, index) => index));
+      console.log("Some images amy have timed out");
+    }, 15000);
+  }, [collection]);
+
   function setImageLoaded(index: number) {
     const imagesLoaded = [...metadataImagesLoaded, index];
     setMetadataImagesLoaded(imagesLoaded);
+  }
+
+  function setImageError(index: number) {
+    const imagesError = [...metadataImagesError, index];
+    setMetadataImagesError(imagesError);
   }
 
   return (
@@ -78,8 +90,7 @@ export default function SpaceCollection({
         {!metadataLoaded && <Spinner />}
 
         {metadataLoaded &&
-          collection &&
-          collection.map((collectionItem, i) => {
+          collection?.map((collectionItem, i) => {
             const handleString = collectionItem.handle
               ? ethers.utils.parseBytes32String(collectionItem.handle)
               : "";
@@ -89,15 +100,20 @@ export default function SpaceCollection({
                 key={collectionItem.handle + i}
                 href={`/${handleString}/home?spaceId=${collectionItem.id}`}
               >
-                <div className="w-48 flex flex-col items-center py-3">
+                <div className="w-[158px] md:w-48 flex flex-col items-center py-3">
                   <div className="w-32 h-32 mb-5 flex items-center justify-center z-10">
-                    <img
-                      className="extrastyles-collectionItem-img w-full rounded-full"
-                      src={metadataImages?.[i]}
-                      onLoad={() => {
-                        setImageLoaded(i);
-                      }}
-                    />
+                    {metadataImages?.[i] && (
+                      <Image
+                        className="w-full rounded-full"
+                        src={metadataImages?.[i]}
+                        alt="Space Logo"
+                        onLoad={() => setImageLoaded(i)}
+                        onError={() => setImageError(i)}
+                        height={32}
+                        width={32}
+                        unoptimized
+                      />
+                    )}
                   </div>
 
                   {!metadataImagesLoaded.includes(i) && (

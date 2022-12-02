@@ -1,0 +1,35 @@
+{
+  "name": "@huddle01/huddle01-client",
+  "version": "0.0.7",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/protoo-client": "^4.0.1",
+    "@types/random-string": "^0.0.28",
+    "@types/react-dom": "^18.0.1",
+    "autoprefixer": "^10.4.2",
+    "config": "*",
+    "eslint": "^8.18.0",
+    "postcss": "^8.4.5",
+    "tsconfig": "*",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "dayjs": "^1.11.4",
+    "hark": "^1.2.3",
+    "mediasoup-client": "^3.6.51",
+    "protoo-client": "^4.0.6",
+    "random-string": "^0.2.0",
+    "zustand": "^4.0.0-rc.1"
+  },
+  "keywords": [
+    "huddle01-client",
+    "huddle01",
+    "sdk",
+    "video-conferencing",
+    "web3",
+    "blockchain"
+  ]
+}

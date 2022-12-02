@@ -4,10 +4,10 @@ import { CeramicClient } from "@ceramicnetwork/http-client";
 import { DID } from "dids";
 import { ComposeClient } from "@composedb/client";
 
-const AuthenticateWithEthereum = async (
+export const authenticationWithCeramic = async (
   ethereumProvider: any,
   threeId: ThreeIdConnect,
-  composeDbClient: ComposeClient
+  composeDbClient: ComposeClient,
 ) => {
   // Request accounts from the Ethereum provider
   const accounts = await ethereumProvider.request({
@@ -34,15 +34,4 @@ const AuthenticateWithEthereum = async (
 
   // The Ceramic client can create and update streams using the authenticated DID
   composeDbClient.setDID(did);
-};
-
-export const useAuthenticateCeramic = async (
-  threeId: ThreeIdConnect,
-  composeDbClient
-) => {
-  if (window.ethereum == null) {
-    throw new Error("No injected Ethereum provider");
-  }
-
-  await AuthenticateWithEthereum(window.ethereum, threeId, composeDbClient);
 };
