@@ -11,7 +11,7 @@ import { RootState } from "../../../store/store";
 import useHuddle from "../../../hooks/useHuddle";
 import PeerVideoAudioElem from "./PeerVideoAudioElem";
 import classNames from "classnames";
-import HuddleClient from "@huddle01/huddle01-client/HuddleClient/HuddleClient";
+import HuddleClient from "../../../lib/huddle01-client/HuddleClient/HuddleClient";
 
 const ChatNotification = ({ notification }) => {
   if (notification.endsWith("VIDEO_CALL_STARTED")) {

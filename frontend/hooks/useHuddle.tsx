@@ -1,4 +1,4 @@
-import HuddleClient from "@huddle01/huddle01-client/HuddleClient/HuddleClient";
+import HuddleClient from "../lib/huddle01-client/HuddleClient/HuddleClient";
 import { useState } from "react";
 
 import {
