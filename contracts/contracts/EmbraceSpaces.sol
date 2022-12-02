@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.17;
 
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 import "./EmbraceAccounts.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -18,13 +18,14 @@ contract EmbraceSpaces {
     event RequestJoinSpace(uint256 indexed spaceId, address indexed memberAddress);
     event RemovedFromSpace(uint256 indexed spaceId, address indexed memberAddress);
 
-    error ErrorHandleExists(bytes32 handle);
+    error ErrorHandleExists(string handle);
     error ErrorMemberAlreadyExists(uint256 spaceId, address memberAddress);
     error ErrorOnlyAdmin(uint256 spaceId, address memberAddress);
     error ErrorOnlyFounder(uint256 spaceId, address memberAddress);
     error ErrorCannotJoinAnonSpace(uint256 spaceId, address memberAddress);
     error ErrorCannotJoinPrivClosedSpace(uint256 spaceId, address memberAddress);
     error ErrorDoNotMeetSpaceReq(uint256 spaceId, address memberAddress);
+    error ErrorSpaceNotFound(string handle);
 
     enum Visibility {
         PUBLIC,
@@ -61,10 +62,11 @@ contract EmbraceSpaces {
 
     struct Space {
         uint256 id;
-        bytes32 handle;
+        string handle;
         address founder;
         Visibility visibility;
         Membership membership;
+        // App[] apps;
         uint128[] apps;
         string metadata;
     }
@@ -75,6 +77,13 @@ contract EmbraceSpaces {
         bool isRequest;
     }
 
+    struct App {
+        uint128 id;
+        address spaceAppContractAddress;
+        string title;
+        string metadata;
+    }
+
     Space[] public spaces;
 
     EmbraceAccounts accounts;
@@ -82,7 +91,7 @@ contract EmbraceSpaces {
     mapping(uint256 => mapping(address => Member)) public spaceMembers;
     mapping(uint256 => uint256) public spaceMemberLength;
 
-    mapping(bytes32 => uint256) public spaceHandles;
+    mapping(string => uint256) public spaceHandles;
 
     modifier onlySpaceAdmin(uint256 _spaceId) {
         if (isAdmin(_spaceId) || isFounder(_spaceId)) revert ErrorOnlyAdmin(_spaceId, msg.sender);
@@ -96,6 +105,9 @@ contract EmbraceSpaces {
 
     constructor(address _accountsAddress) {
         accounts = EmbraceAccounts(_accountsAddress);
+
+        _spaceIdCounter.increment(); // So we start at 1
+        spaces.push();
     }
 
     function isAdmin(uint256 _spaceId) public view returns (bool) {
@@ -113,12 +125,13 @@ contract EmbraceSpaces {
     }
 
     function createSpace(
-        bytes32 _handle,
+        string memory _handle,
         Visibility _visibility,
         Membership memory _membership,
         uint128[] memory _apps,
         string memory _metadata
     ) public {
+        console.log("createSpace");
         if (spaceHandles[_handle] != 0) {
             revert ErrorHandleExists(_handle);
         }
@@ -151,6 +164,51 @@ contract EmbraceSpaces {
 
         emit SpaceCreated(spaceId, msg.sender);
     }
+
+    // function createSpace(
+    //     string memory _handle,
+    //     Visibility _visibility,
+    //     Membership memory _membership,
+    //     App[] memory _apps,
+    //     string memory _metadata
+    // ) public {
+    //     console.log("createSpace");
+    //     if (spaceHandles[_handle] != 0) {
+    //         revert ErrorHandleExists(_handle);
+    //     }
+
+    //     uint256 spaceId = _spaceIdCounter.current();
+
+    //     Space storage space = spaces.push();
+
+    //     space.id = spaceId;
+    //     space.handle = _handle;
+    //     space.founder = msg.sender;
+    //     space.visibility = _visibility;
+    //     space.membership = _membership;
+    //     space.metadata = _metadata;
+
+    //     // TODO: In cases where an app contract needs to exist for each space
+    //     // Will need to deploy the app contract, then update the array with contractAddress
+    //     for (uint128 i = 0; i < _apps.length; i++) {
+    //         // _apps[i].spaceAppContractAddress = address(0);
+    //         space.apps.push(_apps[i]);
+    //     }
+
+    //     // Add Handle only if one is provided - anonymous spaces do not have handles
+    //     spaceHandles[_handle] = spaceId;
+
+    //     // Add space to founder's account
+    //     accounts.addSpace(msg.sender, spaceId);
+
+    //     // Set founder as the first admin member
+    //     spaceMemberLength[spaceId]++;
+    //     spaceMembers[spaceId][msg.sender] = Member({ isAdmin: true, isActive: true, isRequest: false });
+
+    //     _spaceIdCounter.increment();
+
+    //     emit SpaceCreated(spaceId, msg.sender);
+    // }
 
     function joinSpace(uint256 _spaceId) public returns (bool) {
         Space memory space = spaces[_spaceId];
@@ -232,12 +290,13 @@ contract EmbraceSpaces {
         return spaces[_spaceId];
     }
 
-    function getSpaceFromHandle(bytes32 _handle) public view returns (Space memory) {
+    function getSpaceFromHandle(string memory _handle) public view returns (Space memory) {
         uint256 _spaceId = getIdFromHandle(_handle);
+        if (_spaceId == 0) revert ErrorSpaceNotFound(_handle);
         return spaces[_spaceId];
     }
 
-    function getIdFromHandle(bytes32 _handle) public view returns (uint256) {
+    function getIdFromHandle(string memory _handle) public view returns (uint256) {
         return spaceHandles[_handle];
     }
 
@@ -289,21 +348,21 @@ contract EmbraceSpaces {
         space.founder = _address;
     }
 
-    function addApp(uint256 _spaceId, uint128 _appId) public onlySpaceAdmin(_spaceId) {
-        Space storage space = spaces[_spaceId];
+    // function addApp(uint256 _spaceId, App _app) public onlySpaceAdmin(_spaceId) {
+    //     Space storage space = spaces[_spaceId];
 
-        if (space.apps[_appId] == 0) {
-            space.apps.push(_appId);
-        }
-    }
+    //     if (space.apps[_appId] == 0) {
+    //         space.apps.push(_appId);
+    //     }
+    // }
 
-    function removeApp(uint256 _spaceId, uint256 _appId) public onlySpaceAdmin(_spaceId) {
-        Space storage space = spaces[_spaceId];
+    // function removeApp(uint256 _spaceId, uint256 _appId) public onlySpaceAdmin(_spaceId) {
+    //     Space storage space = spaces[_spaceId];
 
-        for (uint256 i = 0; i < space.apps.length; i++) {
-            if (space.apps[i] == _appId) {
-                delete space.apps[i];
-            }
-        }
-    }
+    //     for (uint256 i = 0; i < space.apps.length; i++) {
+    //         if (space.apps[i] == _appId) {
+    //             delete space.apps[i];
+    //         }
+    //     }
+    // }
 }

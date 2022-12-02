@@ -1,6 +1,5 @@
 import "dotenv/config";
 import { ethers } from "ethers";
-import { formatBytes32String } from "ethers/lib/utils";
 
 import * as EmbraceApps from "../artifacts/contracts/EmbraceApps.sol/EmbraceApps.json";
 import { getSignerProvider, getWallet } from "./utils";
@@ -24,17 +23,11 @@ async function main() {
     throw new Error("App address needs to be specified.");
   }
 
-  const metadata = process.argv[5];
-  if (!metadata) {
-    throw new Error("App metadata needs to be specified.");
-  }
-
   const network = process.argv[6] || "localhost";
 
   const app = {
     code: code, // now stored as string for easy readibility
     contractAddress: appsAddress,
-    metadata,
     enabled: true,
   };
 
@@ -44,7 +37,7 @@ async function main() {
 
   const contract = new ethers.Contract(contractAddress, EmbraceApps.abi, signer);
 
-  await contract.createApp(app.code, app.contractAddress, app.enabled, app.metadata);
+  await contract.createApp(app.code, app.contractAddress, app.enabled);
 
   const apps = await contract.getApps();
   console.log(`App created, there are currently ${apps.length}, ${JSON.stringify(apps[apps.length - 1])}`);

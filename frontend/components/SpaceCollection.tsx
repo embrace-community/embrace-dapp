@@ -91,9 +91,7 @@ export default function SpaceCollection({
 
         {metadataLoaded &&
           collection?.map((collectionItem, i) => {
-            const handleString = collectionItem.handle
-              ? ethers.utils.parseBytes32String(collectionItem.handle)
-              : "";
+            const handleString: string = collectionItem.handle;
 
             return (
               <Link
