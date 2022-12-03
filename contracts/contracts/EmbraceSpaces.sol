@@ -91,7 +91,7 @@ contract EmbraceSpaces {
     mapping(uint256 => mapping(address => Member)) public spaceMembers;
     mapping(uint256 => uint256) public spaceMemberLength;
 
-    mapping(bytes32 => uint256) public spaceHandles;
+    mapping(bytes32 => uint256) public spaceHandleToId;
 
     modifier onlySpaceAdmin(uint256 _spaceId) {
         if (isAdmin(_spaceId) || isFounder(_spaceId)) revert ErrorOnlyAdmin(_spaceId, msg.sender);
@@ -131,7 +131,7 @@ contract EmbraceSpaces {
         string memory _metadata
     ) public {
         bytes32 _handleBytes = keccak256(bytes(_handle));
-        if (spaceHandles[_handleBytes] != 0) {
+        if (spaceHandleToId[_handleBytes] != 0) {
             revert ErrorHandleExists(_handle);
         }
 
@@ -152,7 +152,7 @@ contract EmbraceSpaces {
         uint256 _index = spaceId - 1;
 
         // Add Handle only if one is provided - anonymous spaces do not have handles
-        spaceHandles[_handleBytes] = _index;
+        spaceHandleToId[_handleBytes] = spaceId;
 
         // Add space to founder's account
         accounts.addSpace(msg.sender, spaceId);
@@ -175,7 +175,7 @@ contract EmbraceSpaces {
     //     string memory _metadata
     // ) public {
     //     console.log("createSpace");
-    //     if (spaceHandles[_handle] != 0) {
+    //     if (spaceHandleToId[_handle] != 0) {
     //         revert ErrorHandleExists(_handle);
     //     }
 
@@ -198,7 +198,7 @@ contract EmbraceSpaces {
     //     }
 
     //     // Add Handle only if one is provided - anonymous spaces do not have handles
-    //     spaceHandles[_handle] = spaceId;
+    //     spaceHandleToId[_handle] = spaceId;
 
     //     // Add space to founder's account
     //     accounts.addSpace(msg.sender, spaceId);
@@ -296,14 +296,14 @@ contract EmbraceSpaces {
     }
 
     function getSpaceFromHandle(string memory _handle) public view returns (Space memory) {
-        uint256 _index = getIndexFromHandle(_handle);
-        uint256 _spaceId = _index + 1;
+        uint256 _spaceId = getIdFromHandle(_handle);
+        uint256 _index = _spaceId - 1;
         if (_spaceId == 0) revert ErrorSpaceNotFound(_handle);
         return spaces[_index];
     }
 
-    function getIndexFromHandle(string memory _handle) public view returns (uint256) {
-        return spaceHandles[keccak256(bytes(_handle))];
+    function getIdFromHandle(string memory _handle) public view returns (uint256) {
+        return spaceHandleToId[keccak256(bytes(_handle))];
     }
 
     function getMemberCount(uint256 _spaceId) public view returns (uint256) {
