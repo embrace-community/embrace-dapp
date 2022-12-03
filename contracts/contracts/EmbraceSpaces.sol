@@ -77,12 +77,12 @@ contract EmbraceSpaces {
         bool isRequest;
     }
 
-    struct App {
-        uint128 id;
-        address spaceAppContractAddress;
-        string title;
-        string metadata;
-    }
+    // struct App {
+    //     uint128 id;
+    //     address spaceAppContractAddress;
+    //     string title;
+    //     string metadata;
+    // }
 
     Space[] public spaces;
 
@@ -91,7 +91,7 @@ contract EmbraceSpaces {
     mapping(uint256 => mapping(address => Member)) public spaceMembers;
     mapping(uint256 => uint256) public spaceMemberLength;
 
-    mapping(string => uint256) public spaceHandles;
+    mapping(bytes32 => uint256) public spaceHandles;
 
     modifier onlySpaceAdmin(uint256 _spaceId) {
         if (isAdmin(_spaceId) || isFounder(_spaceId)) revert ErrorOnlyAdmin(_spaceId, msg.sender);
@@ -107,11 +107,10 @@ contract EmbraceSpaces {
         accounts = EmbraceAccounts(_accountsAddress);
 
         _spaceIdCounter.increment(); // So we start at 1
-        spaces.push();
     }
 
     function isAdmin(uint256 _spaceId) public view returns (bool) {
-        if (spaceMembers[_spaceId][msg.sender].isAdmin == true) {
+        if (spaceMembers[_spaceId - 1][msg.sender].isAdmin == true) {
             return true;
         }
 
@@ -119,7 +118,7 @@ contract EmbraceSpaces {
     }
 
     function isFounder(uint256 _spaceId) public view returns (bool) {
-        Space memory space = spaces[_spaceId];
+        Space memory space = spaces[_spaceId - 1];
 
         return space.founder == msg.sender;
     }
@@ -131,8 +130,8 @@ contract EmbraceSpaces {
         uint128[] memory _apps,
         string memory _metadata
     ) public {
-        console.log("createSpace");
-        if (spaceHandles[_handle] != 0) {
+        bytes32 _handleBytes = keccak256(bytes(_handle));
+        if (spaceHandles[_handleBytes] != 0) {
             revert ErrorHandleExists(_handle);
         }
 
@@ -150,21 +149,24 @@ contract EmbraceSpaces {
 
         spaces.push(space);
 
+        uint256 _index = spaceId - 1;
+
         // Add Handle only if one is provided - anonymous spaces do not have handles
-        spaceHandles[_handle] = spaceId;
+        spaceHandles[_handleBytes] = _index;
 
         // Add space to founder's account
         accounts.addSpace(msg.sender, spaceId);
 
         // Set founder as the first admin member
-        spaceMemberLength[spaceId]++;
-        spaceMembers[spaceId][msg.sender] = Member({ isAdmin: true, isActive: true, isRequest: false });
+        spaceMemberLength[_index]++;
+        spaceMembers[_index][msg.sender] = Member({ isAdmin: true, isActive: true, isRequest: false });
 
         _spaceIdCounter.increment();
 
         emit SpaceCreated(spaceId, msg.sender);
     }
 
+    // IMPORTANT - PLEASE KEEP FOR NOW
     // function createSpace(
     //     string memory _handle,
     //     Visibility _visibility,
@@ -211,10 +213,11 @@ contract EmbraceSpaces {
     // }
 
     function joinSpace(uint256 _spaceId) public returns (bool) {
-        Space memory space = spaces[_spaceId];
+        uint256 _index = _spaceId - 1;
+        Space memory space = spaces[_index];
 
         // Ensure not already a member
-        if (spaceMembers[_spaceId][msg.sender].isActive == true) revert ErrorMemberAlreadyExists(_spaceId, msg.sender);
+        if (spaceMembers[_index][msg.sender].isActive == true) revert ErrorMemberAlreadyExists(_spaceId, msg.sender);
         // Cannot join anon space
         if (space.visibility == Visibility.ANONYMOUS) revert ErrorCannotJoinAnonSpace(_spaceId, msg.sender);
         // Cannot join private closed space
@@ -227,8 +230,8 @@ contract EmbraceSpaces {
         // In all cases, if the requirements above are met then this will allow the address to auto-join the space
         Member memory member = Member({ isAdmin: false, isActive: true, isRequest: false });
 
-        spaceMembers[_spaceId][msg.sender] = member;
-        spaceMemberLength[_spaceId]++;
+        spaceMembers[_index][msg.sender] = member;
+        spaceMemberLength[_index]++;
 
         emit JoinedSpace(_spaceId, msg.sender, false);
 
@@ -239,10 +242,11 @@ contract EmbraceSpaces {
     }
 
     function requestJoin(uint256 _spaceId) public returns (bool) {
+        uint256 _index = _spaceId - 1;
         // TODO: Add check to see if request is already pending
-        if (spaceMembers[_spaceId][msg.sender].isActive == true) revert ErrorMemberAlreadyExists(_spaceId, msg.sender);
+        if (spaceMembers[_index][msg.sender].isActive == true) revert ErrorMemberAlreadyExists(_spaceId, msg.sender);
 
-        Space memory space = spaces[_spaceId];
+        Space memory space = spaces[_index];
 
         // Ensure space is private, closed and allows requests
         if (
@@ -253,7 +257,7 @@ contract EmbraceSpaces {
 
         // Add membership request
         Member memory member = Member({ isAdmin: false, isActive: false, isRequest: true });
-        spaceMembers[_spaceId][msg.sender] = member;
+        spaceMembers[_index][msg.sender] = member;
 
         emit RequestJoinSpace(_spaceId, msg.sender);
 
@@ -261,7 +265,8 @@ contract EmbraceSpaces {
     }
 
     function meetsGateRequirements(uint256 _spaceId) public view returns (bool) {
-        Space memory space = spaces[_spaceId];
+        uint256 _index = _spaceId - 1;
+        Space memory space = spaces[_index];
         address tokenAddress = space.membership.gate.tokenAddress;
 
         if (space.membership.gate.token == MembershipGateToken.ERC20) {
@@ -279,7 +284,7 @@ contract EmbraceSpaces {
     }
 
     function getSpaceMember(uint256 _spaceId, address _address) public view returns (Member memory) {
-        return spaceMembers[_spaceId][_address];
+        return spaceMembers[_spaceId - 1][_address];
     }
 
     function getSpaces() public view returns (Space[] memory) {
@@ -287,21 +292,22 @@ contract EmbraceSpaces {
     }
 
     function getSpace(uint256 _spaceId) public view returns (Space memory) {
-        return spaces[_spaceId];
+        return spaces[_spaceId - 1];
     }
 
     function getSpaceFromHandle(string memory _handle) public view returns (Space memory) {
-        uint256 _spaceId = getIdFromHandle(_handle);
+        uint256 _index = getIndexFromHandle(_handle);
+        uint256 _spaceId = _index + 1;
         if (_spaceId == 0) revert ErrorSpaceNotFound(_handle);
-        return spaces[_spaceId];
+        return spaces[_index];
     }
 
-    function getIdFromHandle(string memory _handle) public view returns (uint256) {
-        return spaceHandles[_handle];
+    function getIndexFromHandle(string memory _handle) public view returns (uint256) {
+        return spaceHandles[keccak256(bytes(_handle))];
     }
 
     function getMemberCount(uint256 _spaceId) public view returns (uint256) {
-        return spaceMemberLength[_spaceId];
+        return spaceMemberLength[_spaceId - 1];
     }
 
     // This method can be used to
@@ -314,28 +320,28 @@ contract EmbraceSpaces {
         bool _isActive,
         bool _isAdmin
     ) public onlySpaceAdmin(_spaceId) {
+        uint256 _index = _spaceId - 1;
         // Ensures that the member struct has some changes
         if (
-            spaceMembers[_spaceId][_address].isActive == _isActive &&
-            spaceMembers[_spaceId][_address].isAdmin == _isAdmin
+            spaceMembers[_index][_address].isActive == _isActive && spaceMembers[_index][_address].isAdmin == _isAdmin
         ) {
             revert ErrorMemberAlreadyExists(_spaceId, _address);
         }
 
         // Will set the member struct to the new values
         Member memory member = Member({ isAdmin: _isAdmin, isActive: _isActive, isRequest: false });
-        spaceMembers[_spaceId][_address] = member;
+        spaceMembers[_index][_address] = member;
 
         // TODO: Need to emit JoinedSpace event only when the account is being added for first time
         // I.e. account could exist but be set as an admin
 
         // If the member is being activated then increment the member count
         if (_isActive) {
-            spaceMemberLength[_spaceId]++;
+            spaceMemberLength[_index]++;
             emit JoinedSpace(_spaceId, msg.sender, _isAdmin);
         } else {
             // If the member is being deactivated then decrement the member count
-            spaceMemberLength[_spaceId]--;
+            spaceMemberLength[_index - 1]--;
             emit RemovedFromSpace(_spaceId, msg.sender);
         }
     }
@@ -343,13 +349,13 @@ contract EmbraceSpaces {
     // Allows the founder to set founder to another address if required
     // I.e. Founder changes wallet OR space setup on behalf of founder, then transferred to them
     function setFounder(uint256 _spaceId, address _address) public onlySpaceFounder(_spaceId) {
-        Space storage space = spaces[_spaceId];
+        Space storage space = spaces[_spaceId - 1];
 
         space.founder = _address;
     }
 
     // function addApp(uint256 _spaceId, App _app) public onlySpaceAdmin(_spaceId) {
-    //     Space storage space = spaces[_spaceId];
+    //     Space storage space = spaces[_spaceId - 1];
 
     //     if (space.apps[_appId] == 0) {
     //         space.apps.push(_appId);
@@ -357,7 +363,7 @@ contract EmbraceSpaces {
     // }
 
     // function removeApp(uint256 _spaceId, uint256 _appId) public onlySpaceAdmin(_spaceId) {
-    //     Space storage space = spaces[_spaceId];
+    //     Space storage space = spaces[_spaceId - 1];
 
     //     for (uint256 i = 0; i < space.apps.length; i++) {
     //         if (space.apps[i] == _appId) {

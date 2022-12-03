@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PlaceholderLoading from "react-placeholder-loading";
 import {
   getFileUri,
@@ -19,9 +19,10 @@ export default function SpaceCollection({
 }) {
   const [_jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
   const [metadataImages, setMetadataImages] = useState<string[]>([]);
-  const [metadataImagesLoaded, setMetadataImagesLoaded] = useState<number[]>(
-    [],
-  );
+  // const [metadataImagesLoaded, setMetadataImagesLoaded] = useState<number[]>(
+  //   [],
+  // );
+  const metadataImagesLoaded = useRef<number[]>([]);
   const [metadataImagesError, setMetadataImagesError] = useState<number[]>([]);
   const [metadataLoaded, setMetadataLoaded] = useState<boolean>(true);
 
@@ -62,14 +63,17 @@ export default function SpaceCollection({
   // Set all images as loaded after 15 seconds i.e. timed out which will hide all loading placeholders
   useEffect(() => {
     setTimeout(() => {
-      setMetadataImagesLoaded(collection.map((_, index) => index));
-      console.log("Some images amy have timed out");
+      metadataImagesLoaded.current = collection.map((_, index) => index);
+
+      console.log("Images timed out", metadataImagesLoaded.current);
+
+      console.log("Some images may have timed out");
     }, 15000);
   }, [collection]);
 
   function setImageLoaded(index: number) {
-    const imagesLoaded = [...metadataImagesLoaded, index];
-    setMetadataImagesLoaded(imagesLoaded);
+    metadataImagesLoaded.current = [...metadataImagesLoaded.current, index];
+    console.log("setImageLoaded", metadataImagesLoaded.current);
   }
 
   function setImageError(index: number) {
@@ -114,7 +118,7 @@ export default function SpaceCollection({
                     )}
                   </div>
 
-                  {!metadataImagesLoaded.includes(i) && (
+                  {!metadataImagesLoaded.current.includes(i) && (
                     <div className="absolute">
                       <PlaceholderLoading
                         shape="circle"

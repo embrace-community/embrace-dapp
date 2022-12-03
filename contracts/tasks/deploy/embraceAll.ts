@@ -44,8 +44,6 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
     const space = getSpace(spaces[i], spaces[i], metadata) as EmbraceSpace;
 
     if (space) {
-      // console.log(space.handle, space.visibility, space.membership, space.apps, space.metadata);
-
       await embraceSpaces.createSpace(space.handle, space.visibility, space.membership, space.apps, space.metadata, {
         gasLimit: 1000000,
       });

@@ -17,7 +17,7 @@ contract EmbraceApps {
     }
 
     App[] public apps;
-    mapping(bytes32 => uint256) public nameToIndex;
+    mapping(bytes32 => uint256) public nameToId;
     // bytes32[] categories;
 
     address public owner;
@@ -28,7 +28,7 @@ contract EmbraceApps {
     }
 
     modifier uniqueAppName(string memory _appName) {
-        require(nameToIndex[keccak256(bytes(_appName))] == 0, "App name already exists.");
+        require(nameToId[keccak256(bytes(_appName))] == 0, "App name already exists.");
         _;
     }
 
@@ -36,7 +36,6 @@ contract EmbraceApps {
         owner = msg.sender;
 
         _appIdCounter.increment(); // So we start at 1
-        apps.push();
     }
 
     function createApp(
@@ -50,38 +49,37 @@ contract EmbraceApps {
         apps.push(app);
         _appIdCounter.increment();
 
-        nameToIndex[keccak256(bytes(_name))] = id;
+        nameToId[keccak256(bytes(_name))] = id;
     }
 
-    function setAppContractAddress(string memory _name, address _contractAddress) public onlyOwner {
-        for (uint256 i = 0; i < apps.length; i++) {
-            if (keccak256(bytes(apps[i].name)) == keccak256(bytes(_name))) {
-                apps[i].contractAddress = _contractAddress;
-            }
-        }
+    function setAppContractAddress(uint128 _appId, address _contractAddress) public onlyOwner {
+        require(_appId == 0, "App does not exist.");
+
+        apps[_appId - 1].contractAddress = _contractAddress;
     }
 
     function getApps() public view returns (App[] memory) {
         return apps;
     }
 
+    // function getAppByIndex(uint256 _appIndex) public view returns (App memory) {
+    //     return apps[_appIndex];
+    // }
+
     function getAppById(uint128 _appId) public view returns (App memory) {
-        for (uint256 i = 0; i < apps.length; i++) {
-            if (apps[i].id == _appId) {
-                return apps[i];
-            }
+        // The appId, will always be the index + 1
+        if (_appId > 0) {
+            return apps[_appId - 1];
         }
 
         revert("App not found.");
     }
 
     function getAppByName(string memory _name) public view returns (App memory) {
-        uint256 index = nameToIndex[keccak256(bytes(_name))];
-
-        if (index == 0) {
-            revert("App not found.");
+        uint256 _appId = nameToId[keccak256(bytes(_name))];
+        if (_appId > 0) {
+            return apps[_appId - 1];
         }
-
-        return apps[index];
+        revert("App not found.");
     }
 }
