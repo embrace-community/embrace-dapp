@@ -15,5 +15,5 @@ export default function useSigner() {
     }
   }, [signer, dispatch, coreStore.wagmiSigner?.signer, isLoading]);
 
-  return { signer, isLoading };
+  return { signer: coreStore.wagmiSigner?.signer || signer, isLoading };
 }
