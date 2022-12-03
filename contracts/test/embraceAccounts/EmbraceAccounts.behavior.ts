@@ -5,7 +5,7 @@ import { ethers } from "hardhat";
 
 export function shouldBehaveLikeEmbraceAccounts(): void {
   let signers: SignerWithAddress[], admin: SignerWithAddress;
-  const handle = ethers.utils.formatBytes32String("My space");
+  const handle = "My space";
 
   beforeEach(async () => {
     signers = await ethers.getSigners();

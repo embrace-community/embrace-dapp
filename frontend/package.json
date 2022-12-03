@@ -7,9 +7,7 @@
     "build": "next build",
     "export": "next export",
     "start": "next start",
-    "lint": "next lint",
-    "cp:artifacts": "cp ../contracts/artifacts/contracts/EmbraceApps.sol/EmbraceApps.json ../contracts/artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json ../contracts/artifacts/contracts/EmbraceAccounts.sol/EmbraceAccounts.json ./data/contractArtifacts/",
-    "cp:types": "cp ../contracts/types/contracts/* ./data/contractTypes/"
+    "lint": "next lint"
   },
   "dependencies": {
     "@3id/connect": "^0.4.1",

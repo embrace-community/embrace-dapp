@@ -56,20 +56,20 @@ export default function SpaceViewPage() {
     }
 
     // Space Id not found in store, so load it from the contract
-    const handleBytes32 = ethers.utils.formatBytes32String(
-      router.query.handle as string,
-    );
+    const handle = router.query.handle as string;
 
     async function getSpace(): Promise<void> {
       try {
         const space: EmbraceSpaces.SpaceStructOutput =
-          await spacesContract?.getSpaceFromHandle(handleBytes32);
+          await spacesContract?.getSpaceFromHandle(handle);
 
         if (space) {
           setSpaceData(SpaceUtil.from_dto(space));
           setIsFounder(space.founder === address);
         }
       } catch (err: any) {
+        // Space handle doesn't exist - redirect to home page
+        router.push("/");
         console.error(`An error occured getting the space data ${err.message}`);
       }
     }
@@ -78,6 +78,7 @@ export default function SpaceViewPage() {
   }, [
     address,
     getSpaceByIdSelector,
+    router,
     router.query.handle,
     router.query.spaceId,
     routerIsReady,

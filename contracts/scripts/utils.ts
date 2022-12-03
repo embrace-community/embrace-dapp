@@ -1,5 +1,6 @@
 import { config as dotenvConfig } from "dotenv";
 import { ethers } from "ethers";
+import { isAddress } from "ethers/lib/utils";
 
 import { Access, MembershipGateToken, Visibility } from "../test/types";
 
@@ -59,6 +60,26 @@ function convertStringArrayToBytes32(array: string[]) {
 
 const chainLinkAddressGoerli = "0x326c977e6efc84e512bb9c30f76e30c160ed06fb";
 const apps = [0, 1, 2];
+
+/*
+  const apps = [
+  {
+    id: 1,
+    title: null, // Will default to "Chat Server"
+    spaceAppContractAddress: ethers.constants.AddressZero,
+  },
+  {
+    id: 2,
+    title: null, // Will default to "Social"
+    spaceAppContractAddress: ethers.constants.AddressZero,
+  },
+  {
+    id: 3,
+    title: null, // Will default to "Creations"
+    spaceAppContractAddress: ethers.constants.AddressZero,
+  },
+];
+*/
 
 function getSpace(spaceType: any, handle: string, metadata: string) {
   if (spaceType == "public") {

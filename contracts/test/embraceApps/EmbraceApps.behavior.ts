@@ -17,15 +17,13 @@ export function shouldBehaveLikeEmbraceApps(): void {
 
   it("should create apps", async function () {
     for (const [i, appName] of Object.entries(appNames)) {
-      const bytes32Name = ethers.utils.formatBytes32String(appName);
-
-      expect(await this.embraceApps.connect(this.signers.admin).createApp(bytes32Name, this.embraceApps.address, true));
+      expect(await this.embraceApps.connect(this.signers.admin).createApp(appName, this.embraceApps.address, true));
 
       let app = await this.embraceApps.connect(this.signers.admin).getAppByIndex(i);
-      expect(app.code).to.equal(bytes32Name);
+      expect(app.code).to.equal(appName);
 
-      app = await this.embraceApps.connect(this.signers.admin).getAppByCode(bytes32Name);
-      expect(app.code).to.equal(bytes32Name);
+      app = await this.embraceApps.connect(this.signers.admin).getAppByCode(appName);
+      expect(app.code).to.equal(appName);
     }
 
     const apps = await this.embraceApps.connect(this.signers.admin).getApps();

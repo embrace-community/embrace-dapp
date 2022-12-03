@@ -24,11 +24,9 @@ async function main() {
 
   const contract = new ethers.Contract(contractAddress, EmbraceSpaces.abi, signer);
 
-  const bytes32Handle = ethers.utils.formatBytes32String(handle);
+  console.log("Getting handle", handle, handle);
 
-  console.log("Getting handle", handle, bytes32Handle);
-
-  const spaceId = await contract.getIdFromHandle(bytes32Handle);
+  const spaceId = await contract.getIdFromHandle(handle);
   console.log(`Found spaceId from ${handle}`, spaceId);
 
   const space = await contract.getSpace(spaceId);

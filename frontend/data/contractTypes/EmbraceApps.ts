@@ -28,45 +28,41 @@ import type {
 export declare namespace EmbraceApps {
   export type AppStruct = {
     id: PromiseOrValue<BigNumberish>;
-    code: PromiseOrValue<string>;
+    name: PromiseOrValue<string>;
     contractAddress: PromiseOrValue<string>;
     enabled: PromiseOrValue<boolean>;
-    metadata: PromiseOrValue<string>;
   };
 
-  export type AppStructOutput = [BigNumber, string, string, boolean, string] & {
+  export type AppStructOutput = [BigNumber, string, string, boolean] & {
     id: BigNumber;
-    code: string;
+    name: string;
     contractAddress: string;
     enabled: boolean;
-    metadata: string;
   };
 }
 
 export interface EmbraceAppsInterface extends utils.Interface {
   functions: {
     "apps(uint256)": FunctionFragment;
-    "codeToIndex(bytes32)": FunctionFragment;
-    "createApp(string,address,string,bool)": FunctionFragment;
-    "getAppByCode(string)": FunctionFragment;
-    "getAppByIndex(uint256)": FunctionFragment;
+    "createApp(string,address,bool)": FunctionFragment;
+    "getAppById(uint128)": FunctionFragment;
+    "getAppByName(string)": FunctionFragment;
     "getApps()": FunctionFragment;
+    "nameToId(bytes32)": FunctionFragment;
     "owner()": FunctionFragment;
-    "setAppContractAddress(string,address)": FunctionFragment;
-    "updateMetadata(uint256,string)": FunctionFragment;
+    "setAppContractAddress(uint128,address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "apps"
-      | "codeToIndex"
       | "createApp"
-      | "getAppByCode"
-      | "getAppByIndex"
+      | "getAppById"
+      | "getAppByName"
       | "getApps"
+      | "nameToId"
       | "owner"
       | "setAppContractAddress"
-      | "updateMetadata"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -74,59 +70,44 @@ export interface EmbraceAppsInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "codeToIndex",
-    values: [PromiseOrValue<BytesLike>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "createApp",
     values: [
-      PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<boolean>
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "getAppByCode",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAppByIndex",
+    functionFragment: "getAppById",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "getAppByName",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "getApps", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "nameToId",
+    values: [PromiseOrValue<BytesLike>]
+  ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "setAppContractAddress",
-    values: [PromiseOrValue<string>, PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "updateMetadata",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
 
   decodeFunctionResult(functionFragment: "apps", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "codeToIndex",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "createApp", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getAppById", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getAppByCode",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAppByIndex",
+    functionFragment: "getAppByName",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "getApps", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "nameToId", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setAppContractAddress",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateMetadata",
     data: BytesLike
   ): Result;
 
@@ -164,35 +145,28 @@ export interface EmbraceApps extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, string, string, boolean, string] & {
+      [BigNumber, string, string, boolean] & {
         id: BigNumber;
-        code: string;
+        name: string;
         contractAddress: string;
         enabled: boolean;
-        metadata: string;
       }
     >;
 
-    codeToIndex(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     createApp(
-      _code: PromiseOrValue<string>,
+      _name: PromiseOrValue<string>,
       _contractAddress: PromiseOrValue<string>,
-      _metadata: PromiseOrValue<string>,
       _enabled: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    getAppByCode(
-      _code: PromiseOrValue<string>,
+    getAppById(
+      _appId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[EmbraceApps.AppStructOutput]>;
 
-    getAppByIndex(
-      _appId: PromiseOrValue<BigNumberish>,
+    getAppByName(
+      _name: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[EmbraceApps.AppStructOutput]>;
 
@@ -200,17 +174,16 @@ export interface EmbraceApps extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[EmbraceApps.AppStructOutput[]]>;
 
+    nameToId(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     owner(overrides?: CallOverrides): Promise<[string]>;
 
     setAppContractAddress(
-      _code: PromiseOrValue<string>,
-      _contractAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    updateMetadata(
       _appId: PromiseOrValue<BigNumberish>,
-      _newMetadata: PromiseOrValue<string>,
+      _contractAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -219,51 +192,43 @@ export interface EmbraceApps extends BaseContract {
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<
-    [BigNumber, string, string, boolean, string] & {
+    [BigNumber, string, string, boolean] & {
       id: BigNumber;
-      code: string;
+      name: string;
       contractAddress: string;
       enabled: boolean;
-      metadata: string;
     }
   >;
 
-  codeToIndex(
-    arg0: PromiseOrValue<BytesLike>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   createApp(
-    _code: PromiseOrValue<string>,
+    _name: PromiseOrValue<string>,
     _contractAddress: PromiseOrValue<string>,
-    _metadata: PromiseOrValue<string>,
     _enabled: PromiseOrValue<boolean>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  getAppByCode(
-    _code: PromiseOrValue<string>,
+  getAppById(
+    _appId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<EmbraceApps.AppStructOutput>;
 
-  getAppByIndex(
-    _appId: PromiseOrValue<BigNumberish>,
+  getAppByName(
+    _name: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<EmbraceApps.AppStructOutput>;
 
   getApps(overrides?: CallOverrides): Promise<EmbraceApps.AppStructOutput[]>;
 
+  nameToId(
+    arg0: PromiseOrValue<BytesLike>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   owner(overrides?: CallOverrides): Promise<string>;
 
   setAppContractAddress(
-    _code: PromiseOrValue<string>,
-    _contractAddress: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  updateMetadata(
     _appId: PromiseOrValue<BigNumberish>,
-    _newMetadata: PromiseOrValue<string>,
+    _contractAddress: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -272,53 +237,45 @@ export interface EmbraceApps extends BaseContract {
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<
-      [BigNumber, string, string, boolean, string] & {
+      [BigNumber, string, string, boolean] & {
         id: BigNumber;
-        code: string;
+        name: string;
         contractAddress: string;
         enabled: boolean;
-        metadata: string;
       }
     >;
 
-    codeToIndex(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     createApp(
-      _code: PromiseOrValue<string>,
+      _name: PromiseOrValue<string>,
       _contractAddress: PromiseOrValue<string>,
-      _metadata: PromiseOrValue<string>,
       _enabled: PromiseOrValue<boolean>,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    getAppByCode(
-      _code: PromiseOrValue<string>,
+    getAppById(
+      _appId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<EmbraceApps.AppStructOutput>;
 
-    getAppByIndex(
-      _appId: PromiseOrValue<BigNumberish>,
+    getAppByName(
+      _name: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<EmbraceApps.AppStructOutput>;
 
     getApps(overrides?: CallOverrides): Promise<EmbraceApps.AppStructOutput[]>;
 
+    nameToId(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<string>;
 
     setAppContractAddress(
-      _code: PromiseOrValue<string>,
+      _appId: PromiseOrValue<BigNumberish>,
       _contractAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    updateMetadata(
-      _appId: PromiseOrValue<BigNumberish>,
-      _newMetadata: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<EmbraceApps.AppStructOutput>;
   };
 
   filters: {};
@@ -329,42 +286,35 @@ export interface EmbraceApps extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    codeToIndex(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     createApp(
-      _code: PromiseOrValue<string>,
+      _name: PromiseOrValue<string>,
       _contractAddress: PromiseOrValue<string>,
-      _metadata: PromiseOrValue<string>,
       _enabled: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    getAppByCode(
-      _code: PromiseOrValue<string>,
+    getAppById(
+      _appId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getAppByIndex(
-      _appId: PromiseOrValue<BigNumberish>,
+    getAppByName(
+      _name: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     getApps(overrides?: CallOverrides): Promise<BigNumber>;
 
+    nameToId(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
     setAppContractAddress(
-      _code: PromiseOrValue<string>,
-      _contractAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    updateMetadata(
       _appId: PromiseOrValue<BigNumberish>,
-      _newMetadata: PromiseOrValue<string>,
+      _contractAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -375,42 +325,35 @@ export interface EmbraceApps extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    codeToIndex(
-      arg0: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     createApp(
-      _code: PromiseOrValue<string>,
+      _name: PromiseOrValue<string>,
       _contractAddress: PromiseOrValue<string>,
-      _metadata: PromiseOrValue<string>,
       _enabled: PromiseOrValue<boolean>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    getAppByCode(
-      _code: PromiseOrValue<string>,
+    getAppById(
+      _appId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getAppByIndex(
-      _appId: PromiseOrValue<BigNumberish>,
+    getAppByName(
+      _name: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getApps(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    nameToId(
+      arg0: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     setAppContractAddress(
-      _code: PromiseOrValue<string>,
-      _contractAddress: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    updateMetadata(
       _appId: PromiseOrValue<BigNumberish>,
-      _newMetadata: PromiseOrValue<string>,
+      _contractAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

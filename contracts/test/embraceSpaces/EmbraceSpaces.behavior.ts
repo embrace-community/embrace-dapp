@@ -7,7 +7,7 @@ import { Visibility } from "./../types";
 
 export function shouldBehaveLikeEmbraceSpaces(): void {
   let signers: SignerWithAddress[], admin: SignerWithAddress;
-  const handle = ethers.utils.formatBytes32String("My space");
+  const handle = "My space";
   const visibility = Visibility.PUBLIC;
   const apps: number[] = [1, 4, 5];
   const metadata = "https://gateway.ipfs.io/ipfs/Qmd8HLnL2eAAL2zZLDaM7tWgUdZwfMY2VrGRA6693C3mNE";

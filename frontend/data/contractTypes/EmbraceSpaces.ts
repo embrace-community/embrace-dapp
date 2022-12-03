@@ -58,7 +58,7 @@ export declare namespace EmbraceSpaces {
 
   export type SpaceStruct = {
     id: PromiseOrValue<BigNumberish>;
-    handle: PromiseOrValue<BytesLike>;
+    handle: PromiseOrValue<string>;
     founder: PromiseOrValue<string>;
     visibility: PromiseOrValue<BigNumberish>;
     membership: EmbraceSpaces.MembershipStruct;
@@ -99,23 +99,21 @@ export declare namespace EmbraceSpaces {
 
 export interface EmbraceSpacesInterface extends utils.Interface {
   functions: {
-    "addApp(uint256,uint128)": FunctionFragment;
-    "createSpace(bytes32,uint8,(uint8,(uint8,address),bool),uint128[],string)": FunctionFragment;
-    "getIdFromHandle(bytes32)": FunctionFragment;
+    "createSpace(string,uint8,(uint8,(uint8,address),bool),uint128[],string)": FunctionFragment;
+    "getIdFromHandle(string)": FunctionFragment;
     "getMemberCount(uint256)": FunctionFragment;
     "getSpace(uint256)": FunctionFragment;
-    "getSpaceFromHandle(bytes32)": FunctionFragment;
+    "getSpaceFromHandle(string)": FunctionFragment;
     "getSpaceMember(uint256,address)": FunctionFragment;
     "getSpaces()": FunctionFragment;
     "isAdmin(uint256)": FunctionFragment;
     "isFounder(uint256)": FunctionFragment;
     "joinSpace(uint256)": FunctionFragment;
     "meetsGateRequirements(uint256)": FunctionFragment;
-    "removeApp(uint256,uint256)": FunctionFragment;
     "requestJoin(uint256)": FunctionFragment;
     "setFounder(uint256,address)": FunctionFragment;
     "setMember(uint256,address,bool,bool)": FunctionFragment;
-    "spaceHandles(bytes32)": FunctionFragment;
+    "spaceHandleToId(bytes32)": FunctionFragment;
     "spaceMemberLength(uint256)": FunctionFragment;
     "spaceMembers(uint256,address)": FunctionFragment;
     "spaces(uint256)": FunctionFragment;
@@ -123,7 +121,6 @@ export interface EmbraceSpacesInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "addApp"
       | "createSpace"
       | "getIdFromHandle"
       | "getMemberCount"
@@ -135,24 +132,19 @@ export interface EmbraceSpacesInterface extends utils.Interface {
       | "isFounder"
       | "joinSpace"
       | "meetsGateRequirements"
-      | "removeApp"
       | "requestJoin"
       | "setFounder"
       | "setMember"
-      | "spaceHandles"
+      | "spaceHandleToId"
       | "spaceMemberLength"
       | "spaceMembers"
       | "spaces"
   ): FunctionFragment;
 
   encodeFunctionData(
-    functionFragment: "addApp",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "createSpace",
     values: [
-      PromiseOrValue<BytesLike>,
+      PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
       EmbraceSpaces.MembershipStruct,
       PromiseOrValue<BigNumberish>[],
@@ -161,7 +153,7 @@ export interface EmbraceSpacesInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getIdFromHandle",
-    values: [PromiseOrValue<BytesLike>]
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "getMemberCount",
@@ -173,7 +165,7 @@ export interface EmbraceSpacesInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getSpaceFromHandle",
-    values: [PromiseOrValue<BytesLike>]
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "getSpaceMember",
@@ -197,10 +189,6 @@ export interface EmbraceSpacesInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "removeApp",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "requestJoin",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -218,7 +206,7 @@ export interface EmbraceSpacesInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "spaceHandles",
+    functionFragment: "spaceHandleToId",
     values: [PromiseOrValue<BytesLike>]
   ): string;
   encodeFunctionData(
@@ -234,7 +222,6 @@ export interface EmbraceSpacesInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(functionFragment: "addApp", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createSpace",
     data: BytesLike
@@ -264,7 +251,6 @@ export interface EmbraceSpacesInterface extends utils.Interface {
     functionFragment: "meetsGateRequirements",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "removeApp", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "requestJoin",
     data: BytesLike
@@ -272,7 +258,7 @@ export interface EmbraceSpacesInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "setFounder", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setMember", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "spaceHandles",
+    functionFragment: "spaceHandleToId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -372,14 +358,8 @@ export interface EmbraceSpaces extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    addApp(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     createSpace(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       _visibility: PromiseOrValue<BigNumberish>,
       _membership: EmbraceSpaces.MembershipStruct,
       _apps: PromiseOrValue<BigNumberish>[],
@@ -388,7 +368,7 @@ export interface EmbraceSpaces extends BaseContract {
     ): Promise<ContractTransaction>;
 
     getIdFromHandle(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
@@ -403,7 +383,7 @@ export interface EmbraceSpaces extends BaseContract {
     ): Promise<[EmbraceSpaces.SpaceStructOutput]>;
 
     getSpaceFromHandle(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[EmbraceSpaces.SpaceStructOutput]>;
 
@@ -437,12 +417,6 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    removeApp(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     requestJoin(
       _spaceId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -462,7 +436,7 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    spaceHandles(
+    spaceHandleToId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
@@ -506,14 +480,8 @@ export interface EmbraceSpaces extends BaseContract {
     >;
   };
 
-  addApp(
-    _spaceId: PromiseOrValue<BigNumberish>,
-    _appId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   createSpace(
-    _handle: PromiseOrValue<BytesLike>,
+    _handle: PromiseOrValue<string>,
     _visibility: PromiseOrValue<BigNumberish>,
     _membership: EmbraceSpaces.MembershipStruct,
     _apps: PromiseOrValue<BigNumberish>[],
@@ -522,7 +490,7 @@ export interface EmbraceSpaces extends BaseContract {
   ): Promise<ContractTransaction>;
 
   getIdFromHandle(
-    _handle: PromiseOrValue<BytesLike>,
+    _handle: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
@@ -537,7 +505,7 @@ export interface EmbraceSpaces extends BaseContract {
   ): Promise<EmbraceSpaces.SpaceStructOutput>;
 
   getSpaceFromHandle(
-    _handle: PromiseOrValue<BytesLike>,
+    _handle: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<EmbraceSpaces.SpaceStructOutput>;
 
@@ -571,12 +539,6 @@ export interface EmbraceSpaces extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  removeApp(
-    _spaceId: PromiseOrValue<BigNumberish>,
-    _appId: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   requestJoin(
     _spaceId: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -596,7 +558,7 @@ export interface EmbraceSpaces extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  spaceHandles(
+  spaceHandleToId(
     arg0: PromiseOrValue<BytesLike>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
@@ -640,14 +602,8 @@ export interface EmbraceSpaces extends BaseContract {
   >;
 
   callStatic: {
-    addApp(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     createSpace(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       _visibility: PromiseOrValue<BigNumberish>,
       _membership: EmbraceSpaces.MembershipStruct,
       _apps: PromiseOrValue<BigNumberish>[],
@@ -656,7 +612,7 @@ export interface EmbraceSpaces extends BaseContract {
     ): Promise<void>;
 
     getIdFromHandle(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -671,7 +627,7 @@ export interface EmbraceSpaces extends BaseContract {
     ): Promise<EmbraceSpaces.SpaceStructOutput>;
 
     getSpaceFromHandle(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<EmbraceSpaces.SpaceStructOutput>;
 
@@ -705,12 +661,6 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    removeApp(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appId: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     requestJoin(
       _spaceId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -730,7 +680,7 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    spaceHandles(
+    spaceHandleToId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -815,14 +765,8 @@ export interface EmbraceSpaces extends BaseContract {
   };
 
   estimateGas: {
-    addApp(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     createSpace(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       _visibility: PromiseOrValue<BigNumberish>,
       _membership: EmbraceSpaces.MembershipStruct,
       _apps: PromiseOrValue<BigNumberish>[],
@@ -831,7 +775,7 @@ export interface EmbraceSpaces extends BaseContract {
     ): Promise<BigNumber>;
 
     getIdFromHandle(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -846,7 +790,7 @@ export interface EmbraceSpaces extends BaseContract {
     ): Promise<BigNumber>;
 
     getSpaceFromHandle(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -878,12 +822,6 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    removeApp(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     requestJoin(
       _spaceId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -903,7 +841,7 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    spaceHandles(
+    spaceHandleToId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -926,14 +864,8 @@ export interface EmbraceSpaces extends BaseContract {
   };
 
   populateTransaction: {
-    addApp(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     createSpace(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       _visibility: PromiseOrValue<BigNumberish>,
       _membership: EmbraceSpaces.MembershipStruct,
       _apps: PromiseOrValue<BigNumberish>[],
@@ -942,7 +874,7 @@ export interface EmbraceSpaces extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getIdFromHandle(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -957,7 +889,7 @@ export interface EmbraceSpaces extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getSpaceFromHandle(
-      _handle: PromiseOrValue<BytesLike>,
+      _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -989,12 +921,6 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    removeApp(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appId: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     requestJoin(
       _spaceId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -1014,7 +940,7 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    spaceHandles(
+    spaceHandleToId(
       arg0: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;

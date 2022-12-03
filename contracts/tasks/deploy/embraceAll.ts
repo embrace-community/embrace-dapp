@@ -1,5 +1,4 @@
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { formatBytes32String } from "ethers/lib/utils";
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 
@@ -45,49 +44,41 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
     const space = getSpace(spaces[i], spaces[i], metadata) as EmbraceSpace;
 
     if (space) {
-      await embraceSpaces.createSpace(
-        formatBytes32String(space.handle),
-        space.visibility,
-        space.membership,
-        space.apps,
-        space.metadata,
-        {
-          gasLimit: 1000000,
-        },
-      );
+      await embraceSpaces.createSpace(space.handle, space.visibility, space.membership, space.apps, space.metadata, {
+        gasLimit: 1000000,
+      });
 
       console.log(`Created space ${space.handle}`);
     }
   }
 
-  // code: string, contractAddress: string, metadata: string
+  // name: string, contractAddress: string
   const apps = [
     {
-      code: "Chat Server", // This should be short code i.e. CHAT
-      contractAddress: "0xE300bF5B76671A5C702F9E48B8e5e91cE8C8C282", // Contract not deployed yet or required for this app
+      name: "Chat Server",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
     },
     {
-      code: "Discussions", // DISC
-      contractAddress: "0xE300bF5B76671A5C702F9E48B8e5e91cE8C8C282", // Contract not deployed yet or required for this app
+      name: "Social",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
     },
     {
-      code: "Social", // SOCIAL
-      contractAddress: "0xE300bF5B76671A5C702F9E48B8e5e91cE8C8C282", // Contract not deployed yet or required for this app
+      name: "Creations",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
     },
   ];
-  // Currently this is not a real app CID, but it is a valid CID
-  const appMetadata = "bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa";
+
   for (let j = 0; j < apps.length; j++) {
     const app = apps[j];
 
     if (app) {
       const enabled = true;
 
-      await embraceApps.createApp(app.code, app.contractAddress, appMetadata, enabled, {
+      await embraceApps.createApp(app.name, app.contractAddress, enabled, {
         gasLimit: 1000000,
       });
 
-      console.log(`Created app ${app.code}`);
+      console.log(`Created app ${app.name}`);
     }
   }
 });
