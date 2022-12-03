@@ -22,6 +22,7 @@
     "deploy:accounts:local": "hardhat deploy:EmbraceAccounts --network localhost",
     "deploy:accounts:chain": "source .env && hardhat deploy:EmbraceAccounts --network $HARDHAT_NETWORK",
     "deploy:all": "hh deploy:EmbraceAll --network localhost",
+    "deploy:oneStep": "hh compile && hh typechain && hh deploy:EmbraceAll --network localhost",
     "getSpaces": "ts-node scripts/getSpaces.ts {CONTRACT_ADDRESS} {NETWORK?}",
     "createSpace": "ts-node scripts/createSpace.ts {CONTRACT_ADDRESS} {SPACE_HANDLE} {METADATA} {NETWORK?}",
     "createApp": "ts-node scripts/createApp.ts {CONTRACT_ADDRESS} {APP_CODE} {APP_ADDRESS} {APP_METADATA} {NETWORK?}",
