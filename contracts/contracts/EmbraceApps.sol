@@ -14,6 +14,7 @@ contract EmbraceApps {
         string name;
         address contractAddress;
         bool enabled;
+        // string metadata;
     }
 
     App[] public apps;
@@ -41,10 +42,17 @@ contract EmbraceApps {
     function createApp(
         string memory _name,
         address _contractAddress,
+        // string memory _metadata,
         bool _enabled
     ) public onlyOwner uniqueAppName(_name) {
         uint256 id = _appIdCounter.current();
-        App memory app = App({ id: id, name: _name, contractAddress: _contractAddress, enabled: _enabled });
+        App memory app = App({
+            id: id,
+            name: _name,
+            contractAddress: _contractAddress,
+            // metadata: _metadata,
+            enabled: _enabled
+        });
 
         apps.push(app);
         _appIdCounter.increment();
@@ -82,4 +90,11 @@ contract EmbraceApps {
         }
         revert("App not found.");
     }
+
+    // function updateMetadata(uint256 _appId, string memory _newMetadata) public onlyOwner returns (App memory) {
+    //     App storage app = apps[_appId - 1];
+    //     app.metadata = _newMetadata;
+
+    //     return app;
+    // }
 }
