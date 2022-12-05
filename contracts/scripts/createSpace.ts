@@ -1,6 +1,5 @@
 import "dotenv/config";
 import { ethers } from "ethers";
-import { formatBytes32String } from "ethers/lib/utils";
 
 import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json";
 import { getSignerProvider, getSpace, getWallet } from "./utils";
@@ -43,13 +42,7 @@ async function main() {
   console.log("space", space);
 
   if (space) {
-    await contract.createSpace(
-      formatBytes32String(space.handle),
-      space.visibility,
-      space.membership,
-      space.apps,
-      space.metadata,
-    );
+    await contract.createSpace(space.handle, space.visibility, space.membership, space.apps, space.metadata);
 
     const spaces = await contract.getSpaces();
     console.log(`Space created, there are currently ${spaces.length}, ${JSON.stringify(spaces[spaces.length - 1])}`);

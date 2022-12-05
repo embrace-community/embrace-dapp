@@ -48,6 +48,7 @@ export default function HomePage() {
       );
 
       console.log("spaces", spaces);
+
       setAllSpaces(spaces);
       dispatch(setLoaded(true));
     }

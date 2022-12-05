@@ -11,6 +11,8 @@ export class SpaceUtil {
       allowRequests: space.membership.allowRequests,
     };
 
+    console.log(space.handle, "handle");
+
     return {
       id: space.id.toNumber(),
       handle: space.handle,

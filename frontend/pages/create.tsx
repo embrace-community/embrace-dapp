@@ -160,20 +160,22 @@ export default function SpaceViewPage() {
       setDeployedApps((prevState) => ({ ...prevState, isLoading: true }));
 
       try {
-        const apps = await appsContract?.getApps?.();
+        console.log(appsContract, "appsContract");
+        const apps = await appsContract?.getApps();
 
-        const appsMetadata: Record<string, any>[] = [];
-        for (const app of apps) {
-          const appMetadata = (await getIpfsJsonContent(
-            app.metadata,
-            "readAsText",
-          )) as Record<string, any>;
-          appsMetadata.push(appMetadata);
-        }
+        // const appsMetadata: Record<string, any>[] = [];
+        // for (const app of apps) {
+        //   const appMetadata = (await getIpfsJsonContent(
+        //     app.metadata,
+        //     "readAsText",
+        //   )) as Record<string, any>;
+        //   appsMetadata.push(appMetadata);
+        // }
 
-        console.log("Existing Apps", apps, "Apps Metadata", appsMetadata);
+        // console.log("Existing Apps", apps, "Apps Metadata", appsMetadata);
 
-        setDeployedApps((prevState) => ({ ...prevState, apps, appsMetadata }));
+        // setDeployedApps((prevState) => ({ ...prevState, apps, appsMetadata }));
+        setDeployedApps((prevState) => ({ ...prevState, apps }));
       } catch (e: any) {
         console.error(e.message);
       } finally {
@@ -225,14 +227,14 @@ export default function SpaceViewPage() {
         // Save the space to the store along with the metadata object
         const space: Space = {
           id: 0,
-          handle: ethers.utils.formatBytes32String(handle),
+          handle: handle,
           founder: accountAddress as Address,
           metadata: metadataCid,
           loadedMetadata: {
             name,
             description,
             image: image ? URL.createObjectURL(image) : "",
-            handle: ethers.utils.formatBytes32String(handle),
+            handle: handle,
           },
           visibility,
           apps,
@@ -667,45 +669,47 @@ export default function SpaceViewPage() {
                   <Spinner />
                 ) : (
                   deployedApps.apps.map((app, i) => {
-                    const name = app?.code;
+                    const name: string = app?.name;
 
                     return (
-                      <div
-                        key={`app-${i}`}
-                        className="relative flex items-start bg-white py-6 px-7"
-                      >
-                        <div className="flex h-5 items-center">
-                          <input
-                            id={name}
-                            aria-describedby={`${name}-app`}
-                            name={name}
-                            type="checkbox"
-                            checked={apps.includes(i)}
-                            onChange={() => {
-                              apps.includes(i)
-                                ? setApps(apps.filter((a) => a !== i))
-                                : setApps([...apps, i]);
-                            }}
-                            className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
-                          />
-                        </div>
+                      name.length > 0 && ( // Exclude empty array added at 0 index
+                        <div
+                          key={`app-${i}`}
+                          className="relative flex items-start bg-white py-6 px-7"
+                        >
+                          <div className="flex h-5 items-center">
+                            <input
+                              id={name}
+                              aria-describedby={`${name}-app`}
+                              name={name}
+                              type="checkbox"
+                              checked={apps.includes(i)}
+                              onChange={() => {
+                                apps.includes(i)
+                                  ? setApps(apps.filter((a) => a !== i))
+                                  : setApps([...apps, i]);
+                              }}
+                              className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
+                            />
+                          </div>
 
-                        <div className="ml-3 text-sm">
-                          <label
-                            htmlFor={name}
-                            className="font-medium text-embracedark"
-                          >
-                            {name}
-                          </label>
+                          <div className="ml-3 text-sm">
+                            <label
+                              htmlFor={name}
+                              className="font-medium text-embracedark"
+                            >
+                              {name}
+                            </label>
 
-                          <p
-                            id={`${name}-description`}
-                            className="text-embracedark text-opacity-50"
-                          >
-                            {deployedApps.appsMetadata?.[i]?.description}
-                          </p>
+                            <p
+                              id={`${name}-description`}
+                              className="text-embracedark text-opacity-50"
+                            >
+                              {/* {deployedApps.appsMetadata?.[i]?.description} */}
+                            </p>
+                          </div>
                         </div>
-                      </div>
+                      )
                     );
                   })
                 )}
