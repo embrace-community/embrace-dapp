@@ -33,7 +33,8 @@ const Chatmsg = ({ msg }) => {
         <p className="font-semibold text-[12px] opacity-50 ml-3">
           {msg ? msg.sender.name : ""}
           <span className="font-normal ml-4">
-            {msg ? format(msg.sent, "dd/MM/yyyy") : ""}
+            {/* {msg ? format(msg.sent, "dd/MM/yyyy") : ""} */}
+            {msg ? msg.sent : ""}
           </span>
         </p>
       </div>
@@ -79,8 +80,132 @@ export default function Chat({
     "0xB64A31a65701f01a1e63844216f3DbbCC9b3cF2C",
   ]; // Need to get from contract
 
+  // TODO: Temp for development
+  useEffect(() => {
+    setChatMessages([
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "hello",
+        sent: "2022-11-30T15:09:18.550Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "hey!",
+        sent: "2022-11-30T15:09:47.889Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "me again",
+        sent: "2022-11-30T15:11:27.717Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "great we're working once more",
+        sent: "2022-11-30T15:11:37.739Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "hello",
+        sent: "2022-11-30T15:17:59.453Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "me again",
+        sent: "2022-11-30T15:59:33.896Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "it's me again",
+        sent: "2022-11-30T15:59:43.963Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "how are you?",
+        sent: "2022-11-30T15:59:51.972Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "I am well",
+        sent: "2022-11-30T16:01:23.403Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "How is your family?",
+        sent: "2022-11-30T16:03:02.566Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "All goo",
+        sent: "2022-11-30T16:03:13.588Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "d",
+        sent: "2022-11-30T16:03:15.551Z",
+        time: null,
+      },
+      {
+        sender: {
+          name: "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
+          avatar: "",
+        },
+        content: "test",
+        sent: "2022-11-30T16:12:46.133Z",
+        time: null,
+      },
+    ]);
+  }, []);
+
   useEffect(() => {
     console.log("XMTP", xmtpClient, hasInitialized.current, signer);
+
     if (xmtpClient || hasInitialized.current || !signer) return;
 
     console.log("XMTP");
@@ -92,7 +217,7 @@ export default function Chat({
 
       huddle.initialise(address, `embrace.community/${query.handle}/call`);
 
-      await xmtp.auth();
+      // await xmtp.auth();
     };
 
     init();
@@ -261,12 +386,12 @@ export default function Chat({
   console.log("chat index.tsx", query, space);
 
   // TODO: Page will stay blank if the user doesn't sign XMTP transaction
-  if (!xmtpClient && signer)
-    return (
-      <>
-        <Spinner />
-      </>
-    );
+  // if (!xmtpClient && signer)
+  //   return (
+  //     <>
+  //       <Spinner />
+  //     </>
+  //   );
 
   if (!signer)
     return (
