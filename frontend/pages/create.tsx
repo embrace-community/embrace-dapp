@@ -259,7 +259,7 @@ export default function SpaceViewPage() {
         }, 10000);
 
         const tx = await spacesContract.createSpace(
-          ethers.utils.formatBytes32String(handle),
+          handle,
           visibility,
           spaceMembership,
           apps,

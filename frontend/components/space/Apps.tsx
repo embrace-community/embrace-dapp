@@ -52,7 +52,7 @@ export default function Apps({
     }
 
     // Need to account for first render (-1)
-    const selectedAppId = appId === -1 ? 0 : appId;
+    const selectedAppId = appId === -1 ? 2 : appId;
 
     // Load the route for the related appId
     const route = appMappings[selectedAppId].route;

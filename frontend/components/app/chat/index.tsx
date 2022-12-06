@@ -80,10 +80,7 @@ export default function Chat({
   ]; // Need to get from contract
 
   useEffect(() => {
-    console.log("XMTP", xmtpClient, hasInitialized.current, signer);
     if (xmtpClient || hasInitialized.current || !signer) return;
-
-    console.log("XMTP");
 
     const init = async () => {
       hasInitialized.current = true;
