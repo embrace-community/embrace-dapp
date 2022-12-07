@@ -38,9 +38,8 @@ export default function Header({
             className="w-20 h-20 rounded-full mb-5 bg-white"
             src={space.loadedMetadata?.image}
             alt="Space Image"
-            height={20}
-            width={20}
-            unoptimized
+            height={80}
+            width={80}
           />
         ) : (
           <span className="w-28 h-28 rounded-full mb-5"></span>
@@ -72,8 +71,8 @@ export default function Header({
                       className="h-5 w-5 rounded-full mr-3"
                       src="https://api.multiavatar.com/Binx Bond.svg"
                       alt="Avatar"
-                      height={5}
-                      width={5}
+                      height={20}
+                      width={20}
                     />
                   </div>
                 )}

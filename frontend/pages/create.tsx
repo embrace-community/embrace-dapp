@@ -371,8 +371,8 @@ export default function SpaceViewPage() {
                       className="w-36 h-36 rounded-full my-5"
                       src={URL.createObjectURL(image)}
                       alt="image to upload"
-                      width={36}
-                      height={36}
+                      width={144}
+                      height={144}
                     />
                   )}
 

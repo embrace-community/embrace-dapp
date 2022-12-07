@@ -38,8 +38,16 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
   await embraceApps.deployed();
   console.log(`NEXT_PUBLIC_APPS_CONTRACT_ADDRESS="${embraceApps.address}"`);
 
-  const spaces = ["public", "public-gated", "private-gated", "private-closed", "private-closed-reqs", "anon"];
-  const metadata = "bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa";
+  const spaces = [
+    "public",
+    "public-gated",
+    "private-gated",
+    "private-closed",
+    "private-closed-reqs",
+    "anon",
+    "creations-space",
+  ];
+  const metadata = "bafkreifbf2e6vs56fp76wpnzy6rduaguusnmr4m3kcaeekbj2s4acgxkem";
   for (let i = 0; i < spaces.length; i++) {
     const space = getSpace(spaces[i], spaces[i], metadata) as EmbraceSpace;
 

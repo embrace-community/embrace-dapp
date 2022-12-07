@@ -52,7 +52,15 @@ export default function Apps({
     }
 
     // Need to account for first render (-1)
-    const spaceApps = space?.apps || [];
+    // Will select the first app that the space has installed
+    const spaceApps = space?.apps;
+    if (spaceApps.length === 0) {
+      alert(
+        "There was a problem loading the space apps. Please try again later.",
+      );
+      return;
+    }
+
     const selectedAppId = appId === -1 ? spaceApps[0] : appId;
 
     // Load the route for the related appId
@@ -62,7 +70,7 @@ export default function Apps({
     // App cannot be found so select the first app as default
     setCurrentApp(selectedAppId);
     prevSelectedApp.current = selectedAppId;
-  }, [changeRouteShallowIfNew, currentApp, query.app, router]);
+  }, [changeRouteShallowIfNew, currentApp, query.app, router, space?.apps]);
 
   function onAppChange(appId: number) {
     // Load the route for the current App
@@ -77,7 +85,7 @@ export default function Apps({
         currentApp={currentApp}
         setCurrentApp={onAppChange}
       />
-      <div className="w-full flex flex-col pl-32 pr-32 pt-14 justify-start items-start flex-1 bg-white">
+      <div className="w-full flex flex-col px-4 py-6 sm:px-32 sm:py-14 justify-start items-start flex-1 bg-white">
         {currentApp !== -1 && (
           <RenderCurrentApp
             currentApp={currentApp}

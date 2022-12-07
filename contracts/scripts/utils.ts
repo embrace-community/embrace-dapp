@@ -156,6 +156,17 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       apps,
       metadata,
     };
+  } else if (spaceType == "creations-space") {
+    return {
+      handle,
+      visibility: Visibility.PUBLIC,
+      membership: {
+        access: Access.OPEN,
+        gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
+      },
+      apps: [2],
+      metadata,
+    };
   }
 }
 
