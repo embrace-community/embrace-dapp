@@ -24,7 +24,7 @@
     "cp:artifacts": "cp ./artifacts/contracts/EmbraceApps.sol/EmbraceApps.json ./artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json ./artifacts/contracts/EmbraceAccounts.sol/EmbraceAccounts.json ../frontend/data/contractArtifacts/",
     "cp:appArtifacts": "cp ./artifacts/contracts/app/AppCreations.sol/AppCreations.json ./artifacts/contracts/app/AppCreationsCollection.sol/AppCreationsCollection.json ../frontend/data/contractArtifacts/",
     "cp:types": "cp ./types/contracts/*.ts ../frontend/data/contractTypes/",
-    "cp:appTypes": "cp ./types/contracts/app/* ../frontend/data/contractTypes/app",
+    "cp:appTypes": "cp ./types/contracts/app/*.ts ../frontend/data/contractTypes/app",
     "deploy:all": "hh deploy:EmbraceAll --network localhost",
     "deploy:oneStep": "hh compile && hh typechain && yarn deploy:all && yarn cp:artifacts && yarn cp:appArtifacts && yarn cp:types && yarn cp:appTypes",
     "getSpaces": "ts-node scripts/getSpaces.ts {CONTRACT_ADDRESS} {NETWORK?}",
