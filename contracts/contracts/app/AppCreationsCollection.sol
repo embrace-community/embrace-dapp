@@ -13,6 +13,12 @@ contract AppCreationsCollection is ERC721Enumerable, ERC721URIStorage {
 
     string private baseUri;
 
+    struct TokenData {
+        uint256 tokenId;
+        string tokenURI;
+        address owner;
+    }
+
     constructor(uint256 _spaceId, string memory _name, string memory _symbol) ERC721(_name, _symbol) {
         spaceId = _spaceId;
         _setBaseURI("ipfs://");
@@ -40,6 +46,18 @@ contract AppCreationsCollection is ERC721Enumerable, ERC721URIStorage {
             tokens[i] = tokenByIndex(i);
         }
         return tokens;
+    }
+
+    function getAllTokensData() public view returns (TokenData[] memory) {
+        TokenData[] memory tokenData = new TokenData[](totalSupply());
+        for (uint256 i = 0; i < totalSupply(); i++) {
+            tokenData[i] = TokenData({
+                tokenId: tokenByIndex(i),
+                tokenURI: tokenURI(tokenByIndex(i)),
+                owner: ownerOf(tokenByIndex(i))
+            });
+        }
+        return tokenData;
     }
 
     function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721URIStorage) {

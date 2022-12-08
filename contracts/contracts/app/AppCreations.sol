@@ -8,7 +8,7 @@ import "./AppCreationsCollection.sol";
 contract AppCreations {
     struct Collection {
         uint64 index;
-        address collectionContract;
+        address contractAddress;
         string name;
     }
 
@@ -22,7 +22,7 @@ contract AppCreations {
 
         Collection memory collection = Collection({
             index: spaceToCollectionCount[_spaceId],
-            collectionContract: address(newCollection),
+            contractAddress: address(newCollection),
             name: _name
         });
 

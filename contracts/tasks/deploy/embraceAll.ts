@@ -115,8 +115,8 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
 
   if (collections.length > 0) {
     // Add creations to the new collection
-    const collectionContract = collections[0].collectionContract;
-    const contract = new ethers.Contract(collectionContract, AppCreationsCollection.abi, deployer);
+    const collectionContractAddress = collections[0].contractAddress;
+    const contract = new ethers.Contract(collectionContractAddress, AppCreationsCollection.abi, deployer);
     const tokenURIs = [
       "bafkreieistdgzb6xykj3kuracuv3qb5nxex5ds2qdtvvo3p6cfhixm6xle",
       "bafkreihbar4sjulb6e5kqxvqclbgy2xh7h5xb7iityeour553yskud4pwm",

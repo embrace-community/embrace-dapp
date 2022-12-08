@@ -29,11 +29,26 @@ import type {
   utils,
 } from "ethers";
 
+export declare namespace AppCreationsCollection {
+  export type TokenDataStruct = {
+    tokenId: PromiseOrValue<BigNumberish>;
+    tokenURI: PromiseOrValue<string>;
+    owner: PromiseOrValue<string>;
+  };
+
+  export type TokenDataStructOutput = [BigNumber, string, string] & {
+    tokenId: BigNumber;
+    tokenURI: string;
+    owner: string;
+  };
+}
+
 export interface AppCreationsCollectionInterface extends utils.Interface {
   functions: {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "getAllTokens()": FunctionFragment;
+    "getAllTokensData()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "mint(string)": FunctionFragment;
@@ -56,6 +71,7 @@ export interface AppCreationsCollectionInterface extends utils.Interface {
       | "approve"
       | "balanceOf"
       | "getAllTokens"
+      | "getAllTokensData"
       | "getApproved"
       | "isApprovedForAll"
       | "mint"
@@ -83,6 +99,10 @@ export interface AppCreationsCollectionInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAllTokens",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAllTokensData",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -157,6 +177,10 @@ export interface AppCreationsCollectionInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAllTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAllTokensData",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -292,6 +316,10 @@ export interface AppCreationsCollection extends BaseContract {
 
     getAllTokens(overrides?: CallOverrides): Promise<[BigNumber[]]>;
 
+    getAllTokensData(
+      overrides?: CallOverrides
+    ): Promise<[AppCreationsCollection.TokenDataStructOutput[]]>;
+
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -382,6 +410,10 @@ export interface AppCreationsCollection extends BaseContract {
 
   getAllTokens(overrides?: CallOverrides): Promise<BigNumber[]>;
 
+  getAllTokensData(
+    overrides?: CallOverrides
+  ): Promise<AppCreationsCollection.TokenDataStructOutput[]>;
+
   getApproved(
     tokenId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -471,6 +503,10 @@ export interface AppCreationsCollection extends BaseContract {
     ): Promise<BigNumber>;
 
     getAllTokens(overrides?: CallOverrides): Promise<BigNumber[]>;
+
+    getAllTokensData(
+      overrides?: CallOverrides
+    ): Promise<AppCreationsCollection.TokenDataStructOutput[]>;
 
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -598,6 +634,8 @@ export interface AppCreationsCollection extends BaseContract {
 
     getAllTokens(overrides?: CallOverrides): Promise<BigNumber>;
 
+    getAllTokensData(overrides?: CallOverrides): Promise<BigNumber>;
+
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -688,6 +726,8 @@ export interface AppCreationsCollection extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getAllTokens(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getAllTokensData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,

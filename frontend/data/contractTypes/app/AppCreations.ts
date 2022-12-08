@@ -28,13 +28,13 @@ import type {
 export declare namespace AppCreations {
   export type CollectionStruct = {
     index: PromiseOrValue<BigNumberish>;
-    collectionContract: PromiseOrValue<string>;
+    contractAddress: PromiseOrValue<string>;
     name: PromiseOrValue<string>;
   };
 
   export type CollectionStructOutput = [BigNumber, string, string] & {
     index: BigNumber;
-    collectionContract: string;
+    contractAddress: string;
     name: string;
   };
 }
@@ -173,7 +173,7 @@ export interface AppCreations extends BaseContract {
     ): Promise<
       [BigNumber, string, string] & {
         index: BigNumber;
-        collectionContract: string;
+        contractAddress: string;
         name: string;
       }
     >;
@@ -214,7 +214,7 @@ export interface AppCreations extends BaseContract {
   ): Promise<
     [BigNumber, string, string] & {
       index: BigNumber;
-      collectionContract: string;
+      contractAddress: string;
       name: string;
     }
   >;
@@ -255,7 +255,7 @@ export interface AppCreations extends BaseContract {
     ): Promise<
       [BigNumber, string, string] & {
         index: BigNumber;
-        collectionContract: string;
+        contractAddress: string;
         name: string;
       }
     >;
