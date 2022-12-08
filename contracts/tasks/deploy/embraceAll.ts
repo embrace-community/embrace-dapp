@@ -118,13 +118,13 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
     const collectionContractAddress = collections[0].contractAddress;
     const contract = new ethers.Contract(collectionContractAddress, AppCreationsCollection.abi, deployer);
     const tokenURIs = [
-      "bafkreieistdgzb6xykj3kuracuv3qb5nxex5ds2qdtvvo3p6cfhixm6xle",
+      "bafkreihis2pfkhpqwv3yznga2twatd3jlujmvnaduvk5l6icm2cyclh42y",
       "bafkreihbar4sjulb6e5kqxvqclbgy2xh7h5xb7iityeour553yskud4pwm",
-      "bafkreieistdgzb6xykj3kuracuv3qb5nxex5ds2qdtvvo3p6cfhixm6xle",
+      "bafkreihis2pfkhpqwv3yznga2twatd3jlujmvnaduvk5l6icm2cyclh42y",
       "bafkreihbar4sjulb6e5kqxvqclbgy2xh7h5xb7iityeour553yskud4pwm",
-      "bafkreieistdgzb6xykj3kuracuv3qb5nxex5ds2qdtvvo3p6cfhixm6xle",
+      "bafkreihis2pfkhpqwv3yznga2twatd3jlujmvnaduvk5l6icm2cyclh42y",
       "bafkreihbar4sjulb6e5kqxvqclbgy2xh7h5xb7iityeour553yskud4pwm",
-      "bafkreieistdgzb6xykj3kuracuv3qb5nxex5ds2qdtvvo3p6cfhixm6xle",
+      "bafkreihis2pfkhpqwv3yznga2twatd3jlujmvnaduvk5l6icm2cyclh42y",
       "bafkreihbar4sjulb6e5kqxvqclbgy2xh7h5xb7iityeour553yskud4pwm",
     ];
 

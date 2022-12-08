@@ -7,7 +7,7 @@ import "./AppCreationsCollection.sol";
 
 contract AppCreations {
     struct Collection {
-        uint64 index;
+        uint128 id;
         address contractAddress;
         string name;
     }
@@ -20,20 +20,24 @@ contract AppCreations {
         // Create new ERC721 collection contract
         AppCreationsCollection newCollection = new AppCreationsCollection(_spaceId, _name, _symbol);
 
+        // Increment collection count for space
+        // Used for collection id - we start at 1, so we increment before pushing to array
+        spaceToCollectionCount[_spaceId]++;
+
         Collection memory collection = Collection({
-            index: spaceToCollectionCount[_spaceId],
+            id: spaceToCollectionCount[_spaceId],
             contractAddress: address(newCollection),
             name: _name
         });
 
         spaceCollections[_spaceId].push(collection);
-        spaceToCollectionCount[_spaceId]++;
 
         console.log("createCollection", _spaceId, _name, address(newCollection));
     }
 
-    function getCollection(uint256 _spaceId, uint64 _index) public view returns (Collection memory) {
-        return spaceCollections[_spaceId][_index];
+    function getCollection(uint256 _spaceId, uint128 _id) public view returns (Collection memory) {
+        uint128 index = _id - 1;
+        return spaceCollections[_spaceId][index];
     }
 
     function getCollectionCount(uint256 _spaceId) public view returns (uint64) {

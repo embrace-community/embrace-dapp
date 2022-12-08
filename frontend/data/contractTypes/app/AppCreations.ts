@@ -27,13 +27,13 @@ import type {
 
 export declare namespace AppCreations {
   export type CollectionStruct = {
-    index: PromiseOrValue<BigNumberish>;
+    id: PromiseOrValue<BigNumberish>;
     contractAddress: PromiseOrValue<string>;
     name: PromiseOrValue<string>;
   };
 
   export type CollectionStructOutput = [BigNumber, string, string] & {
-    index: BigNumber;
+    id: BigNumber;
     contractAddress: string;
     name: string;
   };
@@ -42,7 +42,7 @@ export declare namespace AppCreations {
 export interface AppCreationsInterface extends utils.Interface {
   functions: {
     "createCollection(uint256,string,string)": FunctionFragment;
-    "getCollection(uint256,uint64)": FunctionFragment;
+    "getCollection(uint256,uint128)": FunctionFragment;
     "getCollectionCount(uint256)": FunctionFragment;
     "getCollections(uint256)": FunctionFragment;
     "spaceCollections(uint256,uint256)": FunctionFragment;
@@ -152,7 +152,7 @@ export interface AppCreations extends BaseContract {
 
     getCollection(
       _spaceId: PromiseOrValue<BigNumberish>,
-      _index: PromiseOrValue<BigNumberish>,
+      _id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[AppCreations.CollectionStructOutput]>;
 
@@ -172,7 +172,7 @@ export interface AppCreations extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, string, string] & {
-        index: BigNumber;
+        id: BigNumber;
         contractAddress: string;
         name: string;
       }
@@ -193,7 +193,7 @@ export interface AppCreations extends BaseContract {
 
   getCollection(
     _spaceId: PromiseOrValue<BigNumberish>,
-    _index: PromiseOrValue<BigNumberish>,
+    _id: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<AppCreations.CollectionStructOutput>;
 
@@ -213,7 +213,7 @@ export interface AppCreations extends BaseContract {
     overrides?: CallOverrides
   ): Promise<
     [BigNumber, string, string] & {
-      index: BigNumber;
+      id: BigNumber;
       contractAddress: string;
       name: string;
     }
@@ -234,7 +234,7 @@ export interface AppCreations extends BaseContract {
 
     getCollection(
       _spaceId: PromiseOrValue<BigNumberish>,
-      _index: PromiseOrValue<BigNumberish>,
+      _id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<AppCreations.CollectionStructOutput>;
 
@@ -254,7 +254,7 @@ export interface AppCreations extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [BigNumber, string, string] & {
-        index: BigNumber;
+        id: BigNumber;
         contractAddress: string;
         name: string;
       }
@@ -278,7 +278,7 @@ export interface AppCreations extends BaseContract {
 
     getCollection(
       _spaceId: PromiseOrValue<BigNumberish>,
-      _index: PromiseOrValue<BigNumberish>,
+      _id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -314,7 +314,7 @@ export interface AppCreations extends BaseContract {
 
     getCollection(
       _spaceId: PromiseOrValue<BigNumberish>,
-      _index: PromiseOrValue<BigNumberish>,
+      _id: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

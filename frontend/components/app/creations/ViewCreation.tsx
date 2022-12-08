@@ -1,22 +1,100 @@
+import { ethers } from "ethers";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useAppContract } from "../../../hooks/useEmbraceContracts";
+import useSigner from "../../../hooks/useSigner";
+import {
+  getFileUri,
+  getIpfsJsonContent,
+} from "../../../lib/web3storage/getIpfsJsonContent";
 import Button from "../../Button";
+import { Player } from "@livepeer/react";
+import {
+  LivepeerConfig,
+  createReactClient,
+  studioProvider,
+} from "@livepeer/react";
 
-export default function ViewCreation({ id }: { id: string }) {
+const livepeerClient = createReactClient({
+  provider: studioProvider({
+    apiKey: process.env.NEXT_PUBLIC_STUDIO_API_KEY,
+  }),
+});
+
+export default function ViewCreation({
+  spaceId,
+  collectionId,
+  creationId,
+}: {
+  spaceId: number;
+  collectionId: number;
+  creationId: number;
+}) {
   const router = useRouter();
+  const { signer } = useSigner();
+  const { appCreationsContract, appCreationCollectionsABI } = useAppContract();
+  const [creation, setCreation] = useState<any>({});
+  const [creationLoaded, setCreationLoaded] = useState<boolean>(false);
 
-  const creation = {
-    id: 1,
-    title: "This is an image of a tree",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce et faucibus arcu, ac pharetra neque. Nulla ut nisi sodales, viverra magna vel, elementum sapien. Nullam hendrerit urna eu diam fermentum pretium. Cras et massa tempus, ultrices quam eget, convallis risus. Curabitur eu leo risus. Suspendisse semper arcu ac pretium lacinia. Praesent magna mi, efficitur at quam at, porttitor tincidunt lacus. Donec malesuada nunc sed nunc porta cursus. Pellentesque accumsan laoreet diam, ac luctus orci ullamcorper ut. Proin faucibus ipsum libero, pellentesque rutrum ex pellentesque sit amet.",
-    source:
-      "https://images.unsplash.com/photo-1582053433976-25c00369fc93?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=512&q=80",
-  };
+  // Load the collections for this space
+  useEffect(() => {
+    if (!appCreationsContract || !signer || Object.keys(creation).length > 0)
+      return;
+
+    const loadCreation = async () => {
+      const collection = await appCreationsContract.getCollection(
+        spaceId,
+        collectionId,
+      );
+
+      if (!collection) return;
+
+      // Get the selected collection contract address and create a new contract instance
+      const collectionContractAddress = collection.contractAddress;
+
+      // Get the creations for this collection
+      const collectionContract = new ethers.Contract(
+        collectionContractAddress,
+        appCreationCollectionsABI,
+        signer,
+      );
+
+      const creationURI = await collectionContract.tokenURI(creationId);
+
+      // Now if CID has not been loaded then load it
+      console.log(creationURI, "tokenURI");
+
+      // TODO: Otherwise get from store
+
+      const cid = creationURI.replace("ipfs://", "");
+      const creationMetadata = await getIpfsJsonContent(cid);
+
+      if (creationMetadata?.image) {
+        const imageCid = creationMetadata?.image.replace("ipfs://", "");
+        const imageUri = getFileUri(imageCid);
+        creationMetadata.image = imageUri;
+      }
+
+      console.log(creationMetadata, "loadedMetadata");
+
+      setCreation(creationMetadata);
+      setCreationLoaded(true);
+    };
+
+    loadCreation();
+  }, [
+    appCreationCollectionsABI,
+    appCreationsContract,
+    collectionId,
+    creation,
+    creationId,
+    signer,
+    spaceId,
+  ]);
 
   return (
-    <>
+    <LivepeerConfig client={livepeerClient}>
       <Button
         additionalClassName="p-2 mb-5"
         buttonProps={{ onClick: () => router.back() }}
@@ -25,23 +103,37 @@ export default function ViewCreation({ id }: { id: string }) {
       </Button>
 
       <div className="w-full flex justify-center">
-        <Image
-          src={creation.source}
-          alt={creation.title}
+        {/* <Image
+          src={creation.image}
+          alt={creation.name}
           width="0"
           height="0"
           sizes="100vw"
-          className="w-auto h-auto"
-        />
+          className="w-auto max-h-screen"
+        /> */}
+        {creationLoaded && (
+          <Player
+            title={creation.name}
+            src={creation.animation_url}
+            autoPlay={false}
+            objectFit="contain"
+            poster={creation.image}
+            muted={false}
+            autoUrlUpload={{
+              fallback: true,
+              ipfsGateway: "https://cloudflare-ipfs.com",
+            }}
+          />
+        )}
       </div>
 
       <div className="w-full flex justify-center">
-        <h1 className="text-2xl font-bold">{creation.title}</h1>
+        <h1 className="text-2xl font-bold">{creation.name}</h1>
       </div>
 
       <div className="w-full flex justify-center">
         <p className="text-sm">{creation.description}</p>
       </div>
-    </>
+    </LivepeerConfig>
   );
 }

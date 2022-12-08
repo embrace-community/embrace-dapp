@@ -6,6 +6,9 @@ const appContractAddress = process.env.NEXT_PUBLIC_APPS_CONTRACT_ADDRESS!;
 const spacesContractAddress = process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!;
 const accountsContractAddress =
   process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!;
+const appCreationsContractAddress =
+  process.env.NEXT_PUBLIC_CREATIONS_CONTRACT_ADDRESS!;
+
 const deployedChainIdEnv = process.env.NEXT_PUBLIC_DEPLOYED_CHAIN_ID!;
 
 if (!appContractAddress && isNoTestEnvironment)
@@ -39,6 +42,7 @@ export {
   appContractAddress,
   spacesContractAddress,
   accountsContractAddress,
+  appCreationsContractAddress,
   deployedChainId,
   web3StorageKey,
   infuraApiKey,

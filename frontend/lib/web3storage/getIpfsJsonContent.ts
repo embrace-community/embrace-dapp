@@ -11,8 +11,11 @@ async function getIpfsJsonContent(
 ): Promise<string | Web3File | undefined | Record<string, any>> {
   try {
     let res = await web3StorageClient.get(cid);
+
     if (res?.ok) {
       let files = await res.files();
+
+      console.log("cid", cid, files);
 
       const file = files[0];
       if (readAs === "none") return file;
