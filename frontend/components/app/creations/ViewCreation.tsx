@@ -103,7 +103,8 @@ export default function ViewCreation({
       </Button>
 
       <div className="w-full flex justify-center">
-        {/* <Image
+        <div className="w-1/2">
+          {/* <Image
           src={creation.image}
           alt={creation.name}
           width="0"
@@ -111,20 +112,21 @@ export default function ViewCreation({
           sizes="100vw"
           className="w-auto max-h-screen"
         /> */}
-        {creationLoaded && (
-          <Player
-            title={creation.name}
-            src={creation.animation_url}
-            autoPlay={false}
-            objectFit="contain"
-            poster={creation.image}
-            muted={false}
-            autoUrlUpload={{
-              fallback: true,
-              ipfsGateway: "https://cloudflare-ipfs.com",
-            }}
-          />
-        )}
+          {creationLoaded && (
+            <Player
+              title={creation.name}
+              src={creation.animation_url}
+              autoPlay={false}
+              objectFit="contain"
+              poster={creation.image}
+              muted={false}
+              autoUrlUpload={{
+                fallback: true,
+                ipfsGateway: "https://cloudflare-ipfs.com",
+              }}
+            />
+          )}
+        </div>
       </div>
 
       <div className="w-full flex justify-center">

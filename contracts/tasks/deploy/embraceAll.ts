@@ -111,6 +111,10 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
     gasLimit: 8000000, // approx 0.01 ETH
   });
 
+  await creations.createCollection(spaceId, "Video Blog", "VLOG", {
+    gasLimit: 8000000, // approx 0.01 ETH
+  });
+
   const collections = await creations.getCollections(spaceId);
 
   if (collections.length > 0) {
@@ -131,6 +135,19 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
     for (let i = 0; i < tokenURIs.length; i++) {
       await contract.mint(tokenURIs[i]);
       console.log("Minted token", i, tokenURIs[i]);
+    }
+
+    // Add creations to the new collection
+    const vlogCollectionContractAddress = collections[1].contractAddress;
+    const vlogContract = new ethers.Contract(vlogCollectionContractAddress, AppCreationsCollection.abi, deployer);
+    const vlogTokenURIs = [
+      "bafkreihis2pfkhpqwv3yznga2twatd3jlujmvnaduvk5l6icm2cyclh42y",
+      "bafkreihbar4sjulb6e5kqxvqclbgy2xh7h5xb7iityeour553yskud4pwm",
+    ];
+
+    for (let i = 0; i < vlogTokenURIs.length; i++) {
+      await vlogContract.mint(vlogTokenURIs[i]);
+      console.log("Minted token", i, vlogTokenURIs[i]);
     }
   }
 });
