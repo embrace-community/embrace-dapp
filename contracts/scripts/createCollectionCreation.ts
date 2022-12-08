@@ -13,8 +13,8 @@ async function main() {
   const tokenURI = process.argv[3];
   if (!tokenURI) throw new Error("Token URI is required");
 
-  const spaceId = process.argv[4] || 1;
-  const network = process.argv[5] || "localhost";
+  // const spaceId = process.argv[4] || 1;
+  const network = process.argv[4] || "localhost";
 
   const wallet = getWallet();
 
@@ -32,7 +32,8 @@ async function main() {
     const owner = await contract.ownerOf(tokens[index]);
 
     console.log(`======Token Index #${index}======`);
-    console.log(uri, owner);
+    console.log(uri);
+    console.log(owner);
     console.log("\n");
   }
 

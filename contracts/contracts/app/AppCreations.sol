@@ -28,6 +28,7 @@ contract AppCreations {
 
         spaceCollections[_spaceId].push(collection);
         spaceToCollectionCount[_spaceId]++;
+
         console.log("createCollection", _spaceId, _name, address(newCollection));
     }
 

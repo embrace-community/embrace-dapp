@@ -2,6 +2,7 @@ import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 
+import * as AppCreationsCollection from "../../artifacts/contracts/app/AppCreationsCollection.sol/AppCreationsCollection.json";
 import { getSpace } from "../../scripts/utils";
 import { EmbraceAccounts } from "../../types/contracts/EmbraceAccounts";
 import { EmbraceApps } from "../../types/contracts/EmbraceApps";
@@ -17,6 +18,7 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
   const signers: SignerWithAddress[] = await ethers.getSigners();
   const deployer: SignerWithAddress = signers[0];
 
+  // DEPLOY ACCOUNTS CONTRACT
   const embraceAccountsFactory: EmbraceAccounts__factory = <EmbraceAccounts__factory>(
     await ethers.getContractFactory("EmbraceAccounts")
   );
@@ -26,6 +28,22 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
 
   console.log(`NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS="${embraceAccounts.address}"`);
 
+  // DEPLOY APPS CONTRACT
+  const embraceAppsFactory: EmbraceApps__factory = <EmbraceApps__factory>await ethers.getContractFactory("EmbraceApps");
+  const embraceApps: EmbraceApps = <EmbraceApps>await embraceAppsFactory.connect(deployer).deploy();
+  await embraceApps.deployed();
+  console.log(`NEXT_PUBLIC_APPS_CONTRACT_ADDRESS="${embraceApps.address}"`);
+
+  // DEPLOY SPACES CONTRACT
+  const embraceSpacesFactory: EmbraceSpaces__factory = <EmbraceSpaces__factory>(
+    await ethers.getContractFactory("EmbraceSpaces")
+  );
+  const embraceSpaces: EmbraceSpaces = <EmbraceSpaces>(
+    await embraceSpacesFactory.connect(deployer).deploy(embraceAccounts.address, embraceApps.address)
+  );
+  await embraceSpaces.deployed();
+  console.log(`NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS="${embraceSpaces.address}"`);
+
   // DEPLOY CREATIONS CONTRACT
   const creationsFactory: AppCreations__factory = <AppCreations__factory>(
     await ethers.getContractFactory("AppCreations")
@@ -34,12 +52,7 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
   await creations.deployed();
   console.log(`NEXT_PUBLIC_CREATIONS_CONTRACT_ADDRESS="${creations.address}"`);
 
-  const embraceAppsFactory: EmbraceApps__factory = <EmbraceApps__factory>await ethers.getContractFactory("EmbraceApps");
-  const embraceApps: EmbraceApps = <EmbraceApps>await embraceAppsFactory.connect(deployer).deploy();
-  await embraceApps.deployed();
-  console.log(`NEXT_PUBLIC_APPS_CONTRACT_ADDRESS="${embraceApps.address}"`);
-
-  // name: string, contractAddress: string
+  // CREATE APPS
   const apps = [
     {
       name: "Chat Server",
@@ -69,15 +82,6 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
     }
   }
 
-  const embraceSpacesFactory: EmbraceSpaces__factory = <EmbraceSpaces__factory>(
-    await ethers.getContractFactory("EmbraceSpaces")
-  );
-  const embraceSpaces: EmbraceSpaces = <EmbraceSpaces>(
-    await embraceSpacesFactory.connect(deployer).deploy(embraceAccounts.address, embraceApps.address)
-  );
-  await embraceSpaces.deployed();
-  console.log(`NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS="${embraceSpaces.address}"`);
-
   // CREATE SPACES
   const spaces = [
     "public",
@@ -98,6 +102,35 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
       });
 
       console.log(`Created space ${space.handle}`);
+    }
+  }
+
+  // CREATE CREATIONS COLLECTION
+  const spaceId = 7;
+  await creations.createCollection(spaceId, "Primary", "PRIMARY", {
+    gasLimit: 8000000, // approx 0.01 ETH
+  });
+
+  const collections = await creations.getCollections(spaceId);
+
+  if (collections.length > 0) {
+    // Add creations to the new collection
+    const collectionContract = collections[0].collectionContract;
+    const contract = new ethers.Contract(collectionContract, AppCreationsCollection.abi, deployer);
+    const tokenURIs = [
+      "bafkreieistdgzb6xykj3kuracuv3qb5nxex5ds2qdtvvo3p6cfhixm6xle",
+      "bafkreihbar4sjulb6e5kqxvqclbgy2xh7h5xb7iityeour553yskud4pwm",
+      "bafkreieistdgzb6xykj3kuracuv3qb5nxex5ds2qdtvvo3p6cfhixm6xle",
+      "bafkreihbar4sjulb6e5kqxvqclbgy2xh7h5xb7iityeour553yskud4pwm",
+      "bafkreieistdgzb6xykj3kuracuv3qb5nxex5ds2qdtvvo3p6cfhixm6xle",
+      "bafkreihbar4sjulb6e5kqxvqclbgy2xh7h5xb7iityeour553yskud4pwm",
+      "bafkreieistdgzb6xykj3kuracuv3qb5nxex5ds2qdtvvo3p6cfhixm6xle",
+      "bafkreihbar4sjulb6e5kqxvqclbgy2xh7h5xb7iityeour553yskud4pwm",
+    ];
+
+    for (let i = 0; i < tokenURIs.length; i++) {
+      await contract.mint(tokenURIs[i]);
+      console.log("Minted token", i, tokenURIs[i]);
     }
   }
 });

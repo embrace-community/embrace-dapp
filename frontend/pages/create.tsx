@@ -91,6 +91,8 @@ export default function SpaceViewPage() {
     try {
       setIsImageLoading(true);
 
+      console.log(uploadedFile);
+
       const uploadedCid = await getWeb3StorageClient().put([uploadedFile], {
         wrapWithDirectory: false,
       });
