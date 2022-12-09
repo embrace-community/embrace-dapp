@@ -17,6 +17,7 @@ import { EmbraceSpace } from "../frontend/utils/types";
 task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArguments, { ethers }) {
   const signers: SignerWithAddress[] = await ethers.getSigners();
   const deployer: SignerWithAddress = signers[0];
+  const wrongDeployer: SignerWithAddress = signers[1];
 
   // DEPLOY ACCOUNTS CONTRACT
   const embraceAccountsFactory: EmbraceAccounts__factory = <EmbraceAccounts__factory>(
@@ -48,7 +49,7 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
   const creationsFactory: AppCreations__factory = <AppCreations__factory>(
     await ethers.getContractFactory("AppCreations")
   );
-  const creations: AppCreations = <AppCreations>await creationsFactory.connect(deployer).deploy();
+  const creations: AppCreations = <AppCreations>await creationsFactory.connect(deployer).deploy(embraceSpaces.address);
   await creations.deployed();
   console.log(`NEXT_PUBLIC_CREATIONS_CONTRACT_ADDRESS="${creations.address}"`);
 

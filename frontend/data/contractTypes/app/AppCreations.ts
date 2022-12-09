@@ -42,9 +42,12 @@ export declare namespace AppCreations {
 export interface AppCreationsInterface extends utils.Interface {
   functions: {
     "createCollection(uint256,string,string)": FunctionFragment;
+    "embraceSpacesAddress()": FunctionFragment;
     "getCollection(uint256,uint128)": FunctionFragment;
     "getCollectionCount(uint256)": FunctionFragment;
     "getCollections(uint256)": FunctionFragment;
+    "isAdminExternal(uint256,address)": FunctionFragment;
+    "isFounderExternal(uint256,address)": FunctionFragment;
     "spaceCollections(uint256,uint256)": FunctionFragment;
     "spaceToCollectionCount(uint256)": FunctionFragment;
   };
@@ -52,9 +55,12 @@ export interface AppCreationsInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "createCollection"
+      | "embraceSpacesAddress"
       | "getCollection"
       | "getCollectionCount"
       | "getCollections"
+      | "isAdminExternal"
+      | "isFounderExternal"
       | "spaceCollections"
       | "spaceToCollectionCount"
   ): FunctionFragment;
@@ -68,6 +74,10 @@ export interface AppCreationsInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "embraceSpacesAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getCollection",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
@@ -78,6 +88,14 @@ export interface AppCreationsInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getCollections",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isAdminExternal",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isFounderExternal",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "spaceCollections",
@@ -93,6 +111,10 @@ export interface AppCreationsInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "embraceSpacesAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getCollection",
     data: BytesLike
   ): Result;
@@ -102,6 +124,14 @@ export interface AppCreationsInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getCollections",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isAdminExternal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isFounderExternal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -150,6 +180,8 @@ export interface AppCreations extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    embraceSpacesAddress(overrides?: CallOverrides): Promise<[string]>;
+
     getCollection(
       _spaceId: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BigNumberish>,
@@ -165,6 +197,18 @@ export interface AppCreations extends BaseContract {
       _spaceId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[AppCreations.CollectionStructOutput[]]>;
+
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
 
     spaceCollections(
       arg0: PromiseOrValue<BigNumberish>,
@@ -191,6 +235,8 @@ export interface AppCreations extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  embraceSpacesAddress(overrides?: CallOverrides): Promise<string>;
+
   getCollection(
     _spaceId: PromiseOrValue<BigNumberish>,
     _id: PromiseOrValue<BigNumberish>,
@@ -206,6 +252,18 @@ export interface AppCreations extends BaseContract {
     _spaceId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<AppCreations.CollectionStructOutput[]>;
+
+  isAdminExternal(
+    _spaceId: PromiseOrValue<BigNumberish>,
+    _address: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isFounderExternal(
+    _spaceId: PromiseOrValue<BigNumberish>,
+    _address: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   spaceCollections(
     arg0: PromiseOrValue<BigNumberish>,
@@ -232,6 +290,8 @@ export interface AppCreations extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    embraceSpacesAddress(overrides?: CallOverrides): Promise<string>;
+
     getCollection(
       _spaceId: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BigNumberish>,
@@ -247,6 +307,18 @@ export interface AppCreations extends BaseContract {
       _spaceId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<AppCreations.CollectionStructOutput[]>;
+
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     spaceCollections(
       arg0: PromiseOrValue<BigNumberish>,
@@ -276,6 +348,8 @@ export interface AppCreations extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    embraceSpacesAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
     getCollection(
       _spaceId: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BigNumberish>,
@@ -289,6 +363,18 @@ export interface AppCreations extends BaseContract {
 
     getCollections(
       _spaceId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -312,6 +398,10 @@ export interface AppCreations extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    embraceSpacesAddress(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getCollection(
       _spaceId: PromiseOrValue<BigNumberish>,
       _id: PromiseOrValue<BigNumberish>,
@@ -325,6 +415,18 @@ export interface AppCreations extends BaseContract {
 
     getCollections(
       _spaceId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

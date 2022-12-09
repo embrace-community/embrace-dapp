@@ -14,6 +14,7 @@ import {
   getFileUri,
   getIpfsJsonContent,
 } from "../../../lib/web3storage/getIpfsJsonContent";
+import Spinner from "../../Spinner";
 
 type Collection = {
   id: string;
@@ -78,6 +79,7 @@ export default function Social({
 
       const creations = await collectionContract.getAllTokensData();
       setCreations(creations);
+      setCreationsDataLoaded(false);
 
       console.log("creations", creations);
     };
@@ -143,8 +145,7 @@ export default function Social({
           <h1 className="text-lg font-medium leading-6 embracedark underline sm:truncate">
             Collections
           </h1>
-          {creationsDataLoaded &&
-            collections.length > 0 &&
+          {collections.length > 0 &&
             collections.map((collection) => (
               <div
                 key={collection.id}
@@ -169,45 +170,50 @@ export default function Social({
             </Link>
           </div>
 
-          <ul
-            role="list"
-            className="w-full grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-x-6 xl:gap-x-8"
-          >
-            {selectedCollection &&
-              creations.map((creation, i) => (
-                <Link
-                  href={`/${query.handle}/creations?collectionId=${selectedCollection.id}&creationId=${creation.tokenId}`}
-                  key={creation.tokenId}
-                >
-                  {creationsMetadata[i] && (
-                    <li className="relative">
-                      <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
-                        <Image
-                          src={creationsMetadata[i]?.image}
-                          alt={creationsMetadata[i]?.name}
-                          width="0"
-                          height="0"
-                          sizes="w-full"
-                          className="pointer-events-none object-cover group-hover:opacity-75"
-                        />
-                        <button
-                          type="button"
-                          className="absolute inset-0 focus:outline-none"
-                        >
-                          <span className="sr-only">
-                            Open {creationsMetadata[i]?.name}
-                          </span>
-                        </button>
-                      </div>
-                      <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
-                        {creationsMetadata[i]?.name}
-                      </p>
-                      <p className="pointer-events-none block text-sm font-medium text-gray-500"></p>
-                    </li>
-                  )}
-                </Link>
-              ))}
-          </ul>
+          {selectedCollection && creationsMetadata.length > 0 && (
+            <>
+              <ul
+                role="list"
+                className="w-full grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-x-6 xl:gap-x-8"
+              >
+                {creations.map((creation, i) => (
+                  <Link
+                    href={`/${query.handle}/creations?collectionId=${selectedCollection.id}&creationId=${creation.tokenId}`}
+                    key={creation.tokenId}
+                  >
+                    {creationsMetadata[i] && (
+                      <li className="relative">
+                        <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+                          <Image
+                            src={creationsMetadata[i]?.image}
+                            alt={creationsMetadata[i]?.name}
+                            width="0"
+                            height="0"
+                            sizes="w-full"
+                            className="pointer-events-none object-cover group-hover:opacity-75"
+                          />
+                          <button
+                            type="button"
+                            className="absolute inset-0 focus:outline-none"
+                          >
+                            <span className="sr-only">
+                              Open {creationsMetadata[i]?.name}
+                            </span>
+                          </button>
+                        </div>
+                        <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
+                          {creationsMetadata[i]?.name}
+                        </p>
+                        <p className="pointer-events-none block text-sm font-medium text-gray-500"></p>
+                      </li>
+                    )}
+                  </Link>
+                ))}
+              </ul>
+              {/* Displayed if some creations metadata has loaded but not all */}
+              {!creationsDataLoaded && <Spinner itemsCenter={false} />}{" "}
+            </>
+          )}
         </div>
       </>
     </div>

@@ -4,10 +4,38 @@ pragma solidity >=0.8.17;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "hardhat/console.sol";
 
-contract AppCreationsCollection is ERC721Enumerable, ERC721URIStorage {
+interface IEmbraceSpaces {
+    function isAdminExternal(uint256 _spaceId, address _address) external view returns (bool);
+
+    function isFounderExternal(uint256 _spaceId, address _address) external view returns (bool);
+}
+
+contract AppCreationsCollection is ERC721Enumerable, ERC721URIStorage, IEmbraceSpaces {
     using Counters for Counters.Counter;
     Counters.Counter private _collectionId;
+
+    error ErrorOnlyAdmin(uint256 spaceId, address memberAddress);
+
+    address public embraceSpacesAddress;
+
+    modifier onlySpaceAdmin(uint256 _spaceId) {
+        console.log("onlySpaceAdmin", _spaceId, embraceSpacesAddress);
+        if (!isAdminExternal(_spaceId, msg.sender) && !isFounderExternal(_spaceId, msg.sender))
+            revert ErrorOnlyAdmin(_spaceId, msg.sender);
+        _;
+    }
+
+    function isAdminExternal(uint256 _spaceId, address _address) public view returns (bool) {
+        console.log("isAdminExternal", _spaceId, embraceSpacesAddress);
+        return IEmbraceSpaces(embraceSpacesAddress).isAdminExternal(_spaceId, _address);
+    }
+
+    function isFounderExternal(uint256 _spaceId, address _address) public view returns (bool) {
+        console.log("isFounderExternal", _spaceId, embraceSpacesAddress);
+        return IEmbraceSpaces(embraceSpacesAddress).isFounderExternal(_spaceId, _address);
+    }
 
     uint256 private spaceId;
 
@@ -19,14 +47,19 @@ contract AppCreationsCollection is ERC721Enumerable, ERC721URIStorage {
         address owner;
     }
 
-    constructor(uint256 _spaceId, string memory _name, string memory _symbol) ERC721(_name, _symbol) {
+    constructor(
+        address _embraceSpacesAddress,
+        uint256 _spaceId,
+        string memory _name,
+        string memory _symbol
+    ) ERC721(_name, _symbol) {
         spaceId = _spaceId;
+        embraceSpacesAddress = _embraceSpacesAddress;
         _setBaseURI("ipfs://");
     }
 
-    // TODO: Need to have access control so that only the founder/admin will be able to mint creations
-    // May need to expand to allow Admins of the space to mint creations
-    function mint(string memory _tokenURI) public {
+    // Only space admins can create a collection for the space
+    function mint(string memory _tokenURI) public onlySpaceAdmin(spaceId) {
         _collectionId.increment();
         uint256 newCollectionId = _collectionId.current();
         _mint(msg.sender, newCollectionId);

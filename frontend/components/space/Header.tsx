@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useState } from "react";
+import { CommonPaginatedResultInfoFieldsFragmentDoc } from "../../types/lens-generated";
 import {
   MembershipGateToken,
   Access,
@@ -30,6 +31,7 @@ export default function Header({
   const allowRequests = space?.membership?.allowRequests;
   const [aboutShow, toggleAboutShow] = useState(false);
 
+  console.log("space metadata: ", space.loadedMetadata, space);
   return (
     <div className="w-full flex flex-col pt-8 md:pl-[6.8vw]">
       <div className="w-full flex flex-col md:flex-row justify-start items-center md:items-start border-b-2 border-embracedark border-opacity-5 mb-4">

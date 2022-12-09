@@ -1,6 +1,13 @@
-export default function Spinner() {
+import classNames from "classnames";
+
+export default function Spinner({ itemsCenter = true }) {
   return (
-    <div className="flex justify-center items-center h-full w-full">
+    <div
+      className={classNames({
+        "flex justify-center h-full w-full": true,
+        "items-center": itemsCenter,
+      })}
+    >
       <svg
         role="status"
         className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-violet-700"

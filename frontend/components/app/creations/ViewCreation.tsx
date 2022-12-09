@@ -15,10 +15,11 @@ import {
   createReactClient,
   studioProvider,
 } from "@livepeer/react";
+import Spinner from "../../Spinner";
 
 const livepeerClient = createReactClient({
   provider: studioProvider({
-    apiKey: process.env.NEXT_PUBLIC_STUDIO_API_KEY,
+    apiKey: process.env.NEXT_PUBLIC_LIVEPEER_STUDIO_API_KEY,
   }),
 });
 
@@ -101,9 +102,9 @@ export default function ViewCreation({
       >
         Back
       </Button>
-
-      <div className="w-full flex justify-center">
-        <div className="w-1/2">
+      {!creationLoaded && <Spinner />}
+      <div className="w-full flex flex-row grow">
+        <div className="w-full flex flex-col justify-center">
           {/* <Image
           src={creation.image}
           alt={creation.name}
@@ -113,28 +114,34 @@ export default function ViewCreation({
           className="w-auto max-h-screen"
         /> */}
           {creationLoaded && (
-            <Player
-              title={creation.name}
-              src={creation.animation_url}
-              autoPlay={false}
-              objectFit="contain"
-              poster={creation.image}
-              muted={false}
-              autoUrlUpload={{
-                fallback: true,
-                ipfsGateway: "https://cloudflare-ipfs.com",
-              }}
-            />
+            <>
+              <Player
+                title={creation.name}
+                src={creation.animation_url}
+                autoPlay={false}
+                objectFit="contain"
+                poster={creation.image}
+                muted={false}
+                autoUrlUpload={{
+                  fallback: true,
+                  ipfsGateway: "https://cloudflare-ipfs.com",
+                }}
+              />
+
+              <div className="w-full flex justify-left p-2">
+                <h1 className="text-2xl font-bold">{creation.name}</h1>
+              </div>
+
+              <div className="w-full flex justify-left p-2">
+                <p className="text-sm">{creation.description}</p>
+              </div>
+            </>
           )}
         </div>
-      </div>
 
-      <div className="w-full flex justify-center">
-        <h1 className="text-2xl font-bold">{creation.name}</h1>
-      </div>
-
-      <div className="w-full flex justify-center">
-        <p className="text-sm">{creation.description}</p>
+        <div className="hidden w-1/6 md:flex flex-col ml-5 p-2">
+          collection creations
+        </div>
       </div>
     </LivepeerConfig>
   );

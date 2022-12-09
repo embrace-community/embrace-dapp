@@ -96,12 +96,12 @@ contract EmbraceSpaces {
     mapping(bytes32 => uint256) public spaceHandleToId;
 
     modifier onlySpaceAdmin(uint256 _spaceId) {
-        if (isAdmin(_spaceId) || isFounder(_spaceId)) revert ErrorOnlyAdmin(_spaceId, msg.sender);
+        if (!isAdmin(_spaceId) && !isFounder(_spaceId)) revert ErrorOnlyAdmin(_spaceId, msg.sender);
         _;
     }
 
     modifier onlySpaceFounder(uint256 _spaceId) {
-        if (isFounder(_spaceId)) revert ErrorOnlyFounder(_spaceId, msg.sender);
+        if (!isFounder(_spaceId)) revert ErrorOnlyFounder(_spaceId, msg.sender);
         _;
     }
 
@@ -124,6 +124,20 @@ contract EmbraceSpaces {
         Space memory space = spaces[_spaceId - 1];
 
         return space.founder == msg.sender;
+    }
+
+    function isFounderExternal(uint256 _spaceId, address _address) external view returns (bool) {
+        Space memory space = spaces[_spaceId - 1];
+
+        return space.founder == _address;
+    }
+
+    function isAdminExternal(uint256 _spaceId, address _address) external view returns (bool) {
+        if (spaceMembers[_spaceId - 1][_address].isAdmin == true) {
+            return true;
+        }
+
+        return false;
     }
 
     function createSpace(

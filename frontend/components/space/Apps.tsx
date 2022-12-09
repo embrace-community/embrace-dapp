@@ -78,6 +78,8 @@ export default function Apps({
     changeRouteShallowIfNew(route);
   }
 
+  console.log("Apps.tsx: ", currentApp);
+
   return (
     <div className="w-full flex flex-col items-start flex-1">
       <Navigation

@@ -3,9 +3,31 @@
 pragma solidity >=0.8.17;
 
 import "hardhat/console.sol";
-import "./AppCreationsCollection.sol";
+import "./AppCreationsCollection.sol"; // Includes IEmbraceSpaces
 
-contract AppCreations {
+contract AppCreations is IEmbraceSpaces {
+    error ErrorOnlyAdmin(uint256 spaceId, address memberAddress);
+
+    address public embraceSpacesAddress;
+
+    constructor(address _embraceSpacesAddress) {
+        embraceSpacesAddress = _embraceSpacesAddress;
+    }
+
+    modifier onlySpaceAdmin(uint256 _spaceId) {
+        if (!isAdminExternal(_spaceId, msg.sender) && !isFounderExternal(_spaceId, msg.sender))
+            revert ErrorOnlyAdmin(_spaceId, msg.sender);
+        _;
+    }
+
+    function isAdminExternal(uint256 _spaceId, address _address) public view returns (bool) {
+        return IEmbraceSpaces(embraceSpacesAddress).isAdminExternal(_spaceId, _address);
+    }
+
+    function isFounderExternal(uint256 _spaceId, address _address) public view returns (bool) {
+        return IEmbraceSpaces(embraceSpacesAddress).isFounderExternal(_spaceId, _address);
+    }
+
     struct Collection {
         uint128 id;
         address contractAddress;
@@ -15,10 +37,20 @@ contract AppCreations {
     mapping(uint256 => Collection[]) public spaceCollections;
     mapping(uint256 => uint64) public spaceToCollectionCount;
 
-    // TODO: Ownable / Admins + Founder should only be able to create collections for the space
-    function createCollection(uint256 _spaceId, string memory _name, string memory _symbol) public {
+    // Only space admins can create a collection for the space
+    function createCollection(
+        uint256 _spaceId,
+        string memory _name,
+        string memory _symbol
+    ) public onlySpaceAdmin(_spaceId) {
         // Create new ERC721 collection contract
-        AppCreationsCollection newCollection = new AppCreationsCollection(_spaceId, _name, _symbol);
+        console.log("createCollection", _spaceId, embraceSpacesAddress);
+        AppCreationsCollection newCollection = new AppCreationsCollection(
+            embraceSpacesAddress,
+            _spaceId,
+            _name,
+            _symbol
+        );
 
         // Increment collection count for space
         // Used for collection id - we start at 1, so we increment before pushing to array
