@@ -20,7 +20,7 @@ export default function Button({
   return (
     <button
       className={classNames({
-        "rounded-full border-violet-700 border-2 bg-transparent text-violet-700 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30":
+        "rounded-full border-violet-700 border-2 bg-transparent text-violet-700 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30 py-2 px-7":
           true,
         [additionalClassName]: additionalClassName,
       })}
