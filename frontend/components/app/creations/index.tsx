@@ -2,7 +2,7 @@ import classNames from "classnames";
 import Image from "next/image";
 import Link from "next/link";
 import { Router } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Space } from "../../../types/space";
 import Button from "../../Button";
 import CreateCreation from "./CreateCreation";
@@ -45,6 +45,7 @@ export default function Social({
   const [creationsMetadata, setCreationsMetadata] = useState([]);
   const creationId = Number(query.creationId);
   const collectionId = Number(query.collectionId);
+  const newCollectionInput = useRef<HTMLInputElement>(null);
   const view = query.view as string;
 
   // Load the collections for this space
@@ -79,6 +80,7 @@ export default function Social({
 
       const creations = await collectionContract.getAllTokensData();
       setCreations(creations);
+
       setCreationsDataLoaded(false);
 
       console.log("creations", creations);
@@ -88,11 +90,17 @@ export default function Social({
   }, [appCreationCollectionsABI, selectedCollection?.contractAddress, signer]);
 
   useEffect(() => {
-    if (creationsDataLoaded || creations.length == 0) return;
+    if (creationsDataLoaded) return;
 
     async function loadMetadataJson() {
       console.log("creations", creations);
       console.log("metadata start", creationsDataLoaded);
+
+      if (creations.length == 0) {
+        setCreationsDataLoaded(true);
+        return;
+      }
+
       const _creationsMetadata = [];
 
       for (const creation of creations) {
@@ -124,6 +132,27 @@ export default function Social({
     loadMetadataJson();
   }, [creations, creationsDataLoaded]);
 
+  const createCollection = async () => {
+    if (
+      !appCreationsContract ||
+      !newCollectionInput.current ||
+      newCollectionInput.current?.value.length < 3
+    )
+      return;
+
+    const collectionName = newCollectionInput.current?.value;
+
+    const symbol = collectionName.substring(0, 5).toUpperCase();
+
+    await appCreationsContract.createCollection(
+      space.id,
+      collectionName,
+      symbol,
+    );
+
+    newCollectionInput.current.value = "";
+  };
+
   if (view === "form") {
     return <CreateCreation id={creationId} />;
   }
@@ -131,7 +160,7 @@ export default function Social({
   if (collectionId && creationId) {
     return (
       <ViewCreation
-        spaceId={space.id}
+        space={space}
         collectionId={collectionId}
         creationId={creationId}
       />
@@ -141,8 +170,8 @@ export default function Social({
   return (
     <div className="w-full flex flex-row grow">
       <>
-        <div className="hidden md:w-1/5 md:flex flex-col my-1 sm:m-4">
-          <h1 className="text-lg font-medium leading-6 embracedark underline sm:truncate">
+        <div className="relative hidden md:w-1/5 md:flex flex-col my-1 sm:m-4 max-h-[calc(100vh-400px)]">
+          <h1 className="text-lg font-medium leading-6 embracedark underline sm:truncate mb-5">
             Collections
           </h1>
           {collections.length > 0 &&
@@ -161,6 +190,35 @@ export default function Social({
                 <span>{collection.name}</span>
               </div>
             ))}
+
+          <div className="w-full mt-5 border-t p2 pt-5">
+            <label
+              htmlFor="collection"
+              className="block text-sm font-medium text-gray-700"
+            >
+              New Collection
+            </label>
+            <div className="mt-1">
+              <input
+                type="text"
+                name="collection"
+                id="collection"
+                ref={newCollectionInput}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                placeholder="collection name"
+              />
+            </div>
+            <Button
+              additionalClassName="p-1 mt-1"
+              buttonProps={{
+                onClick: () => {
+                  createCollection();
+                },
+              }}
+            >
+              + new collection
+            </Button>
+          </div>
         </div>
 
         <div className="w-full flex flex-col my-1 sm:mb-4 ">
@@ -211,7 +269,11 @@ export default function Social({
                 ))}
               </ul>
               {/* Displayed if some creations metadata has loaded but not all */}
-              {!creationsDataLoaded && <Spinner itemsCenter={false} />}{" "}
+              {!creationsDataLoaded && <Spinner itemsCenter={false} />}
+
+              {creationsDataLoaded && creations.length == 0 && (
+                <>No creations exist in this collection</>
+              )}
             </>
           )}
         </div>

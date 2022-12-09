@@ -180,14 +180,14 @@ export default function SpaceViewPage() {
       <AppLayout title={spaceData?.loadedMetadata?.name}>
         {spaceData?.loadedMetadata ? (
           <>
-            {/* <Header
+            <Header
               space={spaceData}
               isFounder={isFounder}
               membership={membership}
               membershipInfoLoaded={membershipInfoLoaded}
               joinSpace={joinSpace}
               requestJoinSpace={requestJoinSpace}
-            /> */}
+            />
             <Apps space={spaceData} query={router.query} />
           </>
         ) : (
