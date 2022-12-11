@@ -8,12 +8,21 @@ const accountsContractAddress =
   process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!;
 const deployedChainIdEnv = process.env.NEXT_PUBLIC_DEPLOYED_CHAIN_ID!;
 
+const lensHubContractAddress = process.env.NEXT_PUBLIC_LENS_HUB_CONTRACT;
+const lensPeripheryContractAddress =
+  process.env.NEXT_PUBLIC_LENS_PERIPHERY_CONTRACT;
+
 if (!appContractAddress && isNoTestEnvironment)
   throw Error("App Contract Address Env missing");
 if (!spacesContractAddress && isNoTestEnvironment)
   throw Error("Spaces Contract Address Env missing");
 if (!accountsContractAddress && isNoTestEnvironment)
   throw Error("Accounts Contract Address Env missing");
+
+if (!lensHubContractAddress && isNoTestEnvironment)
+  throw Error("lens Hub Contract Address Env missing");
+if (!lensPeripheryContractAddress && isNoTestEnvironment)
+  throw Error("lens Periphery Contract Address Env missing");
 
 if (
   (!deployedChainIdEnv || !Number.isInteger(+deployedChainIdEnv)) &&
@@ -43,4 +52,6 @@ export {
   web3StorageKey,
   infuraApiKey,
   blockchainExplorerUrl,
+  lensHubContractAddress,
+  lensPeripheryContractAddress,
 };
