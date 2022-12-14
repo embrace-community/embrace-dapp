@@ -10,8 +10,7 @@ async function main() {
   const collectionAddress = process.argv[2];
   if (!collectionAddress) throw new Error("Collection address is required");
 
-  const spaceId = process.argv[3] || 1;
-  const network = process.argv[4] || "localhost";
+  const network = process.argv[3] || "localhost";
 
   const wallet = getWallet();
 

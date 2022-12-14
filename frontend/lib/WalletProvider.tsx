@@ -9,6 +9,7 @@ import { ReactNode } from "react";
 import { chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import { infuraProvider } from "wagmi/providers/infura";
 import { publicProvider } from "wagmi/providers/public";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { colors } from "./constants";
 import { infuraApiKey } from "./envs";
 
@@ -19,7 +20,18 @@ export default function WalletProvider({ children }: { children: ReactNode }) {
       chain.goerli,
       ...(process.env.NODE_ENV === "development" ? [chain.localhost] : []),
     ],
-    [infuraProvider({ apiKey: infuraApiKey }), publicProvider()],
+    [
+      infuraProvider({ apiKey: infuraApiKey }),
+      ...(process.env.NODE_ENV === "development"
+        ? [
+            jsonRpcProvider({
+              rpc: (chain) => ({ http: `http://localhost:8545` }),
+            }),
+          ]
+        : []), // For local development only
+
+      publicProvider(),
+    ],
   );
 
   const connectors = connectorsForWallets([

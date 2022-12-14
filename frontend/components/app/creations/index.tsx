@@ -8,106 +8,203 @@ import Button from "../../Button";
 import CreateCreation from "./CreateCreation";
 import ViewCreation from "./ViewCreation";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
-import { ethers } from "ethers";
-import useSigner from "../../../hooks/useSigner";
+import { BigNumber, ethers } from "ethers";
 import {
   getFileUri,
   getIpfsJsonContent,
 } from "../../../lib/web3storage/getIpfsJsonContent";
 import Spinner from "../../Spinner";
+import { useProvider } from "wagmi";
+import { Collection, Creation } from "../../../types/space-apps";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import {
+  setLoaded,
+  setSpaceId,
+  setCollections,
+  setCollectionCreations,
+} from "../../../store/slices/creations";
+import { RootState } from "../../../store/store";
+import { setCid } from "../../../store/slices/metadata";
 
-type Collection = {
-  id: string;
-  name: string;
-  contractAddress: string;
-};
-
-type Creation = {
-  tokenId: string;
-  tokenURI: string;
-  owner: string;
-  loadedMetadata?: any;
-};
-
-export default function Social({
+export default function Creations({
   query,
   space,
 }: {
   query: Router["query"];
   space: Space;
 }) {
-  const { signer } = useSigner();
+  const provider = useProvider();
+  const creationsStore = useAppSelector((state: RootState) => state.creations);
+  const metadataStore = useAppSelector((state: RootState) => state.metadata);
+  const dispatch = useAppDispatch();
   const { appCreationsContract, appCreationCollectionsABI } = useAppContract();
   const [selectedCollection, setSelectedCollection] = useState<Collection>();
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [creations, setCreations] = useState<Creation[]>([]);
-  const [creationsDataLoaded, setCreationsDataLoaded] = useState(false);
-  const [creationsMetadata, setCreationsMetadata] = useState([]);
+  const [creationsDataLoaded, setCreationsDataLoaded] = useState<
+    "loading" | "loaded" | null
+  >(null);
   const creationId = Number(query.creationId);
   const collectionId = Number(query.collectionId);
   const newCollectionInput = useRef<HTMLInputElement>(null);
   const view = query.view as string;
 
+  console.log(space, "space");
+
+  useEffect(() => {
+    if (
+      !appCreationsContract ||
+      !provider ||
+      creationsStore.spaceId === space.id
+    )
+      return;
+
+    console.log("setSpaceId");
+    dispatch(setSpaceId(space.id));
+    // TODO: Clear collections and creations
+    dispatch(setLoaded(false));
+  }, [
+    appCreationsContract,
+    creationsStore.spaceId,
+    dispatch,
+    provider,
+    space.id,
+  ]);
+
   // Load the collections for this space
   useEffect(() => {
-    if (!appCreationsContract) return;
+    if (!appCreationsContract || selectedCollection || !creationsStore.spaceId)
+      return;
 
     const loadCollections = async () => {
-      const spaceCollections = await appCreationsContract.getCollections(
-        space.id,
-      );
-      setCollections(spaceCollections);
-      setSelectedCollection(spaceCollections[0]);
+      console.log("loadCollections");
+      if (
+        creationsStore.spaceId === space.id &&
+        creationsStore.collections.length > 0
+      ) {
+        // If the collections are already loaded
+        setSelectedCollection(creationsStore.collections[0]);
+      } else {
+        const spaceCollections: Collection[] =
+          await appCreationsContract.getCollections(space.id);
+
+        const formattedCollections: Collection[] = [];
+
+        for (let i = 0; i < spaceCollections.length; i++) {
+          formattedCollections.push({
+            id: BigNumber.from(spaceCollections[i].id).toNumber(),
+            name: spaceCollections[i].name,
+            contractAddress: spaceCollections[i].contractAddress,
+          });
+        }
+
+        dispatch(setCollections(formattedCollections));
+        setSelectedCollection(formattedCollections[0]);
+      }
     };
 
     loadCollections();
-  }, [appCreationsContract, space.id]);
+  }, [
+    appCreationsContract,
+    creationsStore.collections,
+    creationsStore.spaceId,
+    dispatch,
+    selectedCollection,
+    space.id,
+  ]);
 
   // Load the collections for this space
   useEffect(() => {
-    if (!selectedCollection?.contractAddress || !signer) return;
+    if (!appCreationsContract || !selectedCollection || !creationsStore.spaceId)
+      return;
 
     const loadCreations = async () => {
-      // Get the selected collection contract address and create a new contract instance
-      const collectionContractAddress = selectedCollection?.contractAddress;
+      if (!creationsStore.creations[selectedCollection.id]) {
+        // Get the selected collection contract address and create a new contract instance
+        const collectionContractAddress = selectedCollection?.contractAddress;
 
-      // Get the creations for this collection
-      const collectionContract = new ethers.Contract(
-        collectionContractAddress,
-        appCreationCollectionsABI,
-        signer,
-      );
+        // Get the creations for this collection
+        const collectionContract = new ethers.Contract(
+          collectionContractAddress,
+          appCreationCollectionsABI,
+          provider,
+        );
 
-      const creations = await collectionContract.getAllTokensData();
-      setCreations(creations);
+        const creations: Creation[] =
+          await collectionContract.getAllTokensData();
 
-      setCreationsDataLoaded(false);
+        if (!creations.length) return;
 
-      console.log("creations", creations);
+        const formattedCreations: Creation[] = [];
+
+        for (let i = 0; i < creations.length; i++) {
+          console.log("creation!!", creations[i]);
+
+          formattedCreations.push({
+            tokenId: BigNumber.from(creations[i].tokenId).toNumber(),
+            tokenURI: creations[i].tokenURI.replace("ipfs://", ""),
+            owner: creations[i].owner,
+          });
+        }
+
+        if (!formattedCreations.length) {
+          setCreationsDataLoaded("loaded");
+          return;
+        }
+
+        dispatch(
+          setCollectionCreations({
+            collectionId: selectedCollection.id,
+            creations: formattedCreations,
+          }),
+        );
+
+        // To trigger loading metadata
+        setCreationsDataLoaded(null);
+
+        console.log("creations!", creations);
+      }
     };
 
     loadCreations();
-  }, [appCreationCollectionsABI, selectedCollection?.contractAddress, signer]);
+  }, [
+    appCreationCollectionsABI,
+    selectedCollection?.contractAddress,
+    provider,
+    appCreationsContract,
+    selectedCollection,
+    creationsStore.spaceId,
+    space.id,
+    dispatch,
+    creationsStore.creations,
+  ]);
 
   useEffect(() => {
-    if (creationsDataLoaded) return;
+    if (
+      creationsDataLoaded == "loaded" ||
+      creationsDataLoaded == "loading" ||
+      !selectedCollection
+    )
+      return;
 
     async function loadMetadataJson() {
-      console.log("creations", creations);
+      if (!selectedCollection) return;
+
+      console.log("creations", creationsStore.creations[selectedCollection.id]);
       console.log("metadata start", creationsDataLoaded);
 
-      if (creations.length == 0) {
-        setCreationsDataLoaded(true);
+      if (
+        !creationsStore.creations[selectedCollection.id] ||
+        creationsStore.creations[selectedCollection.id]?.length == 0
+      ) {
+        setCreationsDataLoaded("loaded");
         return;
       }
 
-      const _creationsMetadata = [];
+      for (const creation of creationsStore.creations[selectedCollection.id]) {
+        setCreationsDataLoaded("loading");
+        const cid = creation.tokenURI;
 
-      for (const creation of creations) {
-        const cid = creation.tokenURI.replace("ipfs://", "");
-        const loadedMetadata = await getIpfsJsonContent(cid);
-
-        console.log("loadedMetadata", loadedMetadata);
+        // If not, load it from IPFS
+        const loadedMetadata = (await getIpfsJsonContent(cid)) as any;
 
         if (!loadedMetadata) continue;
 
@@ -119,18 +216,20 @@ export default function Social({
 
         loadedMetadata.tokenId = creation.tokenId;
 
-        _creationsMetadata.push(loadedMetadata);
-
-        console.log("metadata", _creationsMetadata);
-
-        setCreationsMetadata(_creationsMetadata);
+        dispatch(setCid({ cid, data: loadedMetadata }));
       }
 
-      setCreationsDataLoaded(true);
+      setCreationsDataLoaded("loaded");
     }
 
     loadMetadataJson();
-  }, [creations, creationsDataLoaded]);
+  }, [
+    creationsDataLoaded,
+    creationsStore.creations,
+    dispatch,
+    metadataStore,
+    selectedCollection,
+  ]);
 
   const createCollection = async () => {
     if (
@@ -171,25 +270,28 @@ export default function Social({
     <div className="w-full flex flex-row grow">
       <>
         <div className="relative hidden md:w-1/5 md:flex flex-col my-1 sm:m-4 max-h-[calc(100vh-400px)]">
-          <h1 className="text-lg font-medium leading-6 embracedark underline sm:truncate mb-5">
-            Collections
-          </h1>
-          {collections.length > 0 &&
-            collections.map((collection) => (
-              <div
-                key={collection.id}
-                className={classNames({
-                  "flex flex-row items-center justify-between p-2 rounded-lg cursor-pointer":
-                    true,
-                  "bg-gray-100":
-                    selectedCollection &&
-                    collection.id === selectedCollection.id,
-                })}
-                onClick={() => setSelectedCollection(collection)}
-              >
-                <span>{collection.name}</span>
-              </div>
-            ))}
+          {creationsStore.collections.length > 0 && (
+            <>
+              <h1 className="text-lg font-medium leading-6 embracedark underline sm:truncate mb-5">
+                Collections
+              </h1>
+              {creationsStore.collections.map((collection) => (
+                <div
+                  key={collection.id}
+                  className={classNames({
+                    "flex flex-row items-center justify-between p-2 rounded-lg cursor-pointer":
+                      true,
+                    "bg-gray-100":
+                      selectedCollection &&
+                      collection.id === selectedCollection.id,
+                  })}
+                  onClick={() => setSelectedCollection(collection)}
+                >
+                  <span>{collection.name}</span>
+                </div>
+              ))}
+            </>
+          )}
 
           <div className="w-full mt-5 border-t p2 pt-5">
             <label
@@ -228,52 +330,67 @@ export default function Social({
             </Link>
           </div>
 
-          {selectedCollection && creationsMetadata.length > 0 && (
+          {selectedCollection && (
             <>
               <ul
                 role="list"
                 className="w-full grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-x-6 xl:gap-x-8"
               >
-                {creations.map((creation, i) => (
-                  <Link
-                    href={`/${query.handle}/creations?collectionId=${selectedCollection.id}&creationId=${creation.tokenId}`}
-                    key={creation.tokenId}
-                  >
-                    {creationsMetadata[i] && (
-                      <li className="relative">
-                        <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
-                          <Image
-                            src={creationsMetadata[i]?.image}
-                            alt={creationsMetadata[i]?.name}
-                            width="0"
-                            height="0"
-                            sizes="w-full"
-                            className="pointer-events-none object-cover group-hover:opacity-75"
-                          />
-                          <button
-                            type="button"
-                            className="absolute inset-0 focus:outline-none"
-                          >
-                            <span className="sr-only">
-                              Open {creationsMetadata[i]?.name}
-                            </span>
-                          </button>
-                        </div>
-                        <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
-                          {creationsMetadata[i]?.name}
-                        </p>
-                        <p className="pointer-events-none block text-sm font-medium text-gray-500"></p>
-                      </li>
-                    )}
-                  </Link>
-                ))}
+                {creationsStore.creations[selectedCollection.id] &&
+                  creationsStore.creations[selectedCollection.id].map(
+                    (creation, i) => (
+                      <Link
+                        href={`/${query.handle}/creations?collectionId=${selectedCollection.id}&creationId=${creation.tokenId}`}
+                        key={creation.tokenId}
+                      >
+                        {metadataStore.cidData[creation.tokenURI] && (
+                          <li className="relative">
+                            <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+                              <Image
+                                src={
+                                  metadataStore.cidData[creation.tokenURI]
+                                    ?.image
+                                }
+                                alt={
+                                  metadataStore.cidData[creation.tokenURI]?.name
+                                }
+                                width="0"
+                                height="0"
+                                sizes="w-full"
+                                className="pointer-events-none object-cover group-hover:opacity-75"
+                              />
+                              <button
+                                type="button"
+                                className="absolute inset-0 focus:outline-none"
+                              >
+                                <span className="sr-only">
+                                  Open{" "}
+                                  {
+                                    metadataStore.cidData[creation.tokenURI]
+                                      ?.name
+                                  }
+                                </span>
+                              </button>
+                            </div>
+                            <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
+                              {metadataStore.cidData[creation.tokenURI]?.name}
+                            </p>
+                            <p className="pointer-events-none block text-sm font-medium text-gray-500"></p>
+                          </li>
+                        )}
+                      </Link>
+                    ),
+                  )}
               </ul>
               {/* Displayed if some creations metadata has loaded but not all */}
-              {!creationsDataLoaded && <Spinner itemsCenter={false} />}
-
-              {creationsDataLoaded && creations.length == 0 && (
-                <>No creations exist in this collection</>
+              {creationsDataLoaded !== "loaded" && (
+                <Spinner itemsCenter={false} />
               )}
+
+              {creationsDataLoaded == "loaded" &&
+                (!creationsStore.creations[selectedCollection.id] ||
+                  creationsStore.creations[selectedCollection.id].length ==
+                    0) && <>No creations exist in this collection</>}
             </>
           )}
         </div>

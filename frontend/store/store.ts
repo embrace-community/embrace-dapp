@@ -1,11 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import spacesReducer from "./slices/space";
 import coreReducer from "./slices/core";
+import creationsReducer from "./slices/creations";
+import metadataReducer from "./slices/metadata";
 
 export const store = configureStore({
   reducer: {
-    spaces: spacesReducer,
     core: coreReducer,
+    spaces: spacesReducer,
+    creations: creationsReducer,
+    metadata: metadataReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

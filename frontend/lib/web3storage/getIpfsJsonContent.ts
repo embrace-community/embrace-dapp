@@ -15,8 +15,6 @@ async function getIpfsJsonContent(
     if (res?.ok) {
       let files = await res.files();
 
-      console.log("cid", cid, files);
-
       const file = files[0];
       if (readAs === "none") return file;
 

@@ -36,16 +36,6 @@ async function main() {
     console.log(owner);
     console.log("\n");
   }
-
-  // const collections = await contract.getCollections(spaceId);
-
-  // console.log(`Collections: ${collections.length}`);
-
-  // for (let index = 0; index < collections.length; index++) {
-  //   console.log(`======Collection Index #${index}======`);
-  //   console.log(collections[index]);
-  //   console.log("\n");
-  // }
 }
 
 main().catch((error) => {

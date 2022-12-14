@@ -3,7 +3,6 @@ import Image from "next/image";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
-import useSigner from "../../../hooks/useSigner";
 import {
   getFileUri,
   getIpfsJsonContent,
@@ -18,25 +17,22 @@ import {
 import Spinner from "../../Spinner";
 import Link from "next/link";
 import { Space } from "../../../types/space";
+import { useProvider } from "wagmi";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { RootState } from "../../../store/store";
+import { Collection, Creation } from "../../../types/space-apps";
+import {
+  getCreationById,
+  getCollectionById,
+  setCollectionCreations,
+} from "../../../store/slices/creations";
+import { setCid } from "../../../store/slices/metadata";
 
 const livepeerClient = createReactClient({
   provider: studioProvider({
     apiKey: process.env.NEXT_PUBLIC_LIVEPEER_STUDIO_API_KEY,
   }),
 });
-
-type Collection = {
-  id: string;
-  name: string;
-  contractAddress: string;
-};
-
-type Creation = {
-  tokenId: string;
-  tokenURI: string;
-  owner: string;
-  loadedMetadata?: any;
-};
 
 export default function ViewCreation({
   space,
@@ -48,40 +44,22 @@ export default function ViewCreation({
   creationId: number;
 }) {
   const router = useRouter();
-  const { signer } = useSigner();
+  const provider = useProvider();
+  const creationsStore = useAppSelector((state: RootState) => state.creations);
+  const metadataStore = useAppSelector((state: RootState) => state.metadata);
+  const getCreationByIdSelector = useAppSelector(getCreationById);
+  const getCollectionByIdSelector = useAppSelector(getCollectionById);
+  const dispatch = useAppDispatch();
   const { appCreationsContract, appCreationCollectionsABI } = useAppContract();
-  const [creation, setCreation] = useState<any>({});
-  const [creationLoaded, setCreationLoaded] = useState<boolean>(false);
+  const [creation, setCreation] = useState<any>();
 
-  const [creations, setCreations] = useState<Creation[]>([]);
-  const [creationsDataLoaded, setCreationsDataLoaded] = useState(false);
-  const [creationsMetadata, setCreationsMetadata] = useState([]);
   const [selectedCollection, setSelectedCollection] = useState<Collection>();
 
-  // Load the collection vy id
-  // useEffect(() => {
-  //   if (!appCreationsContract) return;
-
-  //   alert("loadCollection");
-
-  //   const loadCollection = async () => {
-  //     const spaceCollection = await appCreationsContract.getCollection(
-  //       space.id,
-  //       collectionId,
-  //     );
-
-  //     setSelectedCollection(spaceCollection);
-  //   };
-
-  //   loadCollection();
-  // }, [appCreationsContract, collectionId, space.id]);
-
-  // Load the creation metadata
+  // Set the collection information - from store or contract
   useEffect(() => {
-    if (!appCreationsContract || !signer || creation.tokenId === creationId)
-      return;
+    if (!appCreationsContract || !provider || !collectionId) return;
 
-    const loadCreation = async () => {
+    const loadCollection = async () => {
       const collection = await appCreationsContract.getCollection(
         space.id,
         collectionId,
@@ -89,101 +67,51 @@ export default function ViewCreation({
 
       if (!collection) return;
 
-      // Get the selected collection contract address and create a new contract instance
-      const collectionContractAddress = collection.contractAddress;
-
-      // Get the creations for this collection
-      const collectionContract = new ethers.Contract(
-        collectionContractAddress,
-        appCreationCollectionsABI,
-        signer,
-      );
-
-      const creationURI = await collectionContract.tokenURI(creationId);
-
-      // Now if CID has not been loaded then load it
-      console.log(creationURI, "tokenURI");
-
-      // TODO: Otherwise get from store
-
-      const cid = creationURI.replace("ipfs://", "");
-      const creationMetadata = await getIpfsJsonContent(cid);
-
-      if (creationMetadata?.image) {
-        const imageCid = creationMetadata?.image.replace("ipfs://", "");
-        const imageUri = getFileUri(imageCid);
-        creationMetadata.image = imageUri;
-      }
-
-      creationMetadata.tokenId = creationId;
-
-      console.log(creationMetadata, "loadedMetadata");
-
-      setCreation(creationMetadata);
-      setCreationLoaded(true);
+      setSelectedCollection(collection);
     };
 
-    loadCreation();
+    // Get collection info from store if exists
+    const _collection = getCollectionByIdSelector(collectionId);
+
+    if (_collection) {
+      setSelectedCollection(_collection);
+    } else {
+      // From contract
+      loadCollection();
+    }
   }, [
-    appCreationCollectionsABI,
     appCreationsContract,
+    provider,
     collectionId,
-    creation,
-    creationId,
-    signer,
+    getCollectionByIdSelector,
     space.id,
   ]);
 
-  // Load the collections for this space
+  // Get this current creation from the store or contract
   // useEffect(() => {
-  //   if (!selectedCollection?.contractAddress || !signer) return;
+  //   if (!appCreationsContract || !provider || !selectedCollection) return;
 
-  //   const loadCreations = async () => {
+  //   const loadCreation = async () => {
   //     // Get the selected collection contract address and create a new contract instance
-  //     const collectionContractAddress = selectedCollection?.contractAddress;
+  //     const collectionContractAddress = selectedCollection.contractAddress;
 
   //     // Get the creations for this collection
   //     const collectionContract = new ethers.Contract(
   //       collectionContractAddress,
   //       appCreationCollectionsABI,
-  //       signer,
+  //       provider,
   //     );
 
-  //     const creations = await collectionContract.getAllTokensData();
+  //     const creationURI = await collectionContract.tokenURI(creationId);
 
-  //     setCreations(
-  //       creations.filter(
-  //         (c) => BigNumber.from(c.tokenId).toNumber() !== creationId,
-  //       ),
-  //     );
-  //     setCreationsDataLoaded(false);
+  //     const cid = creationURI.replace("ipfs://", "");
 
-  //     console.log("creations", creations);
-  //   };
+  //     // Now if CID has not been loaded then load it
+  //     console.log(cid, "tokenURI", metadataStore[cid], cid);
 
-  //   loadCreations();
-  // }, [
-  //   appCreationCollectionsABI,
-  //   creationId,
-  //   selectedCollection?.contractAddress,
-  //   signer,
-  // ]);
-
-  // useEffect(() => {
-  //   if (creationsDataLoaded || creations.length == 0) return;
-
-  //   async function loadMetadataJson() {
-  //     console.log("creations", creations);
-  //     console.log("metadata start", creationsDataLoaded);
-  //     const _creationsMetadata = [];
-
-  //     for (const creation of creations) {
-  //       const cid = creation.tokenURI.replace("ipfs://", "");
-  //       const loadedMetadata = await getIpfsJsonContent(cid);
-
-  //       console.log("loadedMetadata", loadedMetadata);
-
-  //       if (!loadedMetadata) continue;
+  //     if (!metadataStore.cidData[cid]) {
+  //       // If not, load it from IPFS
+  //       const loadedMetadata = (await getIpfsJsonContent(cid)) as any;
 
   //       if (loadedMetadata?.image) {
   //         const imageCid = loadedMetadata?.image.replace("ipfs://", "");
@@ -191,20 +119,135 @@ export default function ViewCreation({
   //         loadedMetadata.image = imageUri;
   //       }
 
-  //       loadedMetadata.tokenId = creation.tokenId;
+  //       loadedMetadata.tokenId = creationId;
 
-  //       _creationsMetadata.push(loadedMetadata);
+  //       dispatch(setCid({ cid, data: loadedMetadata }));
 
-  //       console.log("metadata", _creationsMetadata);
-
-  //       setCreationsMetadata(_creationsMetadata);
+  //       console.log("dispatch setCid", loadedMetadata);
   //     }
 
-  //     setCreationsDataLoaded(true);
-  //   }
+  //     setCreation(_creation);
+  //   };
 
-  //   loadMetadataJson();
-  // }, [creations, creationsDataLoaded]);
+  // Get the creation from the store - need a getByTokenId selector
+  // const _creation = getCreationByIdSelector(collectionId, creationId);
+
+  // // If the creation is not in the store then load it from the contract
+  // if (!_creation) {
+  //   // Need to load creation from contract and save to store
+  //   loadCreation();
+  // } else {
+  //   setCreation(_creation);
+  // }
+
+  //   // Then see if the creation tokenURI exists in the metadata store
+  // }, [
+  //   appCreationCollectionsABI,
+  //   appCreationsContract,
+  //   collectionId,
+  //   creation?.tokenId,
+  //   creationId,
+  //   creationsStore.creations,
+  //   dispatch,
+  //   getCreationByIdSelector,
+  //   metadataStore,
+  //   provider,
+  //   selectedCollection,
+  //   space.id,
+  // ]);
+
+  // TODO: Currently all the creations are loaded from the collection before loading this current creation
+  // even if the creation already exists in the store
+  // Once the current creation is loaded load all the other creations for this collection
+  useEffect(() => {
+    if (creation || !selectedCollection) return;
+
+    const loadCreations = async () => {
+      // Get the selected collection contract address and create a new contract instance
+      const collectionContractAddress = selectedCollection.contractAddress;
+
+      // Get the creations for this collection
+      const collectionContract = new ethers.Contract(
+        collectionContractAddress,
+        appCreationCollectionsABI,
+        provider,
+      );
+
+      if (!collectionContract) return;
+
+      const creations: Creation[] = await collectionContract.getAllTokensData();
+
+      if (!creations.length) return;
+
+      const formattedCreations: Creation[] = [];
+
+      for (let i = 0; i < creations.length; i++) {
+        console.log("creation!!", creations[i]);
+
+        const _creation = {
+          tokenId: BigNumber.from(creations[i].tokenId).toNumber(),
+          tokenURI: creations[i].tokenURI.replace("ipfs://", ""),
+          owner: creations[i].owner,
+        };
+
+        if (_creation.tokenId === creationId) {
+          setCreation(_creation);
+
+          console.log("setCreation", _creation);
+        }
+
+        formattedCreations.push(_creation);
+
+        const cid = _creation.tokenURI;
+
+        if (!metadataStore.cidData[cid]) {
+          // If not, load it from IPFS
+          const loadedMetadata = (await getIpfsJsonContent(cid)) as any;
+
+          if (loadedMetadata?.image) {
+            const imageCid = loadedMetadata?.image.replace("ipfs://", "");
+            const imageUri = getFileUri(imageCid);
+            loadedMetadata.image = imageUri;
+          }
+
+          loadedMetadata.tokenId = creationId;
+
+          dispatch(setCid({ cid, data: loadedMetadata }));
+
+          console.log("dispatch setCid", loadedMetadata);
+        }
+      }
+
+      dispatch(
+        setCollectionCreations({
+          collectionId: selectedCollection.id,
+          creations: formattedCreations,
+        }),
+      );
+
+      console.log("dispatch setCollectionCreations", formattedCreations);
+    };
+
+    // Set the creation from the store if it exists
+    const _creation = getCreationByIdSelector(collectionId, creationId);
+
+    if (_creation) {
+      setCreation(_creation);
+    }
+
+    // Load all other creations for this collection
+    loadCreations();
+  }, [
+    appCreationCollectionsABI,
+    collectionId,
+    creation,
+    creationId,
+    dispatch,
+    getCreationByIdSelector,
+    metadataStore.cidData,
+    provider,
+    selectedCollection,
+  ]);
 
   return (
     <LivepeerConfig client={livepeerClient}>
@@ -215,7 +258,7 @@ export default function ViewCreation({
         Back
       </Button>
 
-      {creationLoaded ? (
+      {creation ? (
         <div className="w-full flex flex-row grow">
           <div className="w-full flex flex-col justify-center">
             {/* <Image
@@ -229,11 +272,11 @@ export default function ViewCreation({
             {
               <>
                 <Player
-                  title={creation.name}
-                  src={creation.animation_url}
+                  title={metadataStore.cidData[creation.tokenURI]?.name}
+                  src={metadataStore.cidData[creation.tokenURI]?.animation_url}
                   autoPlay={false}
                   objectFit="contain"
-                  poster={creation.image}
+                  poster={metadataStore.cidData[creation.tokenURI]?.image}
                   muted={false}
                   autoUrlUpload={{
                     fallback: true,
@@ -242,56 +285,74 @@ export default function ViewCreation({
                 />
 
                 <div className="w-full flex justify-left p-2">
-                  <h1 className="text-2xl font-bold">{creation.name}</h1>
+                  <h1 className="text-2xl font-bold">
+                    {metadataStore.cidData[creation.tokenURI]?.name}
+                  </h1>
                 </div>
 
                 <div className="w-full flex justify-left p-2">
-                  <p className="text-sm">{creation.description}</p>
+                  <p className="text-sm">
+                    {metadataStore.cidData[creation.tokenURI]?.description}
+                  </p>
                 </div>
               </>
             }
           </div>
 
-          <div className="hidden w-1/6 md:hidden flex-col ml-5 p-2 pt-0">
-            {selectedCollection && creationsMetadata.length > 0 && (
+          <div className="w-1/6 flex-col ml-5 p-2 pt-0">
+            {creationsStore.creations[collectionId] && (
               <>
                 <ul role="list" className="w-full max-h-screen overflow-scroll">
                   <h1 className="mb-3 underline">
-                    {selectedCollection.name} collection
+                    {selectedCollection?.name} collection
                   </h1>
-                  {creations.map((creation, i) => (
-                    <Link
-                      href={`/${space.handle}/creations?collectionId=${selectedCollection.id}&creationId=${creation.tokenId}`}
-                      key={creation.tokenId}
-                    >
-                      {creationsMetadata[i] && (
-                        <li className="relative">
-                          <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
-                            <Image
-                              src={creationsMetadata[i]?.image}
-                              alt={creationsMetadata[i]?.name}
-                              width="0"
-                              height="0"
-                              sizes="w-full"
-                              className="pointer-events-none object-cover group-hover:opacity-75"
-                            />
-                            <button
-                              type="button"
-                              className="absolute inset-0 focus:outline-none"
-                            >
-                              <span className="sr-only">
-                                Open {creationsMetadata[i]?.name}
-                              </span>
-                            </button>
-                          </div>
-                          <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
-                            {creationsMetadata[i]?.name}
-                          </p>
-                          <p className="pointer-events-none block text-sm font-medium text-gray-500"></p>
-                        </li>
-                      )}
-                    </Link>
-                  ))}
+
+                  {creationsStore.creations[collectionId] &&
+                    creationsStore.creations[collectionId]
+                      .filter((creation) => creation.tokenId !== creationId)
+                      .map((creation, i) => (
+                        <Link
+                          href={`/${space.handle}/creations?collectionId=${collectionId}&creationId=${creation.tokenId}`}
+                          key={creation.tokenId}
+                        >
+                          {metadataStore.cidData[creation.tokenURI] && (
+                            <li className="relative">
+                              <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+                                <Image
+                                  src={
+                                    metadataStore.cidData[creation.tokenURI]
+                                      ?.image
+                                  }
+                                  alt={
+                                    metadataStore.cidData[creation.tokenURI]
+                                      ?.name
+                                  }
+                                  width="0"
+                                  height="0"
+                                  sizes="w-full"
+                                  className="pointer-events-none object-cover group-hover:opacity-75"
+                                />
+                                <button
+                                  type="button"
+                                  className="absolute inset-0 focus:outline-none"
+                                >
+                                  <span className="sr-only">
+                                    Open{" "}
+                                    {
+                                      metadataStore.cidData[creation.tokenURI]
+                                        ?.name
+                                    }
+                                  </span>
+                                </button>
+                              </div>
+                              <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
+                                {metadataStore.cidData[creation.tokenURI]?.name}
+                              </p>
+                              <p className="pointer-events-none block text-sm font-medium text-gray-500"></p>
+                            </li>
+                          )}
+                        </Link>
+                      ))}
                 </ul>
               </>
             )}
