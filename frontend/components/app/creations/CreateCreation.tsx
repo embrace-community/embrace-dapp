@@ -78,12 +78,12 @@ export default function CreateCreation({ id }: { id: string }) {
               <input
                 type="file"
                 accept="image/*"
-                className="text-sm text-violet-700
+                className="text-sm text-violet-600
                 file: file:py-1 file:px-6
                 file:rounded-full file:border-2
-                file:border-violet-700
+                file:border-violet-600
                 file:text-sm file:font-medium
-                file:bg-transparent file:text-violet-700"
+                file:bg-transparent file:text-violet-600"
                 onChange={(e) => handleFileChange(e)}
               />
             </div>
@@ -102,7 +102,7 @@ export default function CreateCreation({ id }: { id: string }) {
                 type="text"
                 name="name"
                 id="name"
-                className="block bg-transparent text-embracedark w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+                className="block bg-transparent text-embracedark w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                 placeholder="The name of your new space"
                 onChange={(e) => setName(e.target.value)}
                 value={name}
@@ -123,7 +123,7 @@ export default function CreateCreation({ id }: { id: string }) {
                 type="text"
                 name="handle"
                 id="handle"
-                className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+                className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                 placeholder="The handle of your new space"
                 onChange={(e) => setHandle(e.target.value)}
                 value={handle}
@@ -143,7 +143,7 @@ export default function CreateCreation({ id }: { id: string }) {
               <textarea
                 name="description"
                 id="description"
-                className="block bg-transparent w-full resize-none text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+                className="block bg-transparent w-full resize-none text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                 placeholder="Description of new space"
                 onChange={(e) => setDescription(e.target.value)}
                 value={description}

@@ -136,7 +136,7 @@ export default function Header({
                 space.visibility == Visibility.PUBLIC &&
                 !membership?.isActive && (
                   <button
-                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => joinSpace()}
                   >
                     join space
@@ -150,7 +150,7 @@ export default function Header({
                 !membership?.isActive &&
                 !membership?.isRequest && (
                   <button
-                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
                   >
                     request to join
@@ -169,7 +169,7 @@ export default function Header({
                 !membership?.isActive &&
                 !membership?.isRequest && (
                   <button
-                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
                   >
                     request to join
@@ -187,7 +187,7 @@ export default function Header({
               {space?.membership?.access == Access.GATED &&
                 !membership?.isActive && (
                   <button
-                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
                   >
                     join gated space

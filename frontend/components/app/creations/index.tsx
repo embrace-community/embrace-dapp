@@ -128,6 +128,8 @@ export default function Creations({
           provider,
         );
 
+        if (!collectionContract) return;
+
         const creations: Creation[] =
           await collectionContract.getAllTokensData();
 
@@ -270,28 +272,29 @@ export default function Creations({
     <div className="w-full flex flex-row grow">
       <>
         <div className="relative hidden md:w-1/5 md:flex flex-col my-1 sm:m-4 max-h-[calc(100vh-400px)]">
-          {creationsStore.collections.length > 0 && (
-            <>
-              <h1 className="text-lg font-medium leading-6 embracedark underline sm:truncate mb-5">
-                Collections
-              </h1>
-              {creationsStore.collections.map((collection) => (
-                <div
-                  key={collection.id}
-                  className={classNames({
-                    "flex flex-row items-center justify-between p-2 rounded-lg cursor-pointer":
-                      true,
-                    "bg-gray-100":
-                      selectedCollection &&
-                      collection.id === selectedCollection.id,
-                  })}
-                  onClick={() => setSelectedCollection(collection)}
-                >
-                  <span>{collection.name}</span>
-                </div>
-              ))}
-            </>
-          )}
+          {creationsStore.spaceId === space.id &&
+            creationsStore.collections.length > 0 && (
+              <>
+                <h1 className="text-lg font-medium leading-6 embracedark underline sm:truncate mb-5">
+                  Collections
+                </h1>
+                {creationsStore.collections.map((collection) => (
+                  <div
+                    key={collection.id}
+                    className={classNames({
+                      "flex flex-row items-center justify-between p-2 rounded-lg cursor-pointer":
+                        true,
+                      "bg-gray-100":
+                        selectedCollection &&
+                        collection.id === selectedCollection.id,
+                    })}
+                    onClick={() => setSelectedCollection(collection)}
+                  >
+                    <span>{collection.name}</span>
+                  </div>
+                ))}
+              </>
+            )}
 
           <div className="w-full mt-5 border-t p2 pt-5">
             <label

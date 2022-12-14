@@ -382,12 +382,12 @@ export default function SpaceViewPage() {
                     <input
                       type="file"
                       accept="image/*"
-                      className="text-sm text-violet-700
+                      className="text-sm text-violet-600
                 file: file:py-1 file:px-6
                 file:rounded-full file:border-2
-                file:border-violet-700
+                file:border-violet-600
                 file:text-sm file:font-medium
-                file:bg-transparent file:text-violet-700"
+                file:bg-transparent file:text-violet-600"
                       onChange={(e) => handleFileChange(e)}
                     />
                   </div>
@@ -406,7 +406,7 @@ export default function SpaceViewPage() {
                       type="text"
                       name="name"
                       id="name"
-                      className="block bg-transparent text-embracedark w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+                      className="block bg-transparent text-embracedark w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                       placeholder="The name of your new space"
                       onChange={(e) => setName(e.target.value)}
                       value={name}
@@ -427,7 +427,7 @@ export default function SpaceViewPage() {
                       type="text"
                       name="handle"
                       id="handle"
-                      className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+                      className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                       placeholder="The handle of your new space"
                       onChange={(e) => setHandle(e.target.value)}
                       value={handle}
@@ -447,7 +447,7 @@ export default function SpaceViewPage() {
                     <textarea
                       name="description"
                       id="description"
-                      className="block bg-transparent w-full resize-none text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+                      className="block bg-transparent w-full resize-none text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                       placeholder="Description of new space"
                       onChange={(e) => setDescription(e.target.value)}
                       value={description}
@@ -582,7 +582,7 @@ export default function SpaceViewPage() {
                       onChange={(e) =>
                         setMembershipTokenAddress(e.target.value)
                       }
-                      className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm`}
+                      className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm`}
                     />
 
                     <div
@@ -766,12 +766,12 @@ export default function SpaceViewPage() {
                 <>
                   <Link
                     href="/"
-                    className="mt-2 mr-4 text-violet-700 font-semibold underline"
+                    className="mt-2 mr-4 text-violet-600 font-semibold underline"
                   >
                     cancel
                   </Link>
                   <button
-                    className="inline-flex items-center rounded-full border-violet-700 border-2 bg-transparent py-2 px-10 text-violet-700 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
+                    className="inline-flex items-center rounded-full border-violet-600 border-2 bg-transparent py-2 px-10 text-violet-600 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
                     disabled={
                       !name ||
                       !description ||
@@ -795,12 +795,12 @@ export default function SpaceViewPage() {
                 <>
                   <button
                     onClick={(e) => setCurrentStep(1)}
-                    className="mt-2 mr-4 text-violet-700 font-semibold underline"
+                    className="mt-2 mr-4 text-violet-600 font-semibold underline"
                   >
                     back
                   </button>
                   <button
-                    className=" inline-flex items-center rounded-full border-violet-700 border-2 bg-transparent py-2 px-10 text-violet-700 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
+                    className=" inline-flex items-center rounded-full border-violet-600 border-2 bg-transparent py-2 px-10 text-violet-600 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
                     disabled={!apps.length}
                     onClick={() => onSubmit()}
                   >
@@ -826,7 +826,7 @@ export default function SpaceViewPage() {
               target="_blank"
               rel="noreferrer"
               href={`${blockchainExplorerUrl}/${tx}`}
-              className="text-violet-700"
+              className="text-violet-600"
             >
               please following this link
             </a>
@@ -834,7 +834,7 @@ export default function SpaceViewPage() {
           </>
         }
         footer={
-          <button className="px-6 py-2.5 bg-violet-700 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-violet-700 hover:shadow-lg focus:bg-violet-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-violet-800 active:shadow-lg transition duration-150 ease-in-out">
+          <button className="px-6 py-2.5 bg-violet-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-violet-600 hover:shadow-lg focus:bg-violet-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-violet-800 active:shadow-lg transition duration-150 ease-in-out">
             Close & return to Spaces
           </button>
         }
