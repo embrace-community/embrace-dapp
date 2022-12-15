@@ -62,7 +62,6 @@ export default function Creations({
     )
       return;
 
-    console.log("setSpaceId");
     dispatch(setSpaceId(space.id));
   }, [
     appCreationsContract,

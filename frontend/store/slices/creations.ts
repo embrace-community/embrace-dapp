@@ -24,6 +24,9 @@ export const creationsSlice = createSlice({
   reducers: {
     setSpaceId: (state, action: PayloadAction<number>) => {
       state.spaceId = action.payload;
+      // reset collections and creations
+      state.collections = [];
+      state.creations = [];
     },
 
     setCollections: (state, action: PayloadAction<Collection[]>) => {

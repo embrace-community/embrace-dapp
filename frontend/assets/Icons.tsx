@@ -1,3 +1,5 @@
+import { ChatBubbleLeftEllipsisIcon } from "@heroicons/react/24/outline";
+
 const Logo = (
   {
     // style = {},
@@ -5,7 +7,7 @@ const Logo = (
     // width = "64px",
     // className = "",
     // viewBox = "0 0 64 64",
-  }
+  },
 ) => (
   <svg
     viewBox="0 0 140 18.6"

@@ -1,6 +1,6 @@
 function getFileContent(
-  file: File,
-  method: "readAsText" | "readAsDataURL" = "readAsText"
+  file: any,
+  method: "readAsText" | "readAsDataURL" = "readAsText",
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

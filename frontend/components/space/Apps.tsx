@@ -4,6 +4,7 @@ import { appMappings } from "../../lib/AppMappings";
 import { Space, SpaceMembership } from "../../types/space";
 import Navigation from "./Navigation";
 import RenderCurrentApp from "../app/RenderCurrentApp";
+import { BigNumber } from "ethers";
 
 export default function Apps({
   query,
@@ -44,10 +45,14 @@ export default function Apps({
   useEffect(() => {
     if (!query.app) return;
 
-    const appId = Object.keys(appMappings).findIndex(
-      (appId) => appMappings[appId].route === query.app,
+    // See if the appId can be found using the route
+    const appId = Number(
+      Object.keys(appMappings).find(
+        (appId) => appMappings[appId].route === query.app,
+      ),
     );
 
+    // Current app already selected
     if (appId !== -1 && prevSelectedApp.current === appId) {
       // nothing changed
       return;
@@ -63,7 +68,12 @@ export default function Apps({
       return;
     }
 
-    const selectedAppId = appId === -1 ? spaceApps[0] : appId;
+    // Convert each of the appIds to numbers and sort in order o appId for now
+    const appIds = spaceApps
+      .map((appId) => BigNumber.from(appId).toNumber())
+      .sort();
+
+    const selectedAppId = appId === -1 || isNaN(appId) ? appIds[0] : appId;
 
     // Load the route for the related appId
     const route = appMappings[selectedAppId].route;

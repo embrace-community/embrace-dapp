@@ -1,9 +1,10 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { Address, useAccount } from "wagmi";
+import AppIcon from "../components/AppIcon";
 import AppLayout from "../components/AppLayout";
 import Modal from "../components/Modal";
 import {
@@ -16,9 +17,10 @@ import {
 import Spinner from "../components/Spinner";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import useSigner from "../hooks/useSigner";
+import { appMappings } from "../lib/AppMappings";
 import { blockchainExplorerUrl } from "../lib/envs";
 import getWeb3StorageClient from "../lib/web3storage/client";
-import { getIpfsJsonContent } from "../lib/web3storage/getIpfsJsonContent";
+
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
 import { useAppDispatch } from "../store/hooks";
 import { addCreatedSpace } from "../store/slices/space";
@@ -165,18 +167,6 @@ export default function SpaceViewPage() {
         console.log(appsContract, "appsContract");
         const apps = await appsContract?.getApps();
 
-        // const appsMetadata: Record<string, any>[] = [];
-        // for (const app of apps) {
-        //   const appMetadata = (await getIpfsJsonContent(
-        //     app.metadata,
-        //     "readAsText",
-        //   )) as Record<string, any>;
-        //   appsMetadata.push(appMetadata);
-        // }
-
-        // console.log("Existing Apps", apps, "Apps Metadata", appsMetadata);
-
-        // setDeployedApps((prevState) => ({ ...prevState, apps, appsMetadata }));
         setDeployedApps((prevState) => ({ ...prevState, apps }));
       } catch (e: any) {
         console.error(e.message);
@@ -343,7 +333,7 @@ export default function SpaceViewPage() {
   return (
     <>
       <AppLayout title="Create Space">
-        <div className="flex flex-col pt-8 pr-8 pb-28 pl-[6.8vw]">
+        <div className="flex flex-col pt-8 pr-[6.8vw] pb-28 pl-[6.8vw] w-full">
           <div className="w-full border-t-2 border-embracedark border-opacity-5 mb-6 flex flex-row align-middle">
             <h1 className="text-embracedark text-opacity-20 text-sm mt-2 mb-8">
               creating a new space
@@ -356,10 +346,10 @@ export default function SpaceViewPage() {
             </Link>
           </div>
 
-          <div className="max-w-lg pl-8">
-            {isImageLoading && <Spinner />}
+          <div className="w-full">
             {currentStep === 1 && (
-              <>
+              <div className="max-w-lg">
+                {isImageLoading && <Spinner />}
                 <div className="mb-7">
                   <label
                     htmlFor="description"
@@ -633,7 +623,7 @@ export default function SpaceViewPage() {
                     </div>
                   </fieldset>
                 </div>
-              </>
+              </div>
             )}
 
             {error && (currentStep == 1 || currentStep == 2) && (
@@ -661,9 +651,9 @@ export default function SpaceViewPage() {
 
             {currentStep === 2 && (
               <fieldset className="space-y-2 mt-12 mb-10">
-                <label className="block text-sm font-medium text-embracedark mb-3">
+                <h3 className="text-lg font-medium leading-6 text-gray-900">
                   Apps
-                </label>
+                </h3>
 
                 <legend className="sr-only">Apps</legend>
 
@@ -672,46 +662,48 @@ export default function SpaceViewPage() {
                 ) : (
                   deployedApps.apps.map((app, i) => {
                     const name: string = app?.name;
+                    const appId = BigNumber.from(app?.id).toNumber();
 
                     return (
-                      name.length > 0 && ( // Exclude empty array added at 0 index
-                        <div
-                          key={`app-${i}`}
-                          className="relative flex items-start bg-white py-6 px-7"
-                        >
-                          <div className="flex h-5 items-center">
-                            <input
-                              id={name}
-                              aria-describedby={`${name}-app`}
-                              name={name}
-                              type="checkbox"
-                              checked={apps.includes(i)}
-                              onChange={() => {
-                                apps.includes(i)
-                                  ? setApps(apps.filter((a) => a !== i))
-                                  : setApps([...apps, i]);
-                              }}
-                              className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
-                            />
-                          </div>
+                      <div
+                        key={`app-${appId}`}
+                        className="flex items-start bg-white py-6 px-7 w-full"
+                      >
+                        <div className="flex h-5">
+                          <input
+                            id={name}
+                            aria-describedby={`${name}-app`}
+                            name={name}
+                            type="checkbox"
+                            checked={apps.includes(appId)}
+                            onChange={() => {
+                              apps.includes(appId)
+                                ? setApps(apps.filter((a) => a !== appId))
+                                : setApps([...apps, appId]);
 
-                          <div className="ml-3 text-sm">
-                            <label
-                              htmlFor={name}
-                              className="font-medium text-embracedark"
-                            >
-                              {name}
-                            </label>
-
-                            <p
-                              id={`${name}-description`}
-                              className="text-embracedark text-opacity-50"
-                            >
-                              {/* {deployedApps.appsMetadata?.[i]?.description} */}
-                            </p>
-                          </div>
+                              console.log(apps);
+                            }}
+                            className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
+                          />
                         </div>
-                      )
+
+                        <div className="ml-3 text-sm">
+                          <label
+                            htmlFor={name}
+                            className="font-medium text-embracedark"
+                          >
+                            <AppIcon appId={appId} /> {name}
+                          </label>
+
+                          <p
+                            id={`${name}-description`}
+                            className="text-embracedark text-opacity-50"
+                          >
+                            {appMappings[appId]?.description ??
+                              "Description text"}
+                          </p>
+                        </div>
+                      </div>
                     );
                   })
                 )}
