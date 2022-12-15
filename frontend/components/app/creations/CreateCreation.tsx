@@ -6,7 +6,7 @@ import getWeb3StorageClient from "../../../lib/web3storage/client";
 import Button from "../../Button";
 import Spinner from "../../Spinner";
 
-export default function CreateCreation({ id }: { id: string }) {
+export default function CreateCreation({ id }: { id: number }) {
   const router = useRouter();
   const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const [name, setName] = useState("");
