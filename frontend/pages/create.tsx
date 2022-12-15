@@ -1,9 +1,10 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { Address, useAccount } from "wagmi";
+import AppIcon from "../components/AppIcon";
 import AppLayout from "../components/AppLayout";
 import Modal from "../components/Modal";
 import {
@@ -16,9 +17,10 @@ import {
 import Spinner from "../components/Spinner";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import useSigner from "../hooks/useSigner";
+import { appMappings } from "../lib/AppMappings";
 import { blockchainExplorerUrl } from "../lib/envs";
 import getWeb3StorageClient from "../lib/web3storage/client";
-import { getIpfsJsonContent } from "../lib/web3storage/getIpfsJsonContent";
+
 import saveToIpfs from "../lib/web3storage/saveToIpfs";
 import { useAppDispatch } from "../store/hooks";
 import { addCreatedSpace } from "../store/slices/space";
@@ -90,6 +92,8 @@ export default function SpaceViewPage() {
 
     try {
       setIsImageLoading(true);
+
+      console.log(uploadedFile);
 
       const uploadedCid = await getWeb3StorageClient().put([uploadedFile], {
         wrapWithDirectory: false,
@@ -163,18 +167,6 @@ export default function SpaceViewPage() {
         console.log(appsContract, "appsContract");
         const apps = await appsContract?.getApps();
 
-        // const appsMetadata: Record<string, any>[] = [];
-        // for (const app of apps) {
-        //   const appMetadata = (await getIpfsJsonContent(
-        //     app.metadata,
-        //     "readAsText",
-        //   )) as Record<string, any>;
-        //   appsMetadata.push(appMetadata);
-        // }
-
-        // console.log("Existing Apps", apps, "Apps Metadata", appsMetadata);
-
-        // setDeployedApps((prevState) => ({ ...prevState, apps, appsMetadata }));
         setDeployedApps((prevState) => ({ ...prevState, apps }));
       } catch (e: any) {
         console.error(e.message);
@@ -259,7 +251,7 @@ export default function SpaceViewPage() {
         }, 10000);
 
         const tx = await spacesContract.createSpace(
-          ethers.utils.formatBytes32String(handle),
+          handle,
           visibility,
           spaceMembership,
           apps,
@@ -341,7 +333,7 @@ export default function SpaceViewPage() {
   return (
     <>
       <AppLayout title="Create Space">
-        <div className="flex flex-col pt-8 pr-8 pb-28 pl-[6.8vw]">
+        <div className="flex flex-col pt-8 pr-[6.8vw] pb-28 pl-[6.8vw] w-full">
           <div className="w-full border-t-2 border-embracedark border-opacity-5 mb-6 flex flex-row align-middle">
             <h1 className="text-embracedark text-opacity-20 text-sm mt-2 mb-8">
               creating a new space
@@ -354,10 +346,10 @@ export default function SpaceViewPage() {
             </Link>
           </div>
 
-          <div className="max-w-lg pl-8">
-            {isImageLoading && <Spinner />}
+          <div className="w-full">
             {currentStep === 1 && (
-              <>
+              <div className="max-w-lg">
+                {isImageLoading && <Spinner />}
                 <div className="mb-7">
                   <label
                     htmlFor="description"
@@ -371,8 +363,8 @@ export default function SpaceViewPage() {
                       className="w-36 h-36 rounded-full my-5"
                       src={URL.createObjectURL(image)}
                       alt="image to upload"
-                      width={36}
-                      height={36}
+                      width={144}
+                      height={144}
                     />
                   )}
 
@@ -380,12 +372,12 @@ export default function SpaceViewPage() {
                     <input
                       type="file"
                       accept="image/*"
-                      className="text-sm text-violet-700
+                      className="text-sm text-violet-600
                 file: file:py-1 file:px-6
                 file:rounded-full file:border-2
-                file:border-violet-700
+                file:border-violet-600
                 file:text-sm file:font-medium
-                file:bg-transparent file:text-violet-700"
+                file:bg-transparent file:text-violet-600"
                       onChange={(e) => handleFileChange(e)}
                     />
                   </div>
@@ -404,7 +396,7 @@ export default function SpaceViewPage() {
                       type="text"
                       name="name"
                       id="name"
-                      className="block bg-transparent text-embracedark w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+                      className="block bg-transparent text-embracedark w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                       placeholder="The name of your new space"
                       onChange={(e) => setName(e.target.value)}
                       value={name}
@@ -425,7 +417,7 @@ export default function SpaceViewPage() {
                       type="text"
                       name="handle"
                       id="handle"
-                      className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+                      className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                       placeholder="The handle of your new space"
                       onChange={(e) => setHandle(e.target.value)}
                       value={handle}
@@ -445,7 +437,7 @@ export default function SpaceViewPage() {
                     <textarea
                       name="description"
                       id="description"
-                      className="block bg-transparent w-full resize-none text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+                      className="block bg-transparent w-full resize-none text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                       placeholder="Description of new space"
                       onChange={(e) => setDescription(e.target.value)}
                       value={description}
@@ -580,7 +572,7 @@ export default function SpaceViewPage() {
                       onChange={(e) =>
                         setMembershipTokenAddress(e.target.value)
                       }
-                      className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm`}
+                      className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm`}
                     />
 
                     <div
@@ -631,7 +623,7 @@ export default function SpaceViewPage() {
                     </div>
                   </fieldset>
                 </div>
-              </>
+              </div>
             )}
 
             {error && (currentStep == 1 || currentStep == 2) && (
@@ -659,9 +651,9 @@ export default function SpaceViewPage() {
 
             {currentStep === 2 && (
               <fieldset className="space-y-2 mt-12 mb-10">
-                <label className="block text-sm font-medium text-embracedark mb-3">
+                <h3 className="text-lg font-medium leading-6 text-gray-900">
                   Apps
-                </label>
+                </h3>
 
                 <legend className="sr-only">Apps</legend>
 
@@ -670,46 +662,48 @@ export default function SpaceViewPage() {
                 ) : (
                   deployedApps.apps.map((app, i) => {
                     const name: string = app?.name;
+                    const appId = BigNumber.from(app?.id).toNumber();
 
                     return (
-                      name.length > 0 && ( // Exclude empty array added at 0 index
-                        <div
-                          key={`app-${i}`}
-                          className="relative flex items-start bg-white py-6 px-7"
-                        >
-                          <div className="flex h-5 items-center">
-                            <input
-                              id={name}
-                              aria-describedby={`${name}-app`}
-                              name={name}
-                              type="checkbox"
-                              checked={apps.includes(i)}
-                              onChange={() => {
-                                apps.includes(i)
-                                  ? setApps(apps.filter((a) => a !== i))
-                                  : setApps([...apps, i]);
-                              }}
-                              className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
-                            />
-                          </div>
+                      <div
+                        key={`app-${appId}`}
+                        className="flex items-start bg-white py-6 px-7 w-full"
+                      >
+                        <div className="flex h-5">
+                          <input
+                            id={name}
+                            aria-describedby={`${name}-app`}
+                            name={name}
+                            type="checkbox"
+                            checked={apps.includes(appId)}
+                            onChange={() => {
+                              apps.includes(appId)
+                                ? setApps(apps.filter((a) => a !== appId))
+                                : setApps([...apps, appId]);
 
-                          <div className="ml-3 text-sm">
-                            <label
-                              htmlFor={name}
-                              className="font-medium text-embracedark"
-                            >
-                              {name}
-                            </label>
-
-                            <p
-                              id={`${name}-description`}
-                              className="text-embracedark text-opacity-50"
-                            >
-                              {/* {deployedApps.appsMetadata?.[i]?.description} */}
-                            </p>
-                          </div>
+                              console.log(apps);
+                            }}
+                            className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
+                          />
                         </div>
-                      )
+
+                        <div className="ml-3 text-sm">
+                          <label
+                            htmlFor={name}
+                            className="font-medium text-embracedark"
+                          >
+                            <AppIcon appId={appId} /> {name}
+                          </label>
+
+                          <p
+                            id={`${name}-description`}
+                            className="text-embracedark text-opacity-50"
+                          >
+                            {appMappings[appId]?.description ??
+                              "Description text"}
+                          </p>
+                        </div>
+                      </div>
                     );
                   })
                 )}
@@ -764,12 +758,12 @@ export default function SpaceViewPage() {
                 <>
                   <Link
                     href="/"
-                    className="mt-2 mr-4 text-violet-700 font-semibold underline"
+                    className="mt-2 mr-4 text-violet-600 font-semibold underline"
                   >
                     cancel
                   </Link>
                   <button
-                    className="inline-flex items-center rounded-full border-violet-700 border-2 bg-transparent py-2 px-10 text-violet-700 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
+                    className="inline-flex items-center rounded-full border-violet-600 border-2 bg-transparent py-2 px-10 text-violet-600 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
                     disabled={
                       !name ||
                       !description ||
@@ -793,12 +787,12 @@ export default function SpaceViewPage() {
                 <>
                   <button
                     onClick={(e) => setCurrentStep(1)}
-                    className="mt-2 mr-4 text-violet-700 font-semibold underline"
+                    className="mt-2 mr-4 text-violet-600 font-semibold underline"
                   >
                     back
                   </button>
                   <button
-                    className=" inline-flex items-center rounded-full border-violet-700 border-2 bg-transparent py-2 px-10 text-violet-700 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
+                    className=" inline-flex items-center rounded-full border-violet-600 border-2 bg-transparent py-2 px-10 text-violet-600 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30"
                     disabled={!apps.length}
                     onClick={() => onSubmit()}
                   >
@@ -824,7 +818,7 @@ export default function SpaceViewPage() {
               target="_blank"
               rel="noreferrer"
               href={`${blockchainExplorerUrl}/${tx}`}
-              className="text-violet-700"
+              className="text-violet-600"
             >
               please following this link
             </a>
@@ -832,7 +826,7 @@ export default function SpaceViewPage() {
           </>
         }
         footer={
-          <button className="px-6 py-2.5 bg-violet-700 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-violet-700 hover:shadow-lg focus:bg-violet-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-violet-800 active:shadow-lg transition duration-150 ease-in-out">
+          <button className="px-6 py-2.5 bg-violet-600 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-violet-600 hover:shadow-lg focus:bg-violet-600 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-violet-800 active:shadow-lg transition duration-150 ease-in-out">
             Close & return to Spaces
           </button>
         }

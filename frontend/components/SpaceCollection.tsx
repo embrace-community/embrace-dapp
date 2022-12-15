@@ -111,9 +111,8 @@ export default function SpaceCollection({
                         alt="Space Logo"
                         onLoad={() => setImageLoaded(i)}
                         onError={() => setImageError(i)}
-                        height={32}
-                        width={32}
-                        unoptimized
+                        height={128}
+                        width={128}
                       />
                     )}
                   </div>

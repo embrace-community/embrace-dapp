@@ -80,10 +80,7 @@ export default function Chat({
   ]; // Need to get from contract
 
   useEffect(() => {
-    console.log("XMTP", xmtpClient, hasInitialized.current, signer);
     if (xmtpClient || hasInitialized.current || !signer) return;
-
-    console.log("XMTP");
 
     const init = async () => {
       hasInitialized.current = true;
@@ -482,7 +479,7 @@ export default function Chat({
             type="text"
             name="name"
             id="name"
-            className="w-[100%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+            className="w-[100%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
             placeholder="your message"
             onKeyUp={(e) => {
               if (e.key === "Enter") {
@@ -537,7 +534,7 @@ export default function Chat({
     //         type="text"
     //         name="name"
     //         id="name"
-    //         className="w-[90%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+    //         className="w-[90%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
     //         placeholder="your message"
     //       />
     //       </div>

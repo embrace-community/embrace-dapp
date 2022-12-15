@@ -1,6 +1,7 @@
 export enum EmbraceApps {
-  CHAT_SERVER = 0,
-  DISCUSSIONS = 1,
+  CHAT_SERVER = 1,
   SOCIAL = 2,
-  GOVERNANCE = 3,
+  CREATIONS = 3,
+  DISCUSSIONS = 4,
+  GOVERNANCE = 5,
 }

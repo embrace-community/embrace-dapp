@@ -172,13 +172,13 @@ export default function SpaceViewPage() {
     }
   };
 
-  // FIXME: Apps loading multiple times
+  // FIXME: Whole page loading multiple times
   console.log("Whole Space page component rendering multiple times");
 
   return (
     <>
       <AppLayout title={spaceData?.loadedMetadata?.name}>
-        {spaceData && metadataLoaded ? (
+        {spaceData?.loadedMetadata ? (
           <>
             <Header
               space={spaceData}
@@ -188,7 +188,11 @@ export default function SpaceViewPage() {
               joinSpace={joinSpace}
               requestJoinSpace={requestJoinSpace}
             />
-            <Apps space={spaceData} query={router.query} />
+            <Apps
+              space={spaceData}
+              query={router.query}
+              membership={membership}
+            />
           </>
         ) : (
           <div className="p-10">

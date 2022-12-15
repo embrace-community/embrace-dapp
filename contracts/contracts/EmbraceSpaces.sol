@@ -3,6 +3,7 @@ pragma solidity >=0.8.17;
 
 import "hardhat/console.sol";
 import "./EmbraceAccounts.sol";
+import "./EmbraceApps.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
@@ -86,7 +87,8 @@ contract EmbraceSpaces {
 
     Space[] public spaces;
 
-    EmbraceAccounts accounts;
+    EmbraceAccounts accountsContract;
+    EmbraceApps appsContract;
 
     mapping(uint256 => mapping(address => Member)) public spaceMembers;
     mapping(uint256 => uint256) public spaceMemberLength;
@@ -94,17 +96,18 @@ contract EmbraceSpaces {
     mapping(bytes32 => uint256) public spaceHandleToId;
 
     modifier onlySpaceAdmin(uint256 _spaceId) {
-        if (isAdmin(_spaceId) || isFounder(_spaceId)) revert ErrorOnlyAdmin(_spaceId, msg.sender);
+        if (!isAdmin(_spaceId) && !isFounder(_spaceId)) revert ErrorOnlyAdmin(_spaceId, msg.sender);
         _;
     }
 
     modifier onlySpaceFounder(uint256 _spaceId) {
-        if (isFounder(_spaceId)) revert ErrorOnlyFounder(_spaceId, msg.sender);
+        if (!isFounder(_spaceId)) revert ErrorOnlyFounder(_spaceId, msg.sender);
         _;
     }
 
-    constructor(address _accountsAddress) {
-        accounts = EmbraceAccounts(_accountsAddress);
+    constructor(address _accountsContractAddress, address _appsContractAddress) {
+        accountsContract = EmbraceAccounts(_accountsContractAddress);
+        appsContract = EmbraceApps(_appsContractAddress);
 
         _spaceIdCounter.increment(); // So we start at 1
     }
@@ -123,11 +126,25 @@ contract EmbraceSpaces {
         return space.founder == msg.sender;
     }
 
+    function isFounderExternal(uint256 _spaceId, address _address) external view returns (bool) {
+        Space memory space = spaces[_spaceId - 1];
+
+        return space.founder == _address;
+    }
+
+    function isAdminExternal(uint256 _spaceId, address _address) external view returns (bool) {
+        if (spaceMembers[_spaceId - 1][_address].isAdmin == true) {
+            return true;
+        }
+
+        return false;
+    }
+
     function createSpace(
         string memory _handle,
         Visibility _visibility,
         Membership memory _membership,
-        uint128[] memory _apps,
+        uint128[] memory _apps, // BUG: These should be the appIds not the appIndexes
         string memory _metadata
     ) public {
         bytes32 _handleBytes = keccak256(bytes(_handle));
@@ -155,11 +172,17 @@ contract EmbraceSpaces {
         spaceHandleToId[_handleBytes] = spaceId;
 
         // Add space to founder's account
-        accounts.addSpace(msg.sender, spaceId);
+        accountsContract.addSpace(msg.sender, spaceId);
 
         // Set founder as the first admin member
         spaceMemberLength[_index]++;
         spaceMembers[_index][msg.sender] = Member({ isAdmin: true, isActive: true, isRequest: false });
+
+        // Add Apps to space
+        // TODO: Should use the appId and not the index - needs updating on the UI mappings ETC
+        // for (uint256 i = 0; i < _apps.length; i++) {
+        // appsContract.addAppToSpace(spaceId, uint128(_apps[i]));
+        // }
 
         _spaceIdCounter.increment();
 
@@ -236,7 +259,7 @@ contract EmbraceSpaces {
         emit JoinedSpace(_spaceId, msg.sender, false);
 
         // Add space to account
-        accounts.addSpace(msg.sender, _spaceId);
+        accountsContract.addSpace(msg.sender, _spaceId);
 
         return true;
     }

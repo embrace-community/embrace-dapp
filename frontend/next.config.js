@@ -12,6 +12,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "**api.multiavatar.com**",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com**",
+      },
     ],
   },
   webpack: (config, { isServer }) => {

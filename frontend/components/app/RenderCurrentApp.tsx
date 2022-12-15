@@ -1,7 +1,13 @@
 import { appMappings } from "../../lib/AppMappings";
 
-export default function RenderCurrentApp({ currentApp, query, space }) {
+export default function RenderCurrentApp({
+  currentApp,
+  query,
+  space,
+  membership,
+}) {
+  console.log("Current app:", currentApp);
   const Component = appMappings[currentApp].component;
 
-  return <Component query={query} space={space} />;
+  return <Component query={query} space={space} membership={membership} />;
 }

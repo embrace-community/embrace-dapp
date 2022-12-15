@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useState } from "react";
+import { CommonPaginatedResultInfoFieldsFragmentDoc } from "../../types/lens-generated";
 import {
   MembershipGateToken,
   Access,
@@ -30,6 +31,7 @@ export default function Header({
   const allowRequests = space?.membership?.allowRequests;
   const [aboutShow, toggleAboutShow] = useState(false);
 
+  console.log("space metadata: ", space.loadedMetadata, space);
   return (
     <div className="w-full flex flex-col pt-8 md:pl-[6.8vw]">
       <div className="w-full flex flex-col md:flex-row justify-start items-center md:items-start border-b-2 border-embracedark border-opacity-5 mb-4">
@@ -38,9 +40,8 @@ export default function Header({
             className="w-20 h-20 rounded-full mb-5 bg-white"
             src={space.loadedMetadata?.image}
             alt="Space Image"
-            height={20}
-            width={20}
-            unoptimized
+            height={80}
+            width={80}
           />
         ) : (
           <span className="w-28 h-28 rounded-full mb-5"></span>
@@ -72,8 +73,8 @@ export default function Header({
                       className="h-5 w-5 rounded-full mr-3"
                       src="https://api.multiavatar.com/Binx Bond.svg"
                       alt="Avatar"
-                      height={5}
-                      width={5}
+                      height={20}
+                      width={20}
                     />
                   </div>
                 )}
@@ -135,7 +136,7 @@ export default function Header({
                 space.visibility == Visibility.PUBLIC &&
                 !membership?.isActive && (
                   <button
-                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => joinSpace()}
                   >
                     join space
@@ -149,7 +150,7 @@ export default function Header({
                 !membership?.isActive &&
                 !membership?.isRequest && (
                   <button
-                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
                   >
                     request to join
@@ -168,7 +169,7 @@ export default function Header({
                 !membership?.isActive &&
                 !membership?.isRequest && (
                   <button
-                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
                   >
                     request to join
@@ -186,7 +187,7 @@ export default function Header({
               {space?.membership?.access == Access.GATED &&
                 !membership?.isActive && (
                   <button
-                    className="rounded-full border-violet-700 border-2 bg-transparent text-violet-700 text-sm font-semibold py-2 px-7"
+                    className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
                   >
                     join gated space
