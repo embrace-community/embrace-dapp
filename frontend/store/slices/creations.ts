@@ -41,7 +41,7 @@ export const creationsSlice = createSlice({
   },
 });
 
-export const { setLoaded, setSpaceId, setCollections, setCollectionCreations } =
+export const { setSpaceId, setCollections, setCollectionCreations } =
   creationsSlice.actions;
 
 export const getCreationById = createSelector(
