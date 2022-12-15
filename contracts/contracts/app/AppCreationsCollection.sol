@@ -14,9 +14,15 @@ interface IEmbraceSpaces {
 
 contract AppCreationsCollection is ERC721Enumerable, ERC721URIStorage, IEmbraceSpaces {
     using Counters for Counters.Counter;
-    Counters.Counter private _collectionId;
+    Counters.Counter private _creationId;
 
     error ErrorOnlyAdmin(uint256 spaceId, address memberAddress);
+    event CreationCreated(
+        uint256 indexed spaceId,
+        address indexed creator,
+        address indexed collectionContractAddress,
+        uint256 tokenId
+    );
 
     address public embraceSpacesAddress;
 
@@ -60,13 +66,18 @@ contract AppCreationsCollection is ERC721Enumerable, ERC721URIStorage, IEmbraceS
 
     // Only space admins can create a collection for the space
     function mint(string memory _tokenURI) public onlySpaceAdmin(spaceId) {
-        _collectionId.increment();
-        uint256 newCollectionId = _collectionId.current();
-        _mint(msg.sender, newCollectionId);
+        _creationId.increment(); // First creation is 1
+
+        uint256 newCreationId = _creationId.current();
+
+        _mint(msg.sender, newCreationId);
 
         if (bytes(_tokenURI).length > 0) {
-            super._setTokenURI(newCollectionId, _tokenURI);
+            super._setTokenURI(newCreationId, _tokenURI);
         }
+
+        // Event for when a creation is minted
+        emit CreationCreated(spaceId, msg.sender, address(this), newCreationId);
     }
 
     function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {

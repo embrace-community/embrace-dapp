@@ -7,14 +7,12 @@ type CreationsObject = {
 };
 
 export interface CreationsState {
-  loaded: boolean;
   spaceId: number;
   collections: Collection[];
   creations: CreationsObject;
 }
 
 const initialState: CreationsState = {
-  loaded: false,
   spaceId: 0,
   collections: [],
   creations: [],
@@ -24,10 +22,6 @@ export const creationsSlice = createSlice({
   name: "creations",
   initialState,
   reducers: {
-    setLoaded: (state, action) => {
-      state.loaded = action.payload;
-    },
-
     setSpaceId: (state, action: PayloadAction<number>) => {
       state.spaceId = action.payload;
     },

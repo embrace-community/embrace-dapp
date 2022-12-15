@@ -1,16 +1,18 @@
 import { Router, useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { appMappings } from "../../lib/AppMappings";
-import { Space } from "../../types/space";
+import { Space, SpaceMembership } from "../../types/space";
 import Navigation from "./Navigation";
 import RenderCurrentApp from "../app/RenderCurrentApp";
 
 export default function Apps({
   query,
   space,
+  membership,
 }: {
   query: Router["query"];
   space: Space;
+  membership: SpaceMembership | undefined;
 }) {
   const prevSelectedApp = useRef(-1);
   const [currentApp, setCurrentApp] = useState(-1);
@@ -93,6 +95,7 @@ export default function Apps({
             currentApp={currentApp}
             query={query}
             space={space}
+            membership={membership}
           />
         )}
       </div>

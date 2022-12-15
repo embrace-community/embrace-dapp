@@ -10,7 +10,11 @@ import type {
   OnEvent,
   PromiseOrValue,
 } from "../../common";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   BaseContract,
@@ -143,8 +147,25 @@ export interface AppCreationsInterface extends utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "CollectionCreated(uint256,address,tuple)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "CollectionCreated"): EventFragment;
 }
+
+export interface CollectionCreatedEventObject {
+  spaceId: BigNumber;
+  creator: string;
+  collection: AppCreations.CollectionStructOutput;
+}
+export type CollectionCreatedEvent = TypedEvent<
+  [BigNumber, string, AppCreations.CollectionStructOutput],
+  CollectionCreatedEventObject
+>;
+
+export type CollectionCreatedEventFilter =
+  TypedEventFilter<CollectionCreatedEvent>;
 
 export interface AppCreations extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -338,7 +359,18 @@ export interface AppCreations extends BaseContract {
     ): Promise<BigNumber>;
   };
 
-  filters: {};
+  filters: {
+    "CollectionCreated(uint256,address,tuple)"(
+      spaceId?: PromiseOrValue<BigNumberish> | null,
+      creator?: PromiseOrValue<string> | null,
+      collection?: null
+    ): CollectionCreatedEventFilter;
+    CollectionCreated(
+      spaceId?: PromiseOrValue<BigNumberish> | null,
+      creator?: PromiseOrValue<string> | null,
+      collection?: null
+    ): CollectionCreatedEventFilter;
+  };
 
   estimateGas: {
     createCollection(

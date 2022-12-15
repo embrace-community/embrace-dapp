@@ -43,7 +43,6 @@ export default function ViewCreation({
   collectionId: number;
   creationId: number;
 }) {
-  const router = useRouter();
   const provider = useProvider();
   const creationsStore = useAppSelector((state: RootState) => state.creations);
   const metadataStore = useAppSelector((state: RootState) => state.metadata);
@@ -87,80 +86,11 @@ export default function ViewCreation({
     space.id,
   ]);
 
-  // Get this current creation from the store or contract
-  // useEffect(() => {
-  //   if (!appCreationsContract || !provider || !selectedCollection) return;
-
-  //   const loadCreation = async () => {
-  //     // Get the selected collection contract address and create a new contract instance
-  //     const collectionContractAddress = selectedCollection.contractAddress;
-
-  //     // Get the creations for this collection
-  //     const collectionContract = new ethers.Contract(
-  //       collectionContractAddress,
-  //       appCreationCollectionsABI,
-  //       provider,
-  //     );
-
-  //     const creationURI = await collectionContract.tokenURI(creationId);
-
-  //     const cid = creationURI.replace("ipfs://", "");
-
-  //     // Now if CID has not been loaded then load it
-  //     console.log(cid, "tokenURI", metadataStore[cid], cid);
-
-  //     if (!metadataStore.cidData[cid]) {
-  //       // If not, load it from IPFS
-  //       const loadedMetadata = (await getIpfsJsonContent(cid)) as any;
-
-  //       if (loadedMetadata?.image) {
-  //         const imageCid = loadedMetadata?.image.replace("ipfs://", "");
-  //         const imageUri = getFileUri(imageCid);
-  //         loadedMetadata.image = imageUri;
-  //       }
-
-  //       loadedMetadata.tokenId = creationId;
-
-  //       dispatch(setCid({ cid, data: loadedMetadata }));
-
-  //       console.log("dispatch setCid", loadedMetadata);
-  //     }
-
-  //     setCreation(_creation);
-  //   };
-
-  // Get the creation from the store - need a getByTokenId selector
-  // const _creation = getCreationByIdSelector(collectionId, creationId);
-
-  // // If the creation is not in the store then load it from the contract
-  // if (!_creation) {
-  //   // Need to load creation from contract and save to store
-  //   loadCreation();
-  // } else {
-  //   setCreation(_creation);
-  // }
-
-  //   // Then see if the creation tokenURI exists in the metadata store
-  // }, [
-  //   appCreationCollectionsABI,
-  //   appCreationsContract,
-  //   collectionId,
-  //   creation?.tokenId,
-  //   creationId,
-  //   creationsStore.creations,
-  //   dispatch,
-  //   getCreationByIdSelector,
-  //   metadataStore,
-  //   provider,
-  //   selectedCollection,
-  //   space.id,
-  // ]);
-
   // TODO: Currently all the creations are loaded from the collection before loading this current creation
   // even if the creation already exists in the store
   // Once the current creation is loaded load all the other creations for this collection
   useEffect(() => {
-    if (creation || !selectedCollection) return;
+    if (creation?.tokenId == creationId || !selectedCollection) return;
 
     const loadCreations = async () => {
       // Get the selected collection contract address and create a new contract instance
@@ -182,8 +112,6 @@ export default function ViewCreation({
       const formattedCreations: Creation[] = [];
 
       for (let i = 0; i < creations.length; i++) {
-        console.log("creation!!", creations[i]);
-
         const _creation = {
           tokenId: BigNumber.from(creations[i].tokenId).toNumber(),
           tokenURI: creations[i].tokenURI.replace("ipfs://", ""),
@@ -251,12 +179,9 @@ export default function ViewCreation({
 
   return (
     <LivepeerConfig client={livepeerClient}>
-      <Button
-        additionalClassName="p-2 mb-5"
-        buttonProps={{ onClick: () => router.back() }}
-      >
-        Back
-      </Button>
+      <Link href={`/${space.handle}/creations?collectionId=${collectionId}`}>
+        <Button additionalClassName="p-2 mb-5">back</Button>
+      </Link>
 
       {creation ? (
         <div className="w-full flex flex-row grow">

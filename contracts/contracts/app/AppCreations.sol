@@ -6,7 +6,18 @@ import "hardhat/console.sol";
 import "./AppCreationsCollection.sol"; // Includes IEmbraceSpaces
 
 contract AppCreations is IEmbraceSpaces {
+    struct Collection {
+        uint128 id;
+        address contractAddress;
+        string name;
+    }
+
+    mapping(uint256 => Collection[]) public spaceCollections;
+    mapping(uint256 => uint64) public spaceToCollectionCount;
+
     error ErrorOnlyAdmin(uint256 spaceId, address memberAddress);
+
+    event CollectionCreated(uint256 indexed spaceId, address indexed creator, Collection collection);
 
     address public embraceSpacesAddress;
 
@@ -28,15 +39,6 @@ contract AppCreations is IEmbraceSpaces {
         return IEmbraceSpaces(embraceSpacesAddress).isFounderExternal(_spaceId, _address);
     }
 
-    struct Collection {
-        uint128 id;
-        address contractAddress;
-        string name;
-    }
-
-    mapping(uint256 => Collection[]) public spaceCollections;
-    mapping(uint256 => uint64) public spaceToCollectionCount;
-
     // Only space admins can create a collection for the space
     function createCollection(
         uint256 _spaceId,
@@ -44,7 +46,6 @@ contract AppCreations is IEmbraceSpaces {
         string memory _symbol
     ) public onlySpaceAdmin(_spaceId) {
         // Create new ERC721 collection contract
-        console.log("createCollection", _spaceId, embraceSpacesAddress);
         AppCreationsCollection newCollection = new AppCreationsCollection(
             embraceSpacesAddress,
             _spaceId,
@@ -64,7 +65,8 @@ contract AppCreations is IEmbraceSpaces {
 
         spaceCollections[_spaceId].push(collection);
 
-        console.log("createCollection", _spaceId, _name, address(newCollection));
+        // Event for collection creation
+        emit CollectionCreated(_spaceId, msg.sender, collection);
     }
 
     function getCollection(uint256 _spaceId, uint128 _id) public view returns (Collection memory) {

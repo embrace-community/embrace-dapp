@@ -1,9 +1,9 @@
 import classNames from "classnames";
 import Image from "next/image";
 import Link from "next/link";
-import { Router } from "next/router";
+import { Router, useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
-import { Space } from "../../../types/space";
+import { Space, SpaceMembership } from "../../../types/space";
 import Button from "../../Button";
 import CreateCreation from "./CreateCreation";
 import ViewCreation from "./ViewCreation";
@@ -14,40 +14,45 @@ import {
   getIpfsJsonContent,
 } from "../../../lib/web3storage/getIpfsJsonContent";
 import Spinner from "../../Spinner";
-import { useProvider } from "wagmi";
+import { useAccount, useProvider } from "wagmi";
 import { Collection, Creation } from "../../../types/space-apps";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import {
-  setLoaded,
   setSpaceId,
   setCollections,
   setCollectionCreations,
+  getCollectionById,
 } from "../../../store/slices/creations";
 import { RootState } from "../../../store/store";
 import { setCid } from "../../../store/slices/metadata";
+import useSigner from "../../../hooks/useSigner";
 
 export default function Creations({
   query,
   space,
+  membership,
 }: {
   query: Router["query"];
   space: Space;
+  membership: SpaceMembership | undefined;
 }) {
   const provider = useProvider();
+  const { address: accountAddress } = useAccount();
+  const router = useRouter();
   const creationsStore = useAppSelector((state: RootState) => state.creations);
   const metadataStore = useAppSelector((state: RootState) => state.metadata);
+  const getCollectionByIdSelector = useAppSelector(getCollectionById);
   const dispatch = useAppDispatch();
   const { appCreationsContract, appCreationCollectionsABI } = useAppContract();
   const [selectedCollection, setSelectedCollection] = useState<Collection>();
   const [creationsDataLoaded, setCreationsDataLoaded] = useState<
     "loading" | "loaded" | null
   >(null);
+  const [collectionCreating, setCollectionCreating] = useState(false);
   const creationId = Number(query.creationId);
   const collectionId = Number(query.collectionId);
   const newCollectionInput = useRef<HTMLInputElement>(null);
   const view = query.view as string;
-
-  console.log(space, "space");
 
   useEffect(() => {
     if (
@@ -59,8 +64,6 @@ export default function Creations({
 
     console.log("setSpaceId");
     dispatch(setSpaceId(space.id));
-    // TODO: Clear collections and creations
-    dispatch(setLoaded(false));
   }, [
     appCreationsContract,
     creationsStore.spaceId,
@@ -71,17 +74,21 @@ export default function Creations({
 
   // Load the collections for this space
   useEffect(() => {
-    if (!appCreationsContract || selectedCollection || !creationsStore.spaceId)
+    if (!appCreationsContract || selectedCollection || !creationsStore?.spaceId)
       return;
 
     const loadCollections = async () => {
-      console.log("loadCollections");
       if (
         creationsStore.spaceId === space.id &&
         creationsStore.collections.length > 0
       ) {
         // If the collections are already loaded
-        setSelectedCollection(creationsStore.collections[0]);
+        if (collectionId) {
+          const _selectedCollection = getCollectionByIdSelector(collectionId);
+          setSelectedCollection(_selectedCollection);
+        } else {
+          setSelectedCollection(creationsStore.collections[0]);
+        }
       } else {
         const spaceCollections: Collection[] =
           await appCreationsContract.getCollections(space.id);
@@ -89,24 +96,35 @@ export default function Creations({
         const formattedCollections: Collection[] = [];
 
         for (let i = 0; i < spaceCollections.length; i++) {
+          const _id = BigNumber.from(spaceCollections[i].id).toNumber();
+
           formattedCollections.push({
-            id: BigNumber.from(spaceCollections[i].id).toNumber(),
+            id: _id,
             name: spaceCollections[i].name,
             contractAddress: spaceCollections[i].contractAddress,
           });
+
+          if (_id == collectionId) {
+            setSelectedCollection(formattedCollections[i]);
+            console.log("select", formattedCollections[i]);
+          }
         }
 
         dispatch(setCollections(formattedCollections));
-        setSelectedCollection(formattedCollections[0]);
+        if (!collectionId) {
+          setSelectedCollection(formattedCollections[0]);
+        }
       }
     };
 
     loadCollections();
   }, [
     appCreationsContract,
+    collectionId,
     creationsStore.collections,
     creationsStore.spaceId,
     dispatch,
+    getCollectionByIdSelector,
     selectedCollection,
     space.id,
   ]);
@@ -233,25 +251,88 @@ export default function Creations({
     selectedCollection,
   ]);
 
+  const routeToSelectedCollection = (
+    collection: Collection,
+    newCollection: boolean = false,
+  ) => {
+    setSelectedCollection(collection);
+    const route = `/${query.handle}/creations?collectionId=${collection.id}`;
+
+    if (newCollection) {
+      router.push(`/${route}&newCollection=true`);
+      return;
+    }
+
+    router.push(`/${route}`);
+  };
+
   const createCollection = async () => {
     if (
       !appCreationsContract ||
       !newCollectionInput.current ||
-      newCollectionInput.current?.value.length < 3
+      newCollectionInput.current?.value.length < 3 ||
+      membership?.isAdmin !== true ||
+      membership.isActive !== true
     )
       return;
 
-    const collectionName = newCollectionInput.current?.value;
+    try {
+      const collectionName = newCollectionInput.current?.value;
 
-    const symbol = collectionName.substring(0, 5).toUpperCase();
+      const symbol = collectionName.substring(0, 5).toUpperCase();
 
-    await appCreationsContract.createCollection(
-      space.id,
-      collectionName,
-      symbol,
-    );
+      appCreationsContract.on(
+        "CollectionCreated",
+        (spaceId, creator, newCollection) => {
+          console.log("new collection", newCollection, spaceId, creator);
 
-    newCollectionInput.current.value = "";
+          console.log(BigNumber.from(spaceId).toNumber(), space.id);
+          console.log(creator, accountAddress);
+
+          if (
+            BigNumber.from(spaceId).toNumber() == space.id &&
+            creator == accountAddress &&
+            getCollectionByIdSelector(
+              BigNumber.from(newCollection.id).toNumber(),
+            ) == null
+          ) {
+            const formattedNewCollection = {
+              id: BigNumber.from(newCollection.id).toNumber(),
+              name: newCollection.name,
+              contractAddress: newCollection.contractAddress,
+            };
+
+            dispatch(
+              setCollections([
+                ...creationsStore.collections,
+                formattedNewCollection,
+              ]),
+            );
+
+            routeToSelectedCollection(formattedNewCollection, true);
+
+            if (newCollectionInput.current) {
+              newCollectionInput.current.disabled = false;
+              newCollectionInput.current.value = "";
+            }
+            setCollectionCreating(false);
+          }
+        },
+      );
+
+      newCollectionInput.current.disabled = true;
+      setCollectionCreating(true);
+
+      const tx = await appCreationsContract.createCollection(
+        space.id,
+        collectionName,
+        symbol,
+      );
+    } catch (e) {
+      newCollectionInput.current.disabled = false;
+      setCollectionCreating(false);
+      console.log("error", e);
+    }
   };
 
   if (view === "form") {
@@ -274,66 +355,91 @@ export default function Creations({
         <div className="relative hidden md:w-1/5 md:flex flex-col my-1 sm:m-4 max-h-[calc(100vh-400px)]">
           {creationsStore.spaceId === space.id &&
             creationsStore.collections.length > 0 && (
-              <>
-                <h1 className="text-lg font-medium leading-6 embracedark underline sm:truncate mb-5">
+              <div className="border-b pb-5">
+                <h3 className="text-lg font-medium leading-6 text-gray-900 sm:truncate mb-5">
                   Collections
-                </h1>
+                </h3>
+
                 {creationsStore.collections.map((collection) => (
                   <div
                     key={collection.id}
                     className={classNames({
-                      "flex flex-row items-center justify-between p-2 rounded-lg cursor-pointer":
+                      "flex flex-row items-center justify-between p-2 rounded-lg cursor-pointer ":
                         true,
                       "bg-gray-100":
                         selectedCollection &&
                         collection.id === selectedCollection.id,
                     })}
-                    onClick={() => setSelectedCollection(collection)}
+                    onClick={() => routeToSelectedCollection(collection)}
                   >
                     <span>{collection.name}</span>
                   </div>
                 ))}
-              </>
+              </div>
             )}
 
-          <div className="w-full mt-5 border-t p2 pt-5">
-            <label
-              htmlFor="collection"
-              className="block text-sm font-medium text-gray-700"
-            >
-              New Collection
-            </label>
-            <div className="mt-1">
-              <input
-                type="text"
-                name="collection"
-                id="collection"
-                ref={newCollectionInput}
-                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                placeholder="collection name"
-              />
+          {creationsStore.spaceId === space.id &&
+            creationsStore.collections.length === 0 && (
+              <h3 className="text-lg font-medium leading-6 text-gray-900">
+                No collections exist
+              </h3>
+            )}
+
+          {membership?.isAdmin === true && membership.isActive === true && (
+            <div className="w-full mt-2 p2 pt-5">
+              <label
+                htmlFor="collection"
+                className="block text-sm font-medium text-gray-700"
+              >
+                New Collection
+              </label>
+              <div className="mt-1">
+                <input
+                  type="text"
+                  name="collection"
+                  id="collection"
+                  ref={newCollectionInput}
+                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  placeholder="collection name"
+                />
+              </div>
+              <Button
+                additionalClassName="p-1 mt-1"
+                buttonProps={{
+                  onClick: () => {
+                    createCollection();
+                  },
+                  disabled: collectionCreating,
+                }}
+              >
+                {collectionCreating ? "creating..." : "+ new collection"}
+              </Button>
             </div>
-            <Button
-              additionalClassName="p-1 mt-1"
-              buttonProps={{
-                onClick: () => {
-                  createCollection();
-                },
-              }}
-            >
-              + new collection
-            </Button>
-          </div>
+          )}
         </div>
 
         <div className="w-full flex flex-col my-1 sm:mb-4 ">
-          <div className="flex flex-row items-center justify-between p-2 mb-5">
-            <Link href={`/${query.handle}/creations?view=form`}>
-              <Button additionalClassName="p-2">+ new creation</Button>
-            </Link>
-          </div>
+          {creationsStore.spaceId === space.id &&
+            creationsStore.collections.length > 0 &&
+            membership?.isAdmin === true &&
+            membership.isActive === true && (
+              <div className="flex flex-row items-center justify-between p-2 mb-5">
+                <Link href={`/${query.handle}/creations?view=form`}>
+                  <Button additionalClassName="p-2">+ new creation</Button>
+                </Link>
+              </div>
+            )}
 
-          {selectedCollection && (
+          {creationsStore.spaceId === space.id &&
+            creationsStore.collections.length === 0 && (
+              <div className="flex flex-row items-center justify-between p-2 mb-5">
+                <h3 className="text-lg font-medium leading-6 text-gray-900">
+                  Please create your first collection
+                </h3>
+              </div>
+            )}
+
+          {creationsStore.spaceId === space.id && selectedCollection && (
             <>
               <ul
                 role="list"

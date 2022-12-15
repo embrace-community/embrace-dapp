@@ -188,7 +188,11 @@ export default function SpaceViewPage() {
               joinSpace={joinSpace}
               requestJoinSpace={requestJoinSpace}
             />
-            <Apps space={spaceData} query={router.query} />
+            <Apps
+              space={spaceData}
+              query={router.query}
+              membership={membership}
+            />
           </>
         ) : (
           <div className="p-10">
