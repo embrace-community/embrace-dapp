@@ -5,5 +5,5 @@ export default function AppIcon({ appId }) {
 
   if (Component === undefined) return null;
 
-  return <Component width={24} height={24} />;
+  return <Component width={24} height={24} className="m-2 ml-0" />;
 }

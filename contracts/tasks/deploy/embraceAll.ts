@@ -56,16 +56,64 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
   // CREATE APPS
   const apps = [
     {
-      name: "Chat Server",
-      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
-    },
-    {
       name: "Social",
       contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: true,
     },
     {
       name: "Creations",
       contractAddress: creations.address,
+      enabled: true,
+    },
+    {
+      name: "Chat Server",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: true,
+    },
+    {
+      name: "Streaming",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: false,
+    },
+    {
+      name: "Marketplace",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: false,
+    },
+    {
+      name: "Pages",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: false,
+    },
+    {
+      name: "Discussions",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: false,
+    },
+    {
+      name: "Governance",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: false,
+    },
+    {
+      name: "Contributions",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: false,
+    },
+    {
+      name: "Fundraising",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: false,
+    },
+    {
+      name: "Events",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: false,
+    },
+    {
+      name: "Calendar",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: false,
     },
   ];
 
@@ -73,9 +121,7 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
     const app = apps[j];
 
     if (app) {
-      const enabled = true;
-
-      await embraceApps.createApp(app.name, app.contractAddress, enabled, {
+      await embraceApps.createApp(app.name, app.contractAddress, app.enabled, {
         gasLimit: 1000000,
       });
 
