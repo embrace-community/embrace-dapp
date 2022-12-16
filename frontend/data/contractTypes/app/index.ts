@@ -3,7 +3,7 @@
 /* tslint:disable */
 
 /* eslint-disable */
-import type * as appCreationsCollectionSol from "./AppCreationsCollection.sol";
+import type * as appCreationsCollectionSol from "./AppCreationsCollection";
 
 export type { appCreationsCollectionSol };
 export type { AppCreations } from "./AppCreations";

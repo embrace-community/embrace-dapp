@@ -9,7 +9,8 @@ export default function RenderCurrentApp({
   console.log("Current app:", currentApp);
   const Component = appMappings[currentApp].component;
 
-  if (!Component) return alert("App not found");
+  if (!Component) alert("App not found");
+  return null;
 
   return <Component query={query} space={space} membership={membership} />;
 }
