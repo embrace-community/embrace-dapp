@@ -498,7 +498,8 @@ export default function Creations({
               {creationsDataLoaded == "loaded" &&
                 (!creationsStore.creations[selectedCollection.id] ||
                   creationsStore.creations[selectedCollection.id].length ==
-                    0) && <>No creations exist in this collection</>}
+                    0) && <></>}
+              {/* TODO: Add a placehoolder image here */}
             </>
           )}
         </div>
