@@ -115,28 +115,28 @@ contract EmbraceApps {
 
     // Could take extra params to set the name / metadata etc
     // TODO: Should receive the appId and not the index
-    function addAppToSpace(uint256 _spaceId, uint128 _appIndex) public {
-        //require(apps[_appIndex].id > 0, "App does not exist.");
+    // function addAppToSpace(uint256 _spaceId, uint128 _appIndex) public {
+    //     //require(apps[_appIndex].id > 0, "App does not exist.");
 
-        console.log("addAppToSpace", _spaceId, _appIndex);
+    //     console.log("addAppToSpace", _spaceId, _appIndex);
 
-        // TODO: Check if the app is already added to the space?
+    //     // TODO: Check if the app is already added to the space?
 
-        App memory app = apps[_appIndex];
+    //     App memory app = apps[_appIndex];
 
-        // Add the appId to the space
-        spaceToAppIds[_spaceId].push(app.id);
+    //     // Add the appId to the space
+    //     spaceToAppIds[_spaceId].push(app.id);
 
-        // Add the SpaceApp data
-        SpaceApp memory spaceApp = SpaceApp({
-            appId: app.id,
-            name: app.name,
-            contractAddress: app.contractAddress,
-            metadata: ""
-        });
+    //     // Add the SpaceApp data
+    //     SpaceApp memory spaceApp = SpaceApp({
+    //         appId: app.id,
+    //         name: app.name,
+    //         contractAddress: app.contractAddress,
+    //         metadata: ""
+    //     });
 
-        spaceToAppIdToSpaceApp[_spaceId][app.id] = spaceApp;
-    }
+    //     spaceToAppIdToSpaceApp[_spaceId][app.id] = spaceApp;
+    // }
 
     // function updateMetadata(uint256 _appId, string memory _newMetadata) public onlyOwner returns (App memory) {
     //     App storage app = apps[_appId - 1];

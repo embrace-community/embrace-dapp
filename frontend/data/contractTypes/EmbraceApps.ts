@@ -43,7 +43,6 @@ export declare namespace EmbraceApps {
 
 export interface EmbraceAppsInterface extends utils.Interface {
   functions: {
-    "addAppToSpace(uint256,uint128)": FunctionFragment;
     "apps(uint256)": FunctionFragment;
     "createApp(string,address,bool)": FunctionFragment;
     "getAppById(uint128)": FunctionFragment;
@@ -58,7 +57,6 @@ export interface EmbraceAppsInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
-      | "addAppToSpace"
       | "apps"
       | "createApp"
       | "getAppById"
@@ -71,10 +69,6 @@ export interface EmbraceAppsInterface extends utils.Interface {
       | "spaceToAppIds"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "addAppToSpace",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
-  ): string;
   encodeFunctionData(
     functionFragment: "apps",
     values: [PromiseOrValue<BigNumberish>]
@@ -114,10 +108,6 @@ export interface EmbraceAppsInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "addAppToSpace",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "apps", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createApp", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getAppById", data: BytesLike): Result;
@@ -171,12 +161,6 @@ export interface EmbraceApps extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    addAppToSpace(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appIndex: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     apps(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -243,12 +227,6 @@ export interface EmbraceApps extends BaseContract {
     ): Promise<[BigNumber]>;
   };
 
-  addAppToSpace(
-    _spaceId: PromiseOrValue<BigNumberish>,
-    _appIndex: PromiseOrValue<BigNumberish>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   apps(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -313,12 +291,6 @@ export interface EmbraceApps extends BaseContract {
   ): Promise<BigNumber>;
 
   callStatic: {
-    addAppToSpace(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appIndex: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     apps(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -386,12 +358,6 @@ export interface EmbraceApps extends BaseContract {
   filters: {};
 
   estimateGas: {
-    addAppToSpace(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appIndex: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     apps(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -443,12 +409,6 @@ export interface EmbraceApps extends BaseContract {
   };
 
   populateTransaction: {
-    addAppToSpace(
-      _spaceId: PromiseOrValue<BigNumberish>,
-      _appIndex: PromiseOrValue<BigNumberish>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     apps(
       arg0: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides

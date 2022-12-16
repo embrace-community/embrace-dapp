@@ -1,3 +1,4 @@
+import classNames from "classnames";
 import { BigNumber, ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,6 +7,7 @@ import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { Address, useAccount } from "wagmi";
 import AppIcon from "../components/AppIcon";
 import AppLayout from "../components/AppLayout";
+import Badge from "../components/Badge";
 import Modal from "../components/Modal";
 import {
   memberAccessOptions,
@@ -17,7 +19,7 @@ import {
 import Spinner from "../components/Spinner";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
 import useSigner from "../hooks/useSigner";
-import { appMappings } from "../lib/AppMappings";
+import { appMappings, tagColours } from "../lib/AppMappings";
 import { blockchainExplorerUrl } from "../lib/envs";
 import getWeb3StorageClient from "../lib/web3storage/client";
 
@@ -67,7 +69,7 @@ export default function SpaceViewPage() {
   const [tx, setTx] = useState<any>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [spaceCreationMessage, setSpaceCreationMessage] = useState<string>(
-    "We're just setting up your space",
+    "We're creating your Community Space...",
   );
 
   const isVisibilityPrivate =
@@ -235,7 +237,9 @@ export default function SpaceViewPage() {
         };
 
         spacesContract.on("SpaceCreated", (spaceId, founder) => {
-          setSpaceCreationMessage("Space created! Redirecting to space...");
+          setSpaceCreationMessage(
+            "Your Community Space has been created! Redirecting...",
+          );
 
           setTimeout(() => {
             spacesContract.removeAllListeners();
@@ -243,12 +247,6 @@ export default function SpaceViewPage() {
             redirectToSpace(spaceId, founder, space);
           }, 1000);
         });
-
-        setTimeout(() => {
-          setSpaceCreationMessage(
-            "Making sure everything is ready for your community...",
-          );
-        }, 10000);
 
         const tx = await spacesContract.createSpace(
           handle,
@@ -656,57 +654,94 @@ export default function SpaceViewPage() {
                 </h3>
 
                 <legend className="sr-only">Apps</legend>
+                <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {deployedApps.isLoading ? (
+                    <Spinner />
+                  ) : (
+                    deployedApps.apps.map((app, i) => {
+                      const appId = BigNumber.from(app?.id).toNumber();
+                      const appMapping = appMappings[appId];
 
-                {deployedApps.isLoading ? (
-                  <Spinner />
-                ) : (
-                  deployedApps.apps.map((app, i) => {
-                    const name: string = app?.name;
-                    const appId = BigNumber.from(app?.id).toNumber();
+                      const name: string = appMapping?.title ?? app?.name;
+                      const appTags = appMapping?.tags;
 
-                    return (
-                      <div
-                        key={`app-${appId}`}
-                        className="flex items-start bg-white py-6 px-7 w-full"
-                      >
-                        <div className="flex h-5">
-                          <input
-                            id={name}
-                            aria-describedby={`${name}-app`}
-                            name={name}
-                            type="checkbox"
-                            checked={apps.includes(appId)}
-                            onChange={() => {
-                              apps.includes(appId)
-                                ? setApps(apps.filter((a) => a !== appId))
-                                : setApps([...apps, appId]);
+                      return (
+                        <div
+                          key={`app-${appId}`}
+                          className="flex w-full items-start bg-white py-6 px-7 cursor-pointer rounded-lg"
+                          onClick={() => {
+                            if (!app?.enabled) return;
+                            apps.includes(appId)
+                              ? setApps(apps.filter((a) => a !== appId))
+                              : setApps([...apps, appId]);
+                          }}
+                        >
+                          <div className="flex h-5 mt-2">
+                            <input
+                              id={name}
+                              aria-describedby={`${name}-app`}
+                              name={name}
+                              type="checkbox"
+                              checked={apps.includes(appId)}
+                              disabled={!app?.enabled}
+                              onChange={() => {
+                                apps.includes(appId)
+                                  ? setApps(apps.filter((a) => a !== appId))
+                                  : setApps([...apps, appId]);
+                              }}
+                              // className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0 "
+                              className={classNames({
+                                "h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0":
+                                  true,
+                                "ring-2": apps.includes(appId),
+                                "border-gray-100": !app.enabled,
+                              })}
+                            />
+                          </div>
 
-                              console.log(apps);
-                            }}
-                            className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
-                          />
+                          <div className="ml-3 text-sm">
+                            <label
+                              htmlFor={name}
+                              className="font-medium text-embracedark"
+                            >
+                              <AppIcon appId={appId} />
+
+                              {name}
+
+                              {!app?.enabled && (
+                                <span className="inline-flex items-center rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 ml-2">
+                                  coming soon
+                                </span>
+                              )}
+                            </label>
+
+                            <div>
+                              {appTags &&
+                                appTags.map((tag, i) => {
+                                  return (
+                                    <Badge
+                                      key={`app-tag-${appId}-${i}`}
+                                      color={tagColours[tag]}
+                                    >
+                                      {tag}
+                                    </Badge>
+                                  );
+                                })}
+                            </div>
+
+                            <p
+                              id={`${name}-description`}
+                              className=" pointer-events-none text-embracedark text-opacity-50"
+                            >
+                              {appMappings[appId]?.description ??
+                                "Description text"}
+                            </p>
+                          </div>
                         </div>
-
-                        <div className="ml-3 text-sm">
-                          <label
-                            htmlFor={name}
-                            className="font-medium text-embracedark"
-                          >
-                            <AppIcon appId={appId} /> {name}
-                          </label>
-
-                          <p
-                            id={`${name}-description`}
-                            className="text-embracedark text-opacity-50"
-                          >
-                            {appMappings[appId]?.description ??
-                              "Description text"}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
+                      );
+                    })
+                  )}
+                </div>
               </fieldset>
             )}
 
