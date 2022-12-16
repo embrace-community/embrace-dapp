@@ -4,10 +4,11 @@ import Governance from "../components/app/governance";
 import Chat from "../components/app/chat";
 import Social from "../components/app/social";
 import Creations from "../components/app/creations";
+import LiveStreaming from "../components/app/live-streaming";
+
 import {
   ChatBubbleLeftEllipsisIcon,
   UserCircleIcon,
-  FilmIcon,
   VideoCameraIcon,
   ShoppingCartIcon,
   DocumentTextIcon,
@@ -53,7 +54,7 @@ export const appMappings = {
   [EmbraceApps.LIVE_STREAMING]: {
     title: "Live Streaming",
     route: "live-streaming",
-    component: null,
+    component: LiveStreaming,
     icon: VideoCameraIcon,
     description:
       "Live streaming of your content to your community.  Using LivePeer for decentralised live streaming.",

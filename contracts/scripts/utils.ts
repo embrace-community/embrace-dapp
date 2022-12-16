@@ -59,27 +59,7 @@ function convertStringArrayToBytes32(array: string[]) {
 }
 
 const chainLinkAddressGoerli = "0x326c977e6efc84e512bb9c30f76e30c160ed06fb";
-const apps = [1, 2, 3];
-
-/*
-  const apps = [
-  {
-    id: 1,
-    title: null, // Will default to "Chat Server"
-    spaceAppContractAddress: ethers.constants.AddressZero,
-  },
-  {
-    id: 2,
-    title: null, // Will default to "Social"
-    spaceAppContractAddress: ethers.constants.AddressZero,
-  },
-  {
-    id: 3,
-    title: null, // Will default to "Creations"
-    spaceAppContractAddress: ethers.constants.AddressZero,
-  },
-];
-*/
+const apps = [1, 2, 3, 4];
 
 function getSpace(spaceType: any, handle: string, metadata: string) {
   if (spaceType == "public") {
@@ -164,7 +144,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
         access: Access.OPEN,
         gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
       },
-      apps: [3], // Only Creations app
+      apps: [2], // Only Creations app
       metadata,
     };
   }

@@ -73,7 +73,7 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
     {
       name: "Streaming",
       contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
-      enabled: false,
+      enabled: true,
     },
     {
       name: "Courses",
