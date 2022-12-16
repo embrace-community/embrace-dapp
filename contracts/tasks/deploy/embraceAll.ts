@@ -56,7 +56,7 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
   // CREATE APPS
   const apps = [
     {
-      name: "Social",
+      name: "Social", // Default name on UI
       contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
       enabled: true,
     },
@@ -76,12 +76,17 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
       enabled: false,
     },
     {
-      name: "Marketplace",
+      name: "Courses",
       contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
       enabled: false,
     },
     {
       name: "Pages",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: false,
+    },
+    {
+      name: "Marketplace",
       contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
       enabled: false,
     },
@@ -115,6 +120,16 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
       contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
       enabled: false,
     },
+    {
+      name: "File Share",
+      contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+      enabled: false,
+    },
+    // {
+    //   name: "Tasks",
+    //   contractAddress: ethers.constants.AddressZero, // Contract not deployed yet or required for this app
+    //   enabled: false,
+    // },
   ];
 
   for (let j = 0; j < apps.length; j++) {

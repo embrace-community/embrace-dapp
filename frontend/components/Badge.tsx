@@ -4,9 +4,11 @@ import { ReactNode } from "react";
 export default function Badge({
   children,
   color,
+  additonalClasses,
 }: {
   children: ReactNode;
   color?: string;
+  additonalClasses?: string;
 }) {
   return (
     <span
@@ -15,6 +17,7 @@ export default function Badge({
           true,
         "bg-gray-100 text-gray-800": !color?.length,
         [`bg-${color}-100 text-${color}-800`]: color?.length,
+        [`${additonalClasses}`]: additonalClasses?.length,
       })}
     >
       {children}
