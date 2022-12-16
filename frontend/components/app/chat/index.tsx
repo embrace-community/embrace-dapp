@@ -62,7 +62,6 @@ export default function Chat({
   const [channelChanged, setChannelChanged] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[] | null>(null);
   const [fetchNewChatMessages, setFetchNewChatMessages] = useState(true);
-  const [messageAdded, setMessageAdded] = useState(true);
   const [lastMessageDate, setLastMessageDate] = useState<Date | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const xmtp = useXmtp();
@@ -87,19 +86,23 @@ export default function Chat({
 
       const address = await signer.getAddress();
 
-      huddle.initialise(address, `embrace.community/${query.handle}/call`);
+      huddle.initialise(
+        address,
+        `embrace.community/${space.handle}-${space.id}/call`,
+      );
 
       await xmtp.auth();
     };
 
     init();
-  }, [xmtp, xmtpClient, signer, huddle, conversationId, query.handle]);
+  }, [xmtp, xmtpClient, signer, huddle, conversationId, space]);
 
   useEffect(() => {
     const getMessages = async () => {
       if (
         xmtpClient &&
-        (fetchNewChatMessages || messageAdded || channelChanged)
+        conversationId &&
+        (fetchNewChatMessages || channelChanged)
       ) {
         console.log("getting messages", conversationId);
 
@@ -152,7 +155,6 @@ export default function Chat({
         console.log("mappedMessages", mappedMessages);
 
         setFetchNewChatMessages(false);
-        setMessageAdded(false);
         setChannelChanged(false);
       }
     };
@@ -163,7 +165,6 @@ export default function Chat({
     xmtp,
     xmtpClient,
     fetchNewChatMessages,
-    messageAdded,
     lastMessageDate,
     chatMessages,
     channelChanged,
@@ -171,19 +172,33 @@ export default function Chat({
 
   // Whenever channel is changed then this will update the conversationId and trigger messages to be loaded
   useEffect(() => {
-    setConversationId(`embrace.community/${query.handle}/chat/${channel}`);
+    setConversationId(
+      `embrace.community/${space.handle}-${space.id}/chat/${channel}`,
+    );
     setChannelChanged(true);
-  }, [channel, query.handle]);
+  }, [channel, space]);
 
   const sendMessage = async (message: string) => {
     if (xmtpClient && message.length) {
       console.log("SENDING MESSAGE", spaceMembers, message);
 
+      const newMessage = {
+        sender: {
+          name: xmtpClient.address,
+          avatar: "",
+        },
+        content: message,
+        sent: new Date(Date.now()),
+        time: null,
+      };
+
       await xmtp.sendGroupMessage(spaceMembers, message, conversationId);
 
-      setTimeout(() => {
-        setMessageAdded(true);
-      }, 500);
+      if (chatMessages) {
+        setChatMessages([...chatMessages, newMessage]);
+      } else {
+        setChatMessages([newMessage]);
+      }
     }
   };
 
@@ -193,7 +208,7 @@ export default function Chat({
 
     const interval = setInterval(() => {
       setFetchNewChatMessages(true);
-    }, 10000);
+    }, 5000);
 
     // Clear interval on unmount
     return () => {
@@ -240,7 +255,7 @@ export default function Chat({
     }
   }, [huddle.stream, huddle.roomState, videoRef]);
 
-  const channels = ["general", "introductions", "development", "support"];
+  const channels = ["general", "introductions", "support"];
 
   const joinCall = async () => {
     // Show loader somehow
@@ -253,6 +268,11 @@ export default function Chat({
 
   const toggleMicrophone = async () => {
     huddle.isMicPaused ? huddle.client?.unmuteMic() : huddle.client?.muteMic();
+  };
+
+  const changeChannel = (channel: string) => {
+    setChannel(channel);
+    setChatMessages(null);
   };
 
   console.log("chat index.tsx", query, space);
@@ -275,18 +295,21 @@ export default function Chat({
   return (
     <div className="w-full flex flex-row grow min-h-0">
       <div className="w-[15vw] min-h-0 flex flex-col">
-        <ul className="grow overflow-auto h-[1px] pl-[2vw] pt-4 pb-20">
+        <ul className="grow overflow-auto h-[1px] pb-20 my-1 sm:m-4">
+          <h3 className="text-lg font-medium leading-6 text-gray-900 sm:truncate mb-5">
+            Channels
+          </h3>
           {channels.map((_channel, i) => {
             return (
               <li
                 key={i}
                 className={classNames({
                   "py-[5px] cursor-pointer rounded-md p-2 mr-5": true,
-                  "bg-neutral-300 text-white underline": channel === _channel,
+                  "bg-gray-100 ": channel === _channel,
                 })}
-                onClick={() => setChannel(_channel)}
+                onClick={() => changeChannel(_channel)}
               >
-                #{_channel}
+                {_channel}
               </li>
             );
           })}
