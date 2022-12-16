@@ -33,7 +33,7 @@ export default function SpaceViewPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const [currentStep, setCurrentStep] = useState<number>(2);
+  const [currentStep, setCurrentStep] = useState<number>(1);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { signer } = useSigner();
@@ -69,7 +69,7 @@ export default function SpaceViewPage() {
   const [tx, setTx] = useState<any>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [spaceCreationMessage, setSpaceCreationMessage] = useState<string>(
-    "We're just setting up your space",
+    "We're creating your Community Space...",
   );
 
   const isVisibilityPrivate =
@@ -237,7 +237,9 @@ export default function SpaceViewPage() {
         };
 
         spacesContract.on("SpaceCreated", (spaceId, founder) => {
-          setSpaceCreationMessage("Space created! Redirecting to space...");
+          setSpaceCreationMessage(
+            "Your Community Space has been created! Redirecting...",
+          );
 
           setTimeout(() => {
             spacesContract.removeAllListeners();
@@ -245,12 +247,6 @@ export default function SpaceViewPage() {
             redirectToSpace(spaceId, founder, space);
           }, 1000);
         });
-
-        setTimeout(() => {
-          setSpaceCreationMessage(
-            "Making sure everything is ready for your community...",
-          );
-        }, 10000);
 
         const tx = await spacesContract.createSpace(
           handle,
