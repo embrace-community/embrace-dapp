@@ -35,7 +35,7 @@ export default function SpaceViewPage() {
 
   // Once contract is initialized then get the space Id from the router handle and load the space data
   useEffect((): void => {
-    if (!routerIsReady || spaceData) return;
+    if (!routerIsReady || spaceData || !spacesContract) return;
 
     // Check to see if the spaceId can be found in the store
     // This will only work when routing inside the NextJs app

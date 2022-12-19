@@ -12,6 +12,7 @@ import useHuddle from "../../../hooks/useHuddle";
 import PeerVideoAudioElem from "./PeerVideoAudioElem";
 import classNames from "classnames";
 import HuddleClient from "../../../lib/huddle01-client/HuddleClient/HuddleClient";
+import useEmbraceContracts from "../../../hooks/useEmbraceContracts";
 
 const ChatNotification = ({ notification }) => {
   if (notification.endsWith("VIDEO_CALL_STARTED")) {
@@ -71,12 +72,24 @@ export default function Chat({
   const { xmtpClient } = useAppSelector((state: RootState) => state.core);
   const videoRef = useRef<HTMLVideoElement>(null);
   const huddlePeers = useRef({});
+  const initiatedCall = useRef(false);
+  const { spacesContract } = useEmbraceContracts();
+  const [spaceMembers, setSpaceMembers] = useState<string[]>([]);
 
-  const spaceMembers = [
-    "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
-    "0x725Acc62323480E9565fBbfAC8573908e4EEF883",
-    "0xB64A31a65701f01a1e63844216f3DbbCC9b3cF2C",
-  ]; // Need to get from contract
+  useEffect(() => {
+    if (!spacesContract || !space.id || spaceMembers.length) return;
+
+    const getSpaceMembers = async () => {
+      try {
+        const members = await spacesContract.getSpaceMembers(space.id);
+        setSpaceMembers(members);
+      } catch (err: any) {
+        console.log("Error getting space members", err);
+      }
+    };
+
+    getSpaceMembers();
+  }, [spacesContract, space.id, spaceMembers]);
 
   useEffect(() => {
     if (xmtpClient || hasInitialized.current || !signer) return;
@@ -105,11 +118,6 @@ export default function Chat({
         (fetchNewChatMessages || channelChanged)
       ) {
         console.log("getting messages", conversationId);
-
-        // If we are on a new channel, we need to fetch the messages from the start
-        if (channelChanged) {
-          setLastMessageDate(null);
-        }
 
         const messages = await xmtp.getGroupMessages(
           conversationId,
@@ -175,6 +183,7 @@ export default function Chat({
     setConversationId(
       `embrace.community/${space.handle}-${space.id}/chat/${channel}`,
     );
+    setLastMessageDate(null);
     setChannelChanged(true);
   }, [channel, space]);
 
@@ -251,17 +260,20 @@ export default function Chat({
 
   useEffect(() => {
     if (videoRef.current) {
+      console.log("joinCall", huddle.stream, huddle.roomState);
       videoRef.current.srcObject = huddle.stream;
+      initiatedCall.current = false;
     }
   }, [huddle.stream, huddle.roomState, videoRef]);
 
   const channels = ["general", "introductions", "support"];
 
   const joinCall = async () => {
-    // Show loader somehow
-    // Join call
-    const call = await huddle.joinCall();
-    console.log(call, "joinCall");
+    if (initiatedCall.current) return;
+
+    initiatedCall.current = true;
+
+    await huddle.joinCall();
 
     // Send Push Protocol notification to space members to join call
   };
@@ -439,11 +451,15 @@ export default function Chat({
           )}
         </HuddleClientProvider>
         {!huddle.roomState.joined && (
-          <div className="w-full h-[44px] bg-transparent flex flex-row justify-end ">
+          <div className="flex md:hidden w-full h-[44px] bg-transparent flex-row justify-end ">
             <div className="flex flex-col justify-center align-middle">
               <button
                 onClick={(e) => joinCall()}
-                className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold m-2 p-2 flex flex-row items-center"
+                className={classNames({
+                  "rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold m-2 p-2 flex flex-row items-center":
+                    true,
+                  "animate-ping m-0 p-0": initiatedCall.current,
+                })}
               >
                 <Icons.Video />
               </button>
@@ -494,9 +510,7 @@ export default function Chat({
         </div>
         <div className="pt-2 pb-6">
           {chatMessages && chatMessages.length == 0 && (
-            <>
-              <em>Start a conversation!</em>
-            </>
+            <>{/* <em>Start a conversation!</em> */}</>
           )}
           <input
             type="text"
@@ -513,25 +527,62 @@ export default function Chat({
           />
         </div>
       </div>
-      <div className="w-[15vw] min-w-[290px] min-h-0 flex flex-col pl-10 pt-4">
+      <div className="hidden w-[15vw] min-w-[20vw] min-h-0 lg:flex flex-col pl-10 overflow-hidden">
         <div className="grow overflow-auto h-[1px]">
-          <button
-            onClick={(e) => joinCall()}
-            className="hidden rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
-          >
-            <Icons.Video extraClass=" mr-2" />
-            join video call
-          </button>
-          {/* TODO: Error with this count as when the call is ended the  */}
-          {/* <div>
-            {huddle.peerIds.length > 0 && (
-              <>There are {huddle.peerIds.length + 1} people in the call</>
+          {!huddle.roomState.joined && (
+            <>
+              <button
+                onClick={(e) => joinCall()}
+                // className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
+                className={classNames({
+                  "rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center":
+                    true,
+                  "animate-pulse m-0 p-0": initiatedCall.current,
+                })}
+              >
+                <Icons.Video extraClass=" mr-2" />
+                {initiatedCall.current ? "joining" : "join"} video call
+              </button>
+
+              <button className="hidden rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4">
+                <Icons.Audio allClass="w-6 h-6 mr-2" />
+                join audio call
+              </button>
+            </>
+          )}
+
+          {huddle.roomState.joined && (
+            <h3 className="text-lg font-medium leading-6 text-gray-900 sm:truncate mb-5">
+              Call in progress...
+            </h3>
+          )}
+
+          <div>
+            {spaceMembers.length > 0 && (
+              <div className="flex flex-row items-center pt-4">
+                <div className="text-embracedark text-sm font-semibold">
+                  {spaceMembers.length}{" "}
+                  {spaceMembers.length <= 1 ? "member" : "members"}
+                </div>
+              </div>
             )}
-          </div> */}
-          <button className="hidden rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4">
-            <Icons.Audio allClass="w-6 h-6 mr-2" />
-            join audio call
-          </button>
+            {spaceMembers.length > 0 &&
+              spaceMembers.map((member, i) => {
+                return (
+                  <div
+                    className="flex flex-row items-center"
+                    key={`i-${member}`}
+                  >
+                    {/* Only get the first 6 and last 6 characters */}
+                    <div>
+                      {member.substring(0, 6) +
+                        "..." +
+                        member.substring(member.length - 6, member.length)}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
         </div>
       </div>
     </div>
