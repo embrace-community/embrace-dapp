@@ -695,7 +695,7 @@ export interface EmbraceSpaces extends BaseContract {
       _apps: PromiseOrValue<BigNumberish>[],
       _metadata: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
 
     getIdFromHandle(
       _handle: PromiseOrValue<string>,

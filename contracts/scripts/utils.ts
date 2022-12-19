@@ -72,6 +72,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       },
       apps,
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883", "0xB64A31a65701f01a1e63844216f3DbbCC9b3cF2C"],
     };
   } else if (spaceType == "public-gated") {
     return {
@@ -100,6 +101,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       },
       apps,
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883"],
     };
   } else if (spaceType == "private-closed") {
     return {
@@ -112,6 +114,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       },
       apps,
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883"],
     };
   } else if (spaceType == "private-closed-reqs") {
     return {
@@ -124,6 +127,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       },
       apps,
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883"],
     };
   } else if (spaceType == "anon") {
     return {
@@ -135,6 +139,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       },
       apps,
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883"],
     };
   } else if (spaceType == "creations-space") {
     return {
@@ -146,6 +151,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       },
       apps: [2], // Only Creations app
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883", "0xB64A31a65701f01a1e63844216f3DbbCC9b3cF2C"],
     };
   }
 }

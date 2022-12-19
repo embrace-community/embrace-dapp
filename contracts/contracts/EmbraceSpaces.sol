@@ -143,7 +143,7 @@ contract EmbraceSpaces {
         Membership memory _membership,
         uint128[] memory _apps, // BUG: These should be the appIds not the appIndexes
         string memory _metadata
-    ) public {
+    ) public returns (uint256) {
         bytes32 _handleBytes = keccak256(bytes(_handle));
         if (spaceHandleToId[_handleBytes] != 0) {
             revert ErrorHandleExists(_handle);
@@ -181,6 +181,10 @@ contract EmbraceSpaces {
         _spaceIdCounter.increment();
 
         emit SpaceCreated(spaceId, msg.sender);
+
+        console.log("Space Created: %s", spaceId);
+
+        return spaceId;
     }
 
     function joinSpace(uint256 _spaceId) public returns (bool) {
@@ -310,6 +314,7 @@ contract EmbraceSpaces {
         // Will set the member struct to the new values
         Member memory member = Member({ isAdmin: _isAdmin, isActive: _isActive, isRequest: false });
         spaceMembers[_index][_address] = member;
+        spaceMembersArray[_index].push(_address);
 
         // TODO: Need to emit JoinedSpace event only when the account is being added for first time
         // I.e. account could exist but be set as an admin
@@ -321,6 +326,7 @@ contract EmbraceSpaces {
         } else {
             // If the member is being deactivated then decrement the member count
             spaceMemberLength[_index - 1]--;
+            // TODO: Remove member from space members array
             emit RemovedFromSpace(_spaceId, msg.sender);
         }
     }
