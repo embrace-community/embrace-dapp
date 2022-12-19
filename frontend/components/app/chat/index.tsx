@@ -18,7 +18,7 @@ const ChatNotification = ({ notification }) => {
   if (notification.endsWith("VIDEO_CALL_STARTED")) {
     return (
       <div className="opacity-50 px-2 text-[14px]">
-        <Icons.Video extraClass=" mr-2" /> Video call started
+        <Icons.Video className="mr-2" /> Video call started
       </div>
     );
   }
@@ -540,7 +540,7 @@ export default function Chat({
                   "animate-pulse m-0 p-0": initiatedCall.current,
                 })}
               >
-                <Icons.Video extraClass=" mr-2" />
+                <Icons.Video className="mr-2" />
                 {initiatedCall.current ? "joining" : "join"} video call
               </button>
 
@@ -617,13 +617,13 @@ export default function Chat({
     //       <button
     //         className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
     //       >
-    //         <Icons.Video extraClass=" mr-2"/>
+    //         <Icons.Video className="mr-2"/>
     //         channel video call
     //       </button>
     //       <button
     //         className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4"
     //       >
-    //         <Icons.Audio extraClass=" mr-2"/>
+    //         <Icons.Audio className="mr-2"/>
     //         channel audio call
     //       </button>
     //     </div>
