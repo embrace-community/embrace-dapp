@@ -99,7 +99,7 @@ export default function Apps({
         currentApp={currentApp}
         setCurrentApp={onAppChange}
       />
-      <div className="w-full flex flex-col px-4 py-6 sm:px-32 sm:py-14 justify-start items-start flex-1 bg-white">
+      <div className="w-full flex flex-col px-4 py-6 sm:px-28 sm:py-6 justify-start items-start flex-1 bg-white">
         {currentApp !== -1 && (
           <RenderCurrentApp
             currentApp={currentApp}

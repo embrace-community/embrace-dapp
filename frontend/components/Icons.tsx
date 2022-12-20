@@ -1,4 +1,6 @@
-const getLogo = ({
+import classNames from "classnames";
+
+const Logo = ({
   // style = {},
   // fill = "white",
   width = "140px",
@@ -53,14 +55,11 @@ const getLogo = ({
   </svg>
 );
 
-const Logo = getLogo({});
-
 const Video = ({
   fill = "currentColor",
   width = "6",
   stroke = 1.5,
-  extraClass = "",
-  className = "w-" + width + " h-" + width + extraClass,
+  className = "",
 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +67,10 @@ const Video = ({
     viewBox="0 0 24 24"
     strokeWidth={stroke}
     stroke={fill}
-    className={className}
+    className={classNames({
+      [`w-${width} h-${width}`]: true,
+      [className]: className,
+    })}
   >
     <path
       strokeLinecap="round"
@@ -81,8 +83,7 @@ const VideoOff = ({
   fill = "currentColor",
   width = "6",
   stroke = 1.5,
-  extraClass = "",
-  className = "w-" + width + " h-" + width + extraClass,
+  className = "",
 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -90,7 +91,10 @@ const VideoOff = ({
     viewBox="0 0 24 24"
     strokeWidth={1.5}
     stroke="currentColor"
-    className="w-6 h-6"
+    className={classNames({
+      [`w-${width} h-${width}`]: true,
+      [className]: className,
+    })}
   >
     <path
       strokeLinecap="round"
@@ -104,8 +108,8 @@ const Audio = ({
   // style = {},
   fill = "currentColor",
   stroke = 1.5,
-  allClass = "w-6 h-6",
-  // viewBox = "0 0 64 64",
+  width = "6",
+  className = "",
 }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -113,7 +117,10 @@ const Audio = ({
     viewBox="0 0 24 24"
     strokeWidth={stroke}
     stroke={fill}
-    className={allClass}
+    className={classNames({
+      [`w-${width} h-${width}`]: true,
+      [className]: className,
+    })}
   >
     <path
       strokeLinecap="round"
@@ -123,14 +130,17 @@ const Audio = ({
   </svg>
 );
 
-const HangUp = ({}) => (
+const HangUp = ({ width = "6", className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     strokeWidth={1.5}
     stroke="currentColor"
-    className="w-6 h-6"
+    className={classNames({
+      [`w-${width} h-${width}`]: true,
+      [className]: className,
+    })}
   >
     <path
       strokeLinecap="round"
@@ -140,14 +150,17 @@ const HangUp = ({}) => (
   </svg>
 );
 
-const MicrophoneMute = ({}) => (
+const MicrophoneMute = ({ width = "6", className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     strokeWidth={1.5}
     viewBox="0 0 24 24"
     stroke="currentColor"
-    className="w-6 h-6"
+    className={classNames({
+      [`w-${width} h-${width}`]: true,
+      [className]: className,
+    })}
   >
     <path
       strokeLinecap="round"
@@ -162,14 +175,17 @@ const MicrophoneMute = ({}) => (
   </svg>
 );
 
-const Microphone = ({}) => (
+const Microphone = ({ width = "6", className = "" }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     strokeWidth={1.5}
     stroke="currentColor"
-    className="w-6 h-6"
+    className={classNames({
+      [`w-${width} h-${width}`]: true,
+      [className]: className,
+    })}
   >
     <path
       strokeLinecap="round"

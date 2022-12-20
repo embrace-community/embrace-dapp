@@ -4,10 +4,11 @@ import Governance from "../components/app/governance";
 import Chat from "../components/app/chat";
 import Social from "../components/app/social";
 import Creations from "../components/app/creations";
+import LiveStreaming from "../components/app/live-streaming";
+
 import {
   ChatBubbleLeftEllipsisIcon,
   UserCircleIcon,
-  FilmIcon,
   VideoCameraIcon,
   ShoppingCartIcon,
   DocumentTextIcon,
@@ -17,6 +18,9 @@ import {
   BanknotesIcon,
   StarIcon,
   CalendarDaysIcon,
+  TicketIcon,
+  AcademicCapIcon,
+  ShareIcon,
 } from "@heroicons/react/24/outline";
 
 export const appMappings = {
@@ -33,7 +37,7 @@ export const appMappings = {
     title: "Creations",
     route: "creations",
     component: Creations,
-    icon: FilmIcon,
+    icon: StarIcon,
     description:
       "Share your creations with your community.  Mint collectible creations and earn from your content.  All media is saved to decentralised storage and can be easily distributed across your social channels.",
     tags: ["social", "creator", "video"],
@@ -50,11 +54,29 @@ export const appMappings = {
   [EmbraceApps.LIVE_STREAMING]: {
     title: "Live Streaming",
     route: "live-streaming",
-    component: null,
+    component: LiveStreaming,
     icon: VideoCameraIcon,
     description:
       "Live streaming of your content to your community.  Using LivePeer for decentralised live streaming.",
     tags: ["social", "creator", "video"],
+  },
+  [EmbraceApps.COURSES]: {
+    title: "Courses",
+    route: "coursess",
+    component: null,
+    icon: AcademicCapIcon,
+    description:
+      "Courses to share with your community.  Courses can be public, members only or priced individually.  On-completion, users can receive NFT badges and proof of completion.  All courses are saved to decentralised storage.",
+    tags: ["creator", "video", "education"],
+  },
+  [EmbraceApps.PAGES]: {
+    title: "Pages",
+    route: "pages",
+    component: null,
+    icon: DocumentTextIcon,
+    description:
+      "Pages for your community to share information and content.  All pages are saved to decentralised storage.",
+    tags: ["social", "dao", "wiki"],
   },
   [EmbraceApps.MARKETPLACE]: {
     title: "Marketplace",
@@ -64,15 +86,6 @@ export const appMappings = {
     description:
       "Decentralised marketplace for your community to buy and sell goods and services. Accept payments in crypto or fiat.",
     tags: ["commerce"],
-  },
-  [EmbraceApps.PAGES]: {
-    title: "Pages",
-    route: "pages",
-    component: null,
-    icon: DocumentTextIcon,
-    description:
-      "Pages for your community to share information and content.  All pages are saved to decentralised storage.",
-    tags: ["social", "wiki", "dao"],
   },
   [EmbraceApps.DISCUSSIONS]: {
     title: "Discussions",
@@ -114,7 +127,7 @@ export const appMappings = {
     title: "Events",
     route: "events",
     component: null,
-    icon: StarIcon,
+    icon: TicketIcon,
     description:
       "Events for your community to share information and content.  Sell tickets for your events.",
     tags: ["social", "dao"],
@@ -127,6 +140,23 @@ export const appMappings = {
     description: "Calendar to share important dates with your community.",
     tags: ["social", "dao"],
   },
+  [EmbraceApps.FILE_SHARE]: {
+    title: "File Sharing",
+    route: "file-share",
+    component: null,
+    icon: ShareIcon,
+    description:
+      "File sharing for your community to share information and content between themselves.  All files are saved to decentralised storage.",
+    tags: ["social", "dao"],
+  },
+  // [EmbraceApps.TASKS]: {
+  //   title: "Calendar",
+  //   route: "calendar",
+  //   component: null,
+  //   icon: CalendarDaysIcon,
+  //   description: "Calendar to share important dates with your community.",
+  //   tags: ["social", "dao"],
+  // },
 };
 
 export const tagColours = {

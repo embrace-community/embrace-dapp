@@ -3,7 +3,7 @@ import { RootState } from "../store";
 import { Collection, Creation } from "../../types/space-apps";
 
 type CreationsObject = {
-  [key: number]: Creation[];
+  [collectionId: number]: Creation[];
 };
 
 export interface CreationsState {

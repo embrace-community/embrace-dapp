@@ -97,7 +97,7 @@ function useXmtp() {
   // Specifically for a chat app group
   const getGroupMessages = async (
     conversationId: string,
-    messagesAfterDate: Date | null = null,
+    receivedMessagesAfterDate: Date | null = null,
   ) => {
     if (!xmtpClient) return;
 
@@ -116,10 +116,10 @@ function useXmtp() {
         const currentAddress = xmtpClient.address;
         let opts = {};
 
-        if (messagesAfterDate) {
-          console.log("messagesAfterDate", messagesAfterDate);
+        if (receivedMessagesAfterDate) {
+          console.log("receivedMessagesAfterDate", receivedMessagesAfterDate);
           opts = {
-            startTime: messagesAfterDate,
+            startTime: receivedMessagesAfterDate,
             endTime: new Date(),
           };
         }
@@ -132,8 +132,9 @@ function useXmtp() {
               let conversationMsgs: DecodedMessage[];
               // My messages to the group (which I essentially sent to myself)
               if (
+                !receivedMessagesAfterDate &&
                 convo.context?.conversationId ===
-                `${conversationId}/${currentAddress}`
+                  `${conversationId}/${currentAddress}`
               ) {
                 conversationMsgs = await convo.messages(opts);
               } else {

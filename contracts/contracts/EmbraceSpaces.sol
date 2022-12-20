@@ -78,20 +78,17 @@ contract EmbraceSpaces {
         bool isRequest;
     }
 
-    // struct App {
-    //     uint128 id;
-    //     address spaceAppContractAddress;
-    //     string title;
-    //     string metadata;
-    // }
-
     Space[] public spaces;
 
     EmbraceAccounts accountsContract;
     EmbraceApps appsContract;
 
+    // Mapping to store member addresses
     mapping(uint256 => mapping(address => Member)) public spaceMembers;
     mapping(uint256 => uint256) public spaceMemberLength;
+
+    // Array of space members
+    mapping(uint256 => address[]) public spaceMembersArray;
 
     mapping(bytes32 => uint256) public spaceHandleToId;
 
@@ -146,7 +143,7 @@ contract EmbraceSpaces {
         Membership memory _membership,
         uint128[] memory _apps, // BUG: These should be the appIds not the appIndexes
         string memory _metadata
-    ) public {
+    ) public returns (uint256) {
         bytes32 _handleBytes = keccak256(bytes(_handle));
         if (spaceHandleToId[_handleBytes] != 0) {
             revert ErrorHandleExists(_handle);
@@ -178,62 +175,17 @@ contract EmbraceSpaces {
         spaceMemberLength[_index]++;
         spaceMembers[_index][msg.sender] = Member({ isAdmin: true, isActive: true, isRequest: false });
 
-        // Add Apps to space
-        // TODO: Should use the appId and not the index - needs updating on the UI mappings ETC
-        // for (uint256 i = 0; i < _apps.length; i++) {
-        // appsContract.addAppToSpace(spaceId, uint128(_apps[i]));
-        // }
+        // Add founder to space members array
+        spaceMembersArray[_index].push(msg.sender);
 
         _spaceIdCounter.increment();
 
         emit SpaceCreated(spaceId, msg.sender);
+
+        console.log("Space Created: %s", spaceId);
+
+        return spaceId;
     }
-
-    // IMPORTANT - PLEASE KEEP FOR NOW
-    // function createSpace(
-    //     string memory _handle,
-    //     Visibility _visibility,
-    //     Membership memory _membership,
-    //     App[] memory _apps,
-    //     string memory _metadata
-    // ) public {
-    //     console.log("createSpace");
-    //     if (spaceHandleToId[_handle] != 0) {
-    //         revert ErrorHandleExists(_handle);
-    //     }
-
-    //     uint256 spaceId = _spaceIdCounter.current();
-
-    //     Space storage space = spaces.push();
-
-    //     space.id = spaceId;
-    //     space.handle = _handle;
-    //     space.founder = msg.sender;
-    //     space.visibility = _visibility;
-    //     space.membership = _membership;
-    //     space.metadata = _metadata;
-
-    //     // TODO: In cases where an app contract needs to exist for each space
-    //     // Will need to deploy the app contract, then update the array with contractAddress
-    //     for (uint128 i = 0; i < _apps.length; i++) {
-    //         // _apps[i].spaceAppContractAddress = address(0);
-    //         space.apps.push(_apps[i]);
-    //     }
-
-    //     // Add Handle only if one is provided - anonymous spaces do not have handles
-    //     spaceHandleToId[_handle] = spaceId;
-
-    //     // Add space to founder's account
-    //     accounts.addSpace(msg.sender, spaceId);
-
-    //     // Set founder as the first admin member
-    //     spaceMemberLength[spaceId]++;
-    //     spaceMembers[spaceId][msg.sender] = Member({ isAdmin: true, isActive: true, isRequest: false });
-
-    //     _spaceIdCounter.increment();
-
-    //     emit SpaceCreated(spaceId, msg.sender);
-    // }
 
     function joinSpace(uint256 _spaceId) public returns (bool) {
         uint256 _index = _spaceId - 1;
@@ -255,6 +207,10 @@ contract EmbraceSpaces {
 
         spaceMembers[_index][msg.sender] = member;
         spaceMemberLength[_index]++;
+
+        // Add member to space members array
+        // TODO: Temp until we have a better way to get members - also need to remove from array when member is removed
+        spaceMembersArray[_index].push(msg.sender);
 
         emit JoinedSpace(_spaceId, msg.sender, false);
 
@@ -310,6 +266,10 @@ contract EmbraceSpaces {
         return spaceMembers[_spaceId - 1][_address];
     }
 
+    function getSpaceMembers(uint256 _spaceId) public view returns (address[] memory) {
+        return spaceMembersArray[_spaceId - 1];
+    }
+
     function getSpaces() public view returns (Space[] memory) {
         return spaces;
     }
@@ -354,6 +314,7 @@ contract EmbraceSpaces {
         // Will set the member struct to the new values
         Member memory member = Member({ isAdmin: _isAdmin, isActive: _isActive, isRequest: false });
         spaceMembers[_index][_address] = member;
+        spaceMembersArray[_index].push(_address);
 
         // TODO: Need to emit JoinedSpace event only when the account is being added for first time
         // I.e. account could exist but be set as an admin
@@ -365,6 +326,7 @@ contract EmbraceSpaces {
         } else {
             // If the member is being deactivated then decrement the member count
             spaceMemberLength[_index - 1]--;
+            // TODO: Remove member from space members array
             emit RemovedFromSpace(_spaceId, msg.sender);
         }
     }

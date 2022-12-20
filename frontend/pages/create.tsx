@@ -668,7 +668,13 @@ export default function SpaceViewPage() {
                       return (
                         <div
                           key={`app-${appId}`}
-                          className="flex w-full items-start bg-white py-6 px-7 cursor-pointer rounded-lg"
+                          // className="flex w-full items-start bg-white py-6 px-7 rounded-lg"
+                          className={classNames({
+                            "flex w-full items-start bg-white py-6 px-7 rounded-lg":
+                              true,
+                            "opacity-70": !app?.enabled,
+                            "cursor-pointer": app?.enabled,
+                          })}
                           onClick={() => {
                             if (!app?.enabled) return;
                             apps.includes(appId)
@@ -691,9 +697,9 @@ export default function SpaceViewPage() {
                               }}
                               // className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0 "
                               className={classNames({
-                                "h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0":
+                                "h-5 w-5 rounded-3xl border-gray-300 text-violet-500 focus:ring-0":
                                   true,
-                                "ring-2": apps.includes(appId),
+                                "ring-2 ring-violet-700": apps.includes(appId),
                                 "border-gray-100": !app.enabled,
                               })}
                             />
@@ -706,12 +712,12 @@ export default function SpaceViewPage() {
                             >
                               <AppIcon appId={appId} />
 
-                              {name}
+                              <span className="mr-2">{name}</span>
 
                               {!app?.enabled && (
-                                <span className="inline-flex items-center rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 ml-2">
+                                <Badge key={`app-tag-${appId}-${i}`}>
                                   coming soon
-                                </span>
+                                </Badge>
                               )}
                             </label>
 

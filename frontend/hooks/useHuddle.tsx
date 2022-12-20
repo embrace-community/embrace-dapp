@@ -65,8 +65,10 @@ function useHuddle(handle: string) {
       await enableStream();
 
       await huddleClient.join(roomId, walletData);
+      return true;
     } catch (error) {
       console.log({ error });
+      return false;
     }
   };
 

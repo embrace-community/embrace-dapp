@@ -59,27 +59,7 @@ function convertStringArrayToBytes32(array: string[]) {
 }
 
 const chainLinkAddressGoerli = "0x326c977e6efc84e512bb9c30f76e30c160ed06fb";
-const apps = [1, 2, 3];
-
-/*
-  const apps = [
-  {
-    id: 1,
-    title: null, // Will default to "Chat Server"
-    spaceAppContractAddress: ethers.constants.AddressZero,
-  },
-  {
-    id: 2,
-    title: null, // Will default to "Social"
-    spaceAppContractAddress: ethers.constants.AddressZero,
-  },
-  {
-    id: 3,
-    title: null, // Will default to "Creations"
-    spaceAppContractAddress: ethers.constants.AddressZero,
-  },
-];
-*/
+const apps = [1, 2, 3, 4];
 
 function getSpace(spaceType: any, handle: string, metadata: string) {
   if (spaceType == "public") {
@@ -92,6 +72,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       },
       apps,
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883", "0xB64A31a65701f01a1e63844216f3DbbCC9b3cF2C"],
     };
   } else if (spaceType == "public-gated") {
     return {
@@ -120,6 +101,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       },
       apps,
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883"],
     };
   } else if (spaceType == "private-closed") {
     return {
@@ -132,6 +114,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       },
       apps,
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883"],
     };
   } else if (spaceType == "private-closed-reqs") {
     return {
@@ -144,6 +127,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       },
       apps,
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883"],
     };
   } else if (spaceType == "anon") {
     return {
@@ -155,6 +139,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
       },
       apps,
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883"],
     };
   } else if (spaceType == "creations-space") {
     return {
@@ -164,8 +149,9 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
         access: Access.OPEN,
         gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
       },
-      apps: [3], // Only Creations app
+      apps: [1, 2, 3, 4], // Only Creations app
       metadata,
+      members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883", "0xB64A31a65701f01a1e63844216f3DbbCC9b3cF2C"],
     };
   }
 }

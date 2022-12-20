@@ -17,7 +17,7 @@ export default function SpaceCollection({
   title: string;
   collection: Space[];
 }) {
-  const [_jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
+  const [jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
   const [metadataImages, setMetadataImages] = useState<string[]>([]);
   // const [metadataImagesLoaded, setMetadataImagesLoaded] = useState<number[]>(
   //   [],
@@ -129,6 +129,7 @@ export default function SpaceCollection({
 
                   <p className="text-embracedark font-semibold">
                     {handleString}
+                    {/* {jsonMetadata?.[i]?.name || handleString} */}
                   </p>
                 </div>
               </Link>
