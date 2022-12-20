@@ -30,7 +30,7 @@ export default function Navigation({
               <Link
                 href={`/embrace/${app.route}`}
                 className={classNames({
-                  "text-sm pl-4 pr-6 mr-8 py-3 block leading-normal": true,
+                  "text-sm pl-4 pr-6 mr-8 pb-3 block leading-normal": true,
                   "border-b-4 border-violet-600 font-semibold":
                     currentApp === appIdNum,
                   "font-normal": currentApp !== appIdNum,

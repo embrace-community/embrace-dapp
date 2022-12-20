@@ -545,7 +545,7 @@ export default function Chat({
               </button>
 
               <button className="hidden rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4">
-                <Icons.Audio allClass="w-6 h-6 mr-2" />
+                <Icons.Audio className="mr-2" />
                 join audio call
               </button>
             </>

@@ -1,6 +1,6 @@
 import classNames from "classnames";
 
-const getLogo = ({
+const Logo = ({
   // style = {},
   // fill = "white",
   width = "140px",
@@ -54,8 +54,6 @@ const getLogo = ({
     </g>
   </svg>
 );
-
-const Logo = getLogo({});
 
 const Video = ({
   fill = "currentColor",

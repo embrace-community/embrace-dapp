@@ -262,7 +262,7 @@ export default function Creations({
       return;
     }
 
-    router.push(`/${route}`);
+    router.push(`${route}`);
   };
 
   const createCollection = async () => {
