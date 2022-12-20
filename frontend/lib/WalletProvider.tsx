@@ -17,11 +17,10 @@ export default function WalletProvider({ children }: { children: ReactNode }) {
   const { chains, provider } = configureChains(
     [
       chain.polygonMumbai,
-      chain.goerli,
+      // chain.goerli,
       ...(process.env.NODE_ENV === "development" ? [chain.localhost] : []),
     ],
     [
-      infuraProvider({ apiKey: infuraApiKey }),
       ...(process.env.NODE_ENV === "development"
         ? [
             jsonRpcProvider({
@@ -29,7 +28,7 @@ export default function WalletProvider({ children }: { children: ReactNode }) {
             }),
           ]
         : []), // For local development only
-
+      infuraProvider({ apiKey: infuraApiKey }),
       publicProvider(),
     ],
   );

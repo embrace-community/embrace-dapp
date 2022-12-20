@@ -300,7 +300,9 @@ export default function Chat({
   if (!signer)
     return (
       <>
-        <div>You must be connected to view the chat</div>
+        <div className="w-full flex flex-col items-center mt-10">
+          You must be connected to view the chat server
+        </div>
       </>
     );
 

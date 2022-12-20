@@ -1,7 +1,7 @@
 import { Router, useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { appMappings } from "../../lib/AppMappings";
-import { Space, SpaceMembership } from "../../types/space";
+import { Access, Space, SpaceMembership, Visibility } from "../../types/space";
 import Navigation from "./Navigation";
 import RenderCurrentApp from "../app/RenderCurrentApp";
 import { BigNumber } from "ethers";
@@ -17,8 +17,14 @@ export default function Apps({
 }) {
   const prevSelectedApp = useRef(-1);
   const [currentApp, setCurrentApp] = useState(-1);
-
+  const [loaded, setLoaded] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (!space?.membership) return;
+
+    setLoaded(true);
+  }, [membership, query.app, space?.membership]);
 
   const changeRouteShallowIfNew = useCallback(
     (route: string, removeParams = true) => {
@@ -45,43 +51,48 @@ export default function Apps({
   useEffect(() => {
     if (!query.app) return;
 
-    // See if the appId can be found using the route
-    const appId = Number(
-      Object.keys(appMappings).find(
-        (appId) => appMappings[appId].route === query.app,
-      ),
-    );
-
-    // Current app already selected
-    if (appId !== -1 && prevSelectedApp.current === appId) {
-      // nothing changed
-      return;
-    }
-
-    // Need to account for first render (-1)
-    // Will select the first app that the space has installed
-    const spaceApps = space?.apps;
-    if (spaceApps.length === 0) {
-      alert(
-        "There was a problem loading the space apps. Please try again later.",
+    try {
+      // See if the appId can be found using the route
+      const appId = Number(
+        Object.keys(appMappings).find(
+          (appId) => appMappings[appId].route === query.app,
+        ),
       );
-      return;
+
+      // Current app already selected
+      if (appId !== -1 && prevSelectedApp.current === appId) {
+        // nothing changed
+        return;
+      }
+
+      // Need to account for first render (-1)
+      // Will select the first app that the space has installed
+      const spaceApps = space?.apps;
+      if (spaceApps.length === 0) {
+        alert(
+          "There was a problem loading the space apps. Please try again later.",
+        );
+        return;
+      }
+
+      // Convert each of the appIds to numbers and sort in order o appId for now
+      const appIds = spaceApps
+        .map((appId) => BigNumber.from(appId).toNumber())
+        .sort();
+
+      const selectedAppId = appId === -1 || isNaN(appId) ? appIds[0] : appId;
+
+      // Load the route for the related appId
+      const route = appMappings[selectedAppId]?.route;
+      if (!route) return;
+      changeRouteShallowIfNew(route, false);
+
+      // App cannot be found so select the first app as default
+      setCurrentApp(selectedAppId);
+      prevSelectedApp.current = selectedAppId;
+    } catch (e) {
+      console.error("Error: ", e);
     }
-
-    // Convert each of the appIds to numbers and sort in order o appId for now
-    const appIds = spaceApps
-      .map((appId) => BigNumber.from(appId).toNumber())
-      .sort();
-
-    const selectedAppId = appId === -1 || isNaN(appId) ? appIds[0] : appId;
-
-    // Load the route for the related appId
-    const route = appMappings[selectedAppId].route;
-    changeRouteShallowIfNew(route, false);
-
-    // App cannot be found so select the first app as default
-    setCurrentApp(selectedAppId);
-    prevSelectedApp.current = selectedAppId;
   }, [changeRouteShallowIfNew, currentApp, query.app, router, space?.apps]);
 
   function onAppChange(appId: number) {
@@ -90,7 +101,7 @@ export default function Apps({
     changeRouteShallowIfNew(route);
   }
 
-  console.log("Apps.tsx: ", currentApp);
+  console.log("Apps.tsx: ", currentApp, space, membership);
 
   return (
     <div className="w-full flex flex-col items-start flex-1">
@@ -99,15 +110,30 @@ export default function Apps({
         currentApp={currentApp}
         setCurrentApp={onAppChange}
       />
+
       <div className="w-full flex flex-col px-4 py-6 sm:px-28 sm:py-6 justify-start items-start flex-1 bg-white">
-        {currentApp !== -1 && (
-          <RenderCurrentApp
-            currentApp={currentApp}
-            query={query}
-            space={space}
-            membership={membership}
-          />
-        )}
+        {/* If space access is private or anonymouse then they must be a member to view the app content */}
+        {(space.visibility === Visibility.PRIVATE ||
+          space.visibility === Visibility.ANONYMOUS) &&
+          (!membership?.isActive || !membership) &&
+          loaded && (
+            <div className="w-full flex flex-col items-center justify-center">
+              <div className="text-2xl font-bold text-center mt-4">
+                You must be a member to view this space
+              </div>
+            </div>
+          )}
+
+        {(space.visibility === Visibility.PUBLIC || membership?.isActive) &&
+          loaded &&
+          currentApp !== -1 && (
+            <RenderCurrentApp
+              currentApp={currentApp}
+              query={query}
+              space={space}
+              membership={membership}
+            />
+          )}
       </div>
     </div>
   );
