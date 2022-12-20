@@ -149,7 +149,7 @@ function getSpace(spaceType: any, handle: string, metadata: string) {
         access: Access.OPEN,
         gate: { token: MembershipGateToken.NONE, tokenAddress: ethers.constants.AddressZero },
       },
-      apps: [2], // Only Creations app
+      apps: [1, 2, 3, 4], // Only Creations app
       metadata,
       members: ["0x725Acc62323480E9565fBbfAC8573908e4EEF883", "0xB64A31a65701f01a1e63844216f3DbbCC9b3cF2C"],
     };
