@@ -348,6 +348,45 @@ export default function Creations({
     );
   }
 
+  if (
+    creationsStore.spaceId === space.id &&
+    creationsStore.collections.length === 0
+  ) {
+    return (
+      <div className="w-full items-center justify-center">
+        <div className="flex flex-col items-center">
+          <h3 className="text-lg font-medium leading-6 text-gray-900">
+            Create your first collection
+          </h3>
+        </div>
+
+        <div className="flex flex-col items-center mt-4">
+          <div className="mt-1">
+            <input
+              type="text"
+              name="collection"
+              id="collection"
+              ref={newCollectionInput}
+              className="block w-72 rounded-md border-gray-300 shadow-sm focus:border-violet-500 focus:ring-violet-500 sm:text-sm p-4"
+              placeholder="collection name"
+            />
+          </div>
+          <Button
+            additionalClassName="p-1 mt-4"
+            buttonProps={{
+              onClick: () => {
+                createCollection();
+              },
+              disabled: collectionCreating,
+            }}
+          >
+            {collectionCreating ? "creating..." : "+ create"}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full flex flex-row grow">
       <>
@@ -375,13 +414,6 @@ export default function Creations({
                   </div>
                 ))}
               </div>
-            )}
-
-          {creationsStore.spaceId === space.id &&
-            creationsStore.collections.length === 0 && (
-              <h3 className="text-lg font-medium leading-6 text-gray-900">
-                No collections exist
-              </h3>
             )}
 
           {membership?.isAdmin === true && membership.isActive === true && (
@@ -426,15 +458,6 @@ export default function Creations({
                 <Link href={`/${query.handle}/creations?view=form`}>
                   <Button additionalClassName="p-2">+ new creation</Button>
                 </Link>
-              </div>
-            )}
-
-          {creationsStore.spaceId === space.id &&
-            creationsStore.collections.length === 0 && (
-              <div className="flex flex-row items-center justify-between p-2 mb-5">
-                <h3 className="text-lg font-medium leading-6 text-gray-900">
-                  Please create your first collection
-                </h3>
               </div>
             )}
 
