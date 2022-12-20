@@ -21,7 +21,8 @@ export default function WalletProvider({ children }: { children: ReactNode }) {
       ...(process.env.NODE_ENV === "development" ? [chain.localhost] : []),
     ],
     [
-      ...(process.env.NODE_ENV === "development"
+      ...(process.env.NODE_ENV === "development" &&
+      process.env.NEXT_PUBLIC_DEPLOYED_CHAIN_ID === "1337"
         ? [
             jsonRpcProvider({
               rpc: (chain) => ({ http: `http://localhost:8545` }),

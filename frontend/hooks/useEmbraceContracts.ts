@@ -17,8 +17,6 @@ function useEmbraceContracts() {
   const { signer } = useSigner();
   const provider = useProvider();
 
-  console.log("useEmbraceContracts", signer, provider);
-
   const appsContract = useContract({
     address: appContractAddress,
     abi: EmbraceAppsJSON.abi,
