@@ -1,5 +1,4 @@
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { BigNumber } from "ethers";
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 
@@ -178,7 +177,9 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
         for (let j = 0; j < space.members.length; j++) {
           const member = space.members[j];
           const spaceId = i + 1; // as the spaceId returned from contract call is not returned correctly
-          await embraceSpaces.setMember(spaceId, member, true, true); // Makes active and Admin
+          await embraceSpaces.setMember(spaceId, member, true, true, {
+            gasLimit: 1000000,
+          }); // Makes active and Admin
           console.log(`Added member ${member} to space ${space.handle} / ${spaceId}`);
         }
       }

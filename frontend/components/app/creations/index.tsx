@@ -349,6 +349,8 @@ export default function Creations({
   }
 
   if (
+    membership?.isAdmin === true &&
+    membership.isActive === true &&
     creationsStore.spaceId === space.id &&
     creationsStore.collections.length === 0
   ) {
@@ -383,6 +385,16 @@ export default function Creations({
             {collectionCreating ? "creating..." : "+ create"}
           </Button>
         </div>
+      </div>
+    );
+  } else if (
+    membership?.isAdmin !== true &&
+    creationsStore.spaceId === space.id &&
+    creationsStore.collections.length === 0
+  ) {
+    return (
+      <div className="w-full flex flex-col items-center mt-10">
+        This community has not created any collections yet.
       </div>
     );
   }

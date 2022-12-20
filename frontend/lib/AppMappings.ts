@@ -43,7 +43,7 @@ export const appMappings = {
     tags: ["social", "creator", "video"],
   },
   [EmbraceApps.CHAT_SERVER]: {
-    title: "Chat",
+    title: "Chat Server",
     route: "chat",
     component: Chat,
     icon: ChatBubbleLeftEllipsisIcon,

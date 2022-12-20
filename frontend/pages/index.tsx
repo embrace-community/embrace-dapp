@@ -31,8 +31,6 @@ export default function HomePage() {
   const { address: accountAddress } = useAccount();
   const { accountsContract } = useEmbraceContracts();
 
-  // console.log(signer, isSignerLoading);
-
   // Wagmi hook to load all community spaces
   const { data: contractSpaces, isLoading: isSpacesLoading } = useContractRead({
     address: spacesContractAddress,

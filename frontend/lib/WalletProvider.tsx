@@ -17,19 +17,19 @@ export default function WalletProvider({ children }: { children: ReactNode }) {
   const { chains, provider } = configureChains(
     [
       chain.polygonMumbai,
-      chain.goerli,
+      // chain.goerli,
       ...(process.env.NODE_ENV === "development" ? [chain.localhost] : []),
     ],
     [
-      infuraProvider({ apiKey: infuraApiKey }),
-      ...(process.env.NODE_ENV === "development"
+      ...(process.env.NODE_ENV === "development" &&
+      process.env.NEXT_PUBLIC_DEPLOYED_CHAIN_ID === "1337"
         ? [
             jsonRpcProvider({
               rpc: (chain) => ({ http: `http://localhost:8545` }),
             }),
           ]
         : []), // For local development only
-
+      infuraProvider({ apiKey: infuraApiKey }),
       publicProvider(),
     ],
   );
