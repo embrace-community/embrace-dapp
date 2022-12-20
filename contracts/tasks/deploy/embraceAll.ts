@@ -1,6 +1,4 @@
 import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { getHashes } from "crypto";
-import { BigNumber } from "ethers";
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 
