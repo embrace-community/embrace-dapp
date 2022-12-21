@@ -9,11 +9,11 @@ import { BigNumber } from "ethers";
 export default function Apps({
   query,
   space,
-  membership,
+  accountMembership,
 }: {
   query: Router["query"];
   space: Space;
-  membership: SpaceMembership | undefined;
+  accountMembership: SpaceMembership | undefined;
 }) {
   const prevSelectedApp = useRef(-1);
   const [currentApp, setCurrentApp] = useState(-1);
@@ -24,7 +24,7 @@ export default function Apps({
     if (!space?.membership) return;
 
     setLoaded(true);
-  }, [membership, query.app, space?.membership]);
+  }, [accountMembership, query.app, space?.membership]);
 
   const changeRouteShallowIfNew = useCallback(
     (route: string, removeParams = true) => {
@@ -101,8 +101,6 @@ export default function Apps({
     changeRouteShallowIfNew(route);
   }
 
-  console.log("Apps.tsx: ", currentApp, space, membership);
-
   return (
     <div className="w-full flex flex-col items-start flex-1">
       <Navigation
@@ -115,7 +113,7 @@ export default function Apps({
         {/* If space access is private or anonymouse then they must be a member to view the app content */}
         {(space.visibility === Visibility.PRIVATE ||
           space.visibility === Visibility.ANONYMOUS) &&
-          (!membership?.isActive || !membership) &&
+          (!accountMembership?.isActive || !accountMembership) &&
           loaded && (
             <div className="w-full flex flex-col items-center justify-center">
               <div className="text-2xl font-bold text-center mt-4">
@@ -124,14 +122,15 @@ export default function Apps({
             </div>
           )}
 
-        {(space.visibility === Visibility.PUBLIC || membership?.isActive) &&
+        {(space.visibility === Visibility.PUBLIC ||
+          accountMembership?.isActive) &&
           loaded &&
           currentApp !== -1 && (
             <RenderCurrentApp
               currentApp={currentApp}
               query={query}
               space={space}
-              membership={membership}
+              accountMembership={accountMembership}
             />
           )}
       </div>

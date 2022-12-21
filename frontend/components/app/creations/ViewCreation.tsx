@@ -224,7 +224,7 @@ export default function ViewCreation({
             }
           </div>
 
-          <div className="w-1/6 flex-col ml-5 p-2 pt-0">
+          <div className="hidden w-1/6 md:flex flex-col ml-5 p-2 pt-0">
             {creationsStore.creations[collectionId] && (
               <>
                 <ul role="list" className="w-full max-h-screen overflow-scroll">

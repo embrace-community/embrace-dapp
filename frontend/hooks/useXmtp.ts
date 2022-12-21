@@ -95,6 +95,7 @@ function useXmtp() {
   };
 
   // Specifically for a chat app group
+  // TODO: If a new member joins they won't be able to see the messages sent before they joined
   const getGroupMessages = async (
     conversationId: string,
     receivedMessagesAfterDate: Date | null = null,

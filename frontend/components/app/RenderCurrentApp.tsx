@@ -4,7 +4,7 @@ export default function RenderCurrentApp({
   currentApp,
   query,
   space,
-  membership,
+  accountMembership,
 }) {
   console.log("Current app:", currentApp);
   const Component = appMappings[currentApp].component;
@@ -14,5 +14,11 @@ export default function RenderCurrentApp({
     return null;
   }
 
-  return <Component query={query} space={space} membership={membership} />;
+  return (
+    <Component
+      query={query}
+      space={space}
+      accountMembership={accountMembership}
+    />
+  );
 }

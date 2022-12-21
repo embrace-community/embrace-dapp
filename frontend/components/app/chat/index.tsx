@@ -1,5 +1,5 @@
 import { Router } from "next/router";
-import { Space } from "../../../types/space";
+import { Space, SpaceMembership } from "../../../types/space";
 import { useEffect, useRef, useState } from "react";
 import Icons from "../../Icons";
 import useXmtp from "../../../hooks/useXmtp";
@@ -52,9 +52,11 @@ const Chatmsg = ({ msg }) => {
 export default function Chat({
   query,
   space,
+  accountMembership,
 }: {
   query: Router["query"];
   space: Space;
+  accountMembership: SpaceMembership;
 }) {
   const [showLeftMenu, toggleShowLeftMenu] = useState(true);
   const [showRightMenu, toggleShowRightMenu] = useState(true);
@@ -188,7 +190,7 @@ export default function Chat({
   }, [channel, space]);
 
   const sendMessage = async (message: string) => {
-    if (xmtpClient && message.length) {
+    if (accountMembership?.isActive && xmtpClient && message.length) {
       console.log("SENDING MESSAGE", spaceMembers, message);
 
       const newMessage = {
@@ -518,7 +520,11 @@ export default function Chat({
             type="text"
             name="name"
             id="name"
-            className="w-[100%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+            disabled={!accountMembership?.isActive}
+            className={classNames({
+              "w-[100%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm":
+                true,
+            })}
             placeholder="your message"
             onKeyUp={(e) => {
               if (e.key === "Enter") {
@@ -531,7 +537,7 @@ export default function Chat({
       </div>
       <div className="hidden w-[15vw] min-w-[20vw] min-h-0 lg:flex flex-col pl-10 overflow-hidden">
         <div className="grow overflow-auto h-[1px]">
-          {!huddle.roomState.joined && (
+          {!huddle.roomState.joined && accountMembership?.isAdmin && (
             <>
               <button
                 onClick={(e) => joinCall()}
