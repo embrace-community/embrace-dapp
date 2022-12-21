@@ -20,7 +20,8 @@ export function LiveStream({ query, space, streamName }) {
   const videoEl = useRef<HTMLVideoElement>(null);
   const [audioEnabled, setAudioEnabled] = useState<boolean>(true);
   const client = useRef<Client | null>(null);
-  const session = useRef<CastSession | null>(null);
+  const [session, setSession] = useState<CastSession | null>(null);
+  // const session = useRef<CastSession | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const getLiveStreamSelector = useAppSelector(getLiveStream);
   const liveStream = getLiveStreamSelector(streamName);
@@ -63,23 +64,24 @@ export function LiveStream({ query, space, streamName }) {
           videoEl.current.srcObject = _stream;
           videoEl.current.play();
 
-          session.current = client.current.cast(
+          const _session = client.current.cast(
             _stream,
             liveStream.data.streamKey,
           );
 
           setStream(_stream);
+          setSession(_session);
 
-          session.current.on("open", () => {
+          _session.on("open", () => {
             console.log("Stream started.");
             console.log("Stream started; visit Livepeer Dashboard.");
           });
 
-          session.current.on("close", () => {
+          _session.on("close", () => {
             console.log("Stream stopped.");
           });
 
-          session.current.on("error", (err) => {
+          _session.on("error", (err) => {
             console.log("Stream error.", err.message);
           });
 
@@ -95,7 +97,7 @@ export function LiveStream({ query, space, streamName }) {
     };
 
     startStream();
-  }, [liveStream, streamName]);
+  }, [liveStream, session, streamName]);
 
   useEffect(() => {
     if (copied) {
@@ -106,10 +108,6 @@ export function LiveStream({ query, space, streamName }) {
   }, [copied]);
 
   const stopCapture = () => {
-    if (session.current) {
-      session.current.close();
-    }
-
     if (stream && videoEl.current?.srcObject) {
       stream.getTracks().forEach((track) => {
         track.enabled = false;
@@ -118,6 +116,11 @@ export function LiveStream({ query, space, streamName }) {
       });
 
       setStream(null);
+    }
+
+    if (session) {
+      session.close();
+      setSession(null);
     }
 
     if (videoEl.current) {

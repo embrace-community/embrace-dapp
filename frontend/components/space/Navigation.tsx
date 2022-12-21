@@ -90,8 +90,6 @@ export default function Navigation({
 
               if (!space?.apps.includes(appIdNum)) return null;
 
-              console.log("appIdNum: " + appIdNum);
-
               return (
                 <Menu.Item key={appIdNum + "mobile-nav"}>
                   {({ active }) => (
@@ -102,7 +100,6 @@ export default function Navigation({
                         "group flex items-center px-4 py-2 text-sm",
                       )}
                       onClick={(e) => {
-                        e.preventDefault();
                         setCurrentApp(appIdNum);
                       }}
                     >

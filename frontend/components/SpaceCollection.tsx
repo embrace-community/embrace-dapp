@@ -116,8 +116,8 @@ export default function SpaceCollection({
                       />
                     )}
                   </div>
-
-                  {!metadataImagesLoaded.current.includes(i) && (
+                  {/* Placeholder image hidden for now */}
+                  {/* {!metadataImagesLoaded.current.includes(i) && (
                     <div className="absolute">
                       <PlaceholderLoading
                         shape="circle"
@@ -125,8 +125,7 @@ export default function SpaceCollection({
                         height={128}
                       />
                     </div>
-                  )}
-
+                  )} */}
                   <p className="text-embracedark font-semibold">
                     {handleString}
                     {/* {jsonMetadata?.[i]?.name || handleString} */}
