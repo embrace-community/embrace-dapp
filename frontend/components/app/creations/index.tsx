@@ -30,11 +30,11 @@ import useSigner from "../../../hooks/useSigner";
 export default function Creations({
   query,
   space,
-  membership,
+  accountMembership,
 }: {
   query: Router["query"];
   space: Space;
-  membership: SpaceMembership | undefined;
+  accountMembership: SpaceMembership | undefined;
 }) {
   const provider = useProvider();
   const { address: accountAddress } = useAccount();
@@ -270,8 +270,8 @@ export default function Creations({
       !appCreationsContract ||
       !newCollectionInput.current ||
       newCollectionInput.current?.value.length < 3 ||
-      membership?.isAdmin !== true ||
-      membership.isActive !== true
+      accountMembership?.isAdmin !== true ||
+      accountMembership.isActive !== true
     )
       return;
 
@@ -349,8 +349,8 @@ export default function Creations({
   }
 
   if (
-    membership?.isAdmin === true &&
-    membership.isActive === true &&
+    accountMembership?.isAdmin === true &&
+    accountMembership.isActive === true &&
     creationsStore.spaceId === space.id &&
     creationsStore.collections.length === 0
   ) {
@@ -388,13 +388,14 @@ export default function Creations({
       </div>
     );
   } else if (
-    membership?.isAdmin !== true &&
+    accountMembership &&
+    accountMembership?.isAdmin !== true &&
     creationsStore.spaceId === space.id &&
     creationsStore.collections.length === 0
   ) {
     return (
       <div className="w-full flex flex-col items-center mt-10">
-        This community has not created any collections yet.
+        This community has not created any collections yet
       </div>
     );
   }
@@ -428,44 +429,45 @@ export default function Creations({
               </div>
             )}
 
-          {membership?.isAdmin === true && membership.isActive === true && (
-            <div className="w-full mt-2 p2 pt-5">
-              <label
-                htmlFor="collection"
-                className="block text-sm font-medium text-gray-700"
-              >
-                New Collection
-              </label>
-              <div className="mt-1">
-                <input
-                  type="text"
-                  name="collection"
-                  id="collection"
-                  ref={newCollectionInput}
-                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  placeholder="collection name"
-                />
+          {accountMembership?.isAdmin === true &&
+            accountMembership.isActive === true && (
+              <div className="w-full mt-2 p2 pt-5">
+                <label
+                  htmlFor="collection"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  New Collection
+                </label>
+                <div className="mt-1">
+                  <input
+                    type="text"
+                    name="collection"
+                    id="collection"
+                    ref={newCollectionInput}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    placeholder="collection name"
+                  />
+                </div>
+                <Button
+                  additionalClassName="p-1 mt-1"
+                  buttonProps={{
+                    onClick: () => {
+                      createCollection();
+                    },
+                    disabled: collectionCreating,
+                  }}
+                >
+                  {collectionCreating ? "creating..." : "+ new collection"}
+                </Button>
               </div>
-              <Button
-                additionalClassName="p-1 mt-1"
-                buttonProps={{
-                  onClick: () => {
-                    createCollection();
-                  },
-                  disabled: collectionCreating,
-                }}
-              >
-                {collectionCreating ? "creating..." : "+ new collection"}
-              </Button>
-            </div>
-          )}
+            )}
         </div>
 
         <div className="w-full flex flex-col my-1 sm:mb-4 ">
           {creationsStore.spaceId === space.id &&
             creationsStore.collections.length > 0 &&
-            membership?.isAdmin === true &&
-            membership.isActive === true && (
+            accountMembership?.isAdmin === true &&
+            accountMembership.isActive === true && (
               <div className="flex flex-row items-center justify-between p-2 mb-5">
                 <Link href={`/${query.handle}/creations?view=form`}>
                   <Button additionalClassName="p-2">+ new creation</Button>

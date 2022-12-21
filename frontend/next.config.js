@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    dangerouslyAllowSVG: true, // Temp as SVGs are not loading
     domains: ["localhost"],
     remotePatterns: [
       {

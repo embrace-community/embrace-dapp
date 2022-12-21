@@ -12,14 +12,14 @@ import {
 export default function Header({
   space,
   isFounder,
-  membership,
+  accountMembership,
   membershipInfoLoaded,
   joinSpace,
   requestJoinSpace,
 }: {
   space: Space;
   isFounder: boolean;
-  membership: SpaceMembership | undefined;
+  accountMembership: SpaceMembership | undefined;
   membershipInfoLoaded: boolean;
   joinSpace: () => void;
   requestJoinSpace: () => void;
@@ -61,13 +61,13 @@ export default function Header({
                 </p>
                 <p className="text-embracedark opacity-20 mx-4">|</p>
 
-                {!membership?.isActive && (
+                {!accountMembership?.isActive && (
                   <p className="text-embracedark opacity-50">
                     You&apos;re not a member
                   </p>
                 )}
 
-                {membership?.isActive && (
+                {accountMembership?.isActive && (
                   <div className="flex flex-row">
                     <Image
                       className="h-5 w-5 rounded-full mr-3"
@@ -79,7 +79,7 @@ export default function Header({
                   </div>
                 )}
 
-                {membership?.isActive && isFounder && (
+                {accountMembership?.isActive && isFounder && (
                   <div className="flex flex-row">
                     <p className="text-embracedark opacity-50">
                       You are the founder
@@ -87,21 +87,25 @@ export default function Header({
                   </div>
                 )}
 
-                {membership?.isActive && membership?.isAdmin && !isFounder && (
-                  <div className="flex flex-row">
-                    <p className="text-embracedark opacity-50">
-                      You&apos;re an admin
-                    </p>
-                  </div>
-                )}
+                {accountMembership?.isActive &&
+                  accountMembership?.isAdmin &&
+                  !isFounder && (
+                    <div className="flex flex-row">
+                      <p className="text-embracedark opacity-50">
+                        You&apos;re an admin
+                      </p>
+                    </div>
+                  )}
 
-                {membership?.isActive && !membership?.isAdmin && !isFounder && (
-                  <div className="flex flex-row">
-                    <p className="text-embracedark opacity-50">
-                      You&apos;re a member
-                    </p>
-                  </div>
-                )}
+                {accountMembership?.isActive &&
+                  !accountMembership?.isAdmin &&
+                  !isFounder && (
+                    <div className="flex flex-row">
+                      <p className="text-embracedark opacity-50">
+                        You&apos;re a member
+                      </p>
+                    </div>
+                  )}
               </div>
               <div className={aboutShow ? "" : "hidden"}>
                 <div className="w-full flex flex-row mt-5 text-sm">
@@ -138,7 +142,7 @@ export default function Header({
               {/* When Public Open space and not a member allow joining */}
               {space.membership.access == Access.OPEN &&
                 space.visibility == Visibility.PUBLIC &&
-                !membership?.isActive && (
+                !accountMembership?.isActive && (
                   <button
                     className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => joinSpace()}
@@ -151,8 +155,8 @@ export default function Header({
               {space?.membership?.access == Access.CLOSED &&
                 space?.visibility == Visibility.PRIVATE &&
                 space?.membership?.allowRequests &&
-                !membership?.isActive &&
-                !membership?.isRequest && (
+                !accountMembership?.isActive &&
+                !accountMembership?.isRequest && (
                   <button
                     className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
@@ -160,7 +164,7 @@ export default function Header({
                     request to join
                   </button>
                 )}
-              {membership?.isRequest && (
+              {accountMembership?.isRequest && (
                 <p className="text-embracedark opacity-20 text-right">
                   Request pending...
                 </p>
@@ -170,8 +174,8 @@ export default function Header({
               {space?.membership.access == Access.CLOSED &&
                 space?.visibility == Visibility.PRIVATE &&
                 space?.membership?.allowRequests &&
-                !membership?.isActive &&
-                !membership?.isRequest && (
+                !accountMembership?.isActive &&
+                !accountMembership?.isRequest && (
                   <button
                     className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}
@@ -180,7 +184,7 @@ export default function Header({
                   </button>
                 )}
 
-              {membership?.isRequest && (
+              {accountMembership?.isRequest && (
                 <p className="text-embracedark opacity-20 text-right">
                   Request pending...
                 </p>
@@ -189,7 +193,7 @@ export default function Header({
               {/* Gated space and not a member then allow join 
             TODO: Only show if the account meets the gate requirements*/}
               {space?.membership?.access == Access.GATED &&
-                !membership?.isActive && (
+                !accountMembership?.isActive && (
                   <button
                     className="rounded-full border-violet-600 border-2 bg-transparent text-violet-600 text-sm font-semibold py-2 px-7"
                     onClick={() => requestJoinSpace()}

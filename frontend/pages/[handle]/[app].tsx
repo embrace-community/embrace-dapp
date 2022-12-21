@@ -26,7 +26,7 @@ export default function SpaceViewPage() {
   const [isFounder, setIsFounder] = useState<boolean>(false);
   const [membershipInfoLoaded, setMembershipInfoLoaded] =
     useState<boolean>(false);
-  const [membership, setMembership] = useState<SpaceMembership>();
+  const [accountMembership, setAccountMembership] = useState<SpaceMembership>();
   const getSpaceByIdSelector = useAppSelector(getSpaceById);
 
   const router = useRouter();
@@ -121,12 +121,12 @@ export default function SpaceViewPage() {
       const memberCountNumber = BigNumber.from(memberCount).toNumber();
 
       if (address) {
-        const membership = await spacesContract?.getSpaceMember(
+        const _accountMembership = await spacesContract?.getSpaceMember(
           spaceId,
           address,
         );
 
-        setMembership(membership);
+        setAccountMembership(_accountMembership);
         setMembershipInfoLoaded(true);
       }
 
@@ -140,6 +140,7 @@ export default function SpaceViewPage() {
     metadataLoaded,
     membershipInfoLoaded,
     address,
+    accountMembership,
   ]);
 
   const joinSpace = async () => {
@@ -183,7 +184,7 @@ export default function SpaceViewPage() {
             <Header
               space={spaceData}
               isFounder={isFounder}
-              membership={membership}
+              accountMembership={accountMembership}
               membershipInfoLoaded={membershipInfoLoaded}
               joinSpace={joinSpace}
               requestJoinSpace={requestJoinSpace}
@@ -191,7 +192,7 @@ export default function SpaceViewPage() {
             <Apps
               space={spaceData}
               query={router.query}
-              membership={membership}
+              accountMembership={accountMembership}
             />
           </>
         ) : (

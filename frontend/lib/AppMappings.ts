@@ -43,7 +43,7 @@ export const appMappings = {
     tags: ["social", "creator", "video"],
   },
   [EmbraceApps.CHAT_SERVER]: {
-    title: "Chat Server",
+    title: "Chat",
     route: "chat",
     component: Chat,
     icon: ChatBubbleLeftEllipsisIcon,
@@ -52,7 +52,7 @@ export const appMappings = {
     tags: ["social", "video"],
   },
   [EmbraceApps.LIVE_STREAMING]: {
-    title: "Live Streaming",
+    title: "Stream",
     route: "live-streaming",
     component: LiveStreaming,
     icon: VideoCameraIcon,

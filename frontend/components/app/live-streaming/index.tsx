@@ -17,11 +17,11 @@ import { getLiveStream } from "../../../store/slices/live-streaming";
 export default function LiveStreamIndex({
   query,
   space,
-  membership,
+  accountMembership,
 }: {
   query: Router["query"];
   space: Space;
-  membership: SpaceMembership | undefined;
+  accountMembership: SpaceMembership | undefined;
 }) {
   const streamName = `embrace.community/${space.handle}-${space.id}/live-stream`;
   const playbackId = query.id as string;
@@ -62,19 +62,19 @@ export default function LiveStreamIndex({
     <LivepeerConfig client={livepeerClient}>
       <div className="w-full flex flex-row grow">
         {liveStream.status === "success" &&
-          membership?.isAdmin &&
-          membership?.isActive && (
+          accountMembership?.isAdmin &&
+          accountMembership?.isActive && (
             <LiveStream query={query} space={space} streamName={streamName} />
           )}
 
         {liveStream.status !== "success" &&
-          membership?.isAdmin &&
-          membership?.isActive && (
+          accountMembership?.isAdmin &&
+          accountMembership?.isActive && (
             <InitStream query={query} space={space} streamName={streamName} />
           )}
 
         {liveStream.status !== "success" &&
-          (!membership?.isAdmin || !membership?.isActive) && (
+          (!accountMembership?.isAdmin || !accountMembership?.isActive) && (
             <div className="w-full flex flex-col items-center mt-10">
               There is currently no Live Stream.
             </div>
