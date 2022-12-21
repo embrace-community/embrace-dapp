@@ -41,11 +41,27 @@ export const creationsSlice = createSlice({
 
       state.creations[collectionId] = creations;
     },
+
+    addCollectionCreation: (
+      state,
+      action: PayloadAction<{ collectionId: number; creation: Creation }>,
+    ) => {
+      const { collectionId, creation } = action.payload;
+
+      state.creations[collectionId] = [
+        ...state.creations[collectionId],
+        creation,
+      ];
+    },
   },
 });
 
-export const { setSpaceId, setCollections, setCollectionCreations } =
-  creationsSlice.actions;
+export const {
+  setSpaceId,
+  setCollections,
+  setCollectionCreations,
+  addCollectionCreation,
+} = creationsSlice.actions;
 
 export const getCreationById = createSelector(
   (state: RootState) => state.creations.creations,

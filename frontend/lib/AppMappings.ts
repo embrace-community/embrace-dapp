@@ -1,10 +1,20 @@
 import { EmbraceApps } from "../types/app";
-import Discussions from "../components/app/discussions";
-import Governance from "../components/app/governance";
-import Chat from "../components/app/chat";
-import Social from "../components/app/social";
-import Creations from "../components/app/creations";
-import LiveStreaming from "../components/app/live-streaming";
+import dynamic from "next/dynamic";
+
+// Use lazy loading for components
+const Social = dynamic(() => import("../components/app/social"));
+const Creations = dynamic(() => import("../components/app/creations"));
+const Chat = dynamic(() => import("../components/app/chat"));
+const LiveStreaming = dynamic(() => import("../components/app/live-streaming"));
+const Discussions = dynamic(() => import("../components/app/discussions"));
+const Governance = dynamic(() => import("../components/app/governance"));
+
+// import Discussions from "../components/app/discussions";
+// import Governance from "../components/app/governance";
+// import Chat from "../components/app/chat";
+// import Social from "../components/app/social";
+// import Creations from "../components/app/creations";
+// import LiveStreaming from "../components/app/live-streaming";
 
 import {
   ChatBubbleLeftEllipsisIcon,

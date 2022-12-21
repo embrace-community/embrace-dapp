@@ -1,12 +1,30 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import getWeb3StorageClient from "../../../lib/web3storage/client";
-import Button from "../../Button";
 import Spinner from "../../Spinner";
 import * as mime from "mime";
 import classNames from "classnames";
+import {
+  createReactClient,
+  LivepeerConfig,
+  Player,
+  studioProvider,
+} from "@livepeer/react";
+import { getFileUri } from "../../../lib/web3storage/getIpfsJsonContent";
+import { FireIcon } from "@heroicons/react/24/outline";
+import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
+import { useAppContract } from "../../../hooks/useEmbraceContracts";
+import { Collection, Creation } from "../../../types/space-apps";
+import { BigNumber, ethers } from "ethers";
+import useSigner from "../../../hooks/useSigner";
+import {
+  addCollectionCreation,
+  setCollectionCreations,
+} from "../../../store/slices/creations";
+import { useAppDispatch, useAppSelector } from "../../../store/hooks";
+import { RootState } from "../../../store/store";
 
 const creationTypes = [
   { id: "video", title: "Video" },
@@ -15,19 +33,123 @@ const creationTypes = [
   { id: "article", title: "Article", disabled: true },
 ];
 
-export default function CreateCreation({ id }: { id: number }) {
+const livepeerClient = createReactClient({
+  provider: studioProvider({
+    apiKey: process.env.NEXT_PUBLIC_LIVEPEER_STUDIO_API_KEY,
+  }),
+});
+
+type Preview = {
+  name: string;
+  description: string;
+  thumbnail: string;
+  creation: string;
+};
+
+export default function CreateCreation({
+  id,
+  selectedCollection,
+}: {
+  id: number;
+  selectedCollection: Collection;
+}) {
   const router = useRouter();
-  const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [handle, setHandle] = useState("");
   const [image, setImage] = useState<null | File>(null);
   const [imageCid, setImageCid] = useState<string>("");
-  // const [creation, setCreation] = useState<null | File>(null);
+  const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const [creationCid, setCreationCid] = useState<string>("");
-  const [type, setType] = useState<string>("");
   const [creationMime, setCreationMime] = useState<string>("");
   const [isCreationLoading, setIsCreationLoading] = useState<boolean>(false);
+  const [type, setType] = useState<string>("");
+  const [metadataCid, setMetadataCid] = useState<string>("");
+  const [preview, setPreview] = useState<Preview | null>(null);
+  const previewTimeout = useRef<any>();
+  const { appCreationCollectionsABI } = useAppContract();
+  const { signer } = useSigner();
+  const creationsStore = useAppSelector((state: RootState) => state.creations);
+  const dispatch = useAppDispatch();
+
+  // Attempt to stop the preview from being created on every keystroke
+  // TODO: Livepeer preview keeps loading when the user is typing - alot of network requests!!
+  useEffect(() => {
+    clearTimeout(previewTimeout.current);
+
+    previewTimeout.current = setTimeout(() => {
+      setPreview({
+        name,
+        description,
+        thumbnail: getFileUri(imageCid),
+        creation: `ipfs://${creationCid}`,
+      });
+    }, 500);
+  }, [name, description, imageCid, creationCid]);
+
+  // Called whenever the metadataCid is set
+  useEffect(() => {
+    if (!metadataCid || !signer) return;
+
+    async function mintCreation() {
+      console.log("mintCreation " + metadataCid);
+
+      const collectionContractAddress = selectedCollection?.contractAddress;
+
+      // Get the creations for this collection
+      const collectionContract = new ethers.Contract(
+        collectionContractAddress,
+        appCreationCollectionsABI,
+        signer,
+      );
+
+      if (!collectionContract) return;
+
+      collectionContract.on(
+        "CreationCreated",
+        (spaceId, creator, collectionAddress, creationId) => {
+          const _creationId = BigNumber.from(creationId).toNumber();
+          const newCreation: Creation = {
+            tokenId: _creationId,
+            tokenURI: metadataCid,
+            owner: creator,
+          };
+
+          console.log("mintCreation CreationCreated", newCreation);
+
+          // Add creation to store
+          dispatch(
+            addCollectionCreation({
+              collectionId: selectedCollection.id,
+              creation: newCreation,
+            }),
+          );
+
+          // Redirect to creation page
+          const handle = "creations-space"; // TODO: use space handle
+          router.push(
+            `${handle}/creations?collectionId=${selectedCollection.id}&creationId=${_creationId}`,
+          );
+        },
+      );
+
+      const tx = await collectionContract.mint(metadataCid);
+
+      console.log("mintCreation tx" + tx.hash);
+
+      // Mint NFT
+      // Listen to transaction events, once the transaction is successful, redirect to the creation page
+      // router.push(`/creations/${creation.id}`);
+    }
+
+    mintCreation();
+  }, [
+    appCreationCollectionsABI,
+    dispatch,
+    metadataCid,
+    selectedCollection?.contractAddress,
+    selectedCollection.id,
+    signer,
+  ]);
 
   async function uploadThumbnail(e: ChangeEvent<HTMLInputElement>) {
     /* upload cover image to ipfs and save content to state */
@@ -74,6 +196,39 @@ export default function CreateCreation({ id }: { id: number }) {
     }
   }
 
+  const sendMetadataToIpfs = async () => {
+    const creationMetadata = {
+      name,
+      description,
+      animation_url: `ipfs://${creationCid}`,
+      external_url: `https://embrace.community/creations/`, // Needs proper link to embrace site
+      image: `ipfs://${imageCid}`,
+      attributes: {
+        tags: [type],
+        type,
+        mediaType: creationMime,
+      },
+    };
+
+    try {
+      const cid = (await saveToIpfs(
+        creationMetadata,
+        `${creationMetadata.name.replaceAll(" ", "_")}.json`,
+      )) as string;
+
+      if (cid) {
+        console.log("Uploaded json to ipfs, CID: ", cid);
+        // useEffect will trigger createSpace once CID is set
+        setMetadataCid(cid);
+        return;
+      }
+
+      console.error("Failed to save post to IPFS");
+    } catch (err: any) {
+      console.error(`Failed to save post to IPFS, ${err.message}`);
+    }
+  };
+
   return (
     <>
       <div className="w-full  mb-6 flex flex-row align-middle">
@@ -91,6 +246,45 @@ export default function CreateCreation({ id }: { id: number }) {
           {(isImageLoading || isCreationLoading) && <Spinner />}
 
           <div className="w-full md:w-3/4">
+            <div className="mb-7">
+              <label
+                htmlFor="type"
+                className="block text-sm font-medium text-embracedark"
+              >
+                Type
+              </label>
+
+              <div className="space-y-4 m-2 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
+                {creationTypes.map((creationType) => (
+                  <div key={creationType.id} className="flex items-center">
+                    <input
+                      id={creationType.id}
+                      name="notification-method"
+                      type="radio"
+                      disabled={creationType.disabled}
+                      className={classNames({
+                        "h-4 w-4 border-gray-300 text-violet-600 focus:ring-violet-500 cursor-pointer":
+                          true,
+                        "opacity-50": creationType.disabled,
+                      })}
+                      value={creationType.id}
+                      onChange={(e) => setType(creationType.id)}
+                    />
+                    <label
+                      htmlFor={creationType.id}
+                      className={classNames({
+                        "ml-3 block text-sm font-medium text-embracedark cursor-pointer":
+                          true,
+                        "opacity-50": creationType.disabled,
+                      })}
+                    >
+                      {creationType.title}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="mb-7">
               <label
                 htmlFor="description"
@@ -186,50 +380,50 @@ export default function CreateCreation({ id }: { id: number }) {
                   value={description}
                 />
               </div>
-            </div>
 
-            <div className="mb-7">
-              <label
-                htmlFor="type"
-                className="block text-sm font-medium text-embracedark"
+              <button
+                className="inline-flex items-center rounded-full border-violet-600 border-2 bg-transparent py-2 px-10 text-violet-600 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30 mt-4"
+                disabled={
+                  !name || !description || !type || !imageCid || !creationCid
+                }
+                onClick={() => {
+                  sendMetadataToIpfs();
+                }}
               >
-                Type
-              </label>
-
-              <div className="space-y-4 m-2 sm:flex sm:items-center sm:space-y-0 sm:space-x-10">
-                {creationTypes.map((creationType) => (
-                  <div key={creationType.id} className="flex items-center">
-                    <input
-                      id={creationType.id}
-                      name="notification-method"
-                      type="radio"
-                      disabled={creationType.disabled}
-                      className={classNames({
-                        "h-4 w-4 border-gray-300 text-violet-600 focus:ring-violet-500 cursor-pointer":
-                          true,
-                        "opacity-50": creationType.disabled,
-                      })}
-                      onChange={(e) => setType(e.target.value)}
-                    />
-                    <label
-                      htmlFor={creationType.id}
-                      className={classNames({
-                        "ml-3 block text-sm font-medium text-embracedark cursor-pointer":
-                          true,
-                        "opacity-50": creationType.disabled,
-                      })}
-                    >
-                      {creationType.title}
-                    </label>
-                  </div>
-                ))}
-              </div>
+                mint creation <FireIcon className="w-6 ml-2" />
+              </button>
             </div>
           </div>
         </div>
 
         <div className="w-full hidden md:flex flex-col align-middle">
-          video preview
+          {imageCid && creationCid && type === "video" && (
+            <LivepeerConfig client={livepeerClient}>
+              <h1 className="text-xl font-medium leading-6 text-gray-900 sm:truncate mb-5">
+                Preview
+              </h1>
+
+              <Player
+                // title={name}
+                src={preview?.creation}
+                autoPlay={false}
+                objectFit="contain"
+                poster={preview?.thumbnail}
+                muted={false}
+                autoUrlUpload={{
+                  fallback: true,
+                  ipfsGateway: "https://cloudflare-ipfs.com",
+                }}
+              />
+              {/* <div className="w-full flex justify-left p-2">
+                {<h1 className="text-2xl font-bold">{preview?.name}</h1>}
+              </div>
+
+              <div className="w-full flex justify-left p-2">
+                {<p className="text-sm">{preview?.description}</p>}
+              </div> */}
+            </LivepeerConfig>
+          )}
         </div>
       </div>
     </>

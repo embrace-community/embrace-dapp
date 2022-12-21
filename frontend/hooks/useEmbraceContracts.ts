@@ -54,6 +54,7 @@ export function useAppContract() {
 
   return {
     appCreationsContract,
+    // We export this instead of the contract as the collection address is dynamic
     appCreationCollectionsABI: AppCreationsCollectionJSON.abi,
   };
 }

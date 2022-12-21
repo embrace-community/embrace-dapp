@@ -334,8 +334,10 @@ export default function Creations({
     }
   };
 
-  if (view === "form") {
-    return <CreateCreation id={creationId} />;
+  if (view === "form" && selectedCollection) {
+    return (
+      <CreateCreation id={creationId} selectedCollection={selectedCollection} />
+    );
   }
 
   if (collectionId && creationId) {
