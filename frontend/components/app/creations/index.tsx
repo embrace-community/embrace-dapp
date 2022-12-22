@@ -25,7 +25,6 @@ import {
 } from "../../../store/slices/creations";
 import { RootState } from "../../../store/store";
 import { setCid } from "../../../store/slices/metadata";
-import useSigner from "../../../hooks/useSigner";
 
 export default function Creations({
   query,
@@ -334,8 +333,14 @@ export default function Creations({
     }
   };
 
-  if (view === "form") {
-    return <CreateCreation id={creationId} />;
+  if (view === "form" && selectedCollection) {
+    return (
+      <CreateCreation
+        id={creationId}
+        selectedCollection={selectedCollection}
+        handle={space.handle}
+      />
+    );
   }
 
   if (collectionId && creationId) {

@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { Address, useAccount } from "wagmi";
+import { Address, useAccount, useSigner } from "wagmi";
 import AppIcon from "../components/AppIcon";
 import AppLayout from "../components/AppLayout";
 import Badge from "../components/Badge";
@@ -18,7 +18,6 @@ import {
 } from "../components/pages/create/utils";
 import Spinner from "../components/Spinner";
 import useEmbraceContracts from "../hooks/useEmbraceContracts";
-import useSigner from "../hooks/useSigner";
 import { appMappings, tagColours } from "../lib/AppMappings";
 import { blockchainExplorerUrl } from "../lib/envs";
 import getWeb3StorageClient from "../lib/web3storage/client";
@@ -36,7 +35,7 @@ export default function SpaceViewPage() {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { signer } = useSigner();
+  const { data: signer } = useSigner();
   const { address: accountAddress } = useAccount();
 
   const [deployedApps, setDeployedApps] = useState({

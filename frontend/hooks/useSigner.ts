@@ -5,6 +5,10 @@ import { setSigner } from "../store/slices/core";
 import { RootState } from "../store/store";
 
 export default function useSigner() {
+  console.log(
+    "useSigner hook should no longer be used. Please use wagmi useSigner instead.",
+  );
+
   const coreStore = useAppSelector((state: RootState) => state.core);
   const dispatch = useAppDispatch();
   const { data: signer, isLoading } = useSignerWagmi();

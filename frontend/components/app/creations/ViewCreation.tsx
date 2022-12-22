@@ -185,7 +185,7 @@ export default function ViewCreation({
 
       {creation ? (
         <div className="w-full flex flex-row grow">
-          <div className="w-full flex flex-col justify-center">
+          <div className="w-full h-1/2 flex flex-col justify-center">
             {/* <Image
           src={creation.image}
           alt={creation.name}
@@ -224,63 +224,70 @@ export default function ViewCreation({
             }
           </div>
 
-          <div className="hidden w-1/6 md:flex flex-col ml-5 p-2 pt-0">
-            {creationsStore.creations[collectionId] && (
-              <>
-                <ul role="list" className="w-full max-h-screen overflow-scroll">
-                  <h1 className="mb-3 underline">
-                    {selectedCollection?.name} collection
-                  </h1>
+          <div className="hidden md:flex md:flex-col w-1/5 h-1/2 ml-10 p-2 pt-0">
+            {creationsStore.creations[collectionId] &&
+              creationsStore.creations[collectionId].length > 1 && (
+                <>
+                  <ul
+                    role="list"
+                    className="w-full max-h-screen overflow-scroll"
+                  >
+                    <h1 className="mb-3 underline">
+                      {selectedCollection?.name} collection
+                    </h1>
 
-                  {creationsStore.creations[collectionId] &&
-                    creationsStore.creations[collectionId]
-                      .filter((creation) => creation.tokenId !== creationId)
-                      .map((creation, i) => (
-                        <Link
-                          href={`/${space.handle}/creations?collectionId=${collectionId}&creationId=${creation.tokenId}`}
-                          key={creation.tokenId}
-                        >
-                          {metadataStore.cidData[creation.tokenURI] && (
-                            <li className="relative">
-                              <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
-                                <Image
-                                  src={
-                                    metadataStore.cidData[creation.tokenURI]
-                                      ?.image
-                                  }
-                                  alt={
-                                    metadataStore.cidData[creation.tokenURI]
-                                      ?.name
-                                  }
-                                  width="0"
-                                  height="0"
-                                  sizes="w-full"
-                                  className="pointer-events-none object-cover group-hover:opacity-75"
-                                />
-                                <button
-                                  type="button"
-                                  className="absolute inset-0 focus:outline-none"
-                                >
-                                  <span className="sr-only">
-                                    Open{" "}
-                                    {
+                    {creationsStore.creations[collectionId] &&
+                      creationsStore.creations[collectionId]
+                        .filter((creation) => creation.tokenId !== creationId)
+                        .map((creation, i) => (
+                          <Link
+                            href={`/${space.handle}/creations?collectionId=${collectionId}&creationId=${creation.tokenId}`}
+                            key={creation.tokenId}
+                          >
+                            {metadataStore.cidData[creation.tokenURI] && (
+                              <li className="relative">
+                                <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-violet-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+                                  <Image
+                                    src={
+                                      metadataStore.cidData[creation.tokenURI]
+                                        ?.image
+                                    }
+                                    alt={
                                       metadataStore.cidData[creation.tokenURI]
                                         ?.name
                                     }
-                                  </span>
-                                </button>
-                              </div>
-                              <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
-                                {metadataStore.cidData[creation.tokenURI]?.name}
-                              </p>
-                              <p className="pointer-events-none block text-sm font-medium text-gray-500"></p>
-                            </li>
-                          )}
-                        </Link>
-                      ))}
-                </ul>
-              </>
-            )}
+                                    width="0"
+                                    height="0"
+                                    sizes="w-full"
+                                    className="pointer-events-none object-cover group-hover:opacity-75"
+                                  />
+                                  <button
+                                    type="button"
+                                    className="absolute inset-0 focus:outline-none"
+                                  >
+                                    <span className="sr-only">
+                                      Open{" "}
+                                      {
+                                        metadataStore.cidData[creation.tokenURI]
+                                          ?.name
+                                      }
+                                    </span>
+                                  </button>
+                                </div>
+                                <p className="pointer-events-none mt-2 block truncate text-sm font-medium text-gray-900">
+                                  {
+                                    metadataStore.cidData[creation.tokenURI]
+                                      ?.name
+                                  }
+                                </p>
+                                <p className="pointer-events-none block text-sm font-medium text-gray-500"></p>
+                              </li>
+                            )}
+                          </Link>
+                        ))}
+                  </ul>
+                </>
+              )}
           </div>
         </div>
       ) : (
