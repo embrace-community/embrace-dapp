@@ -42,7 +42,7 @@ function useEmbraceContracts() {
 }
 
 export function useAppContract() {
-  const { signer } = useSigner();
+  const { data: signer } = useSigner();
   const provider = useProvider();
 
   const appCreationsContract = useContract({
