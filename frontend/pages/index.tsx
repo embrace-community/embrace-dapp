@@ -2,7 +2,7 @@ import { BigNumber } from "ethers";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAccount, useContractRead } from "wagmi";
-import useSigner from "../hooks/useSigner";
+import { useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
@@ -19,6 +19,7 @@ import {
 import { RootState } from "../store/store";
 import { Space } from "../types/space";
 import { SpaceUtil } from "../types/space-type-utils";
+import Button from "../components/Button";
 
 export default function HomePage() {
   const spacesStore = useAppSelector((state: RootState) => state.spaces);
@@ -26,11 +27,9 @@ export default function HomePage() {
 
   const [allSpaces, setAllSpaces] = useState<Space[]>([]);
 
-  const { signer, isLoading: isSignerLoading } = useSigner();
+  const { data: signer, isLoading: isSignerLoading } = useSigner();
   const { address: accountAddress } = useAccount();
   const { accountsContract } = useEmbraceContracts();
-
-  // console.log(signer, isSignerLoading);
 
   // Wagmi hook to load all community spaces
   const { data: contractSpaces, isLoading: isSpacesLoading } = useContractRead({
@@ -133,12 +132,9 @@ export default function HomePage() {
           {signer && (
             <div className="flex items-center justify-center md:justify-start">
               <Link href="/create">
-                <button
-                  type="button"
-                  className="inline-flex items-center rounded-full border-violet-700 border-2 bg-transparent py-4 px-12 text-violet-700 shadow-sm focus:outline-none focus:ring-none mb-11 font-semibold text-xl mt-5"
-                >
+                <Button additionalClassName="inline-flex items-center py-4 px-12 mb-11 font-semibold text-xl mt-5">
                   + new space
-                </button>
+                </Button>
               </Link>
             </div>
           )}

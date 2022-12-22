@@ -1,7 +1,7 @@
-import { BigNumber, ethers } from "ethers";
+import { BigNumber } from "ethers";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import AppLayout from "../../components/AppLayout";
 import Apps from "../../components/space/Apps";
 import Header from "../../components/space/Header";
@@ -26,7 +26,7 @@ export default function SpaceViewPage() {
   const [isFounder, setIsFounder] = useState<boolean>(false);
   const [membershipInfoLoaded, setMembershipInfoLoaded] =
     useState<boolean>(false);
-  const [membership, setMembership] = useState<SpaceMembership>();
+  const [accountMembership, setAccountMembership] = useState<SpaceMembership>();
   const getSpaceByIdSelector = useAppSelector(getSpaceById);
 
   const router = useRouter();
@@ -35,7 +35,7 @@ export default function SpaceViewPage() {
 
   // Once contract is initialized then get the space Id from the router handle and load the space data
   useEffect((): void => {
-    if (!routerIsReady || spaceData) return;
+    if (!routerIsReady || spaceData || !spacesContract) return;
 
     // Check to see if the spaceId can be found in the store
     // This will only work when routing inside the NextJs app
@@ -101,10 +101,11 @@ export default function SpaceViewPage() {
           metadata.image = getFileUri(metadata.image);
         }
 
-        setSpaceData({ ...spaceData, loadedMetadata: metadata });
-      }
+        console.log(metadata, "loaded metadata");
 
-      setMetadataLoaded(true);
+        setSpaceData({ ...spaceData, loadedMetadata: metadata });
+        setMetadataLoaded(true);
+      }
     }
 
     loadSpaceMetadata();
@@ -121,12 +122,12 @@ export default function SpaceViewPage() {
       const memberCountNumber = BigNumber.from(memberCount).toNumber();
 
       if (address) {
-        const membership = await spacesContract?.getSpaceMember(
+        const _accountMembership = await spacesContract?.getSpaceMember(
           spaceId,
           address,
         );
 
-        setMembership(membership);
+        setAccountMembership(_accountMembership);
         setMembershipInfoLoaded(true);
       }
 
@@ -140,6 +141,7 @@ export default function SpaceViewPage() {
     metadataLoaded,
     membershipInfoLoaded,
     address,
+    accountMembership,
   ]);
 
   const joinSpace = async () => {
@@ -152,6 +154,8 @@ export default function SpaceViewPage() {
         gasLimit: 1000000,
       });
       await tx.wait();
+
+      alert("joined space");
     } catch (err) {
       console.log("joinSpace", err);
     }
@@ -172,23 +176,27 @@ export default function SpaceViewPage() {
     }
   };
 
-  // FIXME: Apps loading multiple times
+  // FIXME: Whole page loading multiple times
   console.log("Whole Space page component rendering multiple times");
 
   return (
     <>
       <AppLayout title={spaceData?.loadedMetadata?.name}>
-        {spaceData && metadataLoaded ? (
+        {spaceData?.loadedMetadata ? (
           <>
             <Header
               space={spaceData}
               isFounder={isFounder}
-              membership={membership}
+              accountMembership={accountMembership}
               membershipInfoLoaded={membershipInfoLoaded}
               joinSpace={joinSpace}
               requestJoinSpace={requestJoinSpace}
             />
-            <Apps space={spaceData} query={router.query} />
+            <Apps
+              space={spaceData}
+              query={router.query}
+              accountMembership={accountMembership}
+            />
           </>
         ) : (
           <div className="p-10">

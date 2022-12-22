@@ -97,7 +97,7 @@ export default function TopicComments() {
       {loading && <div>Loading...</div>}
       <button
         onClick={() => createNewDiscussionTopicComment()}
-        className="rounded-full border-violet-700 border-2 bg-transparent py-4 px-12 text-violet-700 shadow-sm focus:outline-none focus:ring-none mb-7 font-semibold text-xl"
+        className="rounded-full border-violet-600 border-2 bg-transparent py-4 px-12 text-violet-600 shadow-sm focus:outline-none focus:ring-none mb-7 font-semibold text-xl"
       >
         Create Comment
       </button>

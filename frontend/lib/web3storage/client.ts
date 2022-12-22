@@ -1,4 +1,4 @@
-import { Web3Storage } from "web3.storage";
+import { Web3Storage, getFilesFromPath } from "web3.storage";
 import { web3StorageKey } from "../envs";
 
 export default function getWeb3StorageClient() {
@@ -8,3 +8,5 @@ export default function getWeb3StorageClient() {
 
   return web3StorageClient;
 }
+
+export { getWeb3StorageClient, getFilesFromPath };

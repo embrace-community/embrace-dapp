@@ -1,10 +1,9 @@
 import { Router } from "next/router";
-import { Space } from "../../../types/space";
+import { Space, SpaceMembership } from "../../../types/space";
 import { useEffect, useRef, useState } from "react";
 import Icons from "../../Icons";
 import useXmtp from "../../../hooks/useXmtp";
 import { format } from "date-fns";
-import useSigner from "../../../hooks/useSigner";
 import Spinner from "../../Spinner";
 import { useAppSelector } from "../../../store/hooks";
 import { RootState } from "../../../store/store";
@@ -12,12 +11,14 @@ import useHuddle from "../../../hooks/useHuddle";
 import PeerVideoAudioElem from "./PeerVideoAudioElem";
 import classNames from "classnames";
 import HuddleClient from "../../../lib/huddle01-client/HuddleClient/HuddleClient";
+import useEmbraceContracts from "../../../hooks/useEmbraceContracts";
+import { useSigner } from "wagmi";
 
 const ChatNotification = ({ notification }) => {
   if (notification.endsWith("VIDEO_CALL_STARTED")) {
     return (
       <div className="opacity-50 px-2 text-[14px]">
-        <Icons.Video extraClass=" mr-2" /> Video call started
+        <Icons.Video className="mr-2" /> Video call started
       </div>
     );
   }
@@ -51,9 +52,11 @@ const Chatmsg = ({ msg }) => {
 export default function Chat({
   query,
   space,
+  accountMembership,
 }: {
   query: Router["query"];
   space: Space;
+  accountMembership: SpaceMembership;
 }) {
   const [showLeftMenu, toggleShowLeftMenu] = useState(true);
   const [showRightMenu, toggleShowRightMenu] = useState(true);
@@ -62,54 +65,61 @@ export default function Chat({
   const [channelChanged, setChannelChanged] = useState(false);
   const [chatMessages, setChatMessages] = useState<any[] | null>(null);
   const [fetchNewChatMessages, setFetchNewChatMessages] = useState(true);
-  const [messageAdded, setMessageAdded] = useState(true);
   const [lastMessageDate, setLastMessageDate] = useState<Date | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const xmtp = useXmtp();
   const { huddle, HuddleClientProvider } = useHuddle(query.handle as string);
   const hasInitialized = useRef(false);
-  const { signer } = useSigner();
+  const { data: signer } = useSigner();
   const { xmtpClient } = useAppSelector((state: RootState) => state.core);
   const videoRef = useRef<HTMLVideoElement>(null);
   const huddlePeers = useRef({});
-
-  const spaceMembers = [
-    "0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC",
-    "0x725Acc62323480E9565fBbfAC8573908e4EEF883",
-    "0xB64A31a65701f01a1e63844216f3DbbCC9b3cF2C",
-  ]; // Need to get from contract
+  const initiatedCall = useRef(false);
+  const { spacesContract } = useEmbraceContracts();
+  const [spaceMembers, setSpaceMembers] = useState<string[]>([]);
 
   useEffect(() => {
-    console.log("XMTP", xmtpClient, hasInitialized.current, signer);
-    if (xmtpClient || hasInitialized.current || !signer) return;
+    if (!spacesContract || !space.id || spaceMembers.length) return;
 
-    console.log("XMTP");
+    const getSpaceMembers = async () => {
+      try {
+        const members = await spacesContract.getSpaceMembers(space.id);
+        setSpaceMembers(members);
+      } catch (err: any) {
+        console.log("Error getting space members", err);
+      }
+    };
+
+    getSpaceMembers();
+  }, [spacesContract, space.id, spaceMembers]);
+
+  useEffect(() => {
+    if (xmtpClient || hasInitialized.current || !signer) return;
 
     const init = async () => {
       hasInitialized.current = true;
 
       const address = await signer.getAddress();
 
-      huddle.initialise(address, `embrace.community/${query.handle}/call`);
+      huddle.initialise(
+        address,
+        `embrace.community/${space.handle}-${space.id}/call`,
+      );
 
       await xmtp.auth();
     };
 
     init();
-  }, [xmtp, xmtpClient, signer, huddle, conversationId, query.handle]);
+  }, [xmtp, xmtpClient, signer, huddle, conversationId, space]);
 
   useEffect(() => {
     const getMessages = async () => {
       if (
         xmtpClient &&
-        (fetchNewChatMessages || messageAdded || channelChanged)
+        conversationId &&
+        (fetchNewChatMessages || channelChanged)
       ) {
         console.log("getting messages", conversationId);
-
-        // If we are on a new channel, we need to fetch the messages from the start
-        if (channelChanged) {
-          setLastMessageDate(null);
-        }
 
         const messages = await xmtp.getGroupMessages(
           conversationId,
@@ -155,7 +165,6 @@ export default function Chat({
         console.log("mappedMessages", mappedMessages);
 
         setFetchNewChatMessages(false);
-        setMessageAdded(false);
         setChannelChanged(false);
       }
     };
@@ -166,7 +175,6 @@ export default function Chat({
     xmtp,
     xmtpClient,
     fetchNewChatMessages,
-    messageAdded,
     lastMessageDate,
     chatMessages,
     channelChanged,
@@ -174,19 +182,34 @@ export default function Chat({
 
   // Whenever channel is changed then this will update the conversationId and trigger messages to be loaded
   useEffect(() => {
-    setConversationId(`embrace.community/${query.handle}/chat/${channel}`);
+    setConversationId(
+      `embrace.community/${space.handle}-${space.id}/chat/${channel}`,
+    );
+    setLastMessageDate(null);
     setChannelChanged(true);
-  }, [channel, query.handle]);
+  }, [channel, space]);
 
   const sendMessage = async (message: string) => {
-    if (xmtpClient && message.length) {
+    if (accountMembership?.isActive && xmtpClient && message.length) {
       console.log("SENDING MESSAGE", spaceMembers, message);
+
+      const newMessage = {
+        sender: {
+          name: xmtpClient.address,
+          avatar: "",
+        },
+        content: message,
+        sent: new Date(Date.now()),
+        time: null,
+      };
 
       await xmtp.sendGroupMessage(spaceMembers, message, conversationId);
 
-      setTimeout(() => {
-        setMessageAdded(true);
-      }, 500);
+      if (chatMessages) {
+        setChatMessages([...chatMessages, newMessage]);
+      } else {
+        setChatMessages([newMessage]);
+      }
     }
   };
 
@@ -196,7 +219,7 @@ export default function Chat({
 
     const interval = setInterval(() => {
       setFetchNewChatMessages(true);
-    }, 10000);
+    }, 5000);
 
     // Clear interval on unmount
     return () => {
@@ -239,23 +262,31 @@ export default function Chat({
 
   useEffect(() => {
     if (videoRef.current) {
+      console.log("joinCall", huddle.stream, huddle.roomState);
       videoRef.current.srcObject = huddle.stream;
+      initiatedCall.current = false;
     }
   }, [huddle.stream, huddle.roomState, videoRef]);
 
-  const channels = ["general", "introductions", "development", "support"];
+  const channels = ["general", "introductions", "support"];
 
   const joinCall = async () => {
-    // Show loader somehow
-    // Join call
-    const call = await huddle.joinCall();
-    console.log(call, "joinCall");
+    if (initiatedCall.current) return;
+
+    initiatedCall.current = true;
+
+    await huddle.joinCall();
 
     // Send Push Protocol notification to space members to join call
   };
 
   const toggleMicrophone = async () => {
     huddle.isMicPaused ? huddle.client?.unmuteMic() : huddle.client?.muteMic();
+  };
+
+  const changeChannel = (channel: string) => {
+    setChannel(channel);
+    setChatMessages(null);
   };
 
   console.log("chat index.tsx", query, space);
@@ -271,25 +302,30 @@ export default function Chat({
   if (!signer)
     return (
       <>
-        <div>You must be connected to view the chat</div>
+        <div className="w-full flex flex-col items-center mt-10">
+          You must be connected to view the chat server
+        </div>
       </>
     );
 
   return (
     <div className="w-full flex flex-row grow min-h-0">
       <div className="w-[15vw] min-h-0 flex flex-col">
-        <ul className="grow overflow-auto h-[1px] pl-[2vw] pt-4 pb-20">
+        <ul className="grow overflow-auto h-[1px] pb-20 my-1 sm:m-4">
+          <h3 className="text-lg font-medium leading-6 text-gray-900 sm:truncate mb-5">
+            Channels
+          </h3>
           {channels.map((_channel, i) => {
             return (
               <li
                 key={i}
                 className={classNames({
                   "py-[5px] cursor-pointer rounded-md p-2 mr-5": true,
-                  "bg-neutral-300 text-white underline": channel === _channel,
+                  "bg-gray-100 ": channel === _channel,
                 })}
-                onClick={() => setChannel(_channel)}
+                onClick={() => changeChannel(_channel)}
               >
-                #{_channel}
+                {_channel}
               </li>
             );
           })}
@@ -419,11 +455,15 @@ export default function Chat({
           )}
         </HuddleClientProvider>
         {!huddle.roomState.joined && (
-          <div className="w-full h-[44px] bg-transparent flex flex-row justify-end ">
+          <div className="flex md:hidden w-full h-[44px] bg-transparent flex-row justify-end ">
             <div className="flex flex-col justify-center align-middle">
               <button
                 onClick={(e) => joinCall()}
-                className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold m-2 p-2 flex flex-row items-center"
+                className={classNames({
+                  "rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold m-2 p-2 flex flex-row items-center":
+                    true,
+                  "animate-ping m-0 p-0": initiatedCall.current,
+                })}
               >
                 <Icons.Video />
               </button>
@@ -474,15 +514,17 @@ export default function Chat({
         </div>
         <div className="pt-2 pb-6">
           {chatMessages && chatMessages.length == 0 && (
-            <>
-              <em>Start a conversation!</em>
-            </>
+            <>{/* <em>Start a conversation!</em> */}</>
           )}
           <input
             type="text"
             name="name"
             id="name"
-            className="w-[100%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+            disabled={!accountMembership?.isActive}
+            className={classNames({
+              "w-[100%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm":
+                true,
+            })}
             placeholder="your message"
             onKeyUp={(e) => {
               if (e.key === "Enter") {
@@ -493,25 +535,62 @@ export default function Chat({
           />
         </div>
       </div>
-      <div className="w-[15vw] min-w-[290px] min-h-0 flex flex-col pl-10 pt-4">
+      <div className="hidden w-[15vw] min-w-[20vw] min-h-0 lg:flex flex-col pl-10 overflow-hidden">
         <div className="grow overflow-auto h-[1px]">
-          <button
-            onClick={(e) => joinCall()}
-            className="hidden rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
-          >
-            <Icons.Video extraClass=" mr-2" />
-            join video call
-          </button>
-          {/* TODO: Error with this count as when the call is ended the  */}
-          {/* <div>
-            {huddle.peerIds.length > 0 && (
-              <>There are {huddle.peerIds.length + 1} people in the call</>
+          {!huddle.roomState.joined && accountMembership?.isAdmin && (
+            <>
+              <button
+                onClick={(e) => joinCall()}
+                // className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
+                className={classNames({
+                  "rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center":
+                    true,
+                  "animate-pulse m-0 p-0": initiatedCall.current,
+                })}
+              >
+                <Icons.Video className="mr-2" />
+                {initiatedCall.current ? "joining" : "join"} video call
+              </button>
+
+              <button className="hidden rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4">
+                <Icons.Audio className="mr-2" />
+                join audio call
+              </button>
+            </>
+          )}
+
+          {huddle.roomState.joined && (
+            <h3 className="text-lg font-medium leading-6 text-gray-900 sm:truncate mb-5">
+              Call in progress...
+            </h3>
+          )}
+
+          <div>
+            {spaceMembers.length > 0 && (
+              <div className="flex flex-row items-center pt-4">
+                <div className="text-embracedark text-sm font-semibold">
+                  {spaceMembers.length}{" "}
+                  {spaceMembers.length <= 1 ? "member" : "members"}
+                </div>
+              </div>
             )}
-          </div> */}
-          <button className="hidden rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4">
-            <Icons.Audio allClass="w-6 h-6 mr-2" />
-            join audio call
-          </button>
+            {spaceMembers.length > 0 &&
+              spaceMembers.map((member, i) => {
+                return (
+                  <div
+                    className="flex flex-row items-center"
+                    key={`i-${member}`}
+                  >
+                    {/* Only get the first 6 and last 6 characters */}
+                    <div>
+                      {member.substring(0, 6) +
+                        "..." +
+                        member.substring(member.length - 6, member.length)}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
         </div>
       </div>
     </div>
@@ -537,7 +616,7 @@ export default function Chat({
     //         type="text"
     //         name="name"
     //         id="name"
-    //         className="w-[90%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-700 focus:ring-violet-700 focus:bg-white sm:text-sm"
+    //         className="w-[90%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
     //         placeholder="your message"
     //       />
     //       </div>
@@ -546,13 +625,13 @@ export default function Chat({
     //       <button
     //         className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
     //       >
-    //         <Icons.Video extraClass=" mr-2"/>
+    //         <Icons.Video className="mr-2"/>
     //         channel video call
     //       </button>
     //       <button
     //         className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4"
     //       >
-    //         <Icons.Audio extraClass=" mr-2"/>
+    //         <Icons.Audio className="mr-2"/>
     //         channel audio call
     //       </button>
     //     </div>

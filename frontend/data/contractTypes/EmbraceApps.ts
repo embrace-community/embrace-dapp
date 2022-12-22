@@ -51,6 +51,8 @@ export interface EmbraceAppsInterface extends utils.Interface {
     "nameToId(bytes32)": FunctionFragment;
     "owner()": FunctionFragment;
     "setAppContractAddress(uint128,address)": FunctionFragment;
+    "spaceToAppIdToSpaceApp(uint256,uint256)": FunctionFragment;
+    "spaceToAppIds(uint256,uint256)": FunctionFragment;
   };
 
   getFunction(
@@ -63,6 +65,8 @@ export interface EmbraceAppsInterface extends utils.Interface {
       | "nameToId"
       | "owner"
       | "setAppContractAddress"
+      | "spaceToAppIdToSpaceApp"
+      | "spaceToAppIds"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -95,6 +99,14 @@ export interface EmbraceAppsInterface extends utils.Interface {
     functionFragment: "setAppContractAddress",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "spaceToAppIdToSpaceApp",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "spaceToAppIds",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "apps", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createApp", data: BytesLike): Result;
@@ -108,6 +120,14 @@ export interface EmbraceAppsInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setAppContractAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "spaceToAppIdToSpaceApp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "spaceToAppIds",
     data: BytesLike
   ): Result;
 
@@ -186,6 +206,25 @@ export interface EmbraceApps extends BaseContract {
       _contractAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    spaceToAppIdToSpaceApp(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, string, string, string] & {
+        appId: BigNumber;
+        name: string;
+        contractAddress: string;
+        metadata: string;
+      }
+    >;
+
+    spaceToAppIds(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
   };
 
   apps(
@@ -232,6 +271,25 @@ export interface EmbraceApps extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  spaceToAppIdToSpaceApp(
+    arg0: PromiseOrValue<BigNumberish>,
+    arg1: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<
+    [BigNumber, string, string, string] & {
+      appId: BigNumber;
+      name: string;
+      contractAddress: string;
+      metadata: string;
+    }
+  >;
+
+  spaceToAppIds(
+    arg0: PromiseOrValue<BigNumberish>,
+    arg1: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   callStatic: {
     apps(
       arg0: PromiseOrValue<BigNumberish>,
@@ -276,6 +334,25 @@ export interface EmbraceApps extends BaseContract {
       _contractAddress: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    spaceToAppIdToSpaceApp(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<
+      [BigNumber, string, string, string] & {
+        appId: BigNumber;
+        name: string;
+        contractAddress: string;
+        metadata: string;
+      }
+    >;
+
+    spaceToAppIds(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   filters: {};
@@ -317,6 +394,18 @@ export interface EmbraceApps extends BaseContract {
       _contractAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    spaceToAppIdToSpaceApp(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    spaceToAppIds(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -355,6 +444,18 @@ export interface EmbraceApps extends BaseContract {
       _appId: PromiseOrValue<BigNumberish>,
       _contractAddress: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    spaceToAppIdToSpaceApp(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    spaceToAppIds(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

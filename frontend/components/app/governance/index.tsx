@@ -5,12 +5,12 @@ export default function Governance({ query, space }) {
       <button
         className="
                         rounded-full
-                        border-violet-700
+                        border-violet-600
                         border-2
                         bg-transparent
                         py-4
                         px-12
-                        text-violet-700
+                        text-violet-600
                         shadow-sm
                         focus:outline-none
                         focus:ring-none

@@ -105,9 +105,12 @@ export interface EmbraceSpacesInterface extends utils.Interface {
     "getSpace(uint256)": FunctionFragment;
     "getSpaceFromHandle(string)": FunctionFragment;
     "getSpaceMember(uint256,address)": FunctionFragment;
+    "getSpaceMembers(uint256)": FunctionFragment;
     "getSpaces()": FunctionFragment;
     "isAdmin(uint256)": FunctionFragment;
+    "isAdminExternal(uint256,address)": FunctionFragment;
     "isFounder(uint256)": FunctionFragment;
+    "isFounderExternal(uint256,address)": FunctionFragment;
     "joinSpace(uint256)": FunctionFragment;
     "meetsGateRequirements(uint256)": FunctionFragment;
     "requestJoin(uint256)": FunctionFragment;
@@ -116,6 +119,7 @@ export interface EmbraceSpacesInterface extends utils.Interface {
     "spaceHandleToId(bytes32)": FunctionFragment;
     "spaceMemberLength(uint256)": FunctionFragment;
     "spaceMembers(uint256,address)": FunctionFragment;
+    "spaceMembersArray(uint256,uint256)": FunctionFragment;
     "spaces(uint256)": FunctionFragment;
   };
 
@@ -127,9 +131,12 @@ export interface EmbraceSpacesInterface extends utils.Interface {
       | "getSpace"
       | "getSpaceFromHandle"
       | "getSpaceMember"
+      | "getSpaceMembers"
       | "getSpaces"
       | "isAdmin"
+      | "isAdminExternal"
       | "isFounder"
+      | "isFounderExternal"
       | "joinSpace"
       | "meetsGateRequirements"
       | "requestJoin"
@@ -138,6 +145,7 @@ export interface EmbraceSpacesInterface extends utils.Interface {
       | "spaceHandleToId"
       | "spaceMemberLength"
       | "spaceMembers"
+      | "spaceMembersArray"
       | "spaces"
   ): FunctionFragment;
 
@@ -171,14 +179,26 @@ export interface EmbraceSpacesInterface extends utils.Interface {
     functionFragment: "getSpaceMember",
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(
+    functionFragment: "getSpaceMembers",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
   encodeFunctionData(functionFragment: "getSpaces", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "isAdmin",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "isAdminExternal",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isFounder",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isFounderExternal",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "joinSpace",
@@ -218,6 +238,10 @@ export interface EmbraceSpacesInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "spaceMembersArray",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "spaces",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -243,9 +267,21 @@ export interface EmbraceSpacesInterface extends utils.Interface {
     functionFragment: "getSpaceMember",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "getSpaceMembers",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getSpaces", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isAdmin", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isAdminExternal",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "isFounder", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isFounderExternal",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "joinSpace", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "meetsGateRequirements",
@@ -267,6 +303,10 @@ export interface EmbraceSpacesInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "spaceMembers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "spaceMembersArray",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "spaces", data: BytesLike): Result;
@@ -393,6 +433,11 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[EmbraceSpaces.MemberStructOutput]>;
 
+    getSpaceMembers(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string[]]>;
+
     getSpaces(
       overrides?: CallOverrides
     ): Promise<[EmbraceSpaces.SpaceStructOutput[]]>;
@@ -402,8 +447,20 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     isFounder(
       _spaceId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
@@ -457,6 +514,12 @@ export interface EmbraceSpaces extends BaseContract {
         isRequest: boolean;
       }
     >;
+
+    spaceMembersArray(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     spaces(
       arg0: PromiseOrValue<BigNumberish>,
@@ -515,6 +578,11 @@ export interface EmbraceSpaces extends BaseContract {
     overrides?: CallOverrides
   ): Promise<EmbraceSpaces.MemberStructOutput>;
 
+  getSpaceMembers(
+    _spaceId: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string[]>;
+
   getSpaces(
     overrides?: CallOverrides
   ): Promise<EmbraceSpaces.SpaceStructOutput[]>;
@@ -524,8 +592,20 @@ export interface EmbraceSpaces extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  isAdminExternal(
+    _spaceId: PromiseOrValue<BigNumberish>,
+    _address: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   isFounder(
     _spaceId: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isFounderExternal(
+    _spaceId: PromiseOrValue<BigNumberish>,
+    _address: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -580,6 +660,12 @@ export interface EmbraceSpaces extends BaseContract {
     }
   >;
 
+  spaceMembersArray(
+    arg0: PromiseOrValue<BigNumberish>,
+    arg1: PromiseOrValue<BigNumberish>,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   spaces(
     arg0: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
@@ -609,7 +695,7 @@ export interface EmbraceSpaces extends BaseContract {
       _apps: PromiseOrValue<BigNumberish>[],
       _metadata: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<BigNumber>;
 
     getIdFromHandle(
       _handle: PromiseOrValue<string>,
@@ -637,6 +723,11 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<EmbraceSpaces.MemberStructOutput>;
 
+    getSpaceMembers(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string[]>;
+
     getSpaces(
       overrides?: CallOverrides
     ): Promise<EmbraceSpaces.SpaceStructOutput[]>;
@@ -646,8 +737,20 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     isFounder(
       _spaceId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -701,6 +804,12 @@ export interface EmbraceSpaces extends BaseContract {
         isRequest: boolean;
       }
     >;
+
+    spaceMembersArray(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     spaces(
       arg0: PromiseOrValue<BigNumberish>,
@@ -800,6 +909,11 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getSpaceMembers(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getSpaces(overrides?: CallOverrides): Promise<BigNumber>;
 
     isAdmin(
@@ -807,8 +921,20 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isFounder(
       _spaceId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -854,6 +980,12 @@ export interface EmbraceSpaces extends BaseContract {
     spaceMembers(
       arg0: PromiseOrValue<BigNumberish>,
       arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    spaceMembersArray(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -899,6 +1031,11 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getSpaceMembers(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getSpaces(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isAdmin(
@@ -906,8 +1043,20 @@ export interface EmbraceSpaces extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     isFounder(
       _spaceId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -953,6 +1102,12 @@ export interface EmbraceSpaces extends BaseContract {
     spaceMembers(
       arg0: PromiseOrValue<BigNumberish>,
       arg1: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    spaceMembersArray(
+      arg0: PromiseOrValue<BigNumberish>,
+      arg1: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

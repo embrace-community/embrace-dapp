@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    dangerouslyAllowSVG: true, // Temp as SVGs are not loading
     domains: ["localhost"],
     remotePatterns: [
       {
@@ -11,6 +12,10 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "**api.multiavatar.com**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com**",
       },
     ],
   },

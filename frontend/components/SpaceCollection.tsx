@@ -17,7 +17,7 @@ export default function SpaceCollection({
   title: string;
   collection: Space[];
 }) {
-  const [_jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
+  const [jsonMetadata, setJsonMetadata] = useState<Record<string, any>[]>([]);
   const [metadataImages, setMetadataImages] = useState<string[]>([]);
   // const [metadataImagesLoaded, setMetadataImagesLoaded] = useState<number[]>(
   //   [],
@@ -111,14 +111,13 @@ export default function SpaceCollection({
                         alt="Space Logo"
                         onLoad={() => setImageLoaded(i)}
                         onError={() => setImageError(i)}
-                        height={32}
-                        width={32}
-                        unoptimized
+                        height={128}
+                        width={128}
                       />
                     )}
                   </div>
-
-                  {!metadataImagesLoaded.current.includes(i) && (
+                  {/* Placeholder image hidden for now */}
+                  {/* {!metadataImagesLoaded.current.includes(i) && (
                     <div className="absolute">
                       <PlaceholderLoading
                         shape="circle"
@@ -126,10 +125,10 @@ export default function SpaceCollection({
                         height={128}
                       />
                     </div>
-                  )}
-
+                  )} */}
                   <p className="text-embracedark font-semibold">
                     {handleString}
+                    {/* {jsonMetadata?.[i]?.name || handleString} */}
                   </p>
                 </div>
               </Link>

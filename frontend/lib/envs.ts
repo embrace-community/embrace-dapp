@@ -1,12 +1,24 @@
 const isNoTestEnvironment = process.env.NODE_ENV !== "test";
 
 // contracts
-
-const appContractAddress = process.env.NEXT_PUBLIC_APPS_CONTRACT_ADDRESS!;
-const spacesContractAddress = process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!;
-const accountsContractAddress =
-  process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!;
 const deployedChainIdEnv = process.env.NEXT_PUBLIC_DEPLOYED_CHAIN_ID!;
+
+let appContractAddress = process.env.NEXT_PUBLIC_APPS_CONTRACT_ADDRESS!;
+let spacesContractAddress = process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!;
+let accountsContractAddress =
+  process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!;
+let appCreationsContractAddress =
+  process.env.NEXT_PUBLIC_CREATIONS_CONTRACT_ADDRESS!;
+
+if (deployedChainIdEnv === "1337") {
+  appContractAddress = process.env.NEXT_PUBLIC_APPS_CONTRACT_ADDRESS_LOCAL!;
+  spacesContractAddress =
+    process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS_LOCAL!;
+  accountsContractAddress =
+    process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS_LOCAL!;
+  appCreationsContractAddress =
+    process.env.NEXT_PUBLIC_CREATIONS_CONTRACT_ADDRESS_LOCAL!;
+}
 
 const lensHubContractAddress = process.env.NEXT_PUBLIC_LENS_HUB_CONTRACT;
 const lensPeripheryContractAddress =
@@ -48,6 +60,7 @@ export {
   appContractAddress,
   spacesContractAddress,
   accountsContractAddress,
+  appCreationsContractAddress,
   deployedChainId,
   web3StorageKey,
   infuraApiKey,
