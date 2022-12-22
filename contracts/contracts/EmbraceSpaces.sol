@@ -323,7 +323,7 @@ contract EmbraceSpaces {
         if (_isActive) {
             spaceMemberLength[_index]++;
             // Add space to account
-            accountsContract.addSpace(msg.sender, _spaceId);
+            accountsContract.addSpace(_address, _spaceId);
             emit JoinedSpace(_spaceId, msg.sender, _isAdmin);
         } else {
             // If the member is being deactivated then decrement the member count
