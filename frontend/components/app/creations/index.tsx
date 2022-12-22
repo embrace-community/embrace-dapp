@@ -336,7 +336,11 @@ export default function Creations({
 
   if (view === "form" && selectedCollection) {
     return (
-      <CreateCreation id={creationId} selectedCollection={selectedCollection} />
+      <CreateCreation
+        id={creationId}
+        selectedCollection={selectedCollection}
+        handle={space.handle}
+      />
     );
   }
 

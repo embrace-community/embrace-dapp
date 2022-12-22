@@ -21,7 +21,7 @@ import { BigNumber, ethers } from "ethers";
 import useSigner from "../../../hooks/useSigner";
 import {
   addCollectionCreation,
-  setCollectionCreations,
+  getCreationById,
 } from "../../../store/slices/creations";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { RootState } from "../../../store/store";
@@ -49,9 +49,11 @@ type Preview = {
 export default function CreateCreation({
   id,
   selectedCollection,
+  handle,
 }: {
   id: number;
   selectedCollection: Collection;
+  handle: string;
 }) {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -66,10 +68,11 @@ export default function CreateCreation({
   const [metadataCid, setMetadataCid] = useState<string>("");
   const [preview, setPreview] = useState<Preview | null>(null);
   const previewTimeout = useRef<any>();
+  const [isMinting, setIsMinting] = useState<boolean>(false);
   const { appCreationCollectionsABI } = useAppContract();
   const { signer } = useSigner();
-  const creationsStore = useAppSelector((state: RootState) => state.creations);
   const dispatch = useAppDispatch();
+  const getCreationByIdSelector = useAppSelector(getCreationById);
 
   // Attempt to stop the preview from being created on every keystroke
   // TODO: Livepeer preview keeps loading when the user is typing - alot of network requests!!
@@ -93,52 +96,61 @@ export default function CreateCreation({
     async function mintCreation() {
       console.log("mintCreation " + metadataCid);
 
-      const collectionContractAddress = selectedCollection?.contractAddress;
+      try {
+        const collectionContractAddress = selectedCollection?.contractAddress;
 
-      // Get the creations for this collection
-      const collectionContract = new ethers.Contract(
-        collectionContractAddress,
-        appCreationCollectionsABI,
-        signer,
-      );
+        // Get the creations for this collection
+        const collectionContract = new ethers.Contract(
+          collectionContractAddress,
+          appCreationCollectionsABI,
+          signer,
+        );
 
-      if (!collectionContract) return;
+        if (!collectionContract) return;
 
-      collectionContract.on(
-        "CreationCreated",
-        (spaceId, creator, collectionAddress, creationId) => {
-          const _creationId = BigNumber.from(creationId).toNumber();
-          const newCreation: Creation = {
-            tokenId: _creationId,
-            tokenURI: metadataCid,
-            owner: creator,
-          };
+        // Listening for the CreationCreated event
+        collectionContract.on(
+          "CreationCreated",
+          (spaceId, creator, collectionAddress, creationId) => {
+            const _creationId = BigNumber.from(creationId).toNumber();
+            const newCreation: Creation = {
+              tokenId: _creationId,
+              tokenURI: metadataCid,
+              owner: creator,
+            };
 
-          console.log("mintCreation CreationCreated", newCreation);
+            const creationExists = getCreationByIdSelector(
+              selectedCollection.id,
+              _creationId,
+            );
 
-          // Add creation to store
-          dispatch(
-            addCollectionCreation({
-              collectionId: selectedCollection.id,
-              creation: newCreation,
-            }),
-          );
+            // Check that this is the creation we just minted and not a replay of an event
+            // Seems to happen on localhost / hardhat
+            if (!creationExists) {
+              // Add creation to store
+              dispatch(
+                addCollectionCreation({
+                  collectionId: selectedCollection.id,
+                  creation: newCreation,
+                }),
+              );
 
-          // Redirect to creation page
-          const handle = "creations-space"; // TODO: use space handle
-          router.push(
-            `${handle}/creations?collectionId=${selectedCollection.id}&creationId=${_creationId}`,
-          );
-        },
-      );
+              setIsMinting(false);
 
-      const tx = await collectionContract.mint(metadataCid);
+              // Redirect to creation page
+              router.push(
+                `/${handle}/creations?collectionId=${selectedCollection.id}&creationId=${_creationId}`,
+              );
+            }
+          },
+        );
 
-      console.log("mintCreation tx" + tx.hash);
+        const tx = await collectionContract.mint(metadataCid);
 
-      // Mint NFT
-      // Listen to transaction events, once the transaction is successful, redirect to the creation page
-      // router.push(`/creations/${creation.id}`);
+        console.log("mintCreation tx" + tx.hash);
+      } catch (error) {
+        console.log("mintCreation error", error);
+      }
     }
 
     mintCreation();
@@ -197,6 +209,8 @@ export default function CreateCreation({
   }
 
   const sendMetadataToIpfs = async () => {
+    setIsMinting(true);
+
     const creationMetadata = {
       name,
       description,
@@ -223,9 +237,12 @@ export default function CreateCreation({
         return;
       }
 
+      setIsMinting(false);
+
       console.error("Failed to save post to IPFS");
     } catch (err: any) {
       console.error(`Failed to save post to IPFS, ${err.message}`);
+      setIsMinting(false);
     }
   };
 
@@ -384,13 +401,24 @@ export default function CreateCreation({
               <button
                 className="inline-flex items-center rounded-full border-violet-600 border-2 bg-transparent py-2 px-10 text-violet-600 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30 mt-4"
                 disabled={
-                  !name || !description || !type || !imageCid || !creationCid
+                  !name ||
+                  !description ||
+                  !type ||
+                  !imageCid ||
+                  !creationCid ||
+                  isMinting
                 }
                 onClick={() => {
                   sendMetadataToIpfs();
                 }}
               >
-                mint creation <FireIcon className="w-6 ml-2" />
+                {isMinting ? (
+                  <Spinner widthHeight={6} />
+                ) : (
+                  <>
+                    mint creation <FireIcon className="w-6 ml-2" />
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -404,7 +432,7 @@ export default function CreateCreation({
               </h1>
 
               <Player
-                // title={name}
+                title={name}
                 src={preview?.creation}
                 autoPlay={false}
                 objectFit="contain"
@@ -415,13 +443,13 @@ export default function CreateCreation({
                   ipfsGateway: "https://cloudflare-ipfs.com",
                 }}
               />
-              {/* <div className="w-full flex justify-left p-2">
+              <div className="w-full flex justify-left p-2">
                 {<h1 className="text-2xl font-bold">{preview?.name}</h1>}
               </div>
 
               <div className="w-full flex justify-left p-2">
                 {<p className="text-sm">{preview?.description}</p>}
-              </div> */}
+              </div>
             </LivepeerConfig>
           )}
         </div>

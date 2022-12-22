@@ -48,10 +48,18 @@ export const creationsSlice = createSlice({
     ) => {
       const { collectionId, creation } = action.payload;
 
-      state.creations[collectionId] = [
-        ...state.creations[collectionId],
-        creation,
-      ];
+      const collectionCreations = state.creations[collectionId];
+      if (!collectionCreations) return;
+
+      // Only add if new collection
+      if (
+        !collectionCreations.find((cre) => cre.tokenId === creation.tokenId)
+      ) {
+        state.creations[collectionId] = [
+          ...state.creations[collectionId],
+          creation,
+        ];
+      }
     },
   },
 });
