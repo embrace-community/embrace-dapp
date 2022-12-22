@@ -1,7 +1,13 @@
 import dynamic from "next/dynamic";
 import { Router } from "next/router";
 import { ReactElement, useRef, useState } from "react";
-import { Address, useAccount, useSignMessage } from "wagmi";
+import {
+  Address,
+  useAccount,
+  useNetwork,
+  useSignMessage,
+  useSwitchNetwork,
+} from "wagmi";
 import { createProfile } from "../../../api/lens/createProfile";
 import { deleteProfile } from "../../../api/lens/deleteProfile";
 import { setDefaultProfile } from "../../../api/lens/setDefaultProfile";
@@ -9,13 +15,24 @@ import useGetDefaultProfile from "../../../hooks/lens/useGetDefaultProfile";
 import useGetProfiles from "../../../hooks/lens/useGetProfiles";
 import useGetPublications from "../../../hooks/lens/useGetPublications";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
-import { Profile, Publication } from "../../../types/lens-generated";
+import {
+  Profile,
+  Publication,
+  PublicationMainFocus,
+} from "../../../types/lens-generated";
 import { Space } from "../../../types/space";
 import Button from "../../Button";
 import DropDown from "../../DropDown";
 import Spinner from "../../Spinner";
 import "easymde/dist/easymde.min.css";
 import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
+import { v4 as uuidv4 } from "uuid";
+import { createPost } from "../../../api/lens/createPost";
+import useLensContracts from "../../../hooks/lens/useLensContracts";
+import { removeProperty } from "../../../lib/web3storage/object";
+import { ethers } from "ethers";
+import useSigner from "../../../hooks/useSigner";
+import { deployedChainId } from "../../../lib/envs";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -36,7 +53,19 @@ export default function Social({
   space: Space;
 }) {
   const { address } = useAccount();
+  const { signer } = useSigner();
+
+  const { chain } = useNetwork();
+  const {
+    chains,
+    error,
+    isLoading: switchLoading,
+    pendingChainId,
+    switchNetwork,
+  } = useSwitchNetwork();
+
   const { signMessageAsync } = useSignMessage();
+  const { lensHubContract } = useLensContracts();
 
   const [pageState, setPageState] = useState(PageState.Publications);
 
@@ -80,6 +109,10 @@ export default function Social({
     shouldSkip: !lensDefaultProfileId && !defaultProfile,
   });
 
+  // console.log("profiles", profiles);
+  // console.log("defaultProfile", defaultProfile);
+  // console.log("publications", publications);
+
   async function createLensProfile() {
     setIsloading(true);
 
@@ -109,54 +142,89 @@ export default function Social({
     }
   }
 
-  async function createPost() {
-    // const ipfsResult = await saveToIpfs({
-    //   version: "2.0.0",
-    //   mainContentFocus: PublicationMainFocus.TEXT_ONLY,
-    //   metadata_id: uuidv4(),
-    //   description: "Description",
-    //   locale: "en-US",
-    //   content: "Content",
-    //   external_url: null,
-    //   image: null,
-    //   imageMimeType: null,
-    //   name: "Name",
-    //   attributes: [],
-    //   tags: ["using_api_examples"],
-    //   appId: "api_examples_github",
-    // });
-    // console.log("create post: ipfs result", ipfsResult);
-    // // hard coded to make the code example clear
-    // const createPostRequest = {
-    //   profileId: defaultProfile?.id,
-    //   contentURI: `ipfs://${ipfsResult.path}`,
-    //   collectModule: {
-    //     // feeCollectModule: {
-    //     //   amount: {
-    //     //     currency: currencies.enabledModuleCurrencies.map(
-    //     //       (c: any) => c.address
-    //     //     )[0],
-    //     //     value: '0.000001',
-    //     //   },
-    //     //   recipient: address,
-    //     //   referralFee: 10.5,
-    //     // },
-    //     // revertCollectModule: true,
-    //     freeCollectModule: { followerOnly: true },
-    //     // limitedFeeCollectModule: {
-    //     //   amount: {
-    //     //     currency: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
-    //     //     value: '2',
-    //     //   },
-    //     //   collectLimit: '20000',
-    //     //   recipient: '0x3A5bd1E37b099aE3386D13947b6a90d97675e5e3',
-    //     //   referralFee: 0,
-    //     // },
-    //   },
-    //   referenceModule: {
-    //     followerOnlyReferenceModule: false,
-    //   },
-    // };
+  async function createLensPublication() {
+    setIsloading(true);
+
+    if (!signer) {
+      console.error("No signer found");
+      return;
+    }
+
+    try {
+      await lensAuthenticationIfNeeded(lensWallet, signMessageAsync);
+
+      const uuid = uuidv4();
+      const filename = `${defaultProfile?.handle}_${uuid}`;
+      const tags = ["test"];
+
+      const post = {
+        version: "2.0.0",
+        mainContentFocus: PublicationMainFocus.TextOnly,
+        metadata_id: uuid,
+        description: "Description",
+        locale: "en-US",
+        content: "Content",
+        external_url: null,
+        image: null,
+        imageMimeType: null,
+        name: "Name",
+        attributes: [],
+        tags,
+        appId: "embrace_community",
+      };
+
+      const ipfsResult = await saveToIpfs(post, filename);
+
+      console.log("create post ipfs result", ipfsResult);
+
+      const createPostRequest = {
+        profileId: defaultProfile?.id,
+        contentURI: `ipfs://${ipfsResult}`,
+        collectModule: { freeCollectModule: { followerOnly: true } },
+        referenceModule: {
+          followerOnlyReferenceModule: false,
+        },
+      };
+
+      const createdPost = await createPost(createPostRequest);
+
+      console.log("created post", createdPost);
+
+      const removedProperties = removeProperty(createdPost, "__typename");
+
+      console.log("removedProperties", removedProperties);
+      const { domain, types, value } = removedProperties.typedData;
+
+      if (chain?.id !== 80001) {
+        console.log("switch start");
+        await switchNetwork!(80001);
+        console.log("switch end");
+      }
+      console.log("signing");
+
+      const signature = await signer._signTypedData(domain, types, value);
+
+      console.log("signature", signature);
+
+      const { v, r, s } = ethers.utils.splitSignature(signature);
+
+      console.log("signature", v, r, s);
+
+      const tx = await lensHubContract!.postWithSig({
+        profileId: value.profileId,
+        contentURI: value.contentURI,
+        collectModule: value.collectModule,
+        collectModuleInitData: value.collectModuleInitData,
+        referenceModule: value.referenceModule,
+        referenceModuleInitData: value.referenceModuleInitData,
+        sig: { v, r, s, deadline: value.deadline },
+      });
+      console.log("create post: tx hash", tx.hash);
+    } catch (error: any) {
+      console.log("An error occurred create a post: ", error?.message);
+    } finally {
+      setIsloading(false);
+    }
   }
 
   // publish new metadata if user has a new default Profile
@@ -204,6 +272,13 @@ export default function Social({
                     setPost({ ...post, content: value })
                   }
                 />
+
+                <Button
+                  additionalClassName="p-2 pull-right"
+                  buttonProps={{ onClick: () => createLensPublication() }}
+                >
+                  Publish Post
+                </Button>
               </div>
             )}
 
