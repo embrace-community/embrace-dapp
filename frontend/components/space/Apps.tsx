@@ -48,6 +48,7 @@ export default function Apps({
     [router],
   );
 
+  // Set initial app
   useEffect(() => {
     if (!query.app) return;
 
@@ -83,9 +84,11 @@ export default function Apps({
       const selectedAppId = appId === -1 || isNaN(appId) ? appIds[0] : appId;
 
       // Load the route for the related appId
-      const route = appMappings[selectedAppId]?.route;
-      if (!route) return;
-      changeRouteShallowIfNew(route, false);
+      // const route = appMappings[selectedAppId]?.route;
+      // if (!route) return;
+
+      // No need to route to app on first load - causes issues e.g. cannot go back to space page / changes /home used on load for every space route
+      //changeRouteShallowIfNew(route, false);
 
       // App cannot be found so select the first app as default
       setCurrentApp(selectedAppId);

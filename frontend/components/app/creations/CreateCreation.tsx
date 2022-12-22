@@ -17,8 +17,8 @@ import { FireIcon } from "@heroicons/react/24/outline";
 import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
 import { Collection, Creation } from "../../../types/space-apps";
-import { BigNumber, ethers } from "ethers";
-import useSigner from "../../../hooks/useSigner";
+import { BigNumber, ethers, Signer } from "ethers";
+import { useSigner } from "wagmi";
 import {
   addCollectionCreation,
   getCreationById,
@@ -70,7 +70,7 @@ export default function CreateCreation({
   const previewTimeout = useRef<any>();
   const [isMinting, setIsMinting] = useState<boolean>(false);
   const { appCreationCollectionsABI } = useAppContract();
-  const { signer } = useSigner();
+  const { data: signer } = useSigner();
   const dispatch = useAppDispatch();
   const getCreationByIdSelector = useAppSelector(getCreationById);
 
@@ -91,9 +91,9 @@ export default function CreateCreation({
 
   // Called whenever the metadataCid is set
   useEffect(() => {
-    if (!metadataCid || !signer) return;
-
     async function mintCreation() {
+      if (!metadataCid || !signer) return;
+
       console.log("mintCreation " + metadataCid);
 
       try {
@@ -103,7 +103,7 @@ export default function CreateCreation({
         const collectionContract = new ethers.Contract(
           collectionContractAddress,
           appCreationCollectionsABI,
-          signer,
+          signer as Signer,
         );
 
         if (!collectionContract) return;
@@ -146,7 +146,6 @@ export default function CreateCreation({
         );
 
         const tx = await collectionContract.mint(metadataCid);
-
         console.log("mintCreation tx" + tx.hash);
       } catch (error) {
         console.log("mintCreation error", error);
@@ -154,14 +153,10 @@ export default function CreateCreation({
     }
 
     mintCreation();
-  }, [
-    appCreationCollectionsABI,
-    dispatch,
-    metadataCid,
-    selectedCollection?.contractAddress,
-    selectedCollection.id,
-    signer,
-  ]);
+
+    // TODO: Issue as transaction is called again once the event is received
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [metadataCid]);
 
   async function uploadThumbnail(e: ChangeEvent<HTMLInputElement>) {
     /* upload cover image to ipfs and save content to state */

@@ -246,7 +246,7 @@ export default function ViewCreation({
                           >
                             {metadataStore.cidData[creation.tokenURI] && (
                               <li className="relative">
-                                <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
+                                <div className="group aspect-w-10 aspect-h-7 block w-full overflow-hidden rounded-lg bg-gray-100 focus-within:ring-2 focus-within:ring-violet-500 focus-within:ring-offset-2 focus-within:ring-offset-gray-100">
                                   <Image
                                     src={
                                       metadataStore.cidData[creation.tokenURI]

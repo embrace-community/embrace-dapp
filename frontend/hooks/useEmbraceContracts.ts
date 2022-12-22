@@ -1,5 +1,4 @@
-import { useContract, useProvider } from "wagmi";
-import useSigner from "./useSigner";
+import { useContract, useProvider, useSigner } from "wagmi";
 import EmbraceAccountsJSON from "../data/contractArtifacts/EmbraceAccounts.json";
 import EmbraceAppsJSON from "../data/contractArtifacts/EmbraceApps.json";
 import EmbraceSpacesJSON from "../data/contractArtifacts/EmbraceSpaces.json";
@@ -14,7 +13,7 @@ import {
 } from "../lib/envs";
 
 function useEmbraceContracts() {
-  const { signer } = useSigner();
+  const { data: signer } = useSigner();
   const provider = useProvider();
 
   const appsContract = useContract({

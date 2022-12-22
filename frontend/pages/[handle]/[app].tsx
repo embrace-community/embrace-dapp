@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import AppLayout from "../../components/AppLayout";
 import Apps from "../../components/space/Apps";
 import Header from "../../components/space/Header";
@@ -153,6 +153,8 @@ export default function SpaceViewPage() {
         gasLimit: 1000000,
       });
       await tx.wait();
+
+      alert("joined space");
     } catch (err) {
       console.log("joinSpace", err);
     }

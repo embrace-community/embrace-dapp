@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import Icons from "../../Icons";
 import useXmtp from "../../../hooks/useXmtp";
 import { format } from "date-fns";
-import useSigner from "../../../hooks/useSigner";
 import Spinner from "../../Spinner";
 import { useAppSelector } from "../../../store/hooks";
 import { RootState } from "../../../store/store";
@@ -13,6 +12,7 @@ import PeerVideoAudioElem from "./PeerVideoAudioElem";
 import classNames from "classnames";
 import HuddleClient from "../../../lib/huddle01-client/HuddleClient/HuddleClient";
 import useEmbraceContracts from "../../../hooks/useEmbraceContracts";
+import { useSigner } from "wagmi";
 
 const ChatNotification = ({ notification }) => {
   if (notification.endsWith("VIDEO_CALL_STARTED")) {
@@ -70,7 +70,7 @@ export default function Chat({
   const xmtp = useXmtp();
   const { huddle, HuddleClientProvider } = useHuddle(query.handle as string);
   const hasInitialized = useRef(false);
-  const { signer } = useSigner();
+  const { data: signer } = useSigner();
   const { xmtpClient } = useAppSelector((state: RootState) => state.core);
   const videoRef = useRef<HTMLVideoElement>(null);
   const huddlePeers = useRef({});

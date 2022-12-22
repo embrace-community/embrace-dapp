@@ -2,7 +2,7 @@ import { BigNumber } from "ethers";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAccount, useContractRead } from "wagmi";
-import useSigner from "../hooks/useSigner";
+import { useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
@@ -27,7 +27,7 @@ export default function HomePage() {
 
   const [allSpaces, setAllSpaces] = useState<Space[]>([]);
 
-  const { signer, isLoading: isSignerLoading } = useSigner();
+  const { data: signer, isLoading: isSignerLoading } = useSigner();
   const { address: accountAddress } = useAccount();
   const { accountsContract } = useEmbraceContracts();
 

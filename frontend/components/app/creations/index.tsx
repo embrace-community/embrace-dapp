@@ -25,7 +25,6 @@ import {
 } from "../../../store/slices/creations";
 import { RootState } from "../../../store/store";
 import { setCid } from "../../../store/slices/metadata";
-import useSigner from "../../../hooks/useSigner";
 
 export default function Creations({
   query,
