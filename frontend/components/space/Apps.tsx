@@ -116,7 +116,8 @@ export default function Apps({
         {/* If space access is private or anonymouse then they must be a member to view the app content */}
         {(space.visibility === Visibility.PRIVATE ||
           space.visibility === Visibility.ANONYMOUS) &&
-          (!accountMembership?.isActive || !accountMembership) &&
+          accountMembership &&
+          !accountMembership?.isActive &&
           loaded && (
             <div className="w-full flex flex-col items-center justify-center">
               <div className="text-2xl font-bold text-center mt-4">
