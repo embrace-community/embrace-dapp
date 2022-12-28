@@ -207,6 +207,7 @@ export default function Social({
   }
 
   async function createPost() {
+    console.log("asdf");
     // const ipfsResult = await saveToIpfs({
     //   version: "2.0.0",
     //   mainContentFocus: PublicationMainFocus.TEXT_ONLY,
@@ -261,6 +262,8 @@ export default function Social({
   // if(space.loadedMetadata && )
   // }, []);
 
+  console.log("post", post);
+
   function showContent() {
     let content: ReactElement | null = null;
 
@@ -296,6 +299,22 @@ export default function Social({
 
             {isLensPublisher && writePost && (
               <div className="mt-4">
+                <input
+                  type="text"
+                  value={post.title}
+                  onChange={(e) => setPost({ ...post, title: e.target.value })}
+                  placeholder="Post title"
+                  className="my-3 w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
+                />
+
+                <input
+                  type="text"
+                  value={post.title}
+                  onChange={(e) => setPost({ ...post, coverImage: e.target.value })}
+                  placeholder="Post cover image"
+                  className="mt-2 mb-5 w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
+                />
+
                 <SimpleMDE
                   placeholder="What's on your mind?"
                   value={post.content}
@@ -304,6 +323,18 @@ export default function Social({
                   }
                 />
               </div>
+            )}
+
+            {isLensPublisher && writePost && (
+              <Button
+                additionalClassName="p-2 float-right"
+                buttonProps={{
+                  onClick: createPost,
+                  disabled: !post.content || !isLensPublisher,
+                }}
+              >
+                Publish
+              </Button>
             )}
 
             <div className="mt-8">
