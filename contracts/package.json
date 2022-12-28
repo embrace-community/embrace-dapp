@@ -21,7 +21,7 @@
     "deploy:spaces:chain": "source .env && hardhat deploy:EmbraceSpaces --accountsaddress {CONTRACT_ACCRESS_OF_ACCOUNTS} --network $HARDHAT_NETWORK",
     "deploy:accounts:local": "hardhat deploy:EmbraceAccounts --network localhost",
     "deploy:accounts:chain": "source .env && hardhat deploy:EmbraceAccounts --network $HARDHAT_NETWORK",
-    "deploy:appSocials:local": "source .env && hardhat deploy:appSocials --network localhost",
+    "deploy:appSocials:local": "source .env && hardhat deploy:AppSocials --network localhost",
     "deploy:appSocials:chain": "source .env && hardhat deploy:AppSocials --network $HARDHAT_NETWORK",
     "cp:artifacts": "cp ./artifacts/contracts/EmbraceApps.sol/EmbraceApps.json ./artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json ./artifacts/contracts/EmbraceAccounts.sol/EmbraceAccounts.json ../frontend/data/contractArtifacts/",
     "cp:appArtifacts": "cp ./artifacts/contracts/app/AppCreations.sol/AppCreations.json ./artifacts/contracts/app/AppCreationsCollection.sol/AppCreationsCollection.json ./artifacts/contracts/app/AppSocials.sol/AppSocials.json ../frontend/data/contractArtifacts/",

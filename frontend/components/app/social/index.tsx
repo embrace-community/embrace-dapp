@@ -1,6 +1,6 @@
 import dynamic from "next/dynamic";
 import { Router } from "next/router";
-import { ReactElement, useRef, useState } from "react";
+import { ReactElement, useEffect, useRef, useState } from "react";
 import { Address, useAccount, useSignMessage } from "wagmi";
 import { createProfile } from "../../../api/lens/createProfile";
 import { deleteProfile } from "../../../api/lens/deleteProfile";
@@ -16,6 +16,10 @@ import DropDown from "../../DropDown";
 import Spinner from "../../Spinner";
 import "easymde/dist/easymde.min.css";
 import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
+import useEmbraceContracts, {
+  useAppContract,
+} from "../../../hooks/useEmbraceContracts";
+import { SpaceSocial } from "../../../types/social";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -35,6 +39,8 @@ export default function Social({
   query: Router["query"];
   space: Space;
 }) {
+  const { appSocialsContract } = useAppContract();
+
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
 
@@ -54,37 +60,51 @@ export default function Social({
 
   const [isLoading, setIsloading] = useState(false);
 
+  const [socialDetails, setSocialDetails] = useState<SpaceSocial>();
+
+  useEffect(() => {
+    appSocialsContract
+      ?.getSocial(space.id)
+      .then((socials) => setSocialDetails(socials));
+  }, [appSocialsContract, space.id]);
+
   const createdProfile = useRef("");
 
-  const lensDefaultProfileId = space.loadedMetadata?.lensDefaultProfileId || "";
-  const lensWallet: Address = space.loadedMetadata?.lensWallet || space.founder;
+  // const lensDefaultProfileId = space.loadedMetadata?.lensDefaultProfileId || "";
+  // const lensWallet: Address = space.loadedMetadata?.lensWallet || space.founder;
 
-  const isLensPublisher = !address || address === lensWallet;
+  const isLensPublisher = !address || address === socialDetails?.lensWallet;
 
-  const profiles = useGetProfiles({
-    ownedBy: [lensWallet],
-    shouldSkip: !isLensPublisher || !lensWallet,
-  });
+  const profiles = [];
+  // useGetProfiles({
+  //   ownedBy: [socialDetails?.lensWallet],
+  //   shouldSkip: !isLensPublisher || !socialDetails.lensWallet,
+  // });
 
   // we're assuming for now that the publisher of the space has set
   // a default lens profile which he uses for publishing
   const defaultProfile = useGetDefaultProfile({
-    ethereumAddress: lensWallet,
-    shouldSkip: !space.loadedMetadata || !!lensDefaultProfileId,
+    ethereumAddress: address, // socialDetails.lensWallet,
+    shouldSkip: !space.loadedMetadata, // || !!socialDetails?.lensDefaultProfileId,
   });
 
   const publications = useGetPublications({
     profileId:
-      lensDefaultProfileId || defaultProfile?.id || createdProfile.current,
+      socialDetails?.lensDefaultProfileId ||
+      defaultProfile?.id ||
+      createdProfile.current,
     // limit: 10,
-    shouldSkip: !lensDefaultProfileId && !defaultProfile,
+    shouldSkip: !socialDetails?.lensDefaultProfileId && !defaultProfile,
   });
 
   async function createLensProfile() {
     setIsloading(true);
 
     try {
-      await lensAuthenticationIfNeeded(lensWallet, signMessageAsync);
+      await lensAuthenticationIfNeeded(
+        socialDetails?.lensWallet,
+        signMessageAsync,
+      );
 
       const createdProfileTx = await createProfile({
         handle: profileName,
@@ -292,7 +312,7 @@ export default function Social({
                       })}
                       onSelectItem={(id) => {
                         setSelectedProfile(
-                          profiles!.items.find(
+                          profiles?.items.find(
                             (profile: Profile) => profile.id === id,
                           ) as Profile,
                         );
@@ -307,7 +327,7 @@ export default function Social({
 
                           try {
                             await lensAuthenticationIfNeeded(
-                              lensWallet,
+                              socialDetails?.lensWallet,
                               signMessageAsync,
                             );
                             deleteProfile({ profileId: selectedProfile.id });
@@ -328,7 +348,7 @@ export default function Social({
 
                           try {
                             await lensAuthenticationIfNeeded(
-                              lensWallet,
+                              socialDetails?.lensWallet,
                               signMessageAsync,
                             );
                             setDefaultProfile({

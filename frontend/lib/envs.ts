@@ -9,6 +9,8 @@ let accountsContractAddress =
   process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!;
 let appCreationsContractAddress =
   process.env.NEXT_PUBLIC_CREATIONS_CONTRACT_ADDRESS!;
+let appSocialsContractAddress =
+  process.env.NEXT_PUBLIC_SOCIALS_CONTRACT_ADDRESS!;
 
 if (deployedChainIdEnv === "1337") {
   appContractAddress = process.env.NEXT_PUBLIC_APPS_CONTRACT_ADDRESS_LOCAL!;
@@ -18,14 +20,28 @@ if (deployedChainIdEnv === "1337") {
     process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS_LOCAL!;
   appCreationsContractAddress =
     process.env.NEXT_PUBLIC_CREATIONS_CONTRACT_ADDRESS_LOCAL!;
+  appSocialsContractAddress =
+    process.env.NEXT_PUBLIC_SOCIALS_CONTRACT_ADDRESS_LOCAL!;
 }
 
-if (!appContractAddress && isNoTestEnvironment)
-  throw Error("App Contract Address Env missing");
-if (!spacesContractAddress && isNoTestEnvironment)
-  throw Error("Spaces Contract Address Env missing");
-if (!accountsContractAddress && isNoTestEnvironment)
-  throw Error("Accounts Contract Address Env missing");
+if (isNoTestEnvironment) {
+  if (!appContractAddress)
+    throw Error("App Contract Address Env missing, appContractAddress");
+  if (!spacesContractAddress)
+    throw Error("Spaces Contract Address Env missing, spacesContractAddress");
+  if (!accountsContractAddress)
+    throw Error(
+      "Accounts Contract Address Env missing, accountsContractAddress",
+    );
+  if (!appCreationsContractAddress)
+    throw Error(
+      "Accounts Contract Address Env missing, appCreationsContractAddress",
+    );
+  if (!appSocialsContractAddress)
+    throw Error(
+      "Accounts Contract Address Env missing, appSocialsContractAddress",
+    );
+}
 
 if (
   (!deployedChainIdEnv || !Number.isInteger(+deployedChainIdEnv)) &&
@@ -52,6 +68,7 @@ export {
   spacesContractAddress,
   accountsContractAddress,
   appCreationsContractAddress,
+  appSocialsContractAddress,
   deployedChainId,
   web3StorageKey,
   infuraApiKey,
