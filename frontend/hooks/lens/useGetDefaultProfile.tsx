@@ -1,5 +1,4 @@
 import { gql, useQuery } from "@apollo/client";
-import { useAccount } from "wagmi";
 import {
   DefaultProfileRequest,
   DefaultProfileQuery,
@@ -12,19 +11,11 @@ function useGetDefaultProfile(
     shouldSkip: false,
   },
 ) {
-  const { address, isConnected, isConnecting, isDisconnected } = useAccount();
-
-  const shouldSkipCallApi =
-    !address ||
-    !isConnected ||
-    isConnecting ||
-    isDisconnected ||
-    reqParams?.shouldSkip;
+  const shouldSkipCallApi = reqParams?.shouldSkip;
 
   delete reqParams.shouldSkip;
 
   const request: DefaultProfileRequest = reqParams;
-  if (!request.ethereumAddress) request.ethereumAddress = address;
 
   const result = useQuery<
     DefaultProfileQuery,

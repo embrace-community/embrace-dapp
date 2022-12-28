@@ -20,6 +20,7 @@ import useEmbraceContracts, {
   useAppContract,
 } from "../../../hooks/useEmbraceContracts";
 import { SpaceSocial } from "../../../types/social";
+import { ethers } from "ethers";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -58,6 +59,9 @@ export default function Social({
     erc20EncryptToken: false,
   });
 
+  const [lensWallet, setLensWallet] = useState("");
+  const [lensProfile, setLensProfile] = useState("");
+
   const [isLoading, setIsloading] = useState(false);
 
   const [socialDetails, setSocialDetails] = useState<SpaceSocial>();
@@ -65,7 +69,12 @@ export default function Social({
   useEffect(() => {
     appSocialsContract
       ?.getSocial(space.id)
-      .then((socials) => setSocialDetails(socials));
+      ?.then((socials) => setSocialDetails(socials))
+      ?.catch((e: any) =>
+        console.error(
+          `An error occurred fetchin the socials contract, ${e.message}`,
+        ),
+      );
   }, [appSocialsContract, space.id]);
 
   const createdProfile = useRef("");
@@ -73,20 +82,31 @@ export default function Social({
   // const lensDefaultProfileId = space.loadedMetadata?.lensDefaultProfileId || "";
   // const lensWallet: Address = space.loadedMetadata?.lensWallet || space.founder;
 
-  const isLensPublisher = !address || address === socialDetails?.lensWallet;
+  const isLensPublisher =
+    socialDetails?.lensWallet && address === socialDetails?.lensWallet;
 
-  const profiles = [];
-  // useGetProfiles({
-  //   ownedBy: [socialDetails?.lensWallet],
-  //   shouldSkip: !isLensPublisher || !socialDetails.lensWallet,
-  // });
+  const ownedBy = [address];
+  if (
+    socialDetails?.lensWallet &&
+    socialDetails?.lensWallet !== ethers.constants.AddressZero
+  ) {
+    ownedBy.push(socialDetails.lensWallet as Address);
+  }
+  const profiles = useGetProfiles({
+    ownedBy,
+    shouldSkip: !isLensPublisher && address !== space.founder,
+  });
+
+  console.log("profiles", profiles);
 
   // we're assuming for now that the publisher of the space has set
   // a default lens profile which he uses for publishing
   const defaultProfile = useGetDefaultProfile({
     ethereumAddress: address, // socialDetails.lensWallet,
-    shouldSkip: !space.loadedMetadata, // || !!socialDetails?.lensDefaultProfileId,
+    shouldSkip: !!socialDetails?.lensDefaultProfileId,
   });
+
+  console.log("defaultProfile", defaultProfile);
 
   const publications = useGetPublications({
     profileId:
@@ -102,7 +122,7 @@ export default function Social({
 
     try {
       await lensAuthenticationIfNeeded(
-        socialDetails?.lensWallet,
+        socialDetails?.lensWallet as Address,
         signMessageAsync,
       );
 
@@ -123,6 +143,26 @@ export default function Social({
     } catch (error: any) {
       console.error(
         `An error occured while creating the lense profile. Please try again: ${error.message}`,
+      );
+    } finally {
+      setIsloading(false);
+    }
+  }
+
+  async function onSetLensProfile() {
+    if (!lensWallet || !lensProfile || address !== space.founder) {
+      return;
+    }
+
+    try {
+      setIsloading(true);
+
+      await appSocialsContract?.createSocial(space.id, lensWallet, lensProfile);
+
+      console.log(`Successfully set the lens profiles`);
+    } catch (e: any) {
+      console.error(
+        `An error occurred setting the profiles for lens ${e.message}`,
       );
     } finally {
       setIsloading(false);
@@ -191,8 +231,8 @@ export default function Social({
       case PageState.Publications:
         content = (
           <>
-            {isLensPublisher && (
-              <div className="flex justify-between">
+            <div className="flex justify-between">
+              {isLensPublisher && (
                 <Button
                   additionalClassName="p-2"
                   buttonProps={{
@@ -203,7 +243,9 @@ export default function Social({
                 >
                   {writePost ? "Hide Post" : "Write Post"}
                 </Button>
+              )}
 
+              {(isLensPublisher || address === space.founder) && (
                 <Button
                   additionalClassName="p-2 ml-auto"
                   buttonProps={{
@@ -212,8 +254,8 @@ export default function Social({
                 >
                   Manage Profile
                 </Button>
-              </div>
-            )}
+              )}
+            </div>
 
             {isLensPublisher && writePost && (
               <div className="mt-4">
@@ -265,7 +307,7 @@ export default function Social({
               See Publications
             </Button>
 
-            {isLensPublisher ? (
+            {isLensPublisher || address === space.founder ? (
               <>
                 <div>
                   <h3>Current default profile</h3>
@@ -273,7 +315,7 @@ export default function Social({
                   <input
                     type="text"
                     className="mt-2 w-72 block bg-transparent text-gray-400 rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                    value={defaultProfile?.handle}
+                    value={`${defaultProfile?.handle} - ${defaultProfile?.id}`}
                     disabled
                   />
                 </div>
@@ -304,11 +346,15 @@ export default function Social({
                     <DropDown
                       title={
                         selectedProfile
-                          ? selectedProfile.handle
+                          ? `${selectedProfile.handle} - ${selectedProfile.id}`
                           : "Select Profile"
                       }
                       items={profiles?.items?.map((profile: Profile) => {
-                        return <div key={profile.id}>{profile.handle}</div>;
+                        return (
+                          <div
+                            key={profile.id}
+                          >{`${profile.handle} - ${profile.id}`}</div>
+                        );
                       })}
                       onSelectItem={(id) => {
                         setSelectedProfile(
@@ -366,6 +412,34 @@ export default function Social({
                       </button>
                     </div>
                   </div>
+                </div>
+
+                <div className="mt-8">
+                  <h3>Set Social Default Profiles</h3>
+
+                  <input
+                    type="text"
+                    className="mt-2 w-1/2 block rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
+                    placeholder="Wallet Address"
+                    value={lensWallet}
+                    onChange={(e) => setLensWallet(e.target.value)}
+                  />
+
+                  <input
+                    type="text"
+                    className="mt-2 w-1/2 block rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
+                    placeholder="Lens Handle"
+                    value={lensProfile}
+                    onChange={(e) => setLensProfile(e.target.value)}
+                  />
+
+                  <button
+                    className="mt-4 min-w-[10rem] block border-violet-600 text-violet-600 disabled:opacity-20 border-2 rounded-md px-2 py-2"
+                    onClick={onSetLensProfile}
+                    disabled={!lensProfile || !lensWallet}
+                  >
+                    {isLoading ? <Spinner /> : "Submit Lens Profiles"}
+                  </button>
                 </div>
               </>
             ) : (
