@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { Router } from "next/router";
+import { Router, useRouter } from "next/router";
 import { ReactElement, useEffect, useRef, useState } from "react";
 import { Address, useAccount, useSignMessage } from "wagmi";
 import { createProfile } from "../../../api/lens/createProfile";
@@ -40,6 +40,7 @@ export default function Social({
   query: Router["query"];
   space: Space;
 }) {
+  const router = useRouter();
   const { appSocialsContract } = useAppContract();
 
   const { address } = useAccount();
@@ -136,6 +137,9 @@ export default function Social({
           `No create profile response from lens received. Please try to login again.`,
         );
       }
+
+      // TODO: Find a way to refresh profile data
+      router.reload();
     } catch (error: any) {
       console.error(
         `An error occured while creating the lense profile. Please try again: ${error.message}`,
@@ -156,12 +160,49 @@ export default function Social({
       await appSocialsContract?.createSocial(space.id, lensWallet, lensProfile);
 
       console.log(`Successfully set the lens profiles`);
+
+      // TODO: Find a way to refresh profile data
+      router.reload();
     } catch (e: any) {
       console.error(
         `An error occurred setting the profiles for lens ${e.message}`,
       );
     } finally {
       setIsloading(false);
+    }
+  }
+
+  async function onDeleteLensProfile() {
+    if (!selectedProfile) return;
+
+    try {
+      await lensAuthenticationIfNeeded(
+        socialDetails?.lensWallet as Address,
+        signMessageAsync,
+      );
+      deleteProfile({ profileId: selectedProfile.id });
+    } catch (e: any) {
+      console.error(
+        `An error occured deleting the profile. Please try again: ${e.message}`,
+      );
+    }
+  }
+
+  async function onSetDefaultLensProfile() {
+    if (!selectedProfile) return;
+
+    try {
+      await lensAuthenticationIfNeeded(
+        socialDetails?.lensWallet as Address,
+        signMessageAsync,
+      );
+      setDefaultProfile({
+        profileId: selectedProfile.id,
+      });
+    } catch (e: any) {
+      console.error(
+        `An error occured selecting the default profile. Please try again: ${e.message}`,
+      );
     }
   }
 
@@ -400,44 +441,14 @@ export default function Social({
                       <div className="ml-4">
                         <button
                           className="border-red-500 text-red-500 disabled:opacity-20 border-2 rounded-md px-2 py-2"
-                          onClick={async () => {
-                            if (!selectedProfile) return;
-
-                            try {
-                              await lensAuthenticationIfNeeded(
-                                socialDetails?.lensWallet as Address,
-                                signMessageAsync,
-                              );
-                              deleteProfile({ profileId: selectedProfile.id });
-                            } catch (e: any) {
-                              console.error(
-                                `An error occured deleting the profile. Please try again: ${e.message}`,
-                              );
-                            }
-                          }}
+                          onClick={onDeleteLensProfile}
                           disabled={!selectedProfile}
                         >
                           Delete Profile
                         </button>
                         <button
                           className="ml-4 border-violet-600 text-violet-600 disabled:opacity-20  border-2 rounded-md px-2 py-2"
-                          onClick={async () => {
-                            if (!selectedProfile) return;
-
-                            try {
-                              await lensAuthenticationIfNeeded(
-                                socialDetails?.lensWallet as Address,
-                                signMessageAsync,
-                              );
-                              setDefaultProfile({
-                                profileId: selectedProfile.id,
-                              });
-                            } catch (e: any) {
-                              console.error(
-                                `An error occured selecting the default profile. Please try again: ${e.message}`,
-                              );
-                            }
-                          }}
+                          onClick={onSetDefaultLensProfile}
                           disabled={!selectedProfile}
                         >
                           Set To Default Profile
