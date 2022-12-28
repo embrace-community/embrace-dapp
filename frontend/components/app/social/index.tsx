@@ -47,10 +47,15 @@ export default function Social({
 
   const [pageState, setPageState] = useState(PageState.Publications);
 
+  // profile management
+  const [lensWallet, setLensWallet] = useState("");
+  const [lensProfile, setLensProfile] = useState("");
+
   // const [currentPage, setCurrentPage] = useState(1);
   const [profileName, setProfileName] = useState("");
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
+  // publication management
   const [writePost, setWritePost] = useState(false);
   const [post, setPost] = useState(postInitialState);
   const [postError, setPostError] = useState({
@@ -59,11 +64,8 @@ export default function Social({
     erc20EncryptToken: false,
   });
 
-  const [lensWallet, setLensWallet] = useState("");
-  const [lensProfile, setLensProfile] = useState("");
-
+  // general
   const [isLoading, setIsloading] = useState(false);
-
   const [socialDetails, setSocialDetails] = useState<SpaceSocial>();
 
   useEffect(() => {
@@ -79,16 +81,14 @@ export default function Social({
 
   const createdProfile = useRef("");
 
-  // const lensDefaultProfileId = space.loadedMetadata?.lensDefaultProfileId || "";
-  // const lensWallet: Address = space.loadedMetadata?.lensWallet || space.founder;
-
   const isLensPublisher =
     socialDetails?.lensWallet && address === socialDetails?.lensWallet;
 
   const ownedBy = [address];
   if (
     socialDetails?.lensWallet &&
-    socialDetails?.lensWallet !== ethers.constants.AddressZero
+    socialDetails?.lensWallet !== ethers.constants.AddressZero &&
+    socialDetails?.lensWallet !== address
   ) {
     ownedBy.push(socialDetails.lensWallet as Address);
   }
@@ -103,7 +103,7 @@ export default function Social({
   // a default lens profile which he uses for publishing
   const defaultProfile = useGetDefaultProfile({
     ethereumAddress: address, // socialDetails.lensWallet,
-    shouldSkip: !!socialDetails?.lensDefaultProfileId,
+    // shouldSkip: !!socialDetails?.lensDefaultProfileId,
   });
 
   console.log("defaultProfile", defaultProfile);
@@ -136,10 +136,6 @@ export default function Social({
           `No create profile response from lens received. Please try to login again.`,
         );
       }
-
-      await setDefaultProfile({ profileId: profileName });
-
-      createdProfile.current = profileName;
     } catch (error: any) {
       console.error(
         `An error occured while creating the lense profile. Please try again: ${error.message}`,
@@ -310,117 +306,16 @@ export default function Social({
             {isLensPublisher || address === space.founder ? (
               <>
                 <div>
-                  <h3>Current default profile</h3>
-
-                  <input
-                    type="text"
-                    className="mt-2 w-72 block bg-transparent text-gray-400 rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                    value={`${defaultProfile?.handle} - ${defaultProfile?.id}`}
-                    disabled
-                  />
-                </div>
-
-                <div className="mt-8">
-                  <h3>Create new profile</h3>
-                  <div className="flex items-center rounded-md mt-2">
-                    <input
-                      type="text"
-                      className="w-72 block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                      placeholder="The name of your new lens profile"
-                      onChange={(e) => setProfileName(e.target.value)}
-                      value={profileName}
-                    />
-                    <button
-                      className="ml-4 border-violet-600 text-violet-600 disabled:opacity-20  border-2 rounded-md px-2 py-2"
-                      onClick={() => createLensProfile()}
-                      disabled={!profileName || isLoading}
-                    >
-                      {isLoading ? <Spinner /> : "Create Profile"}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="mt-8">
-                  <h3>Modify existing profiles</h3>
-                  <div className="mt-4 flex items-center">
-                    <DropDown
-                      title={
-                        selectedProfile
-                          ? `${selectedProfile.handle} - ${selectedProfile.id}`
-                          : "Select Profile"
-                      }
-                      items={profiles?.items?.map((profile: Profile) => {
-                        return (
-                          <div
-                            key={profile.id}
-                          >{`${profile.handle} - ${profile.id}`}</div>
-                        );
-                      })}
-                      onSelectItem={(id) => {
-                        setSelectedProfile(
-                          profiles?.items.find(
-                            (profile: Profile) => profile.id === id,
-                          ) as Profile,
-                        );
-                      }}
-                    />
-
-                    <div className="ml-4">
-                      <button
-                        className="border-red-500 text-red-500 disabled:opacity-20 border-2 rounded-md px-2 py-2"
-                        onClick={async () => {
-                          if (!selectedProfile) return;
-
-                          try {
-                            await lensAuthenticationIfNeeded(
-                              socialDetails?.lensWallet,
-                              signMessageAsync,
-                            );
-                            deleteProfile({ profileId: selectedProfile.id });
-                          } catch (e: any) {
-                            console.error(
-                              `An error occured deleting the profile. Please try again: ${e.message}`,
-                            );
-                          }
-                        }}
-                        disabled={!selectedProfile}
-                      >
-                        Delete Profile
-                      </button>
-                      <button
-                        className="ml-4 border-violet-600 text-violet-600 disabled:opacity-20  border-2 rounded-md px-2 py-2"
-                        onClick={async () => {
-                          if (!selectedProfile) return;
-
-                          try {
-                            await lensAuthenticationIfNeeded(
-                              socialDetails?.lensWallet,
-                              signMessageAsync,
-                            );
-                            setDefaultProfile({
-                              profileId: selectedProfile.id,
-                            });
-                          } catch (e: any) {
-                            console.error(
-                              `An error occured selecting the default profile. Please try again: ${e.message}`,
-                            );
-                          }
-                        }}
-                        disabled={!selectedProfile}
-                      >
-                        Set To Default Profile
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8">
-                  <h3>Set Social Default Profiles</h3>
+                  <h3 className="text-xl">Set Social Default Profiles</h3>
 
                   <input
                     type="text"
                     className="mt-2 w-1/2 block rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
-                    placeholder="Wallet Address"
+                    placeholder={
+                      socialDetails?.lensWallet
+                        ? socialDetails?.lensWallet
+                        : "Wallet Address"
+                    }
                     value={lensWallet}
                     onChange={(e) => setLensWallet(e.target.value)}
                   />
@@ -428,7 +323,11 @@ export default function Social({
                   <input
                     type="text"
                     className="mt-2 w-1/2 block rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
-                    placeholder="Lens Handle"
+                    placeholder={
+                      socialDetails?.lensDefaultProfileId
+                        ? socialDetails?.lensDefaultProfileId
+                        : "Lens Profile Id (0x...)"
+                    }
                     value={lensProfile}
                     onChange={(e) => setLensProfile(e.target.value)}
                   />
@@ -440,6 +339,112 @@ export default function Social({
                   >
                     {isLoading ? <Spinner /> : "Submit Lens Profiles"}
                   </button>
+                </div>
+
+                <div className="mt-8">
+                  <h3 className="text-xl">Lens profile management</h3>
+
+                  <h4 className="text-md mt-4">Current default profile</h4>
+                  <input
+                    type="text"
+                    className="mt-2 w-72 block bg-transparent text-gray-400 rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+                    value={`${defaultProfile?.handle} - ${defaultProfile?.id}`}
+                    disabled
+                  />
+
+                  <div className="mt-4">
+                    <h4 className="text-md">Create new profile</h4>
+                    <div className="flex items-center rounded-md">
+                      <input
+                        type="text"
+                        className="w-72 block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+                        placeholder="The name of your new lens profile"
+                        onChange={(e) => setProfileName(e.target.value)}
+                        value={profileName}
+                      />
+                      <button
+                        className="ml-4 min-w-[10rem] border-violet-600 text-violet-600 disabled:opacity-20  border-2 rounded-md px-2 py-2"
+                        onClick={() => createLensProfile()}
+                        disabled={!profileName || isLoading}
+                      >
+                        {isLoading ? <Spinner /> : "Create Profile"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <h4 className="text-md">Modify existing profiles</h4>
+                    <div className="mt-2 flex items-center">
+                      <DropDown
+                        title={
+                          selectedProfile
+                            ? `${selectedProfile.handle} - ${selectedProfile.id}`
+                            : "Select Profile"
+                        }
+                        items={profiles?.items?.map((profile: Profile) => {
+                          return (
+                            <div
+                              key={profile.id}
+                            >{`${profile.handle} - ${profile.id}`}</div>
+                          );
+                        })}
+                        onSelectItem={(id) => {
+                          setSelectedProfile(
+                            profiles?.items.find(
+                              (profile: Profile) => profile.id === id,
+                            ) as Profile,
+                          );
+                        }}
+                      />
+
+                      <div className="ml-4">
+                        <button
+                          className="border-red-500 text-red-500 disabled:opacity-20 border-2 rounded-md px-2 py-2"
+                          onClick={async () => {
+                            if (!selectedProfile) return;
+
+                            try {
+                              await lensAuthenticationIfNeeded(
+                                socialDetails?.lensWallet as Address,
+                                signMessageAsync,
+                              );
+                              deleteProfile({ profileId: selectedProfile.id });
+                            } catch (e: any) {
+                              console.error(
+                                `An error occured deleting the profile. Please try again: ${e.message}`,
+                              );
+                            }
+                          }}
+                          disabled={!selectedProfile}
+                        >
+                          Delete Profile
+                        </button>
+                        <button
+                          className="ml-4 border-violet-600 text-violet-600 disabled:opacity-20  border-2 rounded-md px-2 py-2"
+                          onClick={async () => {
+                            if (!selectedProfile) return;
+
+                            try {
+                              await lensAuthenticationIfNeeded(
+                                socialDetails?.lensWallet as Address,
+                                signMessageAsync,
+                              );
+                              setDefaultProfile({
+                                profileId: selectedProfile.id,
+                              });
+                            } catch (e: any) {
+                              console.error(
+                                `An error occured selecting the default profile. Please try again: ${e.message}`,
+                              );
+                            }
+                          }}
+                          disabled={!selectedProfile}
+                        >
+                          Set To Default Profile
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </>
             ) : (
