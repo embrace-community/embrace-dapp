@@ -46,10 +46,7 @@ export default function SocialProfile({
   ) {
     ownedBy.push(socialDetails.lensWallet as Address);
   }
-  const profiles = useGetProfiles({
-    ownedBy,
-    shouldSkip: !isLensPublisher && address !== space.founder,
-  });
+  const { getProfiles, profiles } = useGetProfiles({ ownedBy });
 
   async function createLensProfile() {
     setIsloading(true);
@@ -68,8 +65,7 @@ export default function SocialProfile({
         );
       }
 
-      // TODO: Find a way to refresh profile data
-      router.reload();
+      getProfiles();
     } catch (error: any) {
       console.error(
         `An error occured while creating the lense profile. Please try again: ${error.message}`,

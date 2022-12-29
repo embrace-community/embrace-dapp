@@ -1,7 +1,13 @@
 import dynamic from "next/dynamic";
-import React from "react";
+import { useState } from "react";
+import { uuid } from "uuidv4";
 import { useAccount } from "wagmi";
-import { Publication } from "../../../types/lens-generated";
+import { createPost } from "../../../api/lens/createPost";
+import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
+import {
+  Publication,
+  PublicationMainFocus,
+} from "../../../types/lens-generated";
 import Button from "../../Button";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
@@ -17,10 +23,93 @@ export default function SocialPublications({
   space,
   post,
   setPost,
-  saveToIpfsAndCreatePost,
   publications,
+  defaultProfile,
 }) {
   const { address } = useAccount();
+
+  const [isLoading, setIsloading] = useState(false);
+
+  async function saveToIpfsAndCreatePost() {
+    if (!post.title || !post.content || !post.coverImage) {
+      return;
+    }
+
+    let ipfsResult: string;
+
+    try {
+      setIsloading(true);
+
+      ipfsResult = (await saveToIpfs(
+        {
+          version: "2.0.0",
+          mainContentFocus: PublicationMainFocus.TextOnly,
+          metadata_id: uuid(),
+          description: "Description",
+          locale: "en-US",
+          content: "Content",
+          external_url: null,
+          image: null,
+          imageMimeType: null,
+          name: "Name",
+          attributes: [],
+          tags: ["using_api_examples"],
+          appId: "api_examples_github",
+        },
+        post.title,
+      )) as string;
+
+      console.log("create post: ipfs result", ipfsResult);
+    } catch (err: any) {
+      setIsloading(false);
+      console.error(
+        `An error occurred saving post data to IPFS, ${err.message}`,
+      );
+      return;
+    }
+
+    try {
+      // hard coded to make the code example clear
+      const createPostRequest = {
+        profileId: defaultProfile?.id,
+        contentURI: `ipfs://${ipfsResult}`,
+        collectModule: {
+          // feeCollectModule: {
+          //   amount: {
+          //     currency: currencies.enabledModuleCurrencies.map(
+          //       (c: any) => c.address
+          //     )[0],
+          //     value: '0.000001',
+          //   },
+          //   recipient: address,
+          //   referralFee: 10.5,
+          // },
+          // revertCollectModule: true,
+          freeCollectModule: { followerOnly: true },
+          // limitedFeeCollectModule: {
+          //   amount: {
+          //     currency: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
+          //     value: '2',
+          //   },
+          //   collectLimit: '20000',
+          //   recipient: '0x3A5bd1E37b099aE3386D13947b6a90d97675e5e3',
+          //   referralFee: 0,
+          // },
+        },
+        referenceModule: {
+          followerOnlyReferenceModule: false,
+        },
+      };
+
+      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
+
+      createPost(createPostRequest);
+    } catch (err: any) {
+      console.error(`An error occurred creating the post on lens`);
+    } finally {
+      setIsloading(false);
+    }
+  }
 
   return (
     <>

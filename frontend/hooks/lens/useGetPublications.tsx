@@ -1,5 +1,5 @@
 import { gql, useLazyQuery } from "@apollo/client";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   PaginatedPublicationResult,
   PublicationsQuery,
@@ -13,8 +13,8 @@ function useGetPublications(reqParams: PublicationsQueryRequest) {
     ...reqParams,
   };
 
-  const [getPublications, pubProps] = useLazyQuery<
-    { publications: { data: PaginatedPublicationResult } },
+  const [getPublications, publicationsProps] = useLazyQuery<
+    PublicationsQuery,
     { request: PublicationsQueryRequest }
   >(GET_PUBLICATIONS, {
     variables: { request },
@@ -25,7 +25,13 @@ function useGetPublications(reqParams: PublicationsQueryRequest) {
     getPublications();
   }, [getPublications]);
 
-  return { getPublications, ...pubProps };
+  return {
+    getPublications,
+    ...publicationsProps,
+    publications: publicationsProps.data?.publications as
+      | PaginatedPublicationResult
+      | undefined,
+  };
 }
 
 const GET_PUBLICATIONS = gql`
