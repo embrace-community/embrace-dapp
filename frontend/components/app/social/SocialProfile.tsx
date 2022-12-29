@@ -9,6 +9,7 @@ import { Profile } from "../../../types/lens-generated";
 import Button from "../../Button";
 import DropDown from "../../DropDown";
 import Spinner from "../../Spinner";
+import { useAppContract } from "../../../hooks/useEmbraceContracts";
 
 export default function SocialProfile({
   isLensPublisher,
@@ -20,20 +21,18 @@ export default function SocialProfile({
   setLensWallet,
   lensProfile,
   setLensProfile,
-  onSetLensProfile,
-  //   isLoading,
   defaultProfile,
   setProfileName,
   profileName,
-  //   createLensProfile,
   selectedProfile,
-  //   profiles,
   setSelectedProfile,
   onDeleteLensProfile,
   onSetDefaultLensProfile,
+  getSocials,
 }) {
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
+  const { appSocialsContract } = useAppContract();
 
   const router = useRouter();
 
@@ -74,6 +73,28 @@ export default function SocialProfile({
     } catch (error: any) {
       console.error(
         `An error occured while creating the lense profile. Please try again: ${error.message}`,
+      );
+    } finally {
+      setIsloading(false);
+    }
+  }
+
+  async function onSetLensProfile() {
+    if (!lensWallet || !lensProfile || address !== space.founder) {
+      return;
+    }
+
+    try {
+      setIsloading(true);
+
+      await appSocialsContract?.createSocial(space.id, lensWallet, lensProfile);
+
+      console.log(`Successfully set the lens profiles`);
+
+      getSocials();
+    } catch (e: any) {
+      console.error(
+        `An error occurred setting the profiles for lens ${e.message}`,
       );
     } finally {
       setIsloading(false);

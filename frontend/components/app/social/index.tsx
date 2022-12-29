@@ -1,25 +1,17 @@
-import dynamic from "next/dynamic";
 import { Router, useRouter } from "next/router";
-import { ReactElement, useEffect, useRef, useState } from "react";
+import { ReactElement, useCallback, useEffect, useState } from "react";
 import { Address, useAccount, useSignMessage } from "wagmi";
-import { createProfile } from "../../../api/lens/createProfile";
 import { deleteProfile } from "../../../api/lens/deleteProfile";
 import { setDefaultProfile } from "../../../api/lens/setDefaultProfile";
 import useGetDefaultProfile from "../../../hooks/lens/useGetDefaultProfile";
-import useGetProfiles from "../../../hooks/lens/useGetProfiles";
 import useGetPublications from "../../../hooks/lens/useGetPublications";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
-import {
-  Profile,
-  Publication,
-  PublicationMainFocus,
-} from "../../../types/lens-generated";
+import { Profile, PublicationMainFocus } from "../../../types/lens-generated";
 import { Space } from "../../../types/space";
 import "easymde/dist/easymde.min.css";
 import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
 import { SpaceSocial } from "../../../types/social";
-import { ethers } from "ethers";
 import { uuid } from "uuidv4";
 import { createPost } from "../../../api/lens/createPost";
 import SocialPublications from "./SocialPublications";
@@ -68,7 +60,7 @@ export default function Social({
   const [isLoading, setIsloading] = useState(false);
   const [socialDetails, setSocialDetails] = useState<SpaceSocial>();
 
-  useEffect(() => {
+  const getSocials = useCallback(() => {
     appSocialsContract
       ?.getSocial(space.id)
       ?.then((socials) => setSocialDetails(socials as SpaceSocial))
@@ -78,6 +70,10 @@ export default function Social({
         ),
       );
   }, [appSocialsContract, space.id]);
+
+  useEffect(() => {
+    getSocials();
+  }, [getSocials]);
 
   const isLensPublisher =
     socialDetails?.lensWallet && address === socialDetails?.lensWallet;
@@ -95,29 +91,6 @@ export default function Social({
     profileId: socialDetails?.lensDefaultProfileId,
     // limit: 10,
   });
-
-  async function onSetLensProfile() {
-    if (!lensWallet || !lensProfile || address !== space.founder) {
-      return;
-    }
-
-    try {
-      setIsloading(true);
-
-      await appSocialsContract?.createSocial(space.id, lensWallet, lensProfile);
-
-      console.log(`Successfully set the lens profiles`);
-
-      // TODO: Find a way to refresh profile data
-      router.reload();
-    } catch (e: any) {
-      console.error(
-        `An error occurred setting the profiles for lens ${e.message}`,
-      );
-    } finally {
-      setIsloading(false);
-    }
-  }
 
   async function onDeleteLensProfile() {
     if (!selectedProfile) return;
@@ -264,17 +237,14 @@ export default function Social({
               setLensWallet,
               lensProfile,
               setLensProfile,
-              onSetLensProfile,
-              // isLoading,
               defaultProfile,
               setProfileName,
               profileName,
-              // createLensProfile,
               selectedProfile,
-              // profiles,
               setSelectedProfile,
               onDeleteLensProfile,
               onSetDefaultLensProfile,
+              getSocials,
             }}
           />
         );
