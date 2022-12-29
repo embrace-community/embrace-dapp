@@ -9,22 +9,21 @@ import useGetDefaultProfile from "../../../hooks/lens/useGetDefaultProfile";
 import useGetProfiles from "../../../hooks/lens/useGetProfiles";
 import useGetPublications from "../../../hooks/lens/useGetPublications";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
-import { Profile, Publication } from "../../../types/lens-generated";
+import {
+  Profile,
+  Publication,
+  PublicationMainFocus,
+} from "../../../types/lens-generated";
 import { Space } from "../../../types/space";
-import Button from "../../Button";
-import DropDown from "../../DropDown";
-import Spinner from "../../Spinner";
 import "easymde/dist/easymde.min.css";
 import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
-import useEmbraceContracts, {
-  useAppContract,
-} from "../../../hooks/useEmbraceContracts";
+import { useAppContract } from "../../../hooks/useEmbraceContracts";
 import { SpaceSocial } from "../../../types/social";
 import { ethers } from "ethers";
-
-const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
-  ssr: false,
-});
+import { uuid } from "uuidv4";
+import { createPost } from "../../../api/lens/createPost";
+import SocialPublications from "./SocialPublications";
+import SocialProfile from "./SocialProfile";
 
 enum PageState {
   Publications = "publications",
@@ -122,10 +121,7 @@ export default function Social({
     setIsloading(true);
 
     try {
-      await lensAuthenticationIfNeeded(
-        socialDetails?.lensWallet as Address,
-        signMessageAsync,
-      );
+      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
 
       const createdProfileTx = await createProfile({
         handle: profileName,
@@ -176,10 +172,7 @@ export default function Social({
     if (!selectedProfile) return;
 
     try {
-      await lensAuthenticationIfNeeded(
-        socialDetails?.lensWallet as Address,
-        signMessageAsync,
-      );
+      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
       deleteProfile({ profileId: selectedProfile.id });
     } catch (e: any) {
       console.error(
@@ -192,10 +185,7 @@ export default function Social({
     if (!selectedProfile) return;
 
     try {
-      await lensAuthenticationIfNeeded(
-        socialDetails?.lensWallet as Address,
-        signMessageAsync,
-      );
+      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
       setDefaultProfile({
         profileId: selectedProfile.id,
       });
@@ -206,63 +196,86 @@ export default function Social({
     }
   }
 
-  async function createPost() {
-    console.log("asdf");
-    // const ipfsResult = await saveToIpfs({
-    //   version: "2.0.0",
-    //   mainContentFocus: PublicationMainFocus.TEXT_ONLY,
-    //   metadata_id: uuidv4(),
-    //   description: "Description",
-    //   locale: "en-US",
-    //   content: "Content",
-    //   external_url: null,
-    //   image: null,
-    //   imageMimeType: null,
-    //   name: "Name",
-    //   attributes: [],
-    //   tags: ["using_api_examples"],
-    //   appId: "api_examples_github",
-    // });
-    // console.log("create post: ipfs result", ipfsResult);
-    // // hard coded to make the code example clear
-    // const createPostRequest = {
-    //   profileId: defaultProfile?.id,
-    //   contentURI: `ipfs://${ipfsResult.path}`,
-    //   collectModule: {
-    //     // feeCollectModule: {
-    //     //   amount: {
-    //     //     currency: currencies.enabledModuleCurrencies.map(
-    //     //       (c: any) => c.address
-    //     //     )[0],
-    //     //     value: '0.000001',
-    //     //   },
-    //     //   recipient: address,
-    //     //   referralFee: 10.5,
-    //     // },
-    //     // revertCollectModule: true,
-    //     freeCollectModule: { followerOnly: true },
-    //     // limitedFeeCollectModule: {
-    //     //   amount: {
-    //     //     currency: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
-    //     //     value: '2',
-    //     //   },
-    //     //   collectLimit: '20000',
-    //     //   recipient: '0x3A5bd1E37b099aE3386D13947b6a90d97675e5e3',
-    //     //   referralFee: 0,
-    //     // },
-    //   },
-    //   referenceModule: {
-    //     followerOnlyReferenceModule: false,
-    //   },
-    // };
+  async function saveToIpfsAndCreatePost() {
+    if (!post.title || !post.content || !post.coverImage) {
+      return;
+    }
+
+    let ipfsResult: string;
+
+    try {
+      setIsloading(true);
+
+      ipfsResult = (await saveToIpfs(
+        {
+          version: "2.0.0",
+          mainContentFocus: PublicationMainFocus.TextOnly,
+          metadata_id: uuid(),
+          description: "Description",
+          locale: "en-US",
+          content: "Content",
+          external_url: null,
+          image: null,
+          imageMimeType: null,
+          name: "Name",
+          attributes: [],
+          tags: ["using_api_examples"],
+          appId: "api_examples_github",
+        },
+        post.title,
+      )) as string;
+
+      console.log("create post: ipfs result", ipfsResult);
+    } catch (err: any) {
+      setIsloading(false);
+      console.error(
+        `An error occurred saving post data to IPFS, ${err.message}`,
+      );
+      return;
+    }
+
+    try {
+      // hard coded to make the code example clear
+      const createPostRequest = {
+        profileId: defaultProfile?.id,
+        contentURI: `ipfs://${ipfsResult}`,
+        collectModule: {
+          // feeCollectModule: {
+          //   amount: {
+          //     currency: currencies.enabledModuleCurrencies.map(
+          //       (c: any) => c.address
+          //     )[0],
+          //     value: '0.000001',
+          //   },
+          //   recipient: address,
+          //   referralFee: 10.5,
+          // },
+          // revertCollectModule: true,
+          freeCollectModule: { followerOnly: true },
+          // limitedFeeCollectModule: {
+          //   amount: {
+          //     currency: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
+          //     value: '2',
+          //   },
+          //   collectLimit: '20000',
+          //   recipient: '0x3A5bd1E37b099aE3386D13947b6a90d97675e5e3',
+          //   referralFee: 0,
+          // },
+        },
+        referenceModule: {
+          followerOnlyReferenceModule: false,
+        },
+      };
+
+      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
+
+      createPost(createPostRequest);
+    } catch (err: any) {
+      console.error(`An error occurred creating the post on lens`);
+    } finally {
+      setIsloading(false);
+    }
   }
-
-  // publish new metadata if user has a new default Profile
-  // useEffect(() => {
-  // if(space.loadedMetadata && )
-  // }, []);
-
-  console.log("post", post);
 
   function showContent() {
     let content: ReactElement | null = null;
@@ -270,229 +283,49 @@ export default function Social({
     switch (pageState) {
       case PageState.Publications:
         content = (
-          <>
-            <div className="flex justify-between">
-              {isLensPublisher && (
-                <Button
-                  additionalClassName="p-2"
-                  buttonProps={{
-                    onClick: () => {
-                      setWritePost((prevState) => !prevState);
-                    },
-                  }}
-                >
-                  {writePost ? "Hide Post" : "Write Post"}
-                </Button>
-              )}
-
-              {(isLensPublisher || address === space.founder) && (
-                <Button
-                  additionalClassName="p-2 ml-auto"
-                  buttonProps={{
-                    onClick: () => setPageState(PageState.Profile),
-                  }}
-                >
-                  Manage Profile
-                </Button>
-              )}
-            </div>
-
-            {isLensPublisher && writePost && (
-              <div className="mt-4">
-                <input
-                  type="text"
-                  value={post.title}
-                  onChange={(e) => setPost({ ...post, title: e.target.value })}
-                  placeholder="Post title"
-                  className="my-3 w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
-                />
-
-                <input
-                  type="text"
-                  value={post.title}
-                  onChange={(e) => setPost({ ...post, coverImage: e.target.value })}
-                  placeholder="Post cover image"
-                  className="mt-2 mb-5 w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
-                />
-
-                <SimpleMDE
-                  placeholder="What's on your mind?"
-                  value={post.content}
-                  onChange={(value: string) =>
-                    setPost({ ...post, content: value })
-                  }
-                />
-              </div>
-            )}
-
-            {isLensPublisher && writePost && (
-              <Button
-                additionalClassName="p-2 float-right"
-                buttonProps={{
-                  onClick: createPost,
-                  disabled: !post.content || !isLensPublisher,
-                }}
-              >
-                Publish
-              </Button>
-            )}
-
-            <div className="mt-8">
-              <h3>Posts</h3>
-
-              <div className="mt-6">
-                {publications?.items?.length === 0 && (
-                  <div>No posts so far...</div>
-                )}
-
-                {publications?.items?.map((item: Publication) => {
-                  return (
-                    <div
-                      key={item.id}
-                      className="rounded-lg border-gray-400 border-2 mt-2"
-                    >
-                      {item.metadata?.name} -{" "}
-                      {item?.createdAt &&
-                        new Date(item.createdAt).toLocaleString()}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </>
+          <SocialPublications
+            {...{
+              isLensPublisher,
+              setWritePost,
+              writePost,
+              PageState,
+              setPageState,
+              space,
+              post,
+              setPost,
+              saveToIpfsAndCreatePost,
+              publications,
+            }}
+          />
         );
         break;
 
       case PageState.Profile:
         content = (
-          <>
-            <Button
-              additionalClassName="p-2 float-right"
-              buttonProps={{
-                onClick: () => setPageState(PageState.Publications),
-              }}
-            >
-              See Publications
-            </Button>
-
-            {isLensPublisher || address === space.founder ? (
-              <>
-                <div>
-                  <h3 className="text-xl">Set Social Default Profiles</h3>
-
-                  <input
-                    type="text"
-                    className="mt-2 w-1/2 block rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
-                    placeholder={
-                      socialDetails?.lensWallet
-                        ? socialDetails?.lensWallet
-                        : "Wallet Address"
-                    }
-                    value={lensWallet}
-                    onChange={(e) => setLensWallet(e.target.value)}
-                  />
-
-                  <input
-                    type="text"
-                    className="mt-2 w-1/2 block rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
-                    placeholder={
-                      socialDetails?.lensDefaultProfileId
-                        ? socialDetails?.lensDefaultProfileId
-                        : "Lens Profile Id (0x...)"
-                    }
-                    value={lensProfile}
-                    onChange={(e) => setLensProfile(e.target.value)}
-                  />
-
-                  <button
-                    className="mt-4 min-w-[10rem] block border-violet-600 text-violet-600 disabled:opacity-20 border-2 rounded-md px-2 py-2"
-                    onClick={onSetLensProfile}
-                    disabled={!lensProfile || !lensWallet}
-                  >
-                    {isLoading ? <Spinner /> : "Submit Lens Profiles"}
-                  </button>
-                </div>
-
-                <div className="mt-8">
-                  <h3 className="text-xl">Lens profile management</h3>
-
-                  <h4 className="text-md mt-4">Current default profile</h4>
-                  <input
-                    type="text"
-                    className="mt-2 w-72 block bg-transparent text-gray-400 rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                    value={`${defaultProfile?.handle} - ${defaultProfile?.id}`}
-                    disabled
-                  />
-
-                  <div className="mt-4">
-                    <h4 className="text-md">Create new profile</h4>
-                    <div className="flex items-center rounded-md">
-                      <input
-                        type="text"
-                        className="w-72 block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                        placeholder="The name of your new lens profile"
-                        onChange={(e) => setProfileName(e.target.value)}
-                        value={profileName}
-                      />
-                      <button
-                        className="ml-4 min-w-[10rem] border-violet-600 text-violet-600 disabled:opacity-20  border-2 rounded-md px-2 py-2"
-                        onClick={() => createLensProfile()}
-                        disabled={!profileName || isLoading}
-                      >
-                        {isLoading ? <Spinner /> : "Create Profile"}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <h4 className="text-md">Modify existing profiles</h4>
-                    <div className="mt-2 flex items-center">
-                      <DropDown
-                        title={
-                          selectedProfile
-                            ? `${selectedProfile.handle} - ${selectedProfile.id}`
-                            : "Select Profile"
-                        }
-                        items={profiles?.items?.map((profile: Profile) => {
-                          return (
-                            <div
-                              key={profile.id}
-                            >{`${profile.handle} - ${profile.id}`}</div>
-                          );
-                        })}
-                        onSelectItem={(id) => {
-                          setSelectedProfile(
-                            profiles?.items.find(
-                              (profile: Profile) => profile.id === id,
-                            ) as Profile,
-                          );
-                        }}
-                      />
-
-                      <div className="ml-4">
-                        <button
-                          className="border-red-500 text-red-500 disabled:opacity-20 border-2 rounded-md px-2 py-2"
-                          onClick={onDeleteLensProfile}
-                          disabled={!selectedProfile}
-                        >
-                          Delete Profile
-                        </button>
-                        <button
-                          className="ml-4 border-violet-600 text-violet-600 disabled:opacity-20  border-2 rounded-md px-2 py-2"
-                          onClick={onSetDefaultLensProfile}
-                          disabled={!selectedProfile}
-                        >
-                          Set To Default Profile
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div>You are no publisher for this space</div>
-            )}
-          </>
+          <SocialProfile
+            {...{
+              isLensPublisher,
+              setPageState,
+              PageState,
+              space,
+              socialDetails,
+              lensWallet,
+              setLensWallet,
+              lensProfile,
+              setLensProfile,
+              onSetLensProfile,
+              isLoading,
+              defaultProfile,
+              setProfileName,
+              profileName,
+              createLensProfile,
+              selectedProfile,
+              profiles,
+              setSelectedProfile,
+              onDeleteLensProfile,
+              onSetDefaultLensProfile,
+            }}
+          />
         );
         break;
       default:
