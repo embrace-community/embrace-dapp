@@ -3,7 +3,6 @@ import { Router } from "next/router";
 import { ReactElement, useCallback, useEffect, useState } from "react";
 import { Address, useAccount, useSignMessage } from "wagmi";
 import { deleteProfile } from "../../../api/lens/deleteProfile";
-import { setDefaultProfile } from "../../../api/lens/setDefaultProfile";
 import useGetDefaultProfile from "../../../hooks/lens/useGetDefaultProfile";
 import useGetPublications from "../../../hooks/lens/useGetPublications";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
@@ -12,11 +11,13 @@ import { Profile } from "../../../types/lens-generated";
 import { SpaceSocial } from "../../../types/social";
 import { Space } from "../../../types/space";
 import SocialProfile from "./SocialProfile";
+import SocialPublicationDetail from "./SocialPublicationDetail";
 import SocialPublications from "./SocialPublications";
 
-enum PageState {
+export enum PageState {
   Publications = "publications",
   Profile = "profile",
+  PublicationDetail = "publication_detail",
 }
 
 const postInitialState = { title: "", content: "", coverImage: "" };
@@ -33,7 +34,10 @@ export default function Social({
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
 
-  const [pageState, setPageState] = useState(PageState.Publications);
+  const [pageState, setPageState] = useState({
+    type: PageState.Publications,
+    data: "",
+  });
 
   // profile management
   const [lensWallet, setLensWallet] = useState("");
@@ -96,25 +100,12 @@ export default function Social({
     }
   }
 
-  async function onSetDefaultLensProfile() {
-    if (!selectedProfile) return;
-
-    try {
-      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
-      setDefaultProfile({
-        profileId: selectedProfile.id,
-      });
-    } catch (e: any) {
-      console.error(
-        `An error occured selecting the default profile. Please try again: ${e.message}`,
-      );
-    }
-  }
+  console.log("publications", publications);
 
   function showContent() {
     let content: ReactElement | null = null;
 
-    switch (pageState) {
+    switch (pageState.type) {
       case PageState.Publications:
         content = (
           <SocialPublications
@@ -122,7 +113,6 @@ export default function Social({
               isLensPublisher,
               setWritePost,
               writePost,
-              PageState,
               setPageState,
               space,
               post,
@@ -140,7 +130,6 @@ export default function Social({
             {...{
               isLensPublisher,
               setPageState,
-              PageState,
               space,
               socialDetails,
               lensWallet,
@@ -153,8 +142,21 @@ export default function Social({
               selectedProfile,
               setSelectedProfile,
               onDeleteLensProfile,
-              onSetDefaultLensProfile,
               getSocials,
+            }}
+          />
+        );
+        break;
+
+      case PageState.PublicationDetail:
+        content = (
+          <SocialPublicationDetail
+            {...{
+              pageState,
+              setPageState,
+              publication: publications?.items?.find(
+                (publication) => publication.id === pageState.data,
+              ),
             }}
           />
         );

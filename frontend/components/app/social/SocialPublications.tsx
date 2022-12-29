@@ -1,8 +1,10 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { uuid } from "uuidv4";
-import { useAccount } from "wagmi";
+import { Address, useAccount, useSignMessage } from "wagmi";
+import { PageState } from ".";
 import { createPost } from "../../../api/lens/createPost";
+import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
 import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
 import {
   Publication,
@@ -18,7 +20,6 @@ export default function SocialPublications({
   isLensPublisher,
   setWritePost,
   writePost,
-  PageState,
   setPageState,
   space,
   post,
@@ -27,6 +28,7 @@ export default function SocialPublications({
   defaultProfile,
 }) {
   const { address } = useAccount();
+  const { signMessageAsync } = useSignMessage();
 
   const [isLoading, setIsloading] = useState(false);
 
@@ -131,7 +133,8 @@ export default function SocialPublications({
           <Button
             additionalClassName="p-2 ml-auto"
             buttonProps={{
-              onClick: () => setPageState(PageState.Profile),
+              onClick: () =>
+                setPageState({ type: PageState.Profile, data: "" }),
             }}
           >
             Manage Profile
@@ -180,17 +183,25 @@ export default function SocialPublications({
       <div className="mt-8">
         <h3>Posts</h3>
 
-        <div className="mt-6">
+        <div className="mt-6 mx-auto max-w-xl">
           {publications?.items?.length === 0 && <div>No posts so far...</div>}
 
           {publications?.items?.map((item: Publication) => {
             return (
               <div
                 key={item.id}
-                className="rounded-lg border-gray-400 border-2 mt-2"
+                className="flex justify-between rounded-lg border-gray-400 border-2 mt-2 p-4 cursor-pointer shadow-xl motion-safe:hover:scale-105"
+                onClick={() =>
+                  setPageState({
+                    type: PageState.PublicationDetail,
+                    data: item.id,
+                  })
+                }
               >
-                {item.metadata?.name} -{" "}
-                {item?.createdAt && new Date(item.createdAt).toLocaleString()}
+                <span>{item.metadata?.name}</span>
+                <span>
+                  {item?.createdAt && new Date(item.createdAt).toLocaleString()}
+                </span>
               </div>
             );
           })}

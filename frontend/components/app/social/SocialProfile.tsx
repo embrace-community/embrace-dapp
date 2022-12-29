@@ -1,20 +1,21 @@
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Address, useAccount, useSignMessage } from "wagmi";
+import { PageState } from ".";
 import { createProfile } from "../../../api/lens/createProfile";
+import { setDefaultProfile } from "../../../api/lens/setDefaultProfile";
 import useGetProfiles from "../../../hooks/lens/useGetProfiles";
+import { useAppContract } from "../../../hooks/useEmbraceContracts";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
 import { Profile } from "../../../types/lens-generated";
 import Button from "../../Button";
 import DropDown from "../../DropDown";
 import Spinner from "../../Spinner";
-import { useAppContract } from "../../../hooks/useEmbraceContracts";
 
 export default function SocialProfile({
   isLensPublisher,
   setPageState,
-  PageState,
   space,
   socialDetails,
   lensWallet,
@@ -27,7 +28,6 @@ export default function SocialProfile({
   selectedProfile,
   setSelectedProfile,
   onDeleteLensProfile,
-  onSetDefaultLensProfile,
   getSocials,
 }) {
   const { address } = useAccount();
@@ -97,12 +97,28 @@ export default function SocialProfile({
     }
   }
 
+  async function onSetDefaultLensProfile() {
+    if (!selectedProfile) return;
+
+    try {
+      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
+      setDefaultProfile({
+        profileId: selectedProfile.id,
+      });
+    } catch (e: any) {
+      console.error(
+        `An error occured selecting the default profile. Please try again: ${e.message}`,
+      );
+    }
+  }
+
   return (
     <>
       <Button
         additionalClassName="p-2 float-right"
         buttonProps={{
-          onClick: () => setPageState(PageState.Publications),
+          onClick: () =>
+            setPageState({ type: PageState.Publications, data: "" }),
         }}
       >
         See Publications
