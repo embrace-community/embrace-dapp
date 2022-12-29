@@ -1,7 +1,9 @@
+import { ethers } from "ethers";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { Address, useAccount, useSignMessage } from "wagmi";
 import { createProfile } from "../../../api/lens/createProfile";
+import useGetProfiles from "../../../hooks/lens/useGetProfiles";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
 import { Profile } from "../../../types/lens-generated";
 import Button from "../../Button";
@@ -25,7 +27,7 @@ export default function SocialProfile({
   profileName,
   //   createLensProfile,
   selectedProfile,
-  profiles,
+  //   profiles,
   setSelectedProfile,
   onDeleteLensProfile,
   onSetDefaultLensProfile,
@@ -36,6 +38,19 @@ export default function SocialProfile({
   const router = useRouter();
 
   const [isLoading, setIsloading] = useState(false);
+
+  const ownedBy = [address];
+  if (
+    socialDetails?.lensWallet &&
+    socialDetails?.lensWallet !== ethers.constants.AddressZero &&
+    socialDetails?.lensWallet !== address
+  ) {
+    ownedBy.push(socialDetails.lensWallet as Address);
+  }
+  const profiles = useGetProfiles({
+    ownedBy,
+    shouldSkip: !isLensPublisher && address !== space.founder,
+  });
 
   async function createLensProfile() {
     setIsloading(true);
