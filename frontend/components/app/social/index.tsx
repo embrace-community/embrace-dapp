@@ -71,7 +71,7 @@ export default function Social({
   useEffect(() => {
     appSocialsContract
       ?.getSocial(space.id)
-      ?.then((socials) => setSocialDetails(socials))
+      ?.then((socials) => setSocialDetails(socials as SpaceSocial))
       ?.catch((e: any) =>
         console.error(
           `An error occurred fetchin the socials contract, ${e.message}`,
@@ -117,33 +117,33 @@ export default function Social({
     shouldSkip: !socialDetails?.lensDefaultProfileId && !defaultProfile,
   });
 
-  async function createLensProfile() {
-    setIsloading(true);
+  // async function createLensProfile() {
+  //   setIsloading(true);
 
-    try {
-      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
+  //   try {
+  //     await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
 
-      const createdProfileTx = await createProfile({
-        handle: profileName,
-        profilePictureUri: "", // TODO: let user set profile picture?
-      });
+  //     const createdProfileTx = await createProfile({
+  //       handle: profileName,
+  //       profilePictureUri: "", // TODO: let user set profile picture?
+  //     });
 
-      if (!createdProfileTx) {
-        throw new Error(
-          `No create profile response from lens received. Please try to login again.`,
-        );
-      }
+  //     if (!createdProfileTx) {
+  //       throw new Error(
+  //         `No create profile response from lens received. Please try to login again.`,
+  //       );
+  //     }
 
-      // TODO: Find a way to refresh profile data
-      router.reload();
-    } catch (error: any) {
-      console.error(
-        `An error occured while creating the lense profile. Please try again: ${error.message}`,
-      );
-    } finally {
-      setIsloading(false);
-    }
-  }
+  //     // TODO: Find a way to refresh profile data
+  //     router.reload();
+  //   } catch (error: any) {
+  //     console.error(
+  //       `An error occured while creating the lense profile. Please try again: ${error.message}`,
+  //     );
+  //   } finally {
+  //     setIsloading(false);
+  //   }
+  // }
 
   async function onSetLensProfile() {
     if (!lensWallet || !lensProfile || address !== space.founder) {
@@ -314,13 +314,13 @@ export default function Social({
               lensProfile,
               setLensProfile,
               onSetLensProfile,
-              isLoading,
+              // isLoading,
               defaultProfile,
               setProfileName,
               profileName,
-              createLensProfile,
+              // createLensProfile,
               selectedProfile,
-              profiles,
+              // profiles,
               setSelectedProfile,
               onDeleteLensProfile,
               onSetDefaultLensProfile,

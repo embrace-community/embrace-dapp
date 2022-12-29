@@ -1,5 +1,8 @@
-import React from "react";
-import { useAccount } from "wagmi";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
+import { Address, useAccount, useSignMessage } from "wagmi";
+import { createProfile } from "../../../api/lens/createProfile";
+import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
 import { Profile } from "../../../types/lens-generated";
 import Button from "../../Button";
 import DropDown from "../../DropDown";
@@ -16,11 +19,11 @@ export default function SocialProfile({
   lensProfile,
   setLensProfile,
   onSetLensProfile,
-  isLoading,
+  //   isLoading,
   defaultProfile,
   setProfileName,
   profileName,
-  createLensProfile,
+  //   createLensProfile,
   selectedProfile,
   profiles,
   setSelectedProfile,
@@ -28,6 +31,39 @@ export default function SocialProfile({
   onSetDefaultLensProfile,
 }) {
   const { address } = useAccount();
+  const { signMessageAsync } = useSignMessage();
+
+  const router = useRouter();
+
+  const [isLoading, setIsloading] = useState(false);
+
+  async function createLensProfile() {
+    setIsloading(true);
+
+    try {
+      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
+
+      const createdProfileTx = await createProfile({
+        handle: profileName,
+        profilePictureUri: "", // TODO: let user set profile picture?
+      });
+
+      if (!createdProfileTx) {
+        throw new Error(
+          `No create profile response from lens received. Please try to login again.`,
+        );
+      }
+
+      // TODO: Find a way to refresh profile data
+      router.reload();
+    } catch (error: any) {
+      console.error(
+        `An error occured while creating the lense profile. Please try again: ${error.message}`,
+      );
+    } finally {
+      setIsloading(false);
+    }
+  }
 
   return (
     <>
