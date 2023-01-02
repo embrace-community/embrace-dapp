@@ -56,8 +56,10 @@ export default function Social({
 
   const createdProfile = useRef("");
 
-  const lensDefaultProfileId = space.loadedMetadata?.lensDefaultProfileId || "";
-  const lensWallet: Address = space.loadedMetadata?.lensWallet || space.founder;
+  // const lensDefaultProfileId = space.loadedMetadata?.lensDefaultProfileId || "";
+  // const lensWallet: Address = space.loadedMetadata?.lensWallet || space.founder;
+  const lensDefaultProfileId = "";
+  const lensWallet: Address = space.founder;
 
   const isLensPublisher = !address || address === lensWallet;
 
