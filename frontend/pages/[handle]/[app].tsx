@@ -74,6 +74,8 @@ export default function SpaceViewPage() {
       }
     }
 
+    console.log("useEffect: getSpace");
+
     getSpace();
   }, [
     address,
@@ -105,44 +107,56 @@ export default function SpaceViewPage() {
 
         setSpaceData({ ...spaceData, loadedMetadata: metadata });
         setMetadataLoaded(true);
+
+        console.log("useEffect: loadSpaceMetadata");
       }
     }
 
     loadSpaceMetadata();
   }, [spaceData, metadataLoaded]);
 
-  // Get the member information for the connected address
+  // Get the member information for the connected address and the members count
   useEffect(() => {
     async function getMembershipInfo(): Promise<void> {
-      if (!spacesContract || !spaceData || !address || membershipInfoLoaded)
+      if (!spacesContract || !spaceData?.id || !address || membershipInfoLoaded)
         return;
+
+      const spaceId = BigNumber.from(spaceData.id!).toNumber();
+
+      const _accountMembership = await spacesContract?.getSpaceMember(
+        spaceId,
+        address,
+      );
+
+      setAccountMembership(_accountMembership);
+      setMembershipInfoLoaded(true);
+
+      console.log("useEffect: getMembershipInfo", membershipInfoLoaded);
+    }
+
+    getMembershipInfo();
+  }, [spacesContract, spaceData?.id, membershipInfoLoaded, address]);
+
+  useEffect(() => {
+    async function getMembershipCount(): Promise<void> {
+      if (!spacesContract || !spaceData?.id || spaceData?.memberCount) return;
 
       const spaceId = BigNumber.from(spaceData.id!).toNumber();
       const memberCount = await spacesContract?.getMemberCount(spaceId);
       const memberCountNumber = BigNumber.from(memberCount).toNumber();
 
-      if (address) {
-        const _accountMembership = await spacesContract?.getSpaceMember(
-          spaceId,
-          address,
-        );
+      setSpaceData((previous): Space => {
+        return {
+          ...previous,
+          memberCount: memberCountNumber,
+        } as Space;
+      });
 
-        setAccountMembership(_accountMembership);
-        setMembershipInfoLoaded(true);
-      }
-
-      setSpaceData({ ...spaceData, memberCount: memberCountNumber });
+      console.log("useEffect: getMembershipCount");
     }
 
-    getMembershipInfo();
-  }, [
-    spacesContract,
-    spaceData,
-    metadataLoaded,
-    membershipInfoLoaded,
-    address,
-    accountMembership,
-  ]);
+    getMembershipCount();
+  }, [spacesContract, spaceData?.id, spaceData?.memberCount]);
 
   const joinSpace = async () => {
     if (!spacesContract || !spaceData) return;
@@ -175,9 +189,6 @@ export default function SpaceViewPage() {
       console.log("requestJoin", err);
     }
   };
-
-  // FIXME: Whole page loading multiple times
-  console.log("Whole Space page component rendering multiple times");
 
   return (
     <>
