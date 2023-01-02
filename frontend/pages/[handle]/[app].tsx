@@ -103,8 +103,6 @@ export default function SpaceViewPage() {
           metadata.image = getFileUri(metadata.image);
         }
 
-        console.log(metadata, "loaded metadata");
-
         setSpaceData({ ...spaceData, loadedMetadata: metadata });
         setMetadataLoaded(true);
 
