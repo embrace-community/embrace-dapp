@@ -8,10 +8,12 @@ import { EmbraceAccounts } from "../../types/contracts/EmbraceAccounts";
 import { EmbraceApps } from "../../types/contracts/EmbraceApps";
 import { EmbraceSpaces } from "../../types/contracts/EmbraceSpaces";
 import { AppCreations } from "../../types/contracts/app/AppCreations";
+import { AppSocials } from "../../types/contracts/app/AppSocials";
 import { EmbraceAccounts__factory } from "../../types/factories/contracts/EmbraceAccounts__factory";
 import { EmbraceApps__factory } from "../../types/factories/contracts/EmbraceApps__factory";
 import { EmbraceSpaces__factory } from "../../types/factories/contracts/EmbraceSpaces__factory";
 import { AppCreations__factory } from "../../types/factories/contracts/app/AppCreations__factory";
+import { AppSocials__factory } from "../../types/factories/contracts/app/AppSocials__factory";
 import { EmbraceSpace } from "../frontend/utils/types";
 
 task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArguments, { ethers }) {
@@ -52,6 +54,12 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
   const creations: AppCreations = <AppCreations>await creationsFactory.connect(deployer).deploy(embraceSpaces.address);
   await creations.deployed();
   console.log(`NEXT_PUBLIC_CREATIONS_CONTRACT_ADDRESS="${creations.address}"`);
+
+  // DEPLOY SOCIALS CONTRACT
+  const socialsFactory: AppSocials__factory = <AppSocials__factory>await ethers.getContractFactory("AppSocials");
+  const socials: AppSocials = <AppSocials>await socialsFactory.connect(deployer).deploy(embraceSpaces.address);
+  await socials.deployed();
+  console.log(`NEXT_PUBLIC_SOCIALS_CONTRACT_ADDRESS="${socials.address}"`);
 
   // CREATE APPS
   const apps = [

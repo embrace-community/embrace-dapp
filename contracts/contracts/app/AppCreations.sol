@@ -4,6 +4,7 @@ pragma solidity >=0.8.17;
 
 import "hardhat/console.sol";
 import "./AppCreationsCollection.sol"; // Includes IEmbraceSpaces
+import { IEmbraceSpaces } from "../Interfaces.sol";
 
 contract AppCreations is IEmbraceSpaces {
     struct Collection {
