@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
 const useMediaDevices = (constraints?: MediaStreamConstraints) => {
   const [mediaStream, setMediaStream] = useState<{
@@ -13,11 +13,11 @@ const useMediaDevices = (constraints?: MediaStreamConstraints) => {
 
   const { stream, loading } = mediaStream;
 
-  const pauseTracks = () => {
+  const pauseTracks = useCallback(() => {
     if (!stream) return;
-    stream.getTracks().forEach(track => track.stop());
+    stream.getTracks().forEach((track) => track.stop());
     setMediaStream({ ...mediaStream, stream: null });
-  };
+  }, [mediaStream, stream]);
 
   const getMediaDevices = async () => {
     const devices = await navigator.mediaDevices.enumerateDevices();
@@ -30,14 +30,14 @@ const useMediaDevices = (constraints?: MediaStreamConstraints) => {
     const enableStream = async () => {
       navigator.mediaDevices
         .getUserMedia(constraints)
-        .then(_stream => {
+        .then((_stream) => {
           /* use the stream */
           if (isMounted)
             setMediaStream({ stream: _stream, error: null, loading: false });
         })
-        .catch(_error => {
+        .catch((_error) => {
           if (isMounted)
-            setMediaStream(prev => ({
+            setMediaStream((prev) => ({
               ...prev,
               error: _error,
               loading: false,
@@ -51,7 +51,7 @@ const useMediaDevices = (constraints?: MediaStreamConstraints) => {
       isMounted = false;
       pauseTracks();
     };
-  }, []);
+  }, [constraints, mediaStream, pauseTracks]);
 
   return {
     stream,

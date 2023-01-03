@@ -186,24 +186,25 @@ export default function Social({
       }
       console.log("signing");
 
-      const signature = await signer._signTypedData(domain, types, value);
+      // how to go from here?
+      // const signature = await signer._signTypedData(domain, types, value);
 
-      console.log("signature", signature);
+      // console.log("signature", signature);
 
-      const { v, r, s } = ethers.utils.splitSignature(signature);
+      // const { v, r, s } = ethers.utils.splitSignature(signature);
 
-      console.log("signature", v, r, s);
+      // console.log("signature", v, r, s);
 
-      const tx = await lensHubContract!.postWithSig({
-        profileId: value.profileId,
-        contentURI: value.contentURI,
-        collectModule: value.collectModule,
-        collectModuleInitData: value.collectModuleInitData,
-        referenceModule: value.referenceModule,
-        referenceModuleInitData: value.referenceModuleInitData,
-        sig: { v, r, s, deadline: value.deadline },
-      });
-      console.log("create post: tx hash", tx.hash);
+      // const tx = await lensHubContract!.postWithSig({
+      //   profileId: value.profileId,
+      //   contentURI: value.contentURI,
+      //   collectModule: value.collectModule,
+      //   collectModuleInitData: value.collectModuleInitData,
+      //   referenceModule: value.referenceModule,
+      //   referenceModuleInitData: value.referenceModuleInitData,
+      //   sig: { v, r, s, deadline: value.deadline },
+      // });
+      // console.log("create post: tx hash", tx.hash);
     } catch (error: any) {
       console.log("An error occurred create a post: ", error?.message);
     } finally {
