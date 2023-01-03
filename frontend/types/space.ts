@@ -49,8 +49,7 @@ export type SpaceMetadata = {
   description: string;
   image: string;
   handle: string;
-  lensWallet?: Address;
-  lensDefaultProfileId?: string;
+  socialMetadata?: SocialMetadata;
 };
 
 export type SpaceMembership = {
@@ -64,4 +63,9 @@ export type AppMetadata = {
   description: string;
   logo: string;
   image: string;
+};
+
+export type SocialMetadata = {
+  lensWallet?: Address;
+  lensDefaultProfileId?: string;
 };

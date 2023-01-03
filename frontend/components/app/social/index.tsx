@@ -1,13 +1,26 @@
 import "easymde/dist/easymde.min.css";
+import { ethers } from "ethers";
 import { Router } from "next/router";
 import { ReactElement, useCallback, useEffect, useState } from "react";
-import { Address, useAccount, useSignMessage } from "wagmi";
+import { v4 as uuidv4 } from "uuid";
+import {
+  Address,
+  useAccount,
+  useNetwork,
+  useSignMessage,
+  useSwitchNetwork,
+} from "wagmi";
+import { createPost } from "../../../api/lens/createPost";
 import { deleteProfile } from "../../../api/lens/deleteProfile";
 import useGetDefaultProfile from "../../../hooks/lens/useGetDefaultProfile";
 import useGetPublications from "../../../hooks/lens/useGetPublications";
+import useLensContracts from "../../../hooks/lens/useLensContracts";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
+import useSigner from "../../../hooks/useSigner";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
-import { Profile } from "../../../types/lens-generated";
+import { removeProperty } from "../../../lib/web3storage/object";
+import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
+import { Profile, PublicationMainFocus } from "../../../types/lens-generated";
 import { SpaceSocial } from "../../../types/social";
 import { Space } from "../../../types/space";
 import SocialProfile from "./SocialProfile";
@@ -32,7 +45,19 @@ export default function Social({
   const { appSocialsContract } = useAppContract();
 
   const { address } = useAccount();
+  const { signer } = useSigner();
+
+  const { chain } = useNetwork();
+  const {
+    chains,
+    error,
+    isLoading: switchLoading,
+    pendingChainId,
+    switchNetwork,
+  } = useSwitchNetwork();
+
   const { signMessageAsync } = useSignMessage();
+  const { lensHubContract } = useLensContracts();
 
   const [pageState, setPageState] = useState({
     type: PageState.Publications,
@@ -55,6 +80,7 @@ export default function Social({
     content: false,
     erc20EncryptToken: false,
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   // general
   const [socialDetails, setSocialDetails] = useState<SpaceSocial>();
@@ -100,7 +126,95 @@ export default function Social({
     }
   }
 
-  console.log("publications", publications);
+  async function createLensPublication() {
+    setIsLoading(true);
+
+    if (!signer) {
+      console.error("No signer found");
+      return;
+    }
+
+    try {
+      await lensAuthenticationIfNeeded(lensWallet as Address, signMessageAsync);
+
+      const uuid = uuidv4();
+      const filename = `${defaultProfile?.handle}_${uuid}`;
+      const tags = ["test"];
+
+      const post = {
+        version: "2.0.0",
+        mainContentFocus: PublicationMainFocus.TextOnly,
+        metadata_id: uuid,
+        description: "Description",
+        locale: "en-US",
+        content: "Content",
+        external_url: null,
+        image: null,
+        imageMimeType: null,
+        name: "Name",
+        attributes: [],
+        tags,
+        appId: "embrace_community",
+      };
+
+      const ipfsResult = await saveToIpfs(post, filename);
+
+      console.log("create post ipfs result", ipfsResult);
+
+      const createPostRequest = {
+        profileId: defaultProfile?.id,
+        contentURI: `ipfs://${ipfsResult}`,
+        collectModule: { freeCollectModule: { followerOnly: true } },
+        referenceModule: {
+          followerOnlyReferenceModule: false,
+        },
+      };
+
+      const createdPost = await createPost(createPostRequest);
+
+      console.log("created post", createdPost);
+
+      const removedProperties = removeProperty(createdPost, "__typename");
+
+      console.log("removedProperties", removedProperties);
+      const { domain, types, value } = removedProperties.typedData;
+
+      if (chain?.id !== 80001) {
+        console.log("switch start");
+        await switchNetwork!(80001);
+        console.log("switch end");
+      }
+      console.log("signing");
+
+      const signature = await signer._signTypedData(domain, types, value);
+
+      console.log("signature", signature);
+
+      const { v, r, s } = ethers.utils.splitSignature(signature);
+
+      console.log("signature", v, r, s);
+
+      const tx = await lensHubContract!.postWithSig({
+        profileId: value.profileId,
+        contentURI: value.contentURI,
+        collectModule: value.collectModule,
+        collectModuleInitData: value.collectModuleInitData,
+        referenceModule: value.referenceModule,
+        referenceModuleInitData: value.referenceModuleInitData,
+        sig: { v, r, s, deadline: value.deadline },
+      });
+      console.log("create post: tx hash", tx.hash);
+    } catch (error: any) {
+      console.log("An error occurred create a post: ", error?.message);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // publish new metadata if user has a new default Profile
+  // useEffect(() => {
+  // if(space.loadedMetadata && )
+  // }, []);
 
   function showContent() {
     let content: ReactElement | null = null;
@@ -152,7 +266,6 @@ export default function Social({
         content = (
           <SocialPublicationDetail
             {...{
-              pageState,
               setPageState,
               publication: publications?.items?.find(
                 (publication) => publication.id === pageState.data,

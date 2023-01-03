@@ -1,6 +1,5 @@
 import Image from "next/image";
 import { useState } from "react";
-import { CommonPaginatedResultInfoFieldsFragmentDoc } from "../../types/lens-generated";
 import {
   MembershipGateToken,
   Access,

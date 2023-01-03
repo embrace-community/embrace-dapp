@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    unoptimized: true, // Temp as some images are not loading on next-video domain
     dangerouslyAllowSVG: true, // Temp as SVGs are not loading
     domains: ["localhost"],
     remotePatterns: [

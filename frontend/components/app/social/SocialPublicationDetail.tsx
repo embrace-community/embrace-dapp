@@ -1,13 +1,14 @@
+import { Dispatch, SetStateAction } from "react";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 import { PageState } from ".";
-import { Post } from "../../../types/lens-generated";
+import { Publication } from "../../../types/lens-generated";
 
 export default function SocialPublicationDetail({
   setPageState,
   publication,
 }: {
-  setPageState: Function;
-  publication: Post | undefined;
+  setPageState: Dispatch<SetStateAction<{ type: PageState; data: string }>>;
+  publication: Publication | undefined;
 }) {
   return (
     <div className="mt-8">
@@ -32,7 +33,9 @@ export default function SocialPublicationDetail({
       </button>
 
       <div className="flex justify-between my-8">
-        <h3 className="inline text-xl font-bold">{publication?.metadata?.name}</h3>
+        <h3 className="inline text-xl font-bold">
+          {publication?.metadata?.name}
+        </h3>
         <span>
           Created:{" "}
           {publication?.createdAt &&

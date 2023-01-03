@@ -43,6 +43,15 @@ if (isNoTestEnvironment) {
     );
 }
 
+const lensHubContractAddress = process.env.NEXT_PUBLIC_LENS_HUB_CONTRACT;
+const lensPeripheryContractAddress =
+  process.env.NEXT_PUBLIC_LENS_PERIPHERY_CONTRACT;
+
+if (!lensHubContractAddress && isNoTestEnvironment)
+  throw Error("lens Hub Contract Address Env missing");
+if (!lensPeripheryContractAddress && isNoTestEnvironment)
+  throw Error("lens Periphery Contract Address Env missing");
+
 if (
   (!deployedChainIdEnv || !Number.isInteger(+deployedChainIdEnv)) &&
   isNoTestEnvironment
@@ -73,4 +82,6 @@ export {
   web3StorageKey,
   infuraApiKey,
   blockchainExplorerUrl,
+  lensHubContractAddress,
+  lensPeripheryContractAddress,
 };
