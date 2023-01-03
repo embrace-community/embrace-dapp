@@ -3,12 +3,12 @@ import { Signer } from "ethers";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { setXmtpClient } from "../store/slices/core";
 import { RootState } from "../store/store";
-import useSigner from "./useSigner";
+import { useSigner } from "wagmi";
 
 function useXmtp() {
   const coreStore = useAppSelector((state: RootState) => state.core);
   const dispatch = useAppDispatch();
-  const { signer } = useSigner();
+  const { data: signer } = useSigner();
   const xmtpClient = coreStore.xmtpClient;
 
   const auth = async () => {
