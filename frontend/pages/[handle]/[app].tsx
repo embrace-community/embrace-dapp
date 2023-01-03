@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAccount, useSigner } from "wagmi";
 import AppLayout from "../../components/AppLayout";
 import Apps from "../../components/space/Apps";
@@ -12,12 +12,13 @@ import {
   getFileUri,
   getIpfsJsonContent,
 } from "../../lib/web3storage/getIpfsJsonContent";
-import { useAppSelector } from "../../store/hooks";
-import { getSpaceById } from "../../store/slices/space";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { getSpaceById, moveJoinedToYourSpaces } from "../../store/slices/space";
 import { Space, SpaceMembership, SpaceMetadata } from "../../types/space";
 import { SpaceUtil } from "../../types/space-type-utils";
 
 export default function SpaceViewPage() {
+  // TODO: Signer not loading when directly viewing a space page
   const { spacesContract } = useEmbraceContracts();
 
   const [spaceData, setSpaceData] = useState<Space | null>(null);
@@ -27,7 +28,9 @@ export default function SpaceViewPage() {
   const [membershipInfoLoaded, setMembershipInfoLoaded] =
     useState<boolean>(false);
   const [accountMembership, setAccountMembership] = useState<SpaceMembership>();
+  const [joinSpaceLoading, setJoinSpaceLoading] = useState<boolean>(false);
   const getSpaceByIdSelector = useAppSelector(getSpaceById);
+  const dispatch = useAppDispatch();
 
   const router = useRouter();
   const routerIsReady = router.isReady;
@@ -162,14 +165,30 @@ export default function SpaceViewPage() {
     const spaceId = BigNumber.from(spaceData.id).toNumber();
 
     try {
-      const tx = await spacesContract.joinSpace(spaceId, {
-        gasLimit: 1000000,
-      });
+      setJoinSpaceLoading(true);
+      const tx = await spacesContract.joinSpace(spaceId);
       await tx.wait();
 
-      alert("joined space");
+      setAccountMembership({
+        isActive: true,
+        isAdmin: false,
+        isRequest: false,
+      });
+
+      setSpaceData((previous): Space => {
+        return {
+          ...previous,
+          memberCount: spaceData?.memberCount! + 1,
+        } as Space;
+      });
+
+      setJoinSpaceLoading(false);
+
+      // If spaces store has any community spaces then find it and move to yourSpaces
+      dispatch(moveJoinedToYourSpaces(spaceId));
     } catch (err) {
       console.log("joinSpace", err);
+      setJoinSpaceLoading(false);
     }
   };
 
@@ -179,12 +198,22 @@ export default function SpaceViewPage() {
     const spaceId = BigNumber.from(spaceData.id).toNumber();
 
     try {
+      setJoinSpaceLoading(true);
       const tx = await spacesContract.requestJoin(spaceId, {
-        gasLimit: 1000000,
+        gasLimit: 1000000, // For some reason errors if this is not set - cannot estimate gas
       });
       await tx.wait();
+
+      setAccountMembership({
+        isActive: false,
+        isAdmin: false,
+        isRequest: true,
+      });
+
+      setJoinSpaceLoading(false);
     } catch (err) {
       console.log("requestJoin", err);
+      setJoinSpaceLoading(false);
     }
   };
 
@@ -202,6 +231,7 @@ export default function SpaceViewPage() {
               membershipInfoLoaded={membershipInfoLoaded}
               joinSpace={joinSpace}
               requestJoinSpace={requestJoinSpace}
+              joinSpaceLoading={joinSpaceLoading}
             />
             <Apps
               space={spaceData}

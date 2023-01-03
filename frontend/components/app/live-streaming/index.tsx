@@ -25,6 +25,7 @@ export default function LiveStreamIndex({
 }) {
   const streamName = `embrace.community/${space.handle}-${space.id}/live-stream`;
   const playbackId = query.id as string;
+
   const getLiveStreamSelector = useAppSelector(getLiveStream);
   const liveStream = getLiveStreamSelector(streamName);
 

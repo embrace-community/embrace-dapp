@@ -235,7 +235,10 @@ export default function SpaceViewPage() {
           memberCount: 1,
         };
 
+        // TODO: On localhost sometimes an old event is fired, so we need to make sure only the new event triggers the redirect
         spacesContract.on("SpaceCreated", (spaceId, founder) => {
+          if (founder !== accountAddress) return;
+
           setSpaceCreationMessage(
             "Your Community Space has been created! Redirecting...",
           );
@@ -253,9 +256,6 @@ export default function SpaceViewPage() {
           spaceMembership,
           apps,
           metadataCid,
-          {
-            gasLimit: 1000000,
-          },
         );
 
         if (tx) {

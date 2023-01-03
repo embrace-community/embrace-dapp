@@ -36,11 +36,29 @@ export const spacesSlice = createSlice({
         state.yourSpaces.push(action.payload);
       }
     },
+
+    moveJoinedToYourSpaces: (state, action: PayloadAction<number>) => {
+      const space = state.communitySpaces.find(
+        (space) => space.id === action.payload,
+      );
+
+      if (space) {
+        state.yourSpaces.push(space);
+        state.communitySpaces = state.communitySpaces.filter(
+          (space) => space.id !== action.payload,
+        );
+      }
+    },
   },
 });
 
-export const { setCommunitySpaces, setLoaded, setYourSpaces, addCreatedSpace } =
-  spacesSlice.actions;
+export const {
+  setCommunitySpaces,
+  setLoaded,
+  setYourSpaces,
+  addCreatedSpace,
+  moveJoinedToYourSpaces,
+} = spacesSlice.actions;
 
 export const getSpaceById = createSelector(
   (state: RootState) => state.spaces.yourSpaces,
