@@ -367,7 +367,7 @@ export default function CreateCreation({
                   name="name"
                   id="name"
                   className="block bg-transparent text-embracedark w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                  placeholder="The name of your new space"
+                  placeholder="The name of your new creation"
                   onChange={(e) => setName(e.target.value)}
                   value={name}
                 />
@@ -387,7 +387,7 @@ export default function CreateCreation({
                   name="description"
                   id="description"
                   className="block bg-transparent w-full resize-none text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                  placeholder="Description of new space"
+                  placeholder="Description of new creation"
                   onChange={(e) => setDescription(e.target.value)}
                   value={description}
                 />

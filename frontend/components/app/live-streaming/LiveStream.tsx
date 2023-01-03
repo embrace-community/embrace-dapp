@@ -199,7 +199,7 @@ export function LiveStream({ query, space, streamName }) {
           </button>
 
           <CopyToClipboard
-            text={`${baseStreamUrl}?id=${liveStream.data?.playbackId}`}
+            text={`${baseStreamUrl}&id=${liveStream.data?.playbackId}`}
             onCopy={(e) => setCopied(true)}
           >
             <button

@@ -35,11 +35,11 @@ if (isNoTestEnvironment) {
     );
   if (!appCreationsContractAddress)
     throw Error(
-      "Accounts Contract Address Env missing, appCreationsContractAddress",
+      "Creations App Contract Address Env missing, appCreationsContractAddress",
     );
   if (!appSocialsContractAddress)
     throw Error(
-      "Accounts Contract Address Env missing, appSocialsContractAddress",
+      "Social App Contract Address Env missing, appSocialsContractAddress",
     );
 }
 
