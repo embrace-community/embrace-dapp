@@ -257,7 +257,7 @@ export default function Creations({
     const route = `/${query.handle}/creations?collectionId=${collection.id}`;
 
     if (newCollection) {
-      router.push(`/${route}&newCollection=true`);
+      router.push(`${route}&newCollection=true`);
       return;
     }
 
