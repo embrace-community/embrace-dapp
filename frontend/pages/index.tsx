@@ -128,7 +128,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       <AppLayout title="Home">
-        <div className="pt-8 pr-8 pb-28 pl-[6.8vw]">
+        <div className="w-full pt-8 pr-8 pb-28 pl-[6.8vw]">
           {signer && (
             <div className="flex items-center justify-center md:justify-start">
               <Link href="/create">
