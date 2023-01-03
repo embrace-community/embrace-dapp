@@ -1,15 +1,16 @@
 import { useContract, useProvider, useSigner } from "wagmi";
+import AppCreationsJSON from "../data/contractArtifacts/AppCreations.json";
+import AppCreationsCollectionJSON from "../data/contractArtifacts/AppCreationsCollection.json";
+import AppSocialsJSON from "../data/contractArtifacts/AppSocials.json";
 import EmbraceAccountsJSON from "../data/contractArtifacts/EmbraceAccounts.json";
 import EmbraceAppsJSON from "../data/contractArtifacts/EmbraceApps.json";
 import EmbraceSpacesJSON from "../data/contractArtifacts/EmbraceSpaces.json";
-import AppCreationsJSON from "../data/contractArtifacts/AppCreations.json";
-import AppCreationsCollectionJSON from "../data/contractArtifacts/AppCreationsCollection.json";
-
 import {
   accountsContractAddress,
   appContractAddress,
-  spacesContractAddress,
   appCreationsContractAddress,
+  appSocialsContractAddress,
+  spacesContractAddress,
 } from "../lib/envs";
 
 function useEmbraceContracts() {
@@ -51,8 +52,16 @@ export function useAppContract() {
     signerOrProvider: signer || provider,
   });
 
+  const appSocialsContract = useContract({
+    address: appSocialsContractAddress,
+    abi: AppSocialsJSON.abi,
+    signerOrProvider: signer || provider,
+  });
+
   return {
     appCreationsContract,
+    appSocialsContract,
+
     // We export this instead of the contract as the collection address is dynamic
     appCreationCollectionsABI: AppCreationsCollectionJSON.abi,
   };

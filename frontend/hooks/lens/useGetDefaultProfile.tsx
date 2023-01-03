@@ -1,5 +1,5 @@
-import { gql, useQuery } from "@apollo/client";
-import { useAccount } from "wagmi";
+import { gql, useLazyQuery } from "@apollo/client";
+import { useEffect } from "react";
 import {
   DefaultProfileRequest,
   DefaultProfileQuery,
@@ -12,32 +12,27 @@ function useGetDefaultProfile(
     shouldSkip: false,
   },
 ) {
-  const { address, isConnected, isConnecting, isDisconnected } = useAccount();
-
-  const shouldSkipCallApi =
-    !address ||
-    !isConnected ||
-    isConnecting ||
-    isDisconnected ||
-    reqParams?.shouldSkip;
-
-  delete reqParams.shouldSkip;
-
   const request: DefaultProfileRequest = reqParams;
-  if (!request.ethereumAddress) request.ethereumAddress = address;
 
-  const result = useQuery<
+  const [getDefaultProfile, defaultProfileProps] = useLazyQuery<
     DefaultProfileQuery,
     { request: DefaultProfileRequest }
   >(GET_DEFAULT_PROFILE, {
     variables: { request },
     context: { clientName: "lens" },
-    skip: shouldSkipCallApi,
   });
 
-  const profile = result?.data?.defaultProfile;
+  useEffect(() => {
+    getDefaultProfile();
+  }, [getDefaultProfile]);
 
-  return profile as Profile | undefined;
+  return {
+    getDefaultProfile,
+    ...defaultProfileProps,
+    defaultProfile: defaultProfileProps?.data?.defaultProfile as
+      | Profile
+      | undefined,
+  };
 }
 
 const GET_DEFAULT_PROFILE = gql`

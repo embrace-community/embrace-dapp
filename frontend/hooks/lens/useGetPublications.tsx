@@ -1,4 +1,5 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery } from "@apollo/client";
+import { useEffect } from "react";
 import {
   PaginatedPublicationResult,
   PublicationsQuery,
@@ -6,32 +7,31 @@ import {
   PublicationTypes,
 } from "../../types/lens-generated";
 
-function useGetPublications(
-  reqParams: PublicationsQueryRequest & { shouldSkip?: boolean } = {
-    shouldSkip: false,
-  },
-) {
-  const shouldSkipCallApi = !reqParams.profileId || reqParams.shouldSkip;
-
-  delete reqParams.shouldSkip;
-
+function useGetPublications(reqParams: PublicationsQueryRequest) {
   const request = {
     publicationTypes: [PublicationTypes.Post],
     ...reqParams,
   };
 
-  const result = useQuery<
+  const [getPublications, publicationsProps] = useLazyQuery<
     PublicationsQuery,
     { request: PublicationsQueryRequest }
   >(GET_PUBLICATIONS, {
     variables: { request },
     context: { clientName: "lens" },
-    skip: shouldSkipCallApi,
   });
 
-  const publications = result?.data?.publications;
+  useEffect(() => {
+    getPublications();
+  }, [getPublications]);
 
-  return publications as PaginatedPublicationResult | undefined;
+  return {
+    getPublications,
+    ...publicationsProps,
+    publications: publicationsProps.data?.publications as
+      | PaginatedPublicationResult
+      | undefined,
+  };
 }
 
 const GET_PUBLICATIONS = gql`

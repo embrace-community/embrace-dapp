@@ -1,31 +1,29 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery } from "@apollo/client";
+import { useEffect } from "react";
 import {
   PaginatedProfileResult,
   ProfileQueryRequest,
   ProfilesQuery,
 } from "../../types/lens-generated";
 
-function useGetProfiles(
-  request: ProfileQueryRequest & { shouldSkip?: boolean } = {
-    shouldSkip: false,
-  },
-) {
-  const shouldSkipCallApi = !request.ownedBy || request.shouldSkip;
+function useGetProfiles(request: ProfileQueryRequest) {
+  const [getProfiles, profileProps] = useLazyQuery<
+    ProfilesQuery,
+    { request: ProfileQueryRequest }
+  >(GET_PROFILES, {
+    variables: { request },
+    context: { clientName: "lens" },
+  });
 
-  delete request.shouldSkip;
+  useEffect(() => {
+    getProfiles();
+  }, [getProfiles]);
 
-  const result = useQuery<ProfilesQuery, { request: ProfileQueryRequest }>(
-    GET_PROFILES,
-    {
-      variables: { request },
-      context: { clientName: "lens" },
-      skip: shouldSkipCallApi,
-    },
-  );
-
-  const profiles = result?.data?.profiles;
-
-  return profiles as PaginatedProfileResult | undefined;
+  return {
+    getProfiles,
+    ...profileProps,
+    profiles: profileProps.data?.profiles as PaginatedProfileResult | undefined,
+  };
 }
 
 const GET_PROFILES = gql`
