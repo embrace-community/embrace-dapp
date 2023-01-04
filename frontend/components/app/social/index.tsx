@@ -16,7 +16,7 @@ import useGetDefaultProfile from "../../../hooks/lens/useGetDefaultProfile";
 import useGetPublications from "../../../hooks/lens/useGetPublications";
 import useLensContracts from "../../../hooks/lens/useLensContracts";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
-import useSigner from "../../../hooks/useSigner";
+import { useSigner } from "wagmi";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
 import { removeProperty } from "../../../lib/web3storage/object";
 import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
@@ -26,6 +26,7 @@ import { Space } from "../../../types/space";
 import SocialProfile from "./SocialProfile";
 import SocialPublicationDetail from "./SocialPublicationDetail";
 import SocialPublications from "./SocialPublications";
+import { Cog8ToothIcon } from "@heroicons/react/24/outline";
 
 export enum PageState {
   Publications = "publications",
@@ -45,7 +46,7 @@ export default function Social({
   const { appSocialsContract } = useAppContract();
 
   const { address } = useAccount();
-  const { signer } = useSigner();
+  const { data: signer } = useSigner();
 
   const { chain } = useNetwork();
   const {
@@ -188,6 +189,7 @@ export default function Social({
 
       // how to go from here?
       // const signature = await signer._signTypedData(domain, types, value);
+      await signer.signMessage("test");
 
       // console.log("signature", signature);
 
