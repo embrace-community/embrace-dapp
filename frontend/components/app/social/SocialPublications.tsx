@@ -59,6 +59,7 @@ export default function SocialPublications({
     }),
   });
 
+  // Lens post example: // https://github.com/lens-protocol/api-examples/blob/master/src/publications/post.ts
   async function saveToIpfsAndCreatePost() {
     if (!post.title || !post.content) {
       return;
@@ -173,7 +174,7 @@ export default function SocialPublications({
   return (
     <LivepeerConfig client={livepeerClient}>
       <div className="flex justify-between">
-        {isLensPublisher && (
+        {isLensPublisher && defaultProfile?.id && (
           // TODO: Had to use button instead og Button component due to inability to override default styles
           <button
             className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold p-2 flex flex-row items-center"

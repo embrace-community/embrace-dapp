@@ -5,10 +5,10 @@ import {
   lensHubContractAddress,
   lensPeripheryContractAddress,
 } from "../../lib/envs";
-import useSigner from "../useSigner";
+import { useSigner } from "wagmi";
 
 function useLensContracts() {
-  const { signer } = useSigner();
+  const { data: signer } = useSigner();
   const provider = useProvider();
 
   const lensHubContract = useContract({
