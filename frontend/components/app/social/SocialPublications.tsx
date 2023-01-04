@@ -99,11 +99,6 @@ export default function SocialPublications({
       return omit(type, "__typename");
     });
 
-    typedData.value.referenceModule =
-      "0xca8454afbc91cffe20e726725beb264ae5bb52fc";
-
-    typedData.value.profileId = 123;
-
     const formattedTypedData = {
       domain: omit(typedData.domain, "__typename"),
       types: { PostWithSig: mappedTypes },
