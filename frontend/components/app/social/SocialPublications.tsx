@@ -99,6 +99,7 @@ export default function SocialPublications({
 
     try {
       // hard coded to make the code example clear
+      console.log("create post: defaultProfile?.id", defaultProfile?.id);
       const createPostRequest: CreatePublicPostRequest = {
         profileId: defaultProfile?.id,
         contentURI: `ipfs://${ipfsResult}`,
@@ -211,14 +212,6 @@ export default function SocialPublications({
             className="my-3 w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
           />
 
-          <input
-            type="text"
-            value={post.coverImage}
-            onChange={(e) => setPost({ ...post, coverImage: e.target.value })}
-            placeholder="Post cover image"
-            className="mt-2 mb-5 w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
-          />
-
           <SimpleMDE
             placeholder="What's on your mind?"
             value={post.content}
@@ -241,7 +234,9 @@ export default function SocialPublications({
 
       <div className="flex justify-center mt-8">
         <div className="gap-4 w-1/2">
-          {publications?.items?.length === 0 && <div>No posts so far...</div>}
+          {publications?.items?.length === 0 && (
+            <h1 className="w-full text-center text-lg">No posts exist...</h1>
+          )}
 
           {publications?.items?.map((publication: Publication) => {
             return (

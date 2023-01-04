@@ -238,7 +238,7 @@ export default function SocialProfile({
           </div>
         </>
       ) : (
-        <div>You are no publisher for this space</div>
+        <div>You are not a publisher for this space</div>
       )}
     </>
   );
