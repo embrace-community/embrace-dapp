@@ -12,7 +12,7 @@ module.exports = {
     extend: {
       colors: {
         embracebg: "#F7F6E8",
-        embracedark: "#35281E",
+        "embrace-dark": "#35281E",
       },
     },
     screens: {

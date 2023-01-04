@@ -136,9 +136,7 @@ export default function SocialPublications({
               onClick: () =>
                 setPageState({ type: PageState.Profile, data: "" }),
             }}
-          >
-            Manage Profile
-          </Button>
+          ></Button>
         )}
       </div>
 
@@ -181,8 +179,6 @@ export default function SocialPublications({
       )}
 
       <div className="mt-8">
-        <h3>Posts</h3>
-
         <div className="mt-6 mx-auto max-w-xl">
           {publications?.items?.length === 0 && <div>No posts so far...</div>}
 
@@ -190,7 +186,7 @@ export default function SocialPublications({
             return (
               <div
                 key={item.id}
-                className="flex justify-between rounded-lg border-gray-400 border-2 mt-2 p-4 cursor-pointer shadow-xl motion-safe:hover:scale-105"
+                className="flex justify-between rounded-lg border-gray-400 border-2 mt-2 p-4 cursor-pointer shadow-xl"
                 onClick={() =>
                   setPageState({
                     type: PageState.PublicationDetail,
