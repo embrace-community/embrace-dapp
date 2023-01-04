@@ -94,14 +94,15 @@ export default function SocialPublications({
   function getSignature(typedData) {
     console.log("create post: typedData", typedData);
 
-    // Strip typename from PostWithSig object
-    const mappedTypes = typedData.types.PostWithSig.map((type) => {
-      return omit(type, "__typename");
-    });
+    // Strip typename from PostWithSig object?
+    // const mappedTypes = typedData.types.PostWithSig.map((type) => {
+    //   return omit(type, "__typename");
+    // });
 
     const formattedTypedData = {
       domain: omit(typedData.domain, "__typename"),
-      types: { PostWithSig: mappedTypes },
+      // types: { PostWithSig: mappedTypes },
+      types: omit(typedData.types, "__typename"),
       value: omit(typedData.value, "__typename"),
     };
     console.log("create post: getSignature", formattedTypedData);
@@ -121,6 +122,7 @@ export default function SocialPublications({
     } = typedData.value;
 
     const signature = await signTypedDataAsync(getSignature(typedData));
+    // const signature = await signTypedDataAsync(typedData);
     const { v, r, s } = splitSignature(signature);
     const sig = { v, r, s, deadline };
     const inputStruct = {
