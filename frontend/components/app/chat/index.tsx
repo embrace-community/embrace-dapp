@@ -219,7 +219,7 @@ export default function Chat({
 
     const interval = setInterval(() => {
       setFetchNewChatMessages(true);
-    }, 5000);
+    }, 8000);
 
     // Clear interval on unmount
     return () => {

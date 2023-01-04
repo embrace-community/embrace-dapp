@@ -7,6 +7,8 @@ import {
   useRootStore,
 } from "../lib/huddle01-client";
 
+import { huddleApiKey } from "../lib/envs";
+
 type WalletData = {
   address: string;
   wallet: string;
@@ -36,7 +38,7 @@ function useHuddle(handle: string) {
       ens: "",
     };
 
-    const _huddleClient = getHuddleClient("YOUR_API_KEY");
+    const _huddleClient = getHuddleClient(huddleApiKey);
     setHuddleClient(_huddleClient);
     setWalletData(_walletData);
     setRoomId(roomId);
@@ -44,7 +46,7 @@ function useHuddle(handle: string) {
 
   const reinitialise = async () => {
     if (walletData && roomId) {
-      const _huddleClient = getHuddleClient("YOUR_API_KEY");
+      const _huddleClient = getHuddleClient(huddleApiKey);
       setHuddleClient(_huddleClient);
 
       await enableStream();

@@ -32,6 +32,7 @@ import { removeProperty } from "../../../lib/web3storage/object";
 import { splitSignature } from "ethers/lib/utils.js";
 import useLensContracts from "../../../hooks/lens/useLensContracts";
 import { pollUntilIndexed } from "../../../api/lens/hasTransactionBeenIndexed";
+import { livepeerApiKey } from "../../../lib/envs";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -55,7 +56,7 @@ export default function SocialPublications({
 
   const livepeerClient = createReactClient({
     provider: studioProvider({
-      apiKey: process.env.NEXT_PUBLIC_LIVEPEER_STUDIO_API_KEY,
+      apiKey: livepeerApiKey,
     }),
   });
 
