@@ -1,14 +1,7 @@
-// Lenster approach
 import dynamic from "next/dynamic";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import {
-  Address,
-  useAccount,
-  useContractWrite,
-  useSignMessage,
-  useSignTypedData,
-} from "wagmi";
+import { Address, useAccount, useSignMessage } from "wagmi";
 import { signTypedData } from "@wagmi/core";
 import { PageState } from ".";
 import { createPost } from "../../../api/lens/createPost";
@@ -35,11 +28,10 @@ import {
   Player,
   studioProvider,
 } from "@livepeer/react";
+import { removeProperty } from "../../../lib/web3storage/object";
 import { splitSignature } from "ethers/lib/utils.js";
 import useLensContracts from "../../../hooks/lens/useLensContracts";
 import { pollUntilIndexed } from "../../../api/lens/hasTransactionBeenIndexed";
-import LensHubJsonAbi from "../../../data/abis/lens/lens-hub-contract-abi.json"; // TODO: IS THIS CORRECT ABI?
-import { lensHubContractAddress } from "../../../lib/envs";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -66,77 +58,6 @@ export default function SocialPublications({
       apiKey: process.env.NEXT_PUBLIC_LIVEPEER_STUDIO_API_KEY,
     }),
   });
-
-  const { signTypedDataAsync, isLoading: typedDataLoading } = useSignTypedData({
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-
-  const { error, write } = useContractWrite({
-    address: lensHubContractAddress,
-    abi: LensHubJsonAbi, //LensHubProxy,
-    functionName: "postWithSig",
-    mode: "recklesslyUnprepared",
-    onSuccess: ({ hash }) => {
-      alert("Success! Your post is being published. ");
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-
-  const omit = (object: Record<string, any>, name: string) => {
-    delete object[name];
-    return object;
-  };
-
-  function getSignature(typedData) {
-    console.log("create post: typedData", typedData);
-
-    // Strip typename from PostWithSig object?
-    // const mappedTypes = typedData.types.PostWithSig.map((type) => {
-    //   return omit(type, "__typename");
-    // });
-
-    const formattedTypedData = {
-      domain: omit(typedData.domain, "__typename"),
-      // types: { PostWithSig: mappedTypes },
-      types: omit(typedData.types, "__typename"),
-      value: omit(typedData.value, "__typename"),
-    };
-    console.log("create post: getSignature", formattedTypedData);
-    return formattedTypedData;
-  }
-
-  const typedDataGenerator = async (generatedData: any) => {
-    const { id, typedData } = generatedData;
-    const {
-      profileId,
-      contentURI,
-      collectModule,
-      collectModuleInitData,
-      referenceModule,
-      referenceModuleInitData,
-      deadline,
-    } = typedData.value;
-
-    const signature = await signTypedDataAsync(getSignature(typedData));
-    // const signature = await signTypedDataAsync(typedData);
-    const { v, r, s } = splitSignature(signature);
-    const sig = { v, r, s, deadline };
-    const inputStruct = {
-      profileId,
-      contentURI,
-      collectModule,
-      collectModuleInitData,
-      referenceModule,
-      referenceModuleInitData,
-      sig,
-    };
-
-    return write?.({ recklesslySetUnpreparedArgs: [inputStruct] });
-  };
 
   // Lens post example: // https://github.com/lens-protocol/api-examples/blob/master/src/publications/post.ts
   async function saveToIpfsAndCreatePost() {
@@ -185,6 +106,7 @@ export default function SocialPublications({
         contentURI: `ipfs://${ipfsResult}`,
         collectModule: {
           freeCollectModule: { followerOnly: true },
+          // revertCollectModule: true
         },
         referenceModule: {
           followerOnlyReferenceModule: false,
@@ -195,62 +117,60 @@ export default function SocialPublications({
 
       const result = await createPost(createPostRequest);
 
-      await typedDataGenerator(result);
+      const typedData = result?.typedData;
 
-      // const typedData = result?.typedData;
+      if (!typedData) {
+        console.error("create post: typed data is null");
+        return;
+      }
 
-      // if (!typedData) {
-      //   console.error("create post: typed data is null");
-      //   return;
-      // }
+      console.log("create post: typedData", typedData);
 
-      // console.log("create post: typedData", typedData);
+      const signature = await signTypedData({
+        domain: removeProperty(typedData.domain, "__typename"),
+        types: removeProperty(typedData.types, "__typename"),
+        value: removeProperty(typedData.value, "__typename"),
+      });
 
-      // const signature = await signTypedData({
-      //   domain: removeProperty(typedData.domain, "__typename"),
-      //   types: removeProperty(typedData.types, "__typename"),
-      //   value: removeProperty(typedData.value, "__typename"),
-      // });
+      console.log("create post: signature", signature);
 
-      // console.log("create post: signature", signature);
+      const { v, r, s } = splitSignature(signature);
 
-      // const { v, r, s } = splitSignature(signature);
+      console.log("create post: try postWithSig", typedData.value);
 
-      // console.log("create post: try postWithSig", typedData.value);
+      const {
+        profileId,
+        contentURI,
+        collectModule,
+        collectModuleInitData,
+        referenceModule,
+        referenceModuleInitData,
+        deadline,
+      } = typedData.value;
 
-      // const {
-      //   profileId,
-      //   contentURI,
-      //   collectModule,
-      //   collectModuleInitData,
-      //   referenceModule,
-      //   referenceModuleInitData,
-      //   deadline,
-      // } = typedData.value;
+      const sig = { v, r, s, deadline };
 
-      // const sig = { v, r, s, deadline };
+      // TODO: Currently failing here with error 'execution reverted: ERC721: owner query for nonexistent token'
+      // Looks like an OpenZeppelin error and not a Lens error
+      const tx = await lensHubContract?.postWithSig({
+        profileId,
+        contentURI,
+        collectModule,
+        collectModuleInitData,
+        referenceModule,
+        referenceModuleInitData,
+        sig,
+      });
+      console.log("create post: tx hash", tx.hash);
 
-      // // TODO: Currently failing here with error 'execution reverted: ERC721: owner query for nonexistent token'
-      // // Looks like an OpenZeppelin error and not a Lens error
-      // const tx = await lensHubContract?.postWithSig({
-      //   profileId,
-      //   contentURI,
-      //   collectModule,
-      //   collectModuleInitData,
-      //   referenceModule,
-      //   referenceModuleInitData,
-      //   sig,
-      // });
-      // console.log("create post: tx hash", tx.hash);
+      const indexedResult = await pollUntilIndexed({ txHash: tx.hash });
 
-      // const indexedResult = await pollUntilIndexed({ txHash: tx.hash });
+      console.log("create post: profile has been indexed");
 
-      // console.log("create post: profile has been indexed");
+      const logs = indexedResult.txReceipt!.logs;
 
-      // const logs = indexedResult.txReceipt!.logs;
-
-      // console.log("create post: logs", logs);
-      // alert("Post created successfully");
+      console.log("create post: logs", logs);
+      alert("Post created successfully");
     } catch (err: any) {
       console.error(`An error occurred creating the post on lens`, err);
     } finally {
@@ -294,7 +214,7 @@ export default function SocialPublications({
         <div className="mt-4">
           <input
             type="text"
-            value={post.title ?? "test"}
+            value={post.title}
             onChange={(e) => setPost({ ...post, title: e.target.value })}
             placeholder="Post title"
             className="my-3 w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
@@ -302,7 +222,7 @@ export default function SocialPublications({
 
           <SimpleMDE
             placeholder="What's on your mind?"
-            value={post.content ?? "test"}
+            value={post.content}
             onChange={(value: string) => setPost({ ...post, content: value })}
           />
         </div>

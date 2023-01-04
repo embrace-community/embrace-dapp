@@ -460,7 +460,7 @@ export default function Chat({
               <button
                 onClick={(e) => joinCall()}
                 className={classNames({
-                  "rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold m-2 p-2 flex flex-row items-center":
+                  "rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold m-2 p-2 flex flex-row items-center":
                     true,
                   "animate-ping m-0 p-0": initiatedCall.current,
                 })}
@@ -475,7 +475,7 @@ export default function Chat({
             <div className="flex flex-col justify-center align-middle">
               <button
                 onClick={(e) => toggleMicrophone()}
-                className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold m-2 p-2 flex flex-row items-center"
+                className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold m-2 p-2 flex flex-row items-center"
               >
                 {huddle.isMicPaused ? (
                   <Icons.MicrophoneMute />
@@ -490,7 +490,7 @@ export default function Chat({
                 onClick={(e) => {
                   huddle.leaveCall();
                 }}
-                className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold m-2 p-2 flex flex-row items-center"
+                className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold m-2 p-2 flex flex-row items-center"
               >
                 <Icons.HangUp />
               </button>
@@ -522,7 +522,7 @@ export default function Chat({
             id="name"
             disabled={!accountMembership?.isActive}
             className={classNames({
-              "w-[100%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm":
+              "w-[100%] block bg-transparent text-embrace-dark rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm":
                 true,
             })}
             placeholder="your message"
@@ -541,9 +541,9 @@ export default function Chat({
             <>
               <button
                 onClick={(e) => joinCall()}
-                // className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
+                // className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
                 className={classNames({
-                  "rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center":
+                  "rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center":
                     true,
                   "animate-pulse m-0 p-0": initiatedCall.current,
                 })}
@@ -552,7 +552,7 @@ export default function Chat({
                 {initiatedCall.current ? "joining" : "join"} video call
               </button>
 
-              <button className="hidden rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4">
+              <button className="hidden rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4">
                 <Icons.Audio className="mr-2" />
                 join audio call
               </button>
@@ -568,7 +568,7 @@ export default function Chat({
           <div>
             {spaceMembers.length > 0 && (
               <div className="flex flex-row items-center pt-4">
-                <div className="text-embracedark text-sm font-semibold">
+                <div className="text-embrace-dark text-sm font-semibold">
                   {spaceMembers.length}{" "}
                   {spaceMembers.length <= 1 ? "member" : "members"}
                 </div>
@@ -616,20 +616,20 @@ export default function Chat({
     //         type="text"
     //         name="name"
     //         id="name"
-    //         className="w-[90%] block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+    //         className="w-[90%] block bg-transparent text-embrace-dark rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
     //         placeholder="your message"
     //       />
     //       </div>
     //     </div>
     //     <div className={showRightMenu?"transition-all w-[290px] pl-10 pt-10":"transition-all w-[0px]"}>
     //       <button
-    //         className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
+    //         className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
     //       >
     //         <Icons.Video className="mr-2"/>
     //         channel video call
     //       </button>
     //       <button
-    //         className="rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4"
+    //         className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4"
     //       >
     //         <Icons.Audio className="mr-2"/>
     //         channel audio call
