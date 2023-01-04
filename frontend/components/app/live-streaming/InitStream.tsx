@@ -76,7 +76,7 @@ export function InitStream({ query, space, streamName }) {
         <button
           onClick={triggerCreateStream}
           className={classNames({
-            "rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center":
+            "rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center":
               true,
           })}
         >

@@ -16,7 +16,7 @@ export default function AppLayout({
   const isOnWrongNetwork = chain?.id && chain.id !== Number(deployedChainId);
 
   return (
-    <div className="bg-embracebg min-h-screen flex flex-col items-start justify-start">
+    <div className="bg-embrace-bg min-h-screen flex flex-col items-start justify-start">
       <Head>
         <title>Embrace Community: {title}</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
@@ -26,7 +26,7 @@ export default function AppLayout({
 
       <main className="w-full flex flex-1 flex-col justify-start items-start">
         {isOnWrongNetwork ? (
-          <div className="w-full text-center text-embracedark">
+          <div className="w-full text-center text-embrace-dark">
             <p className="text-2xl">
               Please switch to chain{" "}
               {chains?.find((c: Chain) => c.id === deployedChainId)?.name}

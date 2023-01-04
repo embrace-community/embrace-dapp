@@ -1,16 +1,37 @@
 import dynamic from "next/dynamic";
 import { useState } from "react";
-import { uuid } from "uuidv4";
+import { v4 as uuidv4 } from "uuid";
 import { Address, useAccount, useSignMessage } from "wagmi";
+import { signTypedData } from "@wagmi/core";
 import { PageState } from ".";
 import { createPost } from "../../../api/lens/createPost";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
 import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
 import {
+  CreatePublicPostRequest,
   Publication,
   PublicationMainFocus,
 } from "../../../types/lens-generated";
 import Button from "../../Button";
+import {
+  Cog8ToothIcon,
+  PencilSquareIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import Image from "next/image";
+import { ReactMarkdown } from "react-markdown/lib/react-markdown";
+import { format } from "date-fns";
+import { getFileUri } from "../../../lib/web3storage/getIpfsJsonContent";
+import {
+  createReactClient,
+  LivepeerConfig,
+  Player,
+  studioProvider,
+} from "@livepeer/react";
+import { removeProperty } from "../../../lib/web3storage/object";
+import { splitSignature } from "ethers/lib/utils.js";
+import useLensContracts from "../../../hooks/lens/useLensContracts";
+import { pollUntilIndexed } from "../../../api/lens/hasTransactionBeenIndexed";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -28,12 +49,18 @@ export default function SocialPublications({
   defaultProfile,
 }) {
   const { address } = useAccount();
-  const { signMessageAsync } = useSignMessage();
-
   const [isLoading, setIsloading] = useState(false);
+  const { signMessageAsync } = useSignMessage();
+  const { lensHubContract } = useLensContracts();
+
+  const livepeerClient = createReactClient({
+    provider: studioProvider({
+      apiKey: process.env.NEXT_PUBLIC_LIVEPEER_STUDIO_API_KEY,
+    }),
+  });
 
   async function saveToIpfsAndCreatePost() {
-    if (!post.title || !post.content || !post.coverImage) {
+    if (!post.title || !post.content) {
       return;
     }
 
@@ -46,7 +73,7 @@ export default function SocialPublications({
         {
           version: "2.0.0",
           mainContentFocus: PublicationMainFocus.TextOnly,
-          metadata_id: uuid(),
+          metadata_id: uuidv4(),
           description: "Description",
           locale: "en-US",
           content: "Content",
@@ -55,8 +82,8 @@ export default function SocialPublications({
           imageMimeType: null,
           name: "Name",
           attributes: [],
-          tags: ["using_api_examples"],
-          appId: "api_examples_github",
+          tags: [],
+          appId: "embrace_community",
         },
         post.title,
       )) as string;
@@ -72,31 +99,11 @@ export default function SocialPublications({
 
     try {
       // hard coded to make the code example clear
-      const createPostRequest = {
+      const createPostRequest: CreatePublicPostRequest = {
         profileId: defaultProfile?.id,
         contentURI: `ipfs://${ipfsResult}`,
         collectModule: {
-          // feeCollectModule: {
-          //   amount: {
-          //     currency: currencies.enabledModuleCurrencies.map(
-          //       (c: any) => c.address
-          //     )[0],
-          //     value: '0.000001',
-          //   },
-          //   recipient: address,
-          //   referralFee: 10.5,
-          // },
-          // revertCollectModule: true,
-          freeCollectModule: { followerOnly: true },
-          // limitedFeeCollectModule: {
-          //   amount: {
-          //     currency: '0x9c3C9283D3e44854697Cd22D3Faa240Cfb032889',
-          //     value: '2',
-          //   },
-          //   collectLimit: '20000',
-          //   recipient: '0x3A5bd1E37b099aE3386D13947b6a90d97675e5e3',
-          //   referralFee: 0,
-          // },
+          freeCollectModule: { followerOnly: false },
         },
         referenceModule: {
           followerOnlyReferenceModule: false,
@@ -105,7 +112,56 @@ export default function SocialPublications({
 
       await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
 
-      createPost(createPostRequest);
+      const result = await createPost(createPostRequest);
+
+      const typedData = result?.typedData;
+
+      if (!typedData) {
+        console.error("create post: typed data is null");
+        return;
+      }
+
+      console.log("create post: typedData", typedData);
+
+      const signature = await signTypedData({
+        domain: removeProperty(typedData.domain, "__typename"),
+        types: removeProperty(typedData.types, "__typename"),
+        value: removeProperty(typedData.value, "__typename"),
+      });
+
+      console.log("create post: signature", signature);
+
+      const { v, r, s } = splitSignature(signature);
+
+      console.log("create post: try postWithSig", typedData.value);
+
+      const tx = await lensHubContract?.postWithSig({
+        profileId: typedData.value.profileId,
+        contentURI: typedData.value.contentURI,
+        // collectModule: typedData.value.collectModule,
+        collectModule: 0x5e70ffd2c6d04d65c3abeba64e93082cfa348df8,
+        // collectModuleInitData: typedData.value.collectModuleInitData,
+        collectModuleInitData: "0x",
+        // referenceModule: typedData.value.referenceModule,
+        referenceModule: "0x",
+        referenceModuleInitData: typedData.value.referenceModuleInitData,
+        sig: {
+          v,
+          r,
+          s,
+          deadline: typedData.value.deadline,
+        },
+      });
+      console.log("create post: tx hash", tx.hash);
+
+      const indexedResult = await pollUntilIndexed({ txHash: tx.hash });
+
+      console.log("create post: profile has been indexed");
+
+      const logs = indexedResult.txReceipt!.logs;
+
+      console.log("create post: logs", logs);
+      alert("Post created successfully");
     } catch (err: any) {
       console.error(`An error occurred creating the post on lens`);
     } finally {
@@ -114,29 +170,34 @@ export default function SocialPublications({
   }
 
   return (
-    <>
+    <LivepeerConfig client={livepeerClient}>
       <div className="flex justify-between">
         {isLensPublisher && (
-          <Button
-            additionalClassName="p-2"
-            buttonProps={{
-              onClick: () => {
-                setWritePost((prevState) => !prevState);
-              },
+          // TODO: Had to use button instead og Button component due to inability to override default styles
+          <button
+            className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold p-2 flex flex-row items-center"
+            onClick={() => {
+              setWritePost(!writePost);
             }}
           >
-            {writePost ? "Hide Post" : "Write Post"}
-          </Button>
+            {writePost ? (
+              <XMarkIcon width={24} />
+            ) : (
+              <PencilSquareIcon width={24} />
+            )}
+          </button>
         )}
 
         {(isLensPublisher || address === space.founder) && (
-          <Button
-            additionalClassName="p-2 ml-auto"
-            buttonProps={{
-              onClick: () =>
-                setPageState({ type: PageState.Profile, data: "" }),
+          // TODO: Had to use button instead og Button component due to inability to override default styles
+          <button
+            className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold p-2 flex flex-row items-center"
+            onClick={() => {
+              setPageState({ type: PageState.Profile, data: "" });
             }}
-          ></Button>
+          >
+            <Cog8ToothIcon width={24} />
+          </button>
         )}
       </div>
 
@@ -147,7 +208,7 @@ export default function SocialPublications({
             value={post.title}
             onChange={(e) => setPost({ ...post, title: e.target.value })}
             placeholder="Post title"
-            className="my-3 w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
+            className="my-3 w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
           />
 
           <input
@@ -155,7 +216,7 @@ export default function SocialPublications({
             value={post.coverImage}
             onChange={(e) => setPost({ ...post, coverImage: e.target.value })}
             placeholder="Post cover image"
-            className="mt-2 mb-5 w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
+            className="mt-2 mb-5 w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
           />
 
           <SimpleMDE
@@ -178,31 +239,74 @@ export default function SocialPublications({
         </Button>
       )}
 
-      <div className="mt-8">
-        <div className="mt-6 mx-auto max-w-xl">
+      <div className="flex justify-center mt-8">
+        <div className="gap-4 w-1/2">
           {publications?.items?.length === 0 && <div>No posts so far...</div>}
 
-          {publications?.items?.map((item: Publication) => {
+          {publications?.items?.map((publication: Publication) => {
             return (
               <div
-                key={item.id}
-                className="flex justify-between rounded-lg border-gray-400 border-2 mt-2 p-4 cursor-pointer shadow-xl"
-                onClick={() =>
-                  setPageState({
-                    type: PageState.PublicationDetail,
-                    data: item.id,
-                  })
-                }
+                key={publication.id}
+                className=" rounded-lg border-gray-400 border-2 mt-2 p-4 mb-4 cursor-default shadow-xl"
               >
-                <span>{item.metadata?.name}</span>
-                <span>
-                  {item?.createdAt && new Date(item.createdAt).toLocaleString()}
-                </span>
+                <div className="flex">
+                  <Image
+                    className="h-10 w-10 rounded-full"
+                    src={space.loadedMetadata?.image}
+                    alt="Lens Profile Avatar"
+                    width={40}
+                    height={40}
+                  />
+
+                  <p className="text-xs font-medium text-gray-500 m-2 ml-4">
+                    {publication?.createdAt &&
+                      format(new Date(publication.createdAt), "MMM d")}
+                  </p>
+                </div>
+                <div className="flex-1 ml-4 mt-4">
+                  <p className="truncate text-sm text-gray-900 mb-2">
+                    <ReactMarkdown>
+                      {publication.metadata.content}
+                    </ReactMarkdown>
+                  </p>
+                  {publication?.metadata?.media?.map((media, index) => {
+                    return media?.original?.mimeType?.startsWith("image") ? (
+                      <div className="rounded-lg mb-2">
+                        <Image
+                          key={`media${index}`}
+                          src={getFileUri(
+                            media?.original?.url.replaceAll("ipfs://", ""),
+                          )}
+                          className="rounded-lg w-1/3 h-auto"
+                          alt="publication media"
+                          width={0}
+                          height={0}
+                          sizes="100vw"
+                        />
+                      </div>
+                    ) : media?.original?.mimeType?.startsWith("video") ? (
+                      <div className="h-[450px] rounded-lg mb-2">
+                        <Player
+                          key={`media${index}`}
+                          src={media?.original?.url}
+                          // title={name}
+                          autoPlay={false}
+                          objectFit="contain"
+                          muted={false}
+                          autoUrlUpload={{
+                            fallback: true,
+                            ipfsGateway: "https://cloudflare-ipfs.com",
+                          }}
+                        />
+                      </div>
+                    ) : null;
+                  })}
+                </div>
               </div>
             );
           })}
         </div>
       </div>
-    </>
+    </LivepeerConfig>
   );
 }

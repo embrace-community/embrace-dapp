@@ -245,7 +245,7 @@ export default function CreateCreation({
     <>
       <div className="w-full  mb-6 flex flex-row align-middle">
         <Link
-          className="text-sm text-embracedark text-opacity-70 mt-2 ml-10 underline"
+          className="text-sm text-embrace-dark text-opacity-70 mt-2 ml-10 underline"
           href="/"
           onClick={() => router.back()}
         >
@@ -261,7 +261,7 @@ export default function CreateCreation({
             <div className="mb-7">
               <label
                 htmlFor="type"
-                className="block text-sm font-medium text-embracedark"
+                className="block text-sm font-medium text-embrace-dark"
               >
                 Type
               </label>
@@ -285,7 +285,7 @@ export default function CreateCreation({
                     <label
                       htmlFor={creationType.id}
                       className={classNames({
-                        "ml-3 block text-sm font-medium text-embracedark cursor-pointer":
+                        "ml-3 block text-sm font-medium text-embrace-dark cursor-pointer":
                           true,
                         "opacity-50": creationType.disabled,
                       })}
@@ -300,7 +300,7 @@ export default function CreateCreation({
             <div className="mb-7">
               <label
                 htmlFor="description"
-                className="mb-2 block text-sm font-medium text-embracedark"
+                className="mb-2 block text-sm font-medium text-embrace-dark"
               >
                 Creation
               </label>
@@ -323,7 +323,7 @@ export default function CreateCreation({
             <div className="mb-7">
               <label
                 htmlFor="description"
-                className="mb-2 block text-sm font-medium text-embracedark"
+                className="mb-2 block text-sm font-medium text-embrace-dark"
               >
                 Thumbnail
               </label>
@@ -356,7 +356,7 @@ export default function CreateCreation({
             <div className="mb-7">
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-embracedark"
+                className="block text-sm font-medium text-embrace-dark"
               >
                 Name
               </label>
@@ -366,7 +366,7 @@ export default function CreateCreation({
                   type="text"
                   name="name"
                   id="name"
-                  className="block bg-transparent text-embracedark w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+                  className="block bg-transparent text-embrace-dark w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                   placeholder="The name of your new creation"
                   onChange={(e) => setName(e.target.value)}
                   value={name}
@@ -377,7 +377,7 @@ export default function CreateCreation({
             <div className="mb-7">
               <label
                 htmlFor="description"
-                className="block text-sm font-medium text-embracedark"
+                className="block text-sm font-medium text-embrace-dark"
               >
                 Description
               </label>
@@ -386,7 +386,7 @@ export default function CreateCreation({
                 <textarea
                   name="description"
                   id="description"
-                  className="block bg-transparent w-full resize-none text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+                  className="block bg-transparent w-full resize-none text-embrace-dark rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                   placeholder="Description of new creation"
                   onChange={(e) => setDescription(e.target.value)}
                   value={description}

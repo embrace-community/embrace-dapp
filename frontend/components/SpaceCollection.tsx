@@ -82,9 +82,9 @@ export default function SpaceCollection({
   }
 
   return (
-    <div className="w-full border-t-2 border-embracedark border-opacity-5 pb-14 flex flex-col">
+    <div className="w-full border-t-2 border-embrace-dark border-opacity-5 pb-14 flex flex-col">
       {title ? (
-        <p className="text-embracedark text-opacity-20 text-sm mt-2 mb-8">
+        <p className="text-embrace-dark text-opacity-20 text-sm mt-2 mb-8">
           {title}
         </p>
       ) : (
@@ -126,7 +126,7 @@ export default function SpaceCollection({
                       />
                     </div>
                   )} */}
-                  <p className="text-embracedark font-semibold">
+                  <p className="text-embrace-dark font-semibold">
                     {handleString}
                     {/* {jsonMetadata?.[i]?.name || handleString} */}
                   </p>

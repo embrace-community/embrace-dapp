@@ -11,7 +11,7 @@ module.exports = {
     },
     extend: {
       colors: {
-        embracebg: "#F7F6E8",
+        "embrace-bg": "#F7F6E8",
         "embrace-dark": "#35281E",
       },
     },

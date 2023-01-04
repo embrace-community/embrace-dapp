@@ -37,7 +37,7 @@ export default function Header({
   console.log("space metadata: ", space.loadedMetadata, space);
   return (
     <div className="w-full flex flex-col pt-6 md:pl-[6.8vw]">
-      <div className="w-full flex flex-col md:flex-row justify-start items-center md:items-start border-b-2 border-embracedark border-opacity-5 mb-4">
+      <div className="w-full flex flex-col md:flex-row justify-start items-center md:items-start border-b-2 border-embrace-dark border-opacity-5 mb-4">
         {space.loadedMetadata?.image ? (
           <Image
             className="w-20 h-20 rounded-full mb-5 bg-white"
@@ -62,11 +62,11 @@ export default function Header({
                 >
                   about
                 </p>
-                <p className="text-embracedark opacity-20 mx-4">|</p>
+                <p className="text-embrace-dark opacity-20 mx-4">|</p>
 
                 {!accountMembership?.isActive && (
                   <>
-                    <p className="text-embracedark opacity-50">
+                    <p className="text-embrace-dark opacity-50">
                       You&apos;re not a member
                     </p>
                   </>
@@ -86,7 +86,7 @@ export default function Header({
 
                 {accountMembership?.isActive && isFounder && (
                   <div className="flex flex-row">
-                    <p className="text-embracedark opacity-50">
+                    <p className="text-embrace-dark opacity-50">
                       You are the founder
                     </p>
                   </div>
@@ -96,7 +96,7 @@ export default function Header({
                   accountMembership?.isAdmin &&
                   !isFounder && (
                     <div className="flex flex-row">
-                      <p className="text-embracedark opacity-50">
+                      <p className="text-embrace-dark opacity-50">
                         You&apos;re an admin
                       </p>
                     </div>
@@ -106,7 +106,7 @@ export default function Header({
                   !accountMembership?.isAdmin &&
                   !isFounder && (
                     <div className="flex flex-row">
-                      <p className="text-embracedark opacity-50">
+                      <p className="text-embrace-dark opacity-50">
                         You&apos;re a member
                       </p>
                     </div>
@@ -158,7 +158,7 @@ export default function Header({
                       </button>
                     )}
                   {accountMembership?.isRequest && (
-                    <p className="text-embracedark opacity-20 text-right">
+                    <p className="text-embrace-dark opacity-20 text-right">
                       Request pending...
                     </p>
                   )}
@@ -187,7 +187,7 @@ export default function Header({
                     )}
 
                   {accountMembership?.isRequest && (
-                    <p className="text-embracedark opacity-20 text-right">
+                    <p className="text-embrace-dark opacity-20 text-right">
                       Request pending...
                     </p>
                   )}
@@ -216,17 +216,17 @@ export default function Header({
               )}
               <div className={aboutShow ? "" : "hidden"}>
                 <div className="w-full flex flex-row mt-5 text-sm">
-                  <p className="text-embracedark">
+                  <p className="text-embrace-dark">
                     {space.loadedMetadata?.description}
                   </p>
                 </div>
                 <div className="w-full flex flex-row mt-2 text-sm ">
-                  <p className="text-embracedark">
+                  <p className="text-embrace-dark">
                     {space?.memberCount} Members
                   </p>
                 </div>
                 <div className="w-full flex flex-row mt-1 text-sm">
-                  <p className="text-embracedark">
+                  <p className="text-embrace-dark">
                     Visibility: {visibility}
                     <br />
                     Access: {access}

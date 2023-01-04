@@ -9,7 +9,7 @@ import useGetProfiles from "../../../hooks/lens/useGetProfiles";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
 import { Profile } from "../../../types/lens-generated";
-import Button from "../../Button";
+import { ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
 import DropDown from "../../DropDown";
 import Spinner from "../../Spinner";
 
@@ -114,15 +114,14 @@ export default function SocialProfile({
 
   return (
     <>
-      <Button
-        additionalClassName="p-2 float-right"
-        buttonProps={{
-          onClick: () =>
-            setPageState({ type: PageState.Publications, data: "" }),
+      <button
+        className="rounded-full float-right border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold p-2 flex flex-row items-center"
+        onClick={() => {
+          setPageState({ type: PageState.Publications, data: "" });
         }}
       >
-        See Publications
-      </Button>
+        <ArrowUturnLeftIcon width={24} height={24} />
+      </button>
 
       {isLensPublisher || address === space.founder ? (
         <>
@@ -131,7 +130,7 @@ export default function SocialProfile({
 
             <input
               type="text"
-              className="mt-2 w-1/2 block rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
+              className="mt-2 w-1/2 block rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
               placeholder={
                 socialDetails?.lensWallet
                   ? socialDetails?.lensWallet
@@ -143,7 +142,7 @@ export default function SocialProfile({
 
             <input
               type="text"
-              className="mt-2 w-1/2 block rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
+              className="mt-2 w-1/2 block rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
               placeholder={
                 socialDetails?.lensDefaultProfileId
                   ? socialDetails?.lensDefaultProfileId
@@ -168,7 +167,7 @@ export default function SocialProfile({
             <h4 className="text-md mt-4">Current default profile</h4>
             <input
               type="text"
-              className="mt-2 w-72 block bg-transparent text-gray-400 rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+              className="mt-2 w-72 block bg-transparent text-gray-400 rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
               value={`${defaultProfile?.handle} - ${defaultProfile?.id}`}
               disabled
             />
@@ -178,7 +177,7 @@ export default function SocialProfile({
               <div className="flex items-center rounded-md">
                 <input
                   type="text"
-                  className="w-72 block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+                  className="w-72 block bg-transparent text-embrace-dark rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
                   placeholder="The name of your new lens profile"
                   onChange={(e) => setProfileName(e.target.value)}
                   value={profileName}
