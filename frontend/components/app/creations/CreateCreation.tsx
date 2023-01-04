@@ -24,7 +24,7 @@ import {
   getCreationById,
 } from "../../../store/slices/creations";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { RootState } from "../../../store/store";
+import { livepeerApiKey } from "../../../lib/envs";
 
 const creationTypes = [
   { id: "video", title: "Video" },
@@ -35,7 +35,7 @@ const creationTypes = [
 
 const livepeerClient = createReactClient({
   provider: studioProvider({
-    apiKey: process.env.NEXT_PUBLIC_LIVEPEER_STUDIO_API_KEY,
+    apiKey: livepeerApiKey,
   }),
 });
 
