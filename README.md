@@ -1,82 +1,63 @@
-# Embrace
+![embrace community](https://lets.embrace.community/logos/embrace-earth-web.png)
 
-This is a mono-repo which includes both the contracts and frontend.
+Today the popular platforms in the social media space offer a distorted expression of community that is more focused on revenue than the health and well-being of the community and it’s creators. **Embrace...**
+Instead of merely duplicating a Web3 version of these existing platforms, we wish to reconnect to the core principles of community and start again with fresh eyes.
+
+Embrace is not limited to any type of community, however the first steps are to build apps that empower Creators and enable them to build communities around their creations. As part of the Next Video Build Hackathon We have implemented 4 new applications for the Embrace eco-system:
+
+1.  Social: Enabling communities to create or connect their Lens profile and create posts for their followers to view within their community space and throughout in the Lens ecosystem
+2.  Creations: Enabling creators to add their content (e.g videos) to be stored on IPFS, minted as NFTs and transcoded through LivePeer
+3.  Chat Server: The first stages of a Decentralised Chat Server, using XMTP for chat and Huddle for video calling
+4.  Live Stream: Start a stream through LiverPeer Studio, and share the link with your community on Lens
+
+# Next Video Build
+
+## Screenshots
+
+- Viewing all your communities / public communites
+- Creating a new Community space
+  - Select the Apps
+  - Main Community page
+- Joining a public community
+  - Click to join → loading state → you are a member
+- Social App
+  - Setup Lens account
+  - View published posts
+  - Create a post
+- List each app and the integrations used
+  - Include Logos i.e. LivePeer, Lens, XMTP, Polygon
+
+## Video Demo
 
 ## Presentation & Design
 
-[Google Slides](https://docs.google.com/presentation/d/1S9ExAmx9alB77exgWNN5q_Pj4qTKXJ5-44fDco_qy-s)
+[Slides](https://docs.google.com/presentation/d/1S9ExAmx9alB77exgWNN5q_Pj4qTKXJ5-44fDco_qy-s)
 
 [Figma Design](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
 
 ## Team
 
-Martin <martin@openskydevelopment.co.uk>
-Ben <info@bennisan.be>
-Tobias <caruso33@web.de>
+Martin <martin@openskydevelopment.co.uk> (Founder)
+Tobias <caruso33@web.de> (Co-Founder)
+Ben <info@bennisan.be> (Design)
 
 ## Bounties
 
-- IPFS / FileCoin
-  - web3.storage - Community Space & Discussion metadata - [Link to implementation example](https://github.com/embrace-community/embrace-dapp/blob/main/frontend/pages/space/create.tsx#L92)
-  - Ceramic - Discussion data - [Link to implementation example](https://github.com/embrace-community/embrace-dapp/blob/main/frontend/components/app/discussion/DiscussionTopicComments.tsx#L49)
-- WalletConnect - Connection - [Link to implementation example](https://github.com/embrace-community/embrace-dapp/blob/cb548f65a461ea185a93b17856cac7d4a4dbd2ae/frontend/components/Nav.tsx#L48) (unfortunately later had to be replaced because of issues with cronos & goerli networks - `Error: underlying network changed`)
-- Cronos - Deployment - [Link to implementation example](https://github.com/embrace-community/embrace-dapp/blob/52a85b467531a8981903eb8aedee7b2278cf2efe/contracts/hardhat.config.ts#L40) (unfortunately had to be replaced later because of wallet connection & deployment issues to cronos)
-
 ## Frontend
 
-[Deployed Frontend](https://embrace-community.vercel.app)
-
-### Run
-
-`cd frontend && cp .env.example .env.local` - fill envs
-
-`cd frontend && yarn` - install deps
-
-`cd frontend && yarn dev` - run frontend in dev mode
+Build using Next.Js, React, Redux, Tailwind, Ethers.js
+[Deployed Frontend](https://next-video.embrace.community)
 
 ## Contracts
 
-#### Deployments
-
-#### Goerli
+#### Polgyon Mumbai
 
 ```
-EmbraceApps deployed to:  0x98F535f286Db7b425266E6432c9A11989aFdCbfc
+EmbraceApps deployed to:
 
-EmbraceSpaces deployed to:  0x23A21A1572288d0DFF9E8005cEeaF657F9bBdcad
+EmbraceSpaces deployed to:
 
-EmbraceAccounts deployed to:  0x53D4D0FFf2d9c62Ac51f15856eaB323802845A6b
-```
+EmbraceAccounts deployed to:
 
-#### Cronos
 
 ```
-EmbraceApps deployed to:  0x148B94D622c2Ac3abfb550AEaF48F25F105EA18b
-
-EmbraceSpaces deployed to:  0x53D4D0FFf2d9c62Ac51f15856eaB323802845A6b
-
-EmbraceAccounts deployed to:  0x3706a43642eC170E9E5e57fa3929FAD854A8fC4E
-```
-
-### Run
-
-`cd contracts && yarn` - install deps
-
-`cd contracts && yarn test` - run tests
-
-#### deploy
-
-##### locally
-
-`cd contracts && yarn run node` - run your local node
-`cd contracts && yarn deploy` - deploy all contracts locally
-
-##### cronos testnet
-
-`cd contracts && yarn deploy:cro:test` - deploy all contracts to cronos testnet
-
-This might fail, depending which contracts weren't deployed, there are the single commands as well:
-
-`cd contracts && yarn deploy:apps:cro:test` - deploy EmbraceApps contract to cronos testnet
-`cd contracts && yarn deploy:spaces:cro:test` - deploy EmbraceSpaces contract to cronos testnet
-`cd contracts && yarn deploy:accounts:cro:test` - deploy EmbraceAccounts contract to cronos testnet
