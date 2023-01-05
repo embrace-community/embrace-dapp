@@ -9,11 +9,9 @@ export default function Nav() {
       <div className="w-full p-0 flex-row px-10 py-5 items-center bg-embrace-bg hidden md:flex">
         <Link key="Home" href="/">
           <Image
-            src={"/embrace-earth-web.png"}
+            src={"/logos/embrace-earth-web.png"}
             width={235} // 774
             height={57} // 188
-            // width={194} // 774
-            // height={47} // 188
             alt="Embrace Logo"
           />
         </Link>
@@ -25,11 +23,9 @@ export default function Nav() {
       <div className="w-full p-0 flex-row px-10 py-5 items-center justify-center bg-embrace-bg flex md:hidden">
         <Link key="Home" href="/" className="w-[184px]">
           <Image
-            src={"/embrace-earth-web.png"}
+            src={"/logos/embrace-earth-web.png"}
             width={235} // 774
             height={57} // 188
-            // width={194} // 774
-            // height={47} // 188
             alt="Embrace Logo"
           />
         </Link>
