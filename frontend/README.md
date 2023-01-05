@@ -1,6 +1,7 @@
 # Embrace
 
-This is a mono-repo which includes both the contracts and frontend.
+This is a mono-repo which includes both the contracts and frontend!
+TEST
 ![Polygon logo](https://lets.embrace.community/logos/polygon.png =200x200)
 
 ## Presentation & Design
