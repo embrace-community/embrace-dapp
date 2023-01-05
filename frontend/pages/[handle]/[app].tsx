@@ -240,7 +240,7 @@ export default function SpaceViewPage() {
             />
           </>
         ) : (
-          <div className="p-10">
+          <div className="w-full justify-center p-10">
             <Spinner />
           </div>
         )}
