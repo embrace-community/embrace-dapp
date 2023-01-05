@@ -146,13 +146,13 @@ export default function HomePage() {
             <>
               {signer && spacesStore.yourSpaces.length > 0 && (
                 <SpaceCollection
-                  title="your spaces"
+                  title="your communities"
                   collection={spacesStore.yourSpaces}
                 />
               )}
               {spacesStore.communitySpaces.length > 0 && (
                 <SpaceCollection
-                  title="community spaces"
+                  title="public communities"
                   collection={spacesStore.communitySpaces}
                 />
               )}
