@@ -32,7 +32,7 @@ export default function SpaceViewPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [currentStep, setCurrentStep] = useState<number>(2);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { data: signer } = useSigner();
