@@ -1,9 +1,11 @@
 ![embrace community](https://lets.embrace.community/logos/embrace-earth-web.png)
 
-Today the popular platforms in the social media space offer a distorted expression of community that is more focused on revenue than the health and well-being of the community and it’s creators. **Embrace...**
-Instead of merely duplicating a Web3 version of these existing platforms, we wish to reconnect to the core principles of community and start again with fresh eyes.
+How can we express the true values of community in the modern era of the web?
 
-Embrace is not limited to any type of community, however the first steps are to build apps that empower Creators and enable them to build communities around their creations. As part of the Next Video Build Hackathon We have implemented 4 new applications for the Embrace eco-system:
+Today most popular community platforms offer a distorted expression of community that is more focused on revenue than the health and well-being of it’s users. Embrace is looking to change this.
+Instead of merely duplicating a Web3 version of these existing platforms, we wish to reconnect to the core principles of community and to start again with fresh eyes.
+
+Embrace is not limited to any type of community, however the first steps are to build apps that empower Creators and enable them to build communities around their creations. As part of the Next Video Build Hackathon we have implemented 4 applications:
 
 1.  Social: Enabling communities to create or connect their Lens profile and create posts for their followers to view within their community space and throughout in the Lens ecosystem
 2.  Creations: Enabling creators to add their content (e.g videos) to be stored on IPFS, minted as NFTs and transcoded through LivePeer
@@ -54,9 +56,7 @@ Build using Next.Js, React, Redux, Tailwind, Ethers.js
 
 ```
 EmbraceApps deployed to:
-
 EmbraceSpaces deployed to:
-
 EmbraceAccounts deployed to:
 
 
