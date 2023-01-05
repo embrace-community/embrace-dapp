@@ -333,7 +333,7 @@ export default function SpaceViewPage() {
         <div className="flex flex-col pt-8 pr-[6.8vw] pb-28 pl-[6.8vw] w-full">
           <div className="w-full border-t-2 border-embrace-dark border-opacity-5 mb-6 flex flex-row align-middle">
             <h1 className="text-embrace-dark text-opacity-20 text-sm mt-2 mb-8">
-              creating a new space
+              creating a new community
             </h1>
             <Link
               className="text-sm text-embrace-dark text-opacity-70 mt-2 ml-6 underline"
@@ -394,7 +394,7 @@ export default function SpaceViewPage() {
                       name="name"
                       id="name"
                       className="block bg-transparent text-embrace-dark w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                      placeholder="The name of your new space"
+                      placeholder="The name of your community"
                       onChange={(e) => setName(e.target.value)}
                       value={name}
                     />
@@ -415,7 +415,7 @@ export default function SpaceViewPage() {
                       name="handle"
                       id="handle"
                       className="block bg-transparent w-full text-embrace-dark rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                      placeholder="The handle of your new space"
+                      placeholder="The handle for your community"
                       onChange={(e) => setHandle(e.target.value)}
                       value={handle}
                     />
@@ -435,7 +435,7 @@ export default function SpaceViewPage() {
                       name="description"
                       id="description"
                       className="block bg-transparent w-full resize-none text-embrace-dark rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                      placeholder="Description of new space"
+                      placeholder="Tell us about your community"
                       onChange={(e) => setDescription(e.target.value)}
                       value={description}
                     />

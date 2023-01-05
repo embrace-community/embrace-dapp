@@ -20,6 +20,7 @@ import { RootState } from "../store/store";
 import { Space } from "../types/space";
 import { SpaceUtil } from "../types/space-type-utils";
 import Button from "../components/Button";
+import { PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
 
 export default function HomePage() {
   const spacesStore = useAppSelector((state: RootState) => state.spaces);
@@ -132,8 +133,8 @@ export default function HomePage() {
           {signer && (
             <div className="flex items-center justify-center md:justify-start">
               <Link href="/create">
-                <Button additionalClassName="inline-flex items-center py-4 px-12 mb-11 font-semibold text-xl mt-5">
-                  + new space
+                <Button additionalClassName="inline-flex items-center py-4 px-8 mb-11 font-semibold text-xl mt-5">
+                  <PlusIcon width={24} className="mr-2" /> new community
                 </Button>
               </Link>
             </div>
