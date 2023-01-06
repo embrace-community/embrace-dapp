@@ -22,7 +22,7 @@ export async function refreshToken(request: RefreshRequest) {
 }
 
 const REFRESH_TOKEN = gql`
-  mutation Refresh {
+  mutation Refresh($request: RefreshRequest!) {
     refresh(request: $request) {
       accessToken
       refreshToken

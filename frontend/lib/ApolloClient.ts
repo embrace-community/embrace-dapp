@@ -111,7 +111,13 @@ export default async function lensAuthenticationIfNeeded(
 
     const isAccessTokenExpired = new Date(jwt?.exp * 1e3) < new Date();
 
-    if (isAccessTokenExpired) justRefreshToken = true;
+    if (
+      isAccessTokenExpired &&
+      localStorage.getItem(LocalStorageKey.LensRefreshToken)
+    ) {
+      justRefreshToken = true;
+      console.log("Reauthenticating on lens");
+    }
   }
 
   if (!lensAccessKey || justRefreshToken) {
