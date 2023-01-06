@@ -10,30 +10,21 @@ import {
   studioProvider,
 } from "@livepeer/react";
 import { format } from "date-fns";
-import { splitSignature } from "ethers/lib/utils.js";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useState } from "react";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
-import { v4 as uuidv4 } from "uuid";
 import { Address, useAccount, useSignMessage, useSignTypedData } from "wagmi";
 import { PageState } from ".";
-import { createPost } from "../../../api/lens/createPost";
 import useLensContracts from "../../../hooks/lens/useLensContracts";
 import useTimeout from "../../../hooks/useTimeout";
-import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
 import { livepeerApiKey } from "../../../lib/envs";
 import { getFileUri } from "../../../lib/web3storage/getIpfsJsonContent";
-import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
-import {
-  CreatePublicPostRequest,
-  Publication,
-  PublicationMainFocus,
-} from "../../../types/lens-generated";
+import { Publication } from "../../../types/lens-generated";
 import Button from "../../Button";
 import Notification from "../../Notification";
 import Spinner from "../../Spinner";
-import { getSignature } from "./post_utils";
+import { saveToIpfsAndCreatePost } from "./post_utils";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -68,101 +59,6 @@ export default function SocialPublications({
       console.log(error);
     },
   });
-
-  // lenster: https://github.com/lensterxyz/lenster/tree/main/apps/web
-  // Lens post example: https://github.com/lens-protocol/api-examples/blob/master/src/publications/post.ts
-  // dabit example: https://github.com/dabit3/lens-protocol-frontend
-  async function saveToIpfsAndCreatePost() {
-    if (!post.title || !post.content) {
-      return;
-    }
-
-    let ipfsResult: string;
-
-    try {
-      setIsloading(true);
-
-      ipfsResult = (await saveToIpfs(
-        {
-          version: "2.0.0",
-          mainContentFocus: PublicationMainFocus.Article,
-          metadata_id: uuidv4(),
-          description: "Created on Embrace Community",
-          locale: "en-US",
-          content: post.content,
-          external_url: null,
-          image: null,
-          imageMimeType: null,
-          name: post.title,
-          attributes: [],
-          tags: [],
-          appId: "embrace_community",
-        },
-        post.title,
-      )) as string;
-
-      console.log("create post: ipfs result", ipfsResult);
-    } catch (err: any) {
-      setIsloading(false);
-      console.error(
-        `An error occurred saving post data to IPFS, ${err.message}`,
-      );
-      return;
-    }
-
-    try {
-      // hard coded to make the code example clear
-      const createPostRequest: CreatePublicPostRequest = {
-        profileId: defaultProfile?.id,
-        contentURI: `ipfs://${ipfsResult}`,
-        collectModule: {
-          freeCollectModule: { followerOnly: true },
-        },
-        referenceModule: {
-          followerOnlyReferenceModule: false,
-        },
-      };
-
-      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
-
-      // lens graphql call
-      const result = await createPost(createPostRequest);
-
-      if (!result) {
-        setIsloading(false);
-        console.error("An error occurred creating post at lens");
-        return;
-      }
-
-      const formattedTypedData = getSignature(result.typedData);
-      const signature = await signTypedDataAsync(formattedTypedData);
-
-      const { v, r, s } = splitSignature(signature);
-
-      // lens contract call
-      const tx = await lensHubContract!.postWithSig({
-        profileId: formattedTypedData.value.profileId,
-        contentURI: formattedTypedData.value.contentURI,
-        collectModule: formattedTypedData.value.collectModule,
-        collectModuleInitData: formattedTypedData.value.collectModuleInitData,
-        referenceModule: formattedTypedData.value.referenceModule,
-        referenceModuleInitData:
-          formattedTypedData.value.referenceModuleInitData,
-        sig: { v, r, s, deadline: formattedTypedData.value.deadline },
-      });
-
-      await tx.wait();
-
-      console.log("successfully created post: tx hash", tx.hash);
-      setSuccess(tx.hash);
-    } catch (err: any) {
-      console.error(
-        `An error occurred creating the post on lens, ${err.message}`,
-      );
-    } finally {
-      setIsloading(false);
-    }
-  }
 
   useTimeout(!!success, 8_000, () => setSuccess(""));
 
@@ -240,7 +136,17 @@ export default function SocialPublications({
         <Button
           additionalClassName="p-2 float-right"
           buttonProps={{
-            onClick: saveToIpfsAndCreatePost,
+            onClick: () =>
+              saveToIpfsAndCreatePost({
+                post,
+                setIsloading,
+                defaultProfile,
+                address,
+                signMessageAsync,
+                signTypedDataAsync,
+                lensHubContract,
+                setSuccess,
+              }),
             disabled: !post.content || !isLensPublisher,
           }}
         >
@@ -250,7 +156,7 @@ export default function SocialPublications({
 
       <div className="flex justify-center mt-8">
         <div className="gap-4 w-1/2">
-          {publications?.items?.length === 0 && (
+          {(publications?.items?.length === 0 || !defaultProfile?.id) && (
             <h1 className="w-full text-center text-lg">No posts exist...</h1>
           )}
 
