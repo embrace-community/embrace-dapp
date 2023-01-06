@@ -1,6 +1,6 @@
 ![embrace community](https://lets.embrace.community/logos/embrace-earth-web.png)
 
-How can we express the true values of community in the modern era of the web?
+How can we best express the true values of community in the modern era of the web?
 
 Today most popular community platforms offer a distorted expression of community that is more focused on revenue than the health and well-being of it’s users. Embrace is looking to change this.
 Instead of merely duplicating a Web3 version of these existing platforms, we wish to reconnect to the core principles of community and to start again with fresh eyes.
@@ -30,6 +30,8 @@ Embrace is not limited to any type of community, however the first steps are to 
   - Include Logos i.e. LivePeer, Lens, XMTP, Polygon
 
 ## Video Demo
+
+to do
 
 ## Presentation & Design
 

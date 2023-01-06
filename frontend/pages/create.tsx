@@ -256,6 +256,9 @@ export default function SpaceViewPage() {
           spaceMembership,
           apps,
           metadataCid,
+          // {
+          //   gasLimit: 1000000,
+          // },
         );
 
         if (tx) {
