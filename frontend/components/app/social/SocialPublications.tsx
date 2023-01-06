@@ -10,26 +10,19 @@ import {
   studioProvider,
 } from "@livepeer/react";
 import { format } from "date-fns";
-import { TypedDataDomain } from "ethers";
 import { splitSignature } from "ethers/lib/utils.js";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useState } from "react";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 import { v4 as uuidv4 } from "uuid";
-import {
-  Address,
-  useAccount,
-  useContractWrite,
-  useSignMessage,
-  useSignTypedData,
-} from "wagmi";
+import { Address, useAccount, useSignMessage, useSignTypedData } from "wagmi";
 import { PageState } from ".";
 import { createPost } from "../../../api/lens/createPost";
-import LensHubJsonAbi from "../../../data/abis/lens/lens-hub-contract-abi.json"; // TODO: IS THIS CORRECT ABI?
 import useLensContracts from "../../../hooks/lens/useLensContracts";
+import useTimeout from "../../../hooks/useTimeout";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
-import { lensHubContractAddress, livepeerApiKey } from "../../../lib/envs";
+import { livepeerApiKey } from "../../../lib/envs";
 import { getFileUri } from "../../../lib/web3storage/getIpfsJsonContent";
 import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
 import {
@@ -38,6 +31,9 @@ import {
   PublicationMainFocus,
 } from "../../../types/lens-generated";
 import Button from "../../Button";
+import Notification from "../../Notification";
+import Spinner from "../../Spinner";
+import { getSignature } from "./post_utils";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -55,9 +51,11 @@ export default function SocialPublications({
   defaultProfile,
 }) {
   const { address } = useAccount();
-  const [isLoading, setIsloading] = useState(false);
   const { signMessageAsync } = useSignMessage();
   const { lensHubContract } = useLensContracts();
+
+  const [isLoading, setIsloading] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const livepeerClient = createReactClient({
     provider: studioProvider({
@@ -65,68 +63,15 @@ export default function SocialPublications({
     }),
   });
 
-  const { signTypedDataAsync, isLoading: typedDataLoading } = useSignTypedData({
+  const { signTypedDataAsync } = useSignTypedData({
     onError: (error) => {
       console.log(error);
     },
   });
 
-  const { error, write } = useContractWrite({
-    address: lensHubContractAddress,
-    abi: LensHubJsonAbi, //LensHubProxy,
-    functionName: "postWithSig",
-    mode: "recklesslyUnprepared",
-    onSuccess: ({ hash }) => {
-      alert(`Success! Your post is being published. ${hash}`);
-    },
-    onError: (error) => {
-      console.error(error);
-    },
-  });
-
-  const omit = (object: Record<string, any>, name: string) => {
-    delete object[name];
-    return object;
-  };
-
-  function getSignature(typedData: {
-    domain: TypedDataDomain;
-    types: Record<string, any>;
-    value: Record<string, any>;
-  }) {
-    console.log("create post: typedData", typedData);
-
-    const formattedTypedData = {
-      domain: omit(typedData.domain, "__typename"),
-      // types: { PostWithSig: mappedTypes },
-      types: omit(typedData.types, "__typename"),
-      value: omit(typedData.value, "__typename"),
-    };
-    console.log("create post: getSignature", formattedTypedData);
-    return formattedTypedData;
-  }
-
-  const typedDataGenerator = async (generatedData: any) => {
-    const formattedTypedData = getSignature(generatedData.typedData);
-    const signature = await signTypedDataAsync(formattedTypedData);
-
-    const { v, r, s } = splitSignature(signature);
-
-    const tx = await lensHubContract!.postWithSig({
-      profileId: formattedTypedData.value.profileId,
-      contentURI: formattedTypedData.value.contentURI,
-      collectModule: formattedTypedData.value.collectModule,
-      collectModuleInitData: formattedTypedData.value.collectModuleInitData,
-      referenceModule: formattedTypedData.value.referenceModule,
-      referenceModuleInitData: formattedTypedData.value.referenceModuleInitData,
-      sig: { v, r, s, deadline: formattedTypedData.value.deadline },
-    });
-
-    await tx.wait();
-    console.log("successfully created post: tx hash", tx.hash);
-  };
-
+  // lenster: https://github.com/lensterxyz/lenster/tree/main/apps/web
   // Lens post example: https://github.com/lens-protocol/api-examples/blob/master/src/publications/post.ts
+  // dabit example: https://github.com/dabit3/lens-protocol-frontend
   async function saveToIpfsAndCreatePost() {
     if (!post.title || !post.content) {
       return;
@@ -140,7 +85,7 @@ export default function SocialPublications({
       ipfsResult = (await saveToIpfs(
         {
           version: "2.0.0",
-          mainContentFocus: PublicationMainFocus.TextOnly,
+          mainContentFocus: PublicationMainFocus.Article,
           metadata_id: uuidv4(),
           description: "Created on Embrace Community",
           locale: "en-US",
@@ -180,15 +125,46 @@ export default function SocialPublications({
 
       await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
 
+      // lens graphql call
       const result = await createPost(createPostRequest);
 
-      await typedDataGenerator(result);
+      if (!result) {
+        setIsloading(false);
+        console.error("An error occurred creating post at lens");
+        return;
+      }
+
+      const formattedTypedData = getSignature(result.typedData);
+      const signature = await signTypedDataAsync(formattedTypedData);
+
+      const { v, r, s } = splitSignature(signature);
+
+      // lens contract call
+      const tx = await lensHubContract!.postWithSig({
+        profileId: formattedTypedData.value.profileId,
+        contentURI: formattedTypedData.value.contentURI,
+        collectModule: formattedTypedData.value.collectModule,
+        collectModuleInitData: formattedTypedData.value.collectModuleInitData,
+        referenceModule: formattedTypedData.value.referenceModule,
+        referenceModuleInitData:
+          formattedTypedData.value.referenceModuleInitData,
+        sig: { v, r, s, deadline: formattedTypedData.value.deadline },
+      });
+
+      await tx.wait();
+
+      console.log("successfully created post: tx hash", tx.hash);
+      setSuccess(tx.hash);
     } catch (err: any) {
-      console.error(`An error occurred creating the post on lens`, err);
+      console.error(
+        `An error occurred creating the post on lens, ${err.message}`,
+      );
     } finally {
       setIsloading(false);
     }
   }
+
+  useTimeout(!!success, 8_000, () => setSuccess(""));
 
   return (
     <LivepeerConfig client={livepeerClient}>
@@ -197,9 +173,7 @@ export default function SocialPublications({
           // TODO: Had to use button instead og Button component due to inability to override default styles
           <button
             className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold p-2 flex flex-row items-center"
-            onClick={() => {
-              setWritePost(!writePost);
-            }}
+            onClick={() => setWritePost(!writePost)}
           >
             {writePost ? (
               <XMarkIcon width={24} />
@@ -213,14 +187,36 @@ export default function SocialPublications({
           // TODO: Had to use button instead og Button component due to inability to override default styles
           <button
             className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold p-2 flex flex-row items-center"
-            onClick={() => {
-              setPageState({ type: PageState.Profile, data: "" });
-            }}
+            onClick={() => setPageState({ type: PageState.Profile, data: "" })}
           >
             <Cog8ToothIcon width={24} />
           </button>
         )}
       </div>
+
+      {success && (
+        <Notification>
+          <span className="block">Transaction successful!</span>
+          <span className="block mt-4 text-sm">
+            It might take quite some time to get the post metadata pinned.
+            Please be patient a bit.
+          </span>
+          <div className="mt-4 flex">
+            <button
+              type="button"
+              className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href={`https://mumbai.polygonscan.com/tx/${success}`}
+              >
+                View on Polyscan
+              </a>
+            </button>
+          </div>
+        </Notification>
+      )}
 
       {isLensPublisher && writePost && (
         <div className="mt-4">
@@ -248,7 +244,7 @@ export default function SocialPublications({
             disabled: !post.content || !isLensPublisher,
           }}
         >
-          Publish
+          {isLoading ? <Spinner /> : "Publish"}
         </Button>
       )}
 
@@ -264,7 +260,7 @@ export default function SocialPublications({
                 key={publication.id}
                 className=" rounded-lg border-gray-400 border-2 mt-2 p-4 mb-4 cursor-default shadow-xl"
               >
-                <div className="flex">
+                <div className="flex items-center">
                   <Image
                     className="h-10 w-10 rounded-full"
                     src={space.loadedMetadata?.image}
@@ -277,13 +273,19 @@ export default function SocialPublications({
                     {publication?.createdAt &&
                       format(new Date(publication.createdAt), "MMM d")}
                   </p>
+
+                  <p className="text-md font-bold ml-4">
+                    {publication?.metadata?.name}
+                  </p>
                 </div>
+
                 <div className="flex-1 ml-4 mt-4">
-                  <p className="truncate text-sm text-gray-900 mb-2">
+                  <div className="truncate text-sm text-gray-900 mb-2">
                     <ReactMarkdown>
                       {publication.metadata.content}
                     </ReactMarkdown>
-                  </p>
+                  </div>
+
                   {publication?.metadata?.media?.map((media, index) => {
                     return media?.original?.mimeType?.startsWith("image") ? (
                       <div className="rounded-lg mb-2">
