@@ -1,6 +1,21 @@
-// Lenster approach
+import {
+  Cog8ToothIcon,
+  PencilSquareIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import {
+  createReactClient,
+  LivepeerConfig,
+  Player,
+  studioProvider,
+} from "@livepeer/react";
+import { format } from "date-fns";
+import { TypedDataDomain } from "ethers";
+import { splitSignature } from "ethers/lib/utils.js";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import { useState } from "react";
+import { ReactMarkdown } from "react-markdown/lib/react-markdown";
 import { v4 as uuidv4 } from "uuid";
 import {
   Address,
@@ -9,10 +24,13 @@ import {
   useSignMessage,
   useSignTypedData,
 } from "wagmi";
-import { signTypedData } from "@wagmi/core";
 import { PageState } from ".";
 import { createPost } from "../../../api/lens/createPost";
+import LensHubJsonAbi from "../../../data/abis/lens/lens-hub-contract-abi.json"; // TODO: IS THIS CORRECT ABI?
+import useLensContracts from "../../../hooks/lens/useLensContracts";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
+import { lensHubContractAddress, livepeerApiKey } from "../../../lib/envs";
+import { getFileUri } from "../../../lib/web3storage/getIpfsJsonContent";
 import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
 import {
   CreatePublicPostRequest,
@@ -20,27 +38,6 @@ import {
   PublicationMainFocus,
 } from "../../../types/lens-generated";
 import Button from "../../Button";
-import {
-  Cog8ToothIcon,
-  PencilSquareIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
-import Image from "next/image";
-import { ReactMarkdown } from "react-markdown/lib/react-markdown";
-import { format } from "date-fns";
-import { getFileUri } from "../../../lib/web3storage/getIpfsJsonContent";
-import {
-  createReactClient,
-  LivepeerConfig,
-  Player,
-  studioProvider,
-} from "@livepeer/react";
-import { splitSignature } from "ethers/lib/utils.js";
-import useLensContracts from "../../../hooks/lens/useLensContracts";
-import { pollUntilIndexed } from "../../../api/lens/hasTransactionBeenIndexed";
-import LensHubJsonAbi from "../../../data/abis/lens/lens-hub-contract-abi.json"; // TODO: IS THIS CORRECT ABI?
-import { lensHubContractAddress, livepeerApiKey } from "../../../lib/envs";
-import { TypedDataDomain } from "ethers";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -99,11 +96,6 @@ export default function SocialPublications({
   }) {
     console.log("create post: typedData", typedData);
 
-    // Strip typename from PostWithSig object?
-    // const mappedTypes = typedData.types.PostWithSig.map((type) => {
-    //   return omit(type, "__typename");
-    // });
-
     const formattedTypedData = {
       domain: omit(typedData.domain, "__typename"),
       // types: { PostWithSig: mappedTypes },
@@ -115,33 +107,23 @@ export default function SocialPublications({
   }
 
   const typedDataGenerator = async (generatedData: any) => {
-    const { id, typedData } = generatedData;
-    const {
-      profileId,
-      contentURI,
-      collectModule,
-      collectModuleInitData,
-      referenceModule,
-      referenceModuleInitData,
-      deadline,
-    } = typedData.value;
-
-    const formattedTypedData = getSignature(typedData);
+    const formattedTypedData = getSignature(generatedData.typedData);
     const signature = await signTypedDataAsync(formattedTypedData);
 
     const { v, r, s } = splitSignature(signature);
-    const sig = { v, r, s, deadline };
-    const inputStruct = {
-      profileId,
-      contentURI,
-      collectModule,
-      collectModuleInitData,
-      referenceModule,
-      referenceModuleInitData,
-      sig,
-    };
 
-    return write?.({ recklesslySetUnpreparedArgs: [inputStruct] });
+    const tx = await lensHubContract!.postWithSig({
+      profileId: formattedTypedData.value.profileId,
+      contentURI: formattedTypedData.value.contentURI,
+      collectModule: formattedTypedData.value.collectModule,
+      collectModuleInitData: formattedTypedData.value.collectModuleInitData,
+      referenceModule: formattedTypedData.value.referenceModule,
+      referenceModuleInitData: formattedTypedData.value.referenceModuleInitData,
+      sig: { v, r, s, deadline: formattedTypedData.value.deadline },
+    });
+
+    await tx.wait();
+    console.log("successfully created post: tx hash", tx.hash);
   };
 
   // Lens post example: https://github.com/lens-protocol/api-examples/blob/master/src/publications/post.ts
