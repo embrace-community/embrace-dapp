@@ -41,18 +41,12 @@ export default function Social({
   const [lensWallet, setLensWallet] = useState("");
   const [lensProfile, setLensProfile] = useState("");
 
-  // const [currentPage, setCurrentPage] = useState(1);
   const [profileName, setProfileName] = useState("");
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
   // publication management
   const [writePost, setWritePost] = useState(false);
   const [post, setPost] = useState(postInitialState);
-  const [postError, setPostError] = useState({
-    title: false,
-    content: false,
-    erc20EncryptToken: false,
-  });
 
   // general
   const [socialDetails, setSocialDetails] = useState<SpaceSocial>();
@@ -72,16 +66,13 @@ export default function Social({
     getSocials();
   }, [getSocials]);
 
-  const isLensPublisher =
-    socialDetails?.lensWallet && address === socialDetails?.lensWallet;
-
   // we're assuming for now that the publisher of the space has set
   // a default lens profile which he uses for publishing
   const { defaultProfile, getDefaultProfile } = useGetDefaultProfile({
     ethereumAddress: address,
   });
 
-  const { getPublications, publications } = useGetPublications({
+  const { publications, getPublications } = useGetPublications({
     profileId: socialDetails?.lensDefaultProfileId,
     // limit: 10,
   });
@@ -107,7 +98,7 @@ export default function Social({
         content = (
           <SocialPublications
             {...{
-              isLensPublisher,
+              socialDetails,
               setWritePost,
               writePost,
               setPageState,
@@ -125,7 +116,6 @@ export default function Social({
         content = (
           <SocialProfile
             {...{
-              isLensPublisher,
               setPageState,
               space,
               socialDetails,

@@ -31,7 +31,7 @@ const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
 });
 
 export default function SocialPublications({
-  isLensPublisher,
+  socialDetails,
   setWritePost,
   writePost,
   setPageState,
@@ -61,6 +61,9 @@ export default function SocialPublications({
   });
 
   useTimeout(!!success, 8_000, () => setSuccess(""));
+
+  const isLensPublisher =
+    socialDetails?.lensWallet && address === socialDetails?.lensWallet;
 
   return (
     <LivepeerConfig client={livepeerClient}>
@@ -156,8 +159,15 @@ export default function SocialPublications({
 
       <div className="flex justify-center mt-8">
         <div className="gap-4 w-1/2">
-          {(publications?.items?.length === 0 || !defaultProfile?.id) && (
-            <h1 className="w-full text-center text-lg">No posts exist...</h1>
+          {isLensPublisher && !socialDetails?.lensDefaultProfileId && (
+            <h2 className="w-full text-center text-lg">
+              No profile has been setup yet. Please navigate to settings page.
+            </h2>
+          )}
+
+          {(publications?.items?.length === 0 ||
+            (!isLensPublisher && !socialDetails?.lensDefaultProfileId)) && (
+            <h2 className="w-full text-center text-lg">No posts exist...</h2>
           )}
 
           {publications?.items?.map((publication: Publication) => {

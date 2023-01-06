@@ -14,7 +14,6 @@ import DropDown from "../../DropDown";
 import Spinner from "../../Spinner";
 
 export default function SocialProfile({
-  isLensPublisher,
   setPageState,
   space,
   socialDetails,
@@ -33,8 +32,6 @@ export default function SocialProfile({
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { appSocialsContract } = useAppContract();
-
-  const router = useRouter();
 
   const [isLoading, setIsloading] = useState(false);
 
@@ -111,6 +108,9 @@ export default function SocialProfile({
       );
     }
   }
+
+  const isLensPublisher =
+    socialDetails?.lensWallet && address === socialDetails?.lensWallet;
 
   return (
     <>
