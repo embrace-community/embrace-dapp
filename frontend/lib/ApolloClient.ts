@@ -53,8 +53,6 @@ const lensAuthLink = new ApolloLink((operation, forward) => {
 });
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
-  console.log(window.ethereum);
-
   if (graphQLErrors)
     graphQLErrors.forEach(async ({ message, locations, path, extensions }) => {
       if (extensions?.code === "UNAUTHENTICATED") {
@@ -116,7 +114,7 @@ export default async function lensAuthenticationIfNeeded(
     if (isAccessTokenExpired) justRefreshToken = true;
   }
 
-  if (!lensAccessKey) {
+  if (!lensAccessKey || justRefreshToken) {
     const authentication = await lensAuthentication({
       address,
       signMessageAsync,
