@@ -100,8 +100,9 @@ export default function Social({
 
   // we're assuming for now that the publisher of the space has set
   // a default lens profile which he uses for publishing
-  const { defaultProfile } = useGetDefaultProfile({ ethereumAddress: address });
-  console.log("defaultProfile", defaultProfile);
+  const { defaultProfile, getDefaultProfile } = useGetDefaultProfile({
+    ethereumAddress: address,
+  });
 
   const { getPublications, publications } = useGetPublications({
     profileId: socialDetails?.lensDefaultProfileId,

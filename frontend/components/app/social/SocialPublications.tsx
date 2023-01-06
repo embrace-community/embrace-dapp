@@ -40,6 +40,7 @@ import useLensContracts from "../../../hooks/lens/useLensContracts";
 import { pollUntilIndexed } from "../../../api/lens/hasTransactionBeenIndexed";
 import LensHubJsonAbi from "../../../data/abis/lens/lens-hub-contract-abi.json"; // TODO: IS THIS CORRECT ABI?
 import { lensHubContractAddress, livepeerApiKey } from "../../../lib/envs";
+import { TypedDataDomain } from "ethers";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -79,10 +80,10 @@ export default function SocialPublications({
     functionName: "postWithSig",
     mode: "recklesslyUnprepared",
     onSuccess: ({ hash }) => {
-      alert("Success! Your post is being published. ");
+      alert(`Success! Your post is being published. ${hash}`);
     },
     onError: (error) => {
-      console.log(error);
+      console.error(error);
     },
   });
 
@@ -91,7 +92,11 @@ export default function SocialPublications({
     return object;
   };
 
-  function getSignature(typedData) {
+  function getSignature(typedData: {
+    domain: TypedDataDomain;
+    types: Record<string, any>;
+    value: Record<string, any>;
+  }) {
     console.log("create post: typedData", typedData);
 
     // Strip typename from PostWithSig object?
@@ -121,8 +126,9 @@ export default function SocialPublications({
       deadline,
     } = typedData.value;
 
-    const signature = await signTypedDataAsync(getSignature(typedData));
-    // const signature = await signTypedDataAsync(typedData);
+    const formattedTypedData = getSignature(typedData);
+    const signature = await signTypedDataAsync(formattedTypedData);
+
     const { v, r, s } = splitSignature(signature);
     const sig = { v, r, s, deadline };
     const inputStruct = {
@@ -138,7 +144,7 @@ export default function SocialPublications({
     return write?.({ recklesslySetUnpreparedArgs: [inputStruct] });
   };
 
-  // Lens post example: // https://github.com/lens-protocol/api-examples/blob/master/src/publications/post.ts
+  // Lens post example: https://github.com/lens-protocol/api-examples/blob/master/src/publications/post.ts
   async function saveToIpfsAndCreatePost() {
     if (!post.title || !post.content) {
       return;
@@ -154,7 +160,7 @@ export default function SocialPublications({
           version: "2.0.0",
           mainContentFocus: PublicationMainFocus.TextOnly,
           metadata_id: uuidv4(),
-          description: post.content,
+          description: "Created on Embrace Community",
           locale: "en-US",
           content: post.content,
           external_url: null,
@@ -179,7 +185,6 @@ export default function SocialPublications({
 
     try {
       // hard coded to make the code example clear
-      console.log("create post: defaultProfile?.id", defaultProfile?.id);
       const createPostRequest: CreatePublicPostRequest = {
         profileId: defaultProfile?.id,
         contentURI: `ipfs://${ipfsResult}`,
