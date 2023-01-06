@@ -217,8 +217,6 @@ export default function SpaceViewPage() {
     }
   };
 
-  console.log("Render: SpacePage", spaceData?.loadedMetadata?.name);
-
   return (
     <>
       <AppLayout title={spaceData?.loadedMetadata?.name}>
