@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAccount, useContractRead } from "wagmi";
+import { Address, useAccount, useContractRead } from "wagmi";
 import { useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
@@ -34,7 +34,7 @@ export default function HomePage() {
 
   // Wagmi hook to load all community spaces
   const { data: contractSpaces, isLoading: isSpacesLoading } = useContractRead({
-    address: spacesContractAddress,
+    address: spacesContractAddress as Address,
     abi: EmbraceSpacesJson.abi,
     functionName: "getSpaces",
     args: [],
