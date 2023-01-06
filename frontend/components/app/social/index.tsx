@@ -1,26 +1,13 @@
 import "easymde/dist/easymde.min.css";
-import { ethers } from "ethers";
 import { Router } from "next/router";
 import { ReactElement, useCallback, useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import {
-  Address,
-  useAccount,
-  useNetwork,
-  useSignMessage,
-  useSwitchNetwork,
-} from "wagmi";
-import { createPost } from "../../../api/lens/createPost";
+import { Address, useAccount, useSignMessage } from "wagmi";
 import { deleteProfile } from "../../../api/lens/deleteProfile";
 import useGetDefaultProfile from "../../../hooks/lens/useGetDefaultProfile";
 import useGetPublications from "../../../hooks/lens/useGetPublications";
-import useLensContracts from "../../../hooks/lens/useLensContracts";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
-import { useSigner } from "wagmi";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
-import { removeProperty } from "../../../lib/web3storage/object";
-import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
-import { Profile, PublicationMainFocus } from "../../../types/lens-generated";
+import { Profile } from "../../../types/lens-generated";
 import { SpaceSocial } from "../../../types/social";
 import { Space } from "../../../types/space";
 import SocialProfile from "./SocialProfile";
@@ -42,15 +29,6 @@ export default function Social({
 }) {
   const { appSocialsContract } = useAppContract();
   const { address } = useAccount();
-
-  const { chain } = useNetwork();
-  const {
-    chains,
-    error,
-    isLoading: switchLoading,
-    pendingChainId,
-    switchNetwork,
-  } = useSwitchNetwork();
 
   const { signMessageAsync } = useSignMessage();
 
@@ -75,7 +53,6 @@ export default function Social({
     content: false,
     erc20EncryptToken: false,
   });
-  const [isLoading, setIsLoading] = useState(false);
 
   // general
   const [socialDetails, setSocialDetails] = useState<SpaceSocial>();
@@ -121,11 +98,6 @@ export default function Social({
       );
     }
   }
-
-  // publish new metadata if user has a new default Profile
-  // useEffect(() => {
-  // if(space.loadedMetadata && )
-  // }, []);
 
   function showContent() {
     let content: ReactElement | null = null;

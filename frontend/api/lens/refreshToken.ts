@@ -16,9 +16,9 @@ export async function refreshToken(request: RefreshRequest) {
     context: { clientName: "lens" },
   });
 
-  const refreshToken = result.data?.refresh;
+  const authentication = result.data?.refresh;
 
-  return refreshToken as AuthenticationResult | undefined;
+  return authentication as AuthenticationResult | undefined;
 }
 
 const REFRESH_TOKEN = gql`
