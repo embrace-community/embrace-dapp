@@ -235,7 +235,10 @@ export default function SpaceViewPage() {
           memberCount: 1,
         };
 
+        // TODO: On localhost sometimes an old event is fired, so we need to make sure only the new event triggers the redirect
         spacesContract.on("SpaceCreated", (spaceId, founder) => {
+          if (founder !== accountAddress) return;
+
           setSpaceCreationMessage(
             "Your Community Space has been created! Redirecting...",
           );
@@ -253,9 +256,6 @@ export default function SpaceViewPage() {
           spaceMembership,
           apps,
           metadataCid,
-          {
-            gasLimit: 1000000,
-          },
         );
 
         if (tx) {
@@ -331,12 +331,12 @@ export default function SpaceViewPage() {
     <>
       <AppLayout title="Create Space">
         <div className="flex flex-col pt-8 pr-[6.8vw] pb-28 pl-[6.8vw] w-full">
-          <div className="w-full border-t-2 border-embracedark border-opacity-5 mb-6 flex flex-row align-middle">
-            <h1 className="text-embracedark text-opacity-20 text-sm mt-2 mb-8">
-              creating a new space
+          <div className="w-full border-t-2 border-embrace-dark border-opacity-5 mb-6 flex flex-row align-middle">
+            <h1 className="text-embrace-dark text-opacity-20 text-sm mt-2 mb-8">
+              creating a new community
             </h1>
             <Link
-              className="text-sm text-embracedark text-opacity-70 mt-2 ml-6 underline"
+              className="text-sm text-embrace-dark text-opacity-70 mt-2 ml-6 underline"
               href="/"
             >
               cancel
@@ -350,7 +350,7 @@ export default function SpaceViewPage() {
                 <div className="mb-7">
                   <label
                     htmlFor="description"
-                    className="mb-2 block text-sm font-medium text-embracedark"
+                    className="mb-2 block text-sm font-medium text-embrace-dark"
                   >
                     Avatar
                   </label>
@@ -383,7 +383,7 @@ export default function SpaceViewPage() {
                 <div className="mb-7">
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-embracedark"
+                    className="block text-sm font-medium text-embrace-dark"
                   >
                     Name
                   </label>
@@ -393,8 +393,8 @@ export default function SpaceViewPage() {
                       type="text"
                       name="name"
                       id="name"
-                      className="block bg-transparent text-embracedark w-full rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                      placeholder="The name of your new space"
+                      className="block bg-transparent text-embrace-dark w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+                      placeholder="The name of your community"
                       onChange={(e) => setName(e.target.value)}
                       value={name}
                     />
@@ -404,7 +404,7 @@ export default function SpaceViewPage() {
                 <div className="mb-7">
                   <label
                     htmlFor="handle"
-                    className="block text-sm font-medium text-embracedark"
+                    className="block text-sm font-medium text-embrace-dark"
                   >
                     Handle
                   </label>
@@ -414,8 +414,8 @@ export default function SpaceViewPage() {
                       type="text"
                       name="handle"
                       id="handle"
-                      className="block bg-transparent w-full text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                      placeholder="The handle of your new space"
+                      className="block bg-transparent w-full text-embrace-dark rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+                      placeholder="The handle for your community"
                       onChange={(e) => setHandle(e.target.value)}
                       value={handle}
                     />
@@ -425,7 +425,7 @@ export default function SpaceViewPage() {
                 <div className="mb-7">
                   <label
                     htmlFor="description"
-                    className="block text-sm font-medium text-embracedark"
+                    className="block text-sm font-medium text-embrace-dark"
                   >
                     About
                   </label>
@@ -434,8 +434,8 @@ export default function SpaceViewPage() {
                     <textarea
                       name="description"
                       id="description"
-                      className="block bg-transparent w-full resize-none text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-                      placeholder="Description of new space"
+                      className="block bg-transparent w-full resize-none text-embrace-dark rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+                      placeholder="Tell us about your community"
                       onChange={(e) => setDescription(e.target.value)}
                       value={description}
                     />
@@ -443,7 +443,7 @@ export default function SpaceViewPage() {
                 </div>
 
                 <div className="mb-7">
-                  <label className="block text-sm font-medium text-embracedark">
+                  <label className="block text-sm font-medium text-embrace-dark">
                     Visibility
                   </label>
 
@@ -467,11 +467,11 @@ export default function SpaceViewPage() {
                               })
                             }
                             checked={i === visibility}
-                            className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
+                            className="h-3 w-3 border-embrace-dark text-embrace-dark focus:ring-0 bg-transparent focus:bg-transparent"
                           />
                           <label
                             htmlFor={`vis-${visOption.id}`}
-                            className="ml-2 block text-sm font-medium text-embracedark"
+                            className="ml-2 block text-sm font-medium text-embrace-dark"
                           >
                             {visOption.title}
                           </label>
@@ -479,7 +479,7 @@ export default function SpaceViewPage() {
                       ))}
                     </div>
                   </fieldset>
-                  <div className="mt-2 italic text-sm font-medium text-embracedark">
+                  <div className="mt-2 italic text-sm font-medium text-embrace-dark">
                     Public is open to everyone to join, private can require
                     access through a token or user membership requests,
                     anonymous doesn&apos;t track any identity.
@@ -487,7 +487,7 @@ export default function SpaceViewPage() {
                 </div>
 
                 <div className={`mb-7 ${isVisibilityAnon ? "" : "hidden"}`}>
-                  <label className="block text-sm font-medium text-embracedark">
+                  <label className="block text-sm font-medium text-embrace-dark">
                     Membership Access
                   </label>
                   <fieldset className="mt-2">
@@ -513,11 +513,11 @@ export default function SpaceViewPage() {
                               })
                             }
                             checked={i === membershipAccess}
-                            className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
+                            className="h-3 w-3 border-embrace-dark text-embrace-dark focus:ring-0 bg-transparent focus:bg-transparent"
                           />
                           <label
                             htmlFor={`${memberAccessOption.id}`}
-                            className="ml-2 block text-sm font-medium text-embracedark"
+                            className="ml-2 block text-sm font-medium text-embrace-dark"
                           >
                             {memberAccessOption.title}
                           </label>
@@ -545,11 +545,11 @@ export default function SpaceViewPage() {
                                 if (e.target.checked) setMembershipToken(i);
                               }}
                               checked={i === membershipToken}
-                              className="h-3 w-3 border-embracedark text-embracedark focus:ring-0 bg-transparent focus:bg-transparent"
+                              className="h-3 w-3 border-embrace-dark text-embrace-dark focus:ring-0 bg-transparent focus:bg-transparent"
                             />
                             <label
                               htmlFor={`member-${memberTokenOption.id}`}
-                              className="ml-2 block text-sm font-medium text-embracedark"
+                              className="ml-2 block text-sm font-medium text-embrace-dark"
                             >
                               {memberTokenOption.title}
                             </label>
@@ -569,11 +569,11 @@ export default function SpaceViewPage() {
                       onChange={(e) =>
                         setMembershipTokenAddress(e.target.value)
                       }
-                      className={`w-full block bg-transparent text-embracedark rounded-md border-embracedark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm`}
+                      className={`w-full block bg-transparent text-embrace-dark rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm`}
                     />
 
                     <div
-                      className={`mt-1 italic text-sm font-medium text-embracedark`}
+                      className={`mt-1 italic text-sm font-medium text-embrace-dark`}
                     >
                       Please choose the token standard and type in the address
                       of the deployed contract.
@@ -596,19 +596,19 @@ export default function SpaceViewPage() {
                               ? setAllowMembershipRequests(false)
                               : setAllowMembershipRequests(true)
                           }
-                          className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0"
+                          className="h-5 w-5 rounded-3xl border-gray-300 text-embrace-dark focus:ring-0"
                         />
 
                         <label
                           htmlFor="allowMembershipRequests"
-                          className="ml-2 block text-sm font-medium text-embracedark"
+                          className="ml-2 block text-sm font-medium text-embrace-dark"
                         >
                           Allow Requests
                         </label>
                       </div>
 
                       <div
-                        className={`mt-1 italic text-sm font-medium text-embracedark ${
+                        className={`mt-1 italic text-sm font-medium text-embrace-dark ${
                           isVisibilityPrivate && isMembershipClosed
                             ? ""
                             : "hidden"
@@ -624,8 +624,8 @@ export default function SpaceViewPage() {
             )}
 
             {error && (currentStep == 1 || currentStep == 2) && (
-              <div className="border-y border-embracedark py-3">
-                <p className="block text-sm font-medium text-embracedark">
+              <div className="border-y border-embrace-dark py-3">
+                <p className="block text-sm font-medium text-embrace-dark">
                   {error}
                 </p>
               </div>
@@ -633,11 +633,11 @@ export default function SpaceViewPage() {
 
             {currentStep == 1 &&
               (!name || !description || !handle || !imageCid) && (
-                <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
-                  <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                <div className="mt-10 border-t-2 pt-4 border-embrace-dark border-opacity-5">
+                  <p className="text-sm text-embrace-dark text-opacity-50 mb-2">
                     To create your space, it needs:
                   </p>
-                  <ul className="text-sm text-embracedark text-opacity-50">
+                  <ul className="text-sm text-embrace-dark text-opacity-50">
                     {!imageCid && <li>• an avatar</li>}
                     {!name && <li>• a name</li>}
                     {!handle && <li>• a handle</li>}
@@ -694,7 +694,7 @@ export default function SpaceViewPage() {
                                   ? setApps(apps.filter((a) => a !== appId))
                                   : setApps([...apps, appId]);
                               }}
-                              // className="h-5 w-5 rounded-3xl border-gray-300 text-embracedark focus:ring-0 "
+                              // className="h-5 w-5 rounded-3xl border-gray-300 text-embrace-dark focus:ring-0 "
                               className={classNames({
                                 "h-5 w-5 rounded-3xl border-gray-300 text-violet-500 focus:ring-0":
                                   true,
@@ -707,7 +707,7 @@ export default function SpaceViewPage() {
                           <div className="ml-3 text-sm">
                             <label
                               htmlFor={name}
-                              className="font-medium text-embracedark"
+                              className="font-medium text-embrace-dark"
                             >
                               <AppIcon appId={appId} />
 
@@ -736,7 +736,7 @@ export default function SpaceViewPage() {
 
                             <p
                               id={`${name}-description`}
-                              className=" pointer-events-none text-embracedark text-opacity-50"
+                              className=" pointer-events-none text-embrace-dark text-opacity-50"
                             >
                               {appMappings[appId]?.description ??
                                 "Description text"}
@@ -751,15 +751,15 @@ export default function SpaceViewPage() {
             )}
 
             {currentStep == 2 && (
-              <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
+              <div className="mt-10 border-t-2 pt-4 border-embrace-dark border-opacity-5">
                 {!apps.length && (
-                  <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                  <p className="text-sm text-embrace-dark text-opacity-50 mb-2">
                     To create your space, it needs at least one app
                   </p>
                 )}
 
                 {transactionRejected && (
-                  <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                  <p className="text-sm text-embrace-dark text-opacity-50 mb-2">
                     Transaction has been rejected, please try again.
                   </p>
                 )}
@@ -770,13 +770,13 @@ export default function SpaceViewPage() {
               <fieldset className="space-y-2 mt-12 mb-10">
                 {transactionError ? (
                   <>
-                    <div className="mt-10 border-t-2 pt-4 border-embracedark border-opacity-5">
-                      <p className="text-sm text-embracedark text-opacity-50 mb-2">
+                    <div className="mt-10 border-t-2 pt-4 border-embrace-dark border-opacity-5">
+                      <p className="text-sm text-embrace-dark text-opacity-50 mb-2">
                         There has been an error creating your space
                       </p>
                     </div>
                     <a
-                      className="text-sm text-embracedark text-opacity-70 mt-2 underline cursor-pointer"
+                      className="text-sm text-embrace-dark text-opacity-70 mt-2 underline cursor-pointer"
                       onClick={(e) => setCurrentStep(2)}
                     >
                       back to try again
@@ -784,7 +784,7 @@ export default function SpaceViewPage() {
                   </>
                 ) : (
                   <div className="text-center">
-                    <label className="block text-sm font-medium text-embracedark mb-3">
+                    <label className="block text-sm font-medium text-embrace-dark mb-3">
                       {spaceCreationMessage}
                     </label>
                     <Spinner />

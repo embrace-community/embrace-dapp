@@ -17,8 +17,8 @@ export default function SpaceIndexPage() {
 
   return (
     <AppLayout title="Community Page">
-      <div className="p-10">
-        <Spinner /> Loading...
+      <div className="w-full justify-center p-10">
+        <Spinner />
       </div>
     </AppLayout>
   );

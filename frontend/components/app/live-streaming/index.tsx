@@ -12,6 +12,7 @@ import { LiveStream } from "./LiveStream";
 import { InitStream } from "./InitStream";
 import { useAppSelector } from "../../../store/hooks";
 import { getLiveStream } from "../../../store/slices/live-streaming";
+import { livepeerApiKey } from "../../../lib/envs";
 
 // https://docs.livepeer.studio/guides/live/stream-from-the-browser
 export default function LiveStreamIndex({
@@ -25,12 +26,13 @@ export default function LiveStreamIndex({
 }) {
   const streamName = `embrace.community/${space.handle}-${space.id}/live-stream`;
   const playbackId = query.id as string;
+
   const getLiveStreamSelector = useAppSelector(getLiveStream);
   const liveStream = getLiveStreamSelector(streamName);
 
   const livepeerClient = createReactClient({
     provider: studioProvider({
-      apiKey: process.env.NEXT_PUBLIC_LIVEPEER_STUDIO_API_KEY,
+      apiKey: livepeerApiKey,
     }),
   });
 

@@ -35,11 +35,11 @@ if (isNoTestEnvironment) {
     );
   if (!appCreationsContractAddress)
     throw Error(
-      "Accounts Contract Address Env missing, appCreationsContractAddress",
+      "Creations App Contract Address Env missing, appCreationsContractAddress",
     );
   if (!appSocialsContractAddress)
     throw Error(
-      "Accounts Contract Address Env missing, appSocialsContractAddress",
+      "Social App Contract Address Env missing, appSocialsContractAddress",
     );
 }
 
@@ -72,6 +72,16 @@ if (!infuraApiKey && isNoTestEnvironment)
 if (!blockchainExplorerUrl && isNoTestEnvironment)
   throw Error("Blockchain Explorer Key Env missing");
 
+// Video related API Keys
+const livepeerApiKey = process.env.NEXT_PUBLIC_LIVEPEER_STUDIO_API_KEY!;
+const huddleApiKey = process.env.NEXT_PUBLIC_HUDDLE_API_KEY!;
+
+if (!livepeerApiKey && isNoTestEnvironment)
+  throw Error("Livepeer API Key Env missing");
+
+if (!huddleApiKey && isNoTestEnvironment)
+  throw Error("Huddle API Key Env missing");
+
 export {
   appContractAddress,
   spacesContractAddress,
@@ -84,4 +94,6 @@ export {
   blockchainExplorerUrl,
   lensHubContractAddress,
   lensPeripheryContractAddress,
+  livepeerApiKey,
+  huddleApiKey,
 };

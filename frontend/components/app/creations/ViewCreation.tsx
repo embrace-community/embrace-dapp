@@ -27,10 +27,12 @@ import {
   setCollectionCreations,
 } from "../../../store/slices/creations";
 import { setCid } from "../../../store/slices/metadata";
+import { livepeerApiKey } from "../../../lib/envs";
+import classNames from "classnames";
 
 const livepeerClient = createReactClient({
   provider: studioProvider({
-    apiKey: process.env.NEXT_PUBLIC_LIVEPEER_STUDIO_API_KEY,
+    apiKey: livepeerApiKey,
   }),
 });
 
@@ -185,7 +187,7 @@ export default function ViewCreation({
 
       {creation ? (
         <div className="w-full flex flex-row grow">
-          <div className="w-full h-1/2 flex flex-col justify-center">
+          <div className="w-full flex flex-col justify-center items-center">
             {/* <Image
           src={creation.image}
           alt={creation.name}
@@ -196,35 +198,46 @@ export default function ViewCreation({
         /> */}
             {
               <>
-                <Player
-                  title={metadataStore.cidData[creation.tokenURI]?.name}
-                  src={metadataStore.cidData[creation.tokenURI]?.animation_url}
-                  autoPlay={false}
-                  objectFit="contain"
-                  poster={metadataStore.cidData[creation.tokenURI]?.image}
-                  muted={false}
-                  autoUrlUpload={{
-                    fallback: true,
-                    ipfsGateway: "https://cloudflare-ipfs.com",
-                  }}
-                />
+                <div className="w-2/3 justify-center p-2">
+                  <Player
+                    title={metadataStore.cidData[creation.tokenURI]?.name}
+                    src={
+                      metadataStore.cidData[creation.tokenURI]?.animation_url
+                    }
+                    autoPlay={false}
+                    objectFit="contain"
+                    poster={metadataStore.cidData[creation.tokenURI]?.image}
+                    muted={false}
+                    autoUrlUpload={{
+                      fallback: true,
+                      ipfsGateway: "https://cloudflare-ipfs.com",
+                    }}
+                  />
 
-                <div className="w-full flex justify-left p-2">
-                  <h1 className="text-2xl font-bold">
-                    {metadataStore.cidData[creation.tokenURI]?.name}
-                  </h1>
-                </div>
+                  <div className="w-full flex justify-left p-2">
+                    <h1 className="text-2xl font-bold">
+                      {metadataStore.cidData[creation.tokenURI]?.name}
+                    </h1>
+                  </div>
 
-                <div className="w-full flex justify-left p-2">
-                  <p className="text-sm">
-                    {metadataStore.cidData[creation.tokenURI]?.description}
-                  </p>
+                  <div className="w-full flex justify-left p-2">
+                    <p className="text-sm">
+                      {metadataStore.cidData[creation.tokenURI]?.description}
+                    </p>
+                  </div>
                 </div>
               </>
             }
           </div>
 
-          <div className="hidden md:flex md:flex-col w-1/5 h-1/2 ml-10 p-2 pt-0">
+          <div
+            className={classNames({
+              "hidden w-1/5 h-1/2 ml-10 p-2 pt-0": true,
+              "md:flex md:flex-col":
+                creationsStore.creations[collectionId] &&
+                creationsStore.creations[collectionId].length > 1,
+            })}
+          >
             {creationsStore.creations[collectionId] &&
               creationsStore.creations[collectionId].length > 1 && (
                 <>

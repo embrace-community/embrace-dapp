@@ -181,7 +181,7 @@ export function LiveStream({ query, space, streamName }) {
           <button
             onClick={stopCapture}
             className={classNames({
-              "rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center m-2":
+              "rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center m-2":
                 true,
             })}
           >
@@ -191,7 +191,7 @@ export function LiveStream({ query, space, streamName }) {
           <button
             onClick={toggleMute}
             className={classNames({
-              "rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold p-2 flex flex-row items-center m-2 ml-0":
+              "rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold p-2 flex flex-row items-center m-2 ml-0":
                 true,
             })}
           >
@@ -204,7 +204,7 @@ export function LiveStream({ query, space, streamName }) {
           >
             <button
               className={classNames({
-                "rounded-full border-embracedark border-2 bg-transparent text-embracedark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center m-2 ml-0":
+                "rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center m-2 ml-0":
                   true,
               })}
             >

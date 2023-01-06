@@ -48,6 +48,7 @@ export default function Creations({
     "loading" | "loaded" | null
   >(null);
   const [collectionCreating, setCollectionCreating] = useState(false);
+  const [initLoaded, setInitLoaded] = useState(false);
   const creationId = Number(query.creationId);
   const collectionId = Number(query.collectionId);
   const newCollectionInput = useRef<HTMLInputElement>(null);
@@ -109,10 +110,13 @@ export default function Creations({
         }
 
         dispatch(setCollections(formattedCollections));
+
         if (!collectionId) {
           setSelectedCollection(formattedCollections[0]);
         }
       }
+
+      setInitLoaded(true);
     };
 
     loadCollections();
@@ -257,7 +261,7 @@ export default function Creations({
     const route = `/${query.handle}/creations?collectionId=${collection.id}`;
 
     if (newCollection) {
-      router.push(`/${route}&newCollection=true`);
+      router.push(`${route}&newCollection=true`);
       return;
     }
 
@@ -353,11 +357,18 @@ export default function Creations({
     );
   }
 
-  if (
+  if (!initLoaded) {
+    return (
+      <div className="w-full justify-center p-10">
+        <Spinner />
+      </div>
+    );
+  } else if (
     accountMembership?.isAdmin === true &&
     accountMembership.isActive === true &&
     creationsStore.spaceId === space.id &&
-    creationsStore.collections.length === 0
+    creationsStore.collections.length === 0 &&
+    initLoaded
   ) {
     return (
       <div className="w-full items-center justify-center">
@@ -396,7 +407,8 @@ export default function Creations({
     accountMembership &&
     accountMembership?.isAdmin !== true &&
     creationsStore.spaceId === space.id &&
-    creationsStore.collections.length === 0
+    creationsStore.collections.length === 0 &&
+    initLoaded
   ) {
     return (
       <div className="w-full flex flex-col items-center mt-10">
