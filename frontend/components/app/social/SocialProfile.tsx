@@ -1,15 +1,15 @@
+import { ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
 import { ethers } from "ethers";
-import { useRouter } from "next/router";
 import { useState } from "react";
 import { Address, useAccount, useSignMessage } from "wagmi";
 import { PageState } from ".";
 import { createProfile } from "../../../api/lens/createProfile";
+import { deleteProfile } from "../../../api/lens/deleteProfile";
 import { setDefaultProfile } from "../../../api/lens/setDefaultProfile";
 import useGetProfiles from "../../../hooks/lens/useGetProfiles";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
 import { Profile } from "../../../types/lens-generated";
-import { ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
 import DropDown from "../../DropDown";
 import Spinner from "../../Spinner";
 
@@ -24,14 +24,13 @@ export default function SocialProfile({
   defaultProfile,
   setProfileName,
   profileName,
-  selectedProfile,
-  setSelectedProfile,
-  onDeleteLensProfile,
   getSocials,
 }) {
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { appSocialsContract } = useAppContract();
+
+  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
   const [isLoading, setIsloading] = useState(false);
 
@@ -105,6 +104,19 @@ export default function SocialProfile({
     } catch (e: any) {
       console.error(
         `An error occured selecting the default profile. Please try again: ${e.message}`,
+      );
+    }
+  }
+
+  async function onDeleteLensProfile() {
+    if (!selectedProfile) return;
+
+    try {
+      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
+      deleteProfile({ profileId: selectedProfile.id });
+    } catch (e: any) {
+      console.error(
+        `An error occured deleting the profile. Please try again: ${e.message}`,
       );
     }
   }

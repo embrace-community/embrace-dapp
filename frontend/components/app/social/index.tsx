@@ -1,13 +1,10 @@
 import "easymde/dist/easymde.min.css";
 import { Router } from "next/router";
 import { ReactElement, useCallback, useEffect, useState } from "react";
-import { Address, useAccount, useSignMessage } from "wagmi";
-import { deleteProfile } from "../../../api/lens/deleteProfile";
+import { useAccount, useSignMessage } from "wagmi";
 import useGetDefaultProfile from "../../../hooks/lens/useGetDefaultProfile";
 import useGetPublications from "../../../hooks/lens/useGetPublications";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
-import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
-import { Profile } from "../../../types/lens-generated";
 import { SpaceSocial } from "../../../types/social";
 import { Space } from "../../../types/space";
 import SocialProfile from "./SocialProfile";
@@ -42,7 +39,6 @@ export default function Social({
   const [lensProfile, setLensProfile] = useState("");
 
   const [profileName, setProfileName] = useState("");
-  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
   // publication management
   const [writePost, setWritePost] = useState(false);
@@ -76,19 +72,6 @@ export default function Social({
     profileId: socialDetails?.lensDefaultProfileId,
     // limit: 10,
   });
-
-  async function onDeleteLensProfile() {
-    if (!selectedProfile) return;
-
-    try {
-      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
-      deleteProfile({ profileId: selectedProfile.id });
-    } catch (e: any) {
-      console.error(
-        `An error occured deleting the profile. Please try again: ${e.message}`,
-      );
-    }
-  }
 
   function showContent() {
     let content: ReactElement | null = null;
@@ -126,9 +109,6 @@ export default function Social({
               defaultProfile,
               setProfileName,
               profileName,
-              selectedProfile,
-              setSelectedProfile,
-              onDeleteLensProfile,
               getSocials,
             }}
           />
