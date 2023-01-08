@@ -58,7 +58,7 @@ Ben <info@bennisan.be> (Design)
 <img src="https://lets.embrace.community/screenshots/social-4.png" style="width: 45%;" />
 </div>
 
-##### Creations App (Lens)
+##### Creations App
 
 <div>
 <img src="https://lets.embrace.community/screenshots/creations-1.png" style="width: 45%;" />
