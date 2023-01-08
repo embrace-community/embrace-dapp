@@ -65,10 +65,14 @@ EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
 
 ### Screenshots
 
+#### Current Spaces (Communities)
+
 <div>
 <img src="https://i.imgur.com/KGBfKS2.png" style="width: 45%;" />
 <img src="https://i.imgur.com/CRrX5Em.png" style="width: 45%;" />
 </div>
+
+#### Create a Space
 
 <div>
 <img src="https://i.imgur.com/hQu5DaA.png" style="width: 45%;" />
@@ -82,10 +86,16 @@ EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
 <img src="https://i.imgur.com/3P2Ry2V.png" style="width: 45%;" />
 <img src="https://i.imgur.com/Wr4938O.png" style="width: 45%;" />
 </div>
+
+#### Use Apps for features
+
+##### Socials (Blogging)
 <div>
 <img src="https://i.imgur.com/rxOEwWN.png" style="width: 45%;" />
 <img src="https://i.imgur.com/OVGmlsI.png" style="width: 45%;" />
 </div>
+
+##### Chat
 <div>
 <img src="https://i.imgur.com/5yZnGrn.png" style="width: 45%; height: 100%;" />
 </div>
