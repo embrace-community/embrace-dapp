@@ -34,10 +34,10 @@ Embrace is not limited to any type of community, however the first steps are to 
 
 
 <div style="display: flex; justify-content: space-between;">
-<img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" style="max-height: 200px;" />
-<img src="https://i.imgur.com/MKspbN4.png" alt="tobias" style="max-height: 200px;" />
+<img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" style="height: 200px;" />
+<img src="https://i.imgur.com/MKspbN4.png" alt="tobias" style="height: 200px;" />
 
-<img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" style="max-height: 200px;" />
+<img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" style="height: 200px;" />
 </div>
 
 <div style="display: flex; justify-content: space-between;">
