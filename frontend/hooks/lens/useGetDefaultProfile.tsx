@@ -1,18 +1,13 @@
 import { gql, useLazyQuery } from "@apollo/client";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   DefaultProfileRequest,
   DefaultProfileQuery,
   Profile,
 } from "../../types/lens-generated";
 
-function useGetDefaultProfile(
-  reqParams: DefaultProfileRequest & { shouldSkip?: boolean } = {
-    ethereumAddress: "",
-    shouldSkip: false,
-  },
-) {
-  const request: DefaultProfileRequest = reqParams;
+function useGetDefaultProfile(request: DefaultProfileRequest) {
+  const initialLoaded = useRef(false);
 
   const [getDefaultProfile, defaultProfileProps] = useLazyQuery<
     DefaultProfileQuery,
@@ -20,13 +15,16 @@ function useGetDefaultProfile(
   >(GET_DEFAULT_PROFILE, {
     variables: { request },
     context: { clientName: "lens" },
+    fetchPolicy: "network-only",
   });
 
   useEffect(() => {
     getDefaultProfile();
+    initialLoaded.current = true;
   }, [getDefaultProfile]);
 
   return {
+    initialLoaded: initialLoaded.current,
     getDefaultProfile,
     ...defaultProfileProps,
     defaultProfile: defaultProfileProps?.data?.defaultProfile as

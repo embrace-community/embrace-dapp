@@ -13,6 +13,7 @@ function useGetProfiles(request: ProfileQueryRequest) {
   >(GET_PROFILES, {
     variables: { request },
     context: { clientName: "lens" },
+    fetchPolicy: "network-only",
   });
 
   useEffect(() => {

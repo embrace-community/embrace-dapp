@@ -14,7 +14,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useState } from "react";
 import { ReactMarkdown } from "react-markdown/lib/react-markdown";
-import { Address, useAccount, useSignMessage, useSignTypedData } from "wagmi";
+import { useAccount, useSignMessage, useSignTypedData } from "wagmi";
 import { PageState } from ".";
 import useLensContracts from "../../../hooks/lens/useLensContracts";
 import useTimeout from "../../../hooks/useTimeout";
@@ -30,20 +30,22 @@ const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
 });
 
+const postInitialState = { title: "", content: "", coverImage: "" };
+
 export default function SocialPublications({
   socialDetails,
-  setWritePost,
-  writePost,
   setPageState,
   space,
-  post,
-  setPost,
   publications,
   defaultProfile,
+  getPublications,
 }) {
   const { address } = useAccount();
   const { signMessageAsync } = useSignMessage();
   const { lensHubContract } = useLensContracts();
+
+  const [writePost, setWritePost] = useState(false);
+  const [post, setPost] = useState(postInitialState);
 
   const [isLoading, setIsloading] = useState(false);
   const [success, setSuccess] = useState("");
@@ -64,6 +66,8 @@ export default function SocialPublications({
 
   const isLensPublisher =
     socialDetails?.lensWallet && address === socialDetails?.lensWallet;
+
+  console.log("defaultProfile", defaultProfile);
 
   return (
     <LivepeerConfig client={livepeerClient}>
@@ -139,8 +143,8 @@ export default function SocialPublications({
         <Button
           additionalClassName="p-2 float-right"
           buttonProps={{
-            onClick: () =>
-              saveToIpfsAndCreatePost({
+            onClick: async () => {
+              await saveToIpfsAndCreatePost({
                 post,
                 setIsloading,
                 defaultProfile,
@@ -149,7 +153,9 @@ export default function SocialPublications({
                 signTypedDataAsync,
                 lensHubContract,
                 setSuccess,
-              }),
+              });
+              getPublications();
+            },
             disabled: !post.content || !isLensPublisher,
           }}
         >

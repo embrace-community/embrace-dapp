@@ -1,8 +1,8 @@
-import { TypedDataDomain } from "ethers";
 import { splitSignature } from "ethers/lib/utils.js";
 import { v4 as uuidv4 } from "uuid";
 import { Address } from "wagmi";
 import { createPost } from "../../../api/lens/createPost";
+import { getSignature, pollUntilIndexed } from "../../../api/lens/utils";
 import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
 import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
 import {
@@ -98,10 +98,12 @@ export async function saveToIpfsAndCreatePost({
       sig: { v, r, s, deadline: formattedTypedData.value.deadline },
     });
 
-    await tx.wait();
+    await pollUntilIndexed({ txHash: tx.hash });
 
     console.log("successfully created post: tx hash", tx.hash);
     setSuccess(tx.hash);
+
+    return result;
   } catch (err: any) {
     console.error(
       `An error occurred creating the post on lens, ${err.message}`,
@@ -110,23 +112,3 @@ export async function saveToIpfsAndCreatePost({
     setIsloading(false);
   }
 }
-
-function getSignature(typedData: {
-  domain: TypedDataDomain;
-  types: Record<string, any>;
-  value: Record<string, any>;
-}) {
-  const formattedTypedData = {
-    domain: omit(typedData.domain, "__typename"),
-    types: omit(typedData.types, "__typename"),
-    value: omit(typedData.value, "__typename"),
-  };
-
-  console.log("create post: getSignature", formattedTypedData);
-  return formattedTypedData;
-}
-
-const omit = (object: Record<string, any>, name: string) => {
-  delete object[name];
-  return object;
-};

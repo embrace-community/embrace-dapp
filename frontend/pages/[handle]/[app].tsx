@@ -77,8 +77,6 @@ export default function SpaceViewPage() {
       }
     }
 
-    console.log("useEffect: getSpace");
-
     getSpace();
   }, [
     address,
@@ -108,8 +106,6 @@ export default function SpaceViewPage() {
 
         setSpaceData({ ...spaceData, loadedMetadata: metadata });
         setMetadataLoaded(true);
-
-        console.log("useEffect: loadSpaceMetadata");
       }
     }
 
@@ -131,8 +127,6 @@ export default function SpaceViewPage() {
 
       setAccountMembership(_accountMembership);
       setMembershipInfoLoaded(true);
-
-      console.log("useEffect: getMembershipInfo", membershipInfoLoaded);
     }
 
     getMembershipInfo();
@@ -152,8 +146,6 @@ export default function SpaceViewPage() {
           memberCount: memberCountNumber,
         } as Space;
       });
-
-      console.log("useEffect: getMembershipCount");
     }
 
     getMembershipCount();

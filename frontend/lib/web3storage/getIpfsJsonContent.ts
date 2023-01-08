@@ -14,11 +14,9 @@ async function getIpfsJsonContent(
     // On some occasions, when creating a space the metadata is not found using other method but works using fetch
     let res = await fetch(getFileUri(cid));
 
-    console.log("res", res);
-
     if (res?.ok) {
       const json = await res.json();
-      console.log("res", json);
+
       return await json;
     }
   } catch (error) {

@@ -19,11 +19,12 @@ function useGetPublications(reqParams: PublicationsQueryRequest) {
   >(GET_PUBLICATIONS, {
     variables: { request },
     context: { clientName: "lens" },
+    fetchPolicy: "network-only",
   });
 
   useEffect(() => {
-    getPublications();
-  }, [getPublications]);
+    if (reqParams.profileId) getPublications();
+  }, [getPublications, reqParams.profileId]);
 
   return {
     getPublications,

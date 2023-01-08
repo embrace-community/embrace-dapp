@@ -15,8 +15,6 @@ export enum PageState {
   Profile = "profile",
 }
 
-const postInitialState = { title: "", content: "", coverImage: "" };
-
 export default function Social({
   query,
   space,
@@ -27,25 +25,15 @@ export default function Social({
   const { appSocialsContract } = useAppContract();
   const { address } = useAccount();
 
-  const { signMessageAsync } = useSignMessage();
-
   const [pageState, setPageState] = useState({
     type: PageState.Publications,
     data: "",
   });
 
-  // profile management
-  const [lensWallet, setLensWallet] = useState("");
-  const [lensProfile, setLensProfile] = useState("");
-
-  const [profileName, setProfileName] = useState("");
-
-  // publication management
-  const [writePost, setWritePost] = useState(false);
-  const [post, setPost] = useState(postInitialState);
-
   // general
   const [socialDetails, setSocialDetails] = useState<SpaceSocial>();
+
+  const noLensSetup = socialDetails && !socialDetails.lensDefaultProfileId;
 
   const getSocials = useCallback(() => {
     appSocialsContract
@@ -62,11 +50,22 @@ export default function Social({
     getSocials();
   }, [getSocials]);
 
-  // we're assuming for now that the publisher of the space has set
-  // a default lens profile which he uses for publishing
-  const { defaultProfile, getDefaultProfile } = useGetDefaultProfile({
-    ethereumAddress: address,
-  });
+  useEffect(() => {
+    // founder has to setup profile first
+    if (
+      address === space.founder &&
+      noLensSetup &&
+      pageState.type === PageState.Publications
+    ) {
+      setPageState({ type: PageState.Profile, data: "" });
+    }
+  }, [address, noLensSetup, pageState.type, socialDetails, space.founder]);
+
+  const {
+    defaultProfile,
+    initialLoaded: initLoadedDefaultProfile,
+    getDefaultProfile,
+  } = useGetDefaultProfile({ ethereumAddress: address });
 
   const { publications, getPublications } = useGetPublications({
     profileId: socialDetails?.lensDefaultProfileId,
@@ -82,14 +81,11 @@ export default function Social({
           <SocialPublications
             {...{
               socialDetails,
-              setWritePost,
-              writePost,
               setPageState,
               space,
-              post,
-              setPost,
               publications,
               defaultProfile,
+              getPublications,
             }}
           />
         );
@@ -102,14 +98,10 @@ export default function Social({
               setPageState,
               space,
               socialDetails,
-              lensWallet,
-              setLensWallet,
-              lensProfile,
-              setLensProfile,
               defaultProfile,
-              setProfileName,
-              profileName,
+              initLoadedDefaultProfile,
               getSocials,
+              getDefaultProfile,
             }}
           />
         );

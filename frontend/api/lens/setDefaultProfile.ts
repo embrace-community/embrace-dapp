@@ -18,9 +18,11 @@ export async function setDefaultProfile(
     context: { clientName: "lensAuth" },
   });
 
-  const setDefaultProfile = result.data?.createSetDefaultProfileTypedData;
+  const defaultProfile = result.data?.createSetDefaultProfileTypedData as
+    | SetDefaultProfileBroadcastItemResult
+    | undefined;
 
-  return setDefaultProfile as SetDefaultProfileBroadcastItemResult | undefined;
+  return defaultProfile;
 }
 
 const SET_DEFAULT_PROFILE = gql`
