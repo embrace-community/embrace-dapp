@@ -33,13 +33,13 @@ Embrace is not limited to any type of community, however the first steps are to 
 
 
 
-<div style="display: flex; justify-content: space-between;">
+<div style="display: flex; justify-content: space-between; height: 200px;">
 
-<img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" style="width: 30%;" />
+<img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" />
 
-<img src="https://i.imgur.com/MKspbN4.png" alt="tobias" style="width: 30%;" />
+<img src="https://i.imgur.com/MKspbN4.png" alt="tobias"/>
 
-<img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" style="width: 30%;" />
+<img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" />
 </div>
 
 <div style="display: flex; justify-content: space-between;">
