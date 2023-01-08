@@ -105,6 +105,6 @@ to do
 
 ## Presentation & Design
 
-[Slides](https://docs.google.com/presentation/d/1S9ExAmx9alB77exgWNN5q_Pj4qTKXJ5-44fDco_qy-s)
+[Slides](https://docs.google.com/presentation/d/1Wtra-i2t8A_XgffPHdZIZhMDywYd47lk8Ju__mpCn_c/edit?usp=sharing)
 
 [Figma Design](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
