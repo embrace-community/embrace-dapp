@@ -47,10 +47,13 @@ export interface AppCreationsCollectionInterface extends utils.Interface {
   functions: {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "embraceSpacesAddress()": FunctionFragment;
     "getAllTokens()": FunctionFragment;
     "getAllTokensData()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
+    "isAdminExternal(uint256,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
+    "isFounderExternal(uint256,address)": FunctionFragment;
     "mint(string)": FunctionFragment;
     "name()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
@@ -70,10 +73,13 @@ export interface AppCreationsCollectionInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "approve"
       | "balanceOf"
+      | "embraceSpacesAddress"
       | "getAllTokens"
       | "getAllTokensData"
       | "getApproved"
+      | "isAdminExternal"
       | "isApprovedForAll"
+      | "isFounderExternal"
       | "mint"
       | "name"
       | "ownerOf"
@@ -98,6 +104,10 @@ export interface AppCreationsCollectionInterface extends utils.Interface {
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "embraceSpacesAddress",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getAllTokens",
     values?: undefined
   ): string;
@@ -110,8 +120,16 @@ export interface AppCreationsCollectionInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "isAdminExternal",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isFounderExternal",
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "mint",
@@ -176,6 +194,10 @@ export interface AppCreationsCollectionInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "embraceSpacesAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getAllTokens",
     data: BytesLike
   ): Result;
@@ -188,7 +210,15 @@ export interface AppCreationsCollectionInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "isAdminExternal",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "isApprovedForAll",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isFounderExternal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
@@ -232,11 +262,13 @@ export interface AppCreationsCollectionInterface extends utils.Interface {
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
+    "CreationCreated(uint256,address,address,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "CreationCreated"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
@@ -263,6 +295,19 @@ export type ApprovalForAllEvent = TypedEvent<
 >;
 
 export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
+
+export interface CreationCreatedEventObject {
+  spaceId: BigNumber;
+  creator: string;
+  collectionContractAddress: string;
+  tokenId: BigNumber;
+}
+export type CreationCreatedEvent = TypedEvent<
+  [BigNumber, string, string, BigNumber],
+  CreationCreatedEventObject
+>;
+
+export type CreationCreatedEventFilter = TypedEventFilter<CreationCreatedEvent>;
 
 export interface TransferEventObject {
   from: string;
@@ -314,6 +359,8 @@ export interface AppCreationsCollection extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    embraceSpacesAddress(overrides?: CallOverrides): Promise<[string]>;
+
     getAllTokens(overrides?: CallOverrides): Promise<[BigNumber[]]>;
 
     getAllTokensData(
@@ -325,9 +372,21 @@ export interface AppCreationsCollection extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
     isApprovedForAll(
       owner: PromiseOrValue<string>,
       operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
@@ -408,6 +467,8 @@ export interface AppCreationsCollection extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  embraceSpacesAddress(overrides?: CallOverrides): Promise<string>;
+
   getAllTokens(overrides?: CallOverrides): Promise<BigNumber[]>;
 
   getAllTokensData(
@@ -419,9 +480,21 @@ export interface AppCreationsCollection extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  isAdminExternal(
+    _spaceId: PromiseOrValue<BigNumberish>,
+    _address: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   isApprovedForAll(
     owner: PromiseOrValue<string>,
     operator: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  isFounderExternal(
+    _spaceId: PromiseOrValue<BigNumberish>,
+    _address: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
@@ -502,6 +575,8 @@ export interface AppCreationsCollection extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    embraceSpacesAddress(overrides?: CallOverrides): Promise<string>;
+
     getAllTokens(overrides?: CallOverrides): Promise<BigNumber[]>;
 
     getAllTokensData(
@@ -513,9 +588,21 @@ export interface AppCreationsCollection extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
     isApprovedForAll(
       owner: PromiseOrValue<string>,
       operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
@@ -608,6 +695,19 @@ export interface AppCreationsCollection extends BaseContract {
       approved?: null
     ): ApprovalForAllEventFilter;
 
+    "CreationCreated(uint256,address,address,uint256)"(
+      spaceId?: PromiseOrValue<BigNumberish> | null,
+      creator?: PromiseOrValue<string> | null,
+      collectionContractAddress?: PromiseOrValue<string> | null,
+      tokenId?: null
+    ): CreationCreatedEventFilter;
+    CreationCreated(
+      spaceId?: PromiseOrValue<BigNumberish> | null,
+      creator?: PromiseOrValue<string> | null,
+      collectionContractAddress?: PromiseOrValue<string> | null,
+      tokenId?: null
+    ): CreationCreatedEventFilter;
+
     "Transfer(address,address,uint256)"(
       from?: PromiseOrValue<string> | null,
       to?: PromiseOrValue<string> | null,
@@ -632,6 +732,8 @@ export interface AppCreationsCollection extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    embraceSpacesAddress(overrides?: CallOverrides): Promise<BigNumber>;
+
     getAllTokens(overrides?: CallOverrides): Promise<BigNumber>;
 
     getAllTokensData(overrides?: CallOverrides): Promise<BigNumber>;
@@ -641,9 +743,21 @@ export interface AppCreationsCollection extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     isApprovedForAll(
       owner: PromiseOrValue<string>,
       operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -725,6 +839,10 @@ export interface AppCreationsCollection extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    embraceSpacesAddress(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getAllTokens(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getAllTokensData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -734,9 +852,21 @@ export interface AppCreationsCollection extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    isAdminExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     isApprovedForAll(
       owner: PromiseOrValue<string>,
       operator: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    isFounderExternal(
+      _spaceId: PromiseOrValue<BigNumberish>,
+      _address: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
