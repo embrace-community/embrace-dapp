@@ -1,8 +1,8 @@
 ![embrace community](https://lets.embrace.community/logos/embrace-earth-web.png)
 
-How can we best express the true values of community in the modern era of the web?
+**How can we best express the true values of community in the modern era of the web?**
 
-Today most popular community platforms offer a distorted expression of community that is more focused on revenue than the health and well-being of it’s users. Embrace is looking to change this.
+Today social media platforms offer a distorted expression of community that is more focused on revenue than being aligned with the true values of community. Embrace is looking to change this.
 Instead of merely duplicating a Web3 version of these existing platforms, we wish to reconnect to the core principles of community and to start again with fresh eyes.
 
 Embrace is not limited to any type of community, however the first steps are to build apps that empower Creators and enable them to build communities around their creations. As part of the Next Video Build Hackathon we have implemented 4 applications:
@@ -12,54 +12,86 @@ Embrace is not limited to any type of community, however the first steps are to 
 3.  Chat Server: The first stages of a Decentralised Chat Server, using XMTP for chat and Huddle for video calling
 4.  Live Stream: Start a stream through LiverPeer Studio, and share the link with your community on Lens
 
-# Next Video Build
+## Team
 
-## Screenshots
+<div style="display: flex; justify-content: space-between;">
+<img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" style="height: 200px;" />
+<img src="https://i.imgur.com/MKspbN4.png" alt="tobias" style="height: 200px;" />
 
-- Viewing all your communities / public communites
-- Creating a new Community space
-  - Select the Apps
-  - Main Community page
-- Joining a public community
-  - Click to join → loading state → you are a member
-- Social App
-  - Setup Lens account
-  - View published posts
-  - Create a post
-- List each app and the integrations used
-  - Include Logos i.e. LivePeer, Lens, XMTP, Polygon
+<img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" style="height: 200px;" />
+</div>
+
+Martin <martin@openskydevelopment.co.uk> (Founder)
+
+Tobias <caruso33@web.de> (Co-Founder)
+
+Ben <info@bennisan.be> (Design)
+
+### Screenshots
+
+#### Community Spaces
+
+<div>
+<img src="https://i.imgur.com/KGBfKS2.png" style="width: 45%;" />
+<img src="https://i.imgur.com/CRrX5Em.png" style="width: 45%;" />
+</div>
+
+#### Create a Space
+
+<div>
+<img src="https://i.imgur.com/hQu5DaA.png" style="width: 45%;" />
+<img src="https://i.imgur.com/H1T18X3.png" style="width: 45%;" />
+</div>
+<div>
+<img src="https://i.imgur.com/qqkSXG1.png" style="width: 45%;" />
+<img src="https://i.imgur.com/an4nRSr.png" style="width: 45%;" />
+</div>
+<div>
+<img src="https://i.imgur.com/3P2Ry2V.png" style="width: 45%;" />
+<img src="https://i.imgur.com/Wr4938O.png" style="width: 45%;" />
+</div>
+
+#### Apps
+
+##### Social App (Lens)
+
+<div>
+<img src="https://i.imgur.com/rxOEwWN.png" style="width: 45%;" />
+<img src="https://i.imgur.com/OVGmlsI.png" style="width: 45%;" />
+</div>
+
+##### Chat Server
+
+<div>
+<img src="https://i.imgur.com/5yZnGrn.png" style="width: 45%; height: 100%;" />
+<img src="https://i.imgur.com/ow4Z03n.png" style="width: 45%; height: 100%;" />
+</div>
 
 ## Video Demo
 
-to do
+[Video on Embrace dApp - stored on IPFS and transcoded through Livepeer](https://next-video.embrace.community/embrace/creations?collectionId=1&creationId=3)
 
-## Presentation & Design
-
-[Slides](https://docs.google.com/presentation/d/1S9ExAmx9alB77exgWNN5q_Pj4qTKXJ5-44fDco_qy-s)
-
-[Figma Design](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
-
-## Team
-
-Martin <martin@openskydevelopment.co.uk> (Founder)
-Tobias <caruso33@web.de> (Co-Founder)
-Ben <info@bennisan.be> (Design)
-
-## Bounties
+[Video on Loom](https://www.loom.com/share/7bd16ae371e44f709b2aa61d9b08f877)
 
 ## Frontend
 
-Build using Next.Js, React, Redux, Tailwind, Ethers.js
+Build using Next.Js, React, Redux, Tailwind, Ethers.js  
 [Deployed Frontend](https://next-video.embrace.community)
 
 ## Contracts
 
-#### Polgyon Mumbai
+### Polgyon Mumbai
 
+```shell
+EmbraceAccounts deployed to 0xb67c789B6DaFccEfda2e6B66c4c5c72f835E96DF
+EmbraceApps deployed to 0x79cf9C8De5C1c5F878366e14E4641aB2d43DA41D
+EmbraceSpaces deployed to 0x7B9C2684445a119060209a97eD4F443f5884F3eB
+EmbraceCreations deployed to 0x94137d87b89301D28FF1C653017fCc1baa4D1d3A
+EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
 ```
-EmbraceApps deployed to:
-EmbraceSpaces deployed to:
-EmbraceAccounts deployed to:
 
+## Presentation & Design
 
-```
+[Slides](https://docs.google.com/presentation/d/1Wtra-i2t8A_XgffPHdZIZhMDywYd47lk8Ju__mpCn_c/edit?usp=sharing)
+
+[Figma Design](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
