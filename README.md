@@ -32,7 +32,7 @@ Ben <info@bennisan.be> (Design)
 #### Community Spaces
 
 <div>
-<img src="https://i.imgur.com/KGBfKS2.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/spaces-1.png" style="width: 45%;" />
 <img src="https://i.imgur.com/CRrX5Em.png" style="width: 45%;" />
 </div>
 
@@ -46,15 +46,15 @@ Ben <info@bennisan.be> (Design)
 <img src="https://i.imgur.com/qqkSXG1.png" style="width: 45%;" />
 <img src="https://i.imgur.com/an4nRSr.png" style="width: 45%;" />
 </div>
-<div>
-<img src="https://i.imgur.com/3P2Ry2V.png" style="width: 45%;" />
-<img src="https://i.imgur.com/Wr4938O.png" style="width: 45%;" />
-</div>
 
 #### Apps
 
 ##### Social App (Lens)
 
+<div>
+<img src="https://i.imgur.com/3P2Ry2V.png" style="width: 45%;" />
+<img src="https://i.imgur.com/Wr4938O.png" style="width: 45%;" />
+</div>
 <div>
 <img src="https://i.imgur.com/rxOEwWN.png" style="width: 45%;" />
 <img src="https://i.imgur.com/OVGmlsI.png" style="width: 45%;" />
