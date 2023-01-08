@@ -27,15 +27,15 @@ Tobias <caruso33@web.de> (Co-Founder)
 
 Ben <info@bennisan.be> (Design)
 
-### Screenshots
+## Screenshots
 
-#### Community Spaces
+### Community Spaces
 
 <div>
 <img src="https://lets.embrace.community/screenshots/spaces-1.png" style="width: 45%;" />
 </div>
 
-#### Create a Space
+### Create a Space
 
 <div>
 <img src="https://lets.embrace.community/screenshots/create-1.png" style="width: 45%;" />
@@ -45,9 +45,11 @@ Ben <info@bennisan.be> (Design)
 <img src="https://lets.embrace.community/screenshots/create-3.png" style="width: 45%;" />
 </div>
 
-#### Apps
+### Apps
 
-##### Social App (Lens)
+### Social App
+
+_Using Lens Protocol and Livepeer for transcoding video media files_
 
 <div>
 <img src="https://lets.embrace.community/screenshots/social-1.png" style="width: 45%;" />
@@ -58,7 +60,9 @@ Ben <info@bennisan.be> (Design)
 <img src="https://lets.embrace.community/screenshots/social-4.png" style="width: 45%;" />
 </div>
 
-##### Creations App
+### Creations App
+
+_Using IPFS for media storage and Livepeer.js + Livepeer Studio for transcoding_
 
 <div>
 <img src="https://lets.embrace.community/screenshots/creations-1.png" style="width: 45%;" />
@@ -69,25 +73,29 @@ Ben <info@bennisan.be> (Design)
 <img src="https://lets.embrace.community/screenshots/creations-4.png" style="width: 45%;" />
 </div>
 
-##### Chat Server
+### Chat Server
+
+_Using XMTP for chat and Huddle for video calls_
 
 <div>
 <img src="https://lets.embrace.community/screenshots/chat-1.png" style="width: 45%;" />
 <img src="https://lets.embrace.community/screenshots/chat-2.png" style="width: 45%;" />
 </div>
 
-##### Live Streaming App
+#### Live Streaming App
+
+_Live Streaming through WebRTC and Livepeer.js + Livepeer Studio_
 
 <div>
 <img src="https://lets.embrace.community/screenshots/stream-1.png" style="width: 45%;" />
 <img src="https://lets.embrace.community/screenshots/stream-2.png" style="width: 45%;" />
 </div>
 
-## Video Demo
+## Video Submission
 
-[Video on Embrace dApp - stored on IPFS and transcoded through Livepeer](https://next-video.embrace.community/embrace/creations?collectionId=1&creationId=3)
+[Embrace dApp - stored on IPFS and transcoded through Livepeer](https://next-video.embrace.community/embrace/creations?collectionId=1&creationId=3)
 
-[Video on Loom](https://www.loom.com/share/7bd16ae371e44f709b2aa61d9b08f877)
+[Loom (Backup)](https://www.loom.com/share/7bd16ae371e44f709b2aa61d9b08f877)
 
 ## Frontend
 
