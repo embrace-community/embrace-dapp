@@ -31,17 +31,15 @@ Embrace is not limited to any type of community, however the first steps are to 
 
 ## Team
 
-<div style="display: flex; justify-content: space-between;">
-<div style="width: 30%;">
+<span style="display: inline-block; width: 33%;">
 Martin <martin@openskydevelopment.co.uk> (Founder)
-</div>
-<div style="width: 30%;">
+</span>
+<span style="display: inline-block; width: 33%;">
 Tobias <caruso33@web.de> (Co-Founder)
-</div>
-<div style="width: 30%;">
+</span>
+<span style="display: inline-block; width: 32%;">
 Ben <info@bennisan.be> (Design)
-</div>
-</div>
+</span>
 
 <div style="display: flex; justify-content: space-between;">
 
