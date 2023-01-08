@@ -1,8 +1,8 @@
 ![embrace community](https://lets.embrace.community/logos/embrace-earth-web.png)
 
-How can we best express the true values of community in the modern era of the web?
+**How can we best express the true values of community in the modern era of the web?**
 
-Today most popular community platforms offer a distorted expression of community that is more focused on revenue than the health and well-being of it’s users. Embrace is looking to change this.
+Today social media platforms offer a distorted expression of community that is more focused on revenue than being aligned with the true values of community. Embrace is looking to change this.
 Instead of merely duplicating a Web3 version of these existing platforms, we wish to reconnect to the core principles of community and to start again with fresh eyes.
 
 Embrace is not limited to any type of community, however the first steps are to build apps that empower Creators and enable them to build communities around their creations. As part of the Next Video Build Hackathon we have implemented 4 applications:
