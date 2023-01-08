@@ -33,18 +33,16 @@ Ben <info@bennisan.be> (Design)
 
 <div>
 <img src="https://lets.embrace.community/screenshots/spaces-1.png" style="width: 45%;" />
-<img src="https://i.imgur.com/CRrX5Em.png" style="width: 45%;" />
 </div>
 
 #### Create a Space
 
 <div>
-<img src="https://i.imgur.com/hQu5DaA.png" style="width: 45%;" />
-<img src="https://i.imgur.com/H1T18X3.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/create-1.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/create-2.png" style="width: 45%;" />
 </div>
 <div>
-<img src="https://i.imgur.com/qqkSXG1.png" style="width: 45%;" />
-<img src="https://i.imgur.com/an4nRSr.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/create-3.png" style="width: 45%;" />
 </div>
 
 #### Apps
@@ -52,19 +50,37 @@ Ben <info@bennisan.be> (Design)
 ##### Social App (Lens)
 
 <div>
-<img src="https://i.imgur.com/3P2Ry2V.png" style="width: 45%;" />
-<img src="https://i.imgur.com/Wr4938O.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/social-1.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/social-2.png" style="width: 45%;" />
 </div>
 <div>
-<img src="https://i.imgur.com/rxOEwWN.png" style="width: 45%;" />
-<img src="https://i.imgur.com/OVGmlsI.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/social-3.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/social-4.png" style="width: 45%;" />
+</div>
+
+##### Creations App (Lens)
+
+<div>
+<img src="https://lets.embrace.community/screenshots/creations-1.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/creations-2.png" style="width: 45%;" />
+</div>
+<div>
+<img src="https://lets.embrace.community/screenshots/creations-3.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/creations-4.png" style="width: 45%;" />
 </div>
 
 ##### Chat Server
 
 <div>
-<img src="https://i.imgur.com/5yZnGrn.png" style="width: 45%; height: 100%;" />
-<img src="https://i.imgur.com/ow4Z03n.png" style="width: 45%; height: 100%;" />
+<img src="https://lets.embrace.community/screenshots/chat-1.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/chat-2.png" style="width: 45%;" />
+</div>
+
+##### Live Streaming App
+
+<div>
+<img src="https://lets.embrace.community/screenshots/stream-1.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/stream-2.png" style="width: 45%;" />
 </div>
 
 ## Video Demo
