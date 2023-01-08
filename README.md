@@ -29,48 +29,30 @@ Embrace is not limited to any type of community, however the first steps are to 
 - List each app and the integrations used
   - Include Logos i.e. LivePeer, Lens, XMTP, Polygon
 
-## Video Demo
-
-to do
-
-## Presentation & Design
-
-[Slides](https://docs.google.com/presentation/d/1S9ExAmx9alB77exgWNN5q_Pj4qTKXJ5-44fDco_qy-s)
-
-[Figma Design](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
-
 ## Team
 
-<div style="display: flex; justify-content: space-between;">
-<div>
+<div style="width: 30%;">
 Martin <martin@openskydevelopment.co.uk> (Founder)
 </div>
-<div>
+<div style="width: 30%;">
 Tobias <caruso33@web.de> (Co-Founder)
 </div>
-<div>
+<div style="width: 30%;">
 Ben <info@bennisan.be> (Design)
-</div>
 </div>
 
 <div style="display: flex; justify-content: space-between;">
 
 <img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" style="width: 30%;" />
-<span style="width: 30%;">
-</span>
 
 <img src="https://i.imgur.com/MKspbN4.png" alt="tobias" style="width: 30%;" />
-<span style="width: 30%;">
-
-<!-- ![tobias](https://i.imgur.com/MKspbN4.png) -->
-</span>
 
 <img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" style="width: 30%;" />
 <span >
 <!-- ![ben](https://i.imgur.com/Vxj7mc3.png) -->
 </span>
-
 </div>
+
 ## Bounties
 
 ## Frontend
@@ -117,6 +99,12 @@ EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
 <img src="https://i.imgur.com/5yZnGrn.png" style="width: 45%;" />
 </div>
 
-### Devs
+## Video Demo
 
-`yarn` - install
+to do
+
+## Presentation & Design
+
+[Slides](https://docs.google.com/presentation/d/1S9ExAmx9alB77exgWNN5q_Pj4qTKXJ5-44fDco_qy-s)
+
+[Figma Design](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
