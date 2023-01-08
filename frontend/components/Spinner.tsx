@@ -12,7 +12,7 @@ export default function Spinner({ itemsCenter = true, widthHeight = 8 }) {
         role="status"
         // className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-violet-600"
         className={classNames({
-          "mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-violet-600":
+          "text-gray-200 animate-spin dark:text-gray-600 fill-violet-600":
             true,
           "w-4 h-4": widthHeight === 4,
           "w-6 h-6": widthHeight === 6,

@@ -55,10 +55,10 @@ export async function createLensProfileAndPoll({
     profilePictureUri: "", // TODO: let user set profile picture?
   });
 
-  if (!result || result?.reason) {
+  if (!result || result.__typename === "RelayError") {
     throw new Error(
       `No create profile response from lens received. ${
-        result.reason ?? "Please try to login again."
+        result?.reason ?? "Please try to login again."
       }`,
     );
   }

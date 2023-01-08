@@ -13,7 +13,6 @@ export function getSignature(typedData: {
     value: omit(typedData.value, "__typename"),
   };
 
-  console.log("getSignature", formattedTypedData);
   return formattedTypedData;
 }
 
@@ -31,10 +30,10 @@ export const pollUntilIndexed = async (
       // console.log("pool until indexed: result", response);
 
       if (response.__typename === "TransactionIndexedResult") {
-        console.log("pool until indexed: indexed", response.indexed);
-        console.log(
-          `pool until metadataStatus: ${response?.metadataStatus?.status}, status: ${response.metadataStatus?.status}, reason: ${response.metadataStatus?.reason}`,
-        );
+        // console.log("pool until indexed: indexed", response.indexed);
+        // console.log(
+        //   `pool until metadataStatus: ${response?.metadataStatus?.status}, status: ${response.metadataStatus?.status}, reason: ${response.metadataStatus?.reason}`,
+        // );
 
         if (response.metadataStatus) {
           if (response.metadataStatus.status === "SUCCESS") {

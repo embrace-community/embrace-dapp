@@ -22,6 +22,7 @@ import { livepeerApiKey } from "../../../lib/envs";
 import { getFileUri } from "../../../lib/web3storage/getIpfsJsonContent";
 import { Publication } from "../../../types/lens-generated";
 import Button from "../../Button";
+import Modal from "../../Modal";
 import Notification from "../../Notification";
 import Spinner from "../../Spinner";
 import { saveToIpfsAndCreatePost } from "./post_utils";
@@ -67,8 +68,6 @@ export default function SocialPublications({
   const isLensPublisher =
     socialDetails?.lensWallet && address === socialDetails?.lensWallet;
 
-  console.log("defaultProfile", defaultProfile);
-
   return (
     <LivepeerConfig client={livepeerClient}>
       <div className="flex justify-between">
@@ -78,11 +77,7 @@ export default function SocialPublications({
             className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold p-2 flex flex-row items-center"
             onClick={() => setWritePost(!writePost)}
           >
-            {writePost ? (
-              <XMarkIcon width={24} />
-            ) : (
-              <PencilSquareIcon width={24} />
-            )}
+            <PencilSquareIcon width={24} />
           </button>
         )}
 
@@ -121,47 +116,53 @@ export default function SocialPublications({
         </Notification>
       )}
 
-      {isLensPublisher && writePost && (
-        <div className="mt-4">
-          <input
-            type="text"
-            value={post.title}
-            onChange={(e) => setPost({ ...post, title: e.target.value })}
-            placeholder="Post title"
-            className="my-3 w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
-          />
+      <Modal
+        showModal={writePost}
+        setShowModal={setWritePost}
+        title={<div>Create Post</div>}
+        body={
+          <div>
+            <input
+              type="text"
+              value={post.title}
+              onChange={(e) => setPost({ ...post, title: e.target.value })}
+              placeholder="Post title"
+              className="my-3 w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
+            />
 
-          <SimpleMDE
-            placeholder="What's on your mind?"
-            value={post.content}
-            onChange={(value: string) => setPost({ ...post, content: value })}
-          />
-        </div>
-      )}
+            <SimpleMDE
+              placeholder="What's on your mind?"
+              value={post.content}
+              onChange={(value: string) => setPost({ ...post, content: value })}
+            />
+          </div>
+        }
+        footer={
+          <Button
+            additionalClassName="p-2 float-right"
+            buttonProps={{
+              onClick: async () => {
+                await saveToIpfsAndCreatePost({
+                  post,
+                  setIsloading,
+                  defaultProfile,
+                  address,
+                  signMessageAsync,
+                  signTypedDataAsync,
+                  lensHubContract,
+                  setSuccess,
+                });
 
-      {isLensPublisher && writePost && (
-        <Button
-          additionalClassName="p-2 float-right"
-          buttonProps={{
-            onClick: async () => {
-              await saveToIpfsAndCreatePost({
-                post,
-                setIsloading,
-                defaultProfile,
-                address,
-                signMessageAsync,
-                signTypedDataAsync,
-                lensHubContract,
-                setSuccess,
-              });
-              getPublications();
-            },
-            disabled: !post.content || !isLensPublisher,
-          }}
-        >
-          {isLoading ? <Spinner /> : "Publish"}
-        </Button>
-      )}
+                getPublications();
+                setWritePost(false)
+              },
+              disabled: !post.content || !isLensPublisher,
+            }}
+          >
+            {isLoading ? <Spinner /> : "Publish"}
+          </Button>
+        }
+      ></Modal>
 
       <div className="flex justify-center mt-8">
         <div className="gap-4 w-1/2">

@@ -39,8 +39,6 @@ const lensAuthLink = new ApolloLink((operation, forward) => {
     throw Error(`No access token available`);
   }
 
-  console.log("jwt token:", token);
-
   // Use the setContext method to set the HTTP headers.
   operation.setContext({
     headers: {
