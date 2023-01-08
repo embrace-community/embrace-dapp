@@ -144,13 +144,13 @@ export default function SocialProfile({
   }
 
   async function onSetDefaultLensProfile(autoProfileId?: string) {
-    if (!autoProfileId || !selectedProfile) return;
+    if (!autoProfileId && !selectedProfile) return;
 
     try {
       console.log(
-        `Setting default Profile to ${autoProfileId || selectedProfile.id}`,
+        `Setting default Profile to ${autoProfileId || selectedProfile?.id}`,
       );
-      const profileId = autoProfileId ? autoProfileId : selectedProfile.id;
+      const profileId = autoProfileId ? autoProfileId : selectedProfile?.id;
 
       await setDefaultProfileAndPoll({
         lensAuthenticationIfNeeded,
@@ -204,14 +204,6 @@ export default function SocialProfile({
         content = (
           <div className="mt-4">
             <h3 className="text-xl">Lens profile management</h3>
-
-            {/* <h4 className="text-md mt-4">Current default profile</h4>
-            <input
-              type="text"
-              className="mt-2 w-72 block bg-transparent text-gray-400 rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-              value={`${defaultProfile?.handle} - ${defaultProfile?.id}`}
-              disabled
-            /> */}
 
             <div className="mt-4">
               <h4 className="text-md">Create new profile</h4>
@@ -326,6 +318,16 @@ export default function SocialProfile({
                     Set To Default Profile
                   </button>
                 </div>
+              </div>
+
+              <div className="mt-4">
+                <h4 className="text-md">Current default profile</h4>
+                <input
+                  type="text"
+                  className="mt-2 w-72 block bg-transparent text-gray-400 rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
+                  value={`${defaultProfile?.handle} - ${defaultProfile?.id}`}
+                  disabled
+                />
               </div>
             </div>
           </div>

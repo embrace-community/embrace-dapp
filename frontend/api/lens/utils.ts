@@ -50,7 +50,7 @@ export const pollUntilIndexed = async (
         }
 
         console.log(
-          `pool until indexed: sleep for ${LENS_POLL_TIMOUT} milliseconds then try again`,
+          `pool until indexed: sleep for ${LENS_POLL_TIMOUT} ms.`,
         );
         // sleep for a second before trying again
         await new Promise((resolve) => setTimeout(resolve, LENS_POLL_TIMOUT));
