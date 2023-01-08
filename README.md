@@ -31,15 +31,7 @@ Embrace is not limited to any type of community, however the first steps are to 
 
 ## Team
 
-<span style="display: inline-block; width: 33%;">
-Martin <martin@openskydevelopment.co.uk> (Founder)
-</span>
-<span style="display: inline-block; width: 33%;">
-Tobias <caruso33@web.de> (Co-Founder)
-</span>
-<span style="display: inline-block; width: 32%;">
-Ben <info@bennisan.be> (Design)
-</span>
+
 
 <div style="display: flex; justify-content: space-between;">
 
@@ -48,8 +40,18 @@ Ben <info@bennisan.be> (Design)
 <img src="https://i.imgur.com/MKspbN4.png" alt="tobias" style="width: 30%;" />
 
 <img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" style="width: 30%;" />
-<span >
-<!-- ![ben](https://i.imgur.com/Vxj7mc3.png) -->
+</div>
+
+<div style="display: flex; justify-content: space-between;">
+
+<span style="display: inline-block; width: 33%;">
+Martin <martin@openskydevelopment.co.uk> (Founder)
+</span>
+<span style="display: inline-block; width: 33%;">
+Tobias <caruso33@web.de> (Co-Founder)
+</span>
+<span style="display: inline-block; width: 32%;">
+Ben <info@bennisan.be> (Design)
 </span>
 </div>
 
