@@ -35,7 +35,7 @@ export async function saveToIpfsAndCreatePost({
     ipfsResult = (await saveToIpfs(
       {
         version: "2.0.0",
-        mainContentFocus: PublicationMainFocus.TextOnly,
+        mainContentFocus: PublicationMainFocus.Article,
         metadata_id: uuidv4(),
         description: "Created on Embrace Community",
         locale: "en-US",
