@@ -12,23 +12,6 @@ Embrace is not limited to any type of community, however the first steps are to 
 3.  Chat Server: The first stages of a Decentralised Chat Server, using XMTP for chat and Huddle for video calling
 4.  Live Stream: Start a stream through LiverPeer Studio, and share the link with your community on Lens
 
-# Next Video Build
-
-## Screenshots
-
-- Viewing all your communities / public communites
-- Creating a new Community space
-  - Select the Apps
-  - Main Community page
-- Joining a public community
-  - Click to join → loading state → you are a member
-- Social App
-  - Setup Lens account
-  - View published posts
-  - Create a post
-- List each app and the integrations used
-  - Include Logos i.e. LivePeer, Lens, XMTP, Polygon
-
 ## Team
 
 <div style="display: flex; justify-content: space-between;">
@@ -44,28 +27,9 @@ Tobias <caruso33@web.de> (Co-Founder)
 
 Ben <info@bennisan.be> (Design)
 
-## Bounties
-
-## Frontend
-
-Build using Next.Js, React, Redux, Tailwind, Ethers.js  
-[Deployed Frontend](https://next-video.embrace.community)
-
-## Contracts
-
-### Polgyon Mumbai
-
-```shell
-EmbraceAccounts deployed to 0xb67c789B6DaFccEfda2e6B66c4c5c72f835E96DF
-EmbraceApps deployed to 0x79cf9C8De5C1c5F878366e14E4641aB2d43DA41D
-EmbraceSpaces deployed to 0x7B9C2684445a119060209a97eD4F443f5884F3eB
-EmbraceCreations deployed to 0x94137d87b89301D28FF1C653017fCc1baa4D1d3A
-EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
-```
-
 ### Screenshots
 
-#### Current Spaces (Communities)
+#### Community Spaces
 
 <div>
 <img src="https://i.imgur.com/KGBfKS2.png" style="width: 45%;" />
@@ -87,15 +51,17 @@ EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
 <img src="https://i.imgur.com/Wr4938O.png" style="width: 45%;" />
 </div>
 
-#### Use Apps for features
+#### Apps
 
-##### Socials (Blogging)
+##### Social App (Lens)
+
 <div>
 <img src="https://i.imgur.com/rxOEwWN.png" style="width: 45%;" />
 <img src="https://i.imgur.com/OVGmlsI.png" style="width: 45%;" />
 </div>
 
-##### Video-Chat
+##### Chat Server
+
 <div>
 <img src="https://i.imgur.com/5yZnGrn.png" style="width: 45%; height: 100%;" />
 <img src="https://i.imgur.com/ow4Z03n.png" style="width: 45%; height: 100%;" />
@@ -103,7 +69,26 @@ EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
 
 ## Video Demo
 
-to do
+[Video on Embrace dApp - stored on IPFS and transcoded through Livepeer](https://next-video.embrace.community/embrace/creations?collectionId=1&creationId=3)
+
+[Video on Loom](https://www.loom.com/share/7bd16ae371e44f709b2aa61d9b08f877)
+
+## Frontend
+
+Build using Next.Js, React, Redux, Tailwind, Ethers.js  
+[Deployed Frontend](https://next-video.embrace.community)
+
+## Contracts
+
+### Polgyon Mumbai
+
+```shell
+EmbraceAccounts deployed to 0xb67c789B6DaFccEfda2e6B66c4c5c72f835E96DF
+EmbraceApps deployed to 0x79cf9C8De5C1c5F878366e14E4641aB2d43DA41D
+EmbraceSpaces deployed to 0x7B9C2684445a119060209a97eD4F443f5884F3eB
+EmbraceCreations deployed to 0x94137d87b89301D28FF1C653017fCc1baa4D1d3A
+EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
+```
 
 ## Presentation & Design
 
