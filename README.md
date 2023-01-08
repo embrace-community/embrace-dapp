@@ -95,9 +95,10 @@ EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
 <img src="https://i.imgur.com/OVGmlsI.png" style="width: 45%;" />
 </div>
 
-##### Chat
+##### Video-Chat
 <div>
 <img src="https://i.imgur.com/5yZnGrn.png" style="width: 45%; height: 100%;" />
+<img src="https://i.imgur.com/ow4Z03n.png" style="width: 45%; height: 100%;" />
 </div>
 
 ## Video Demo
