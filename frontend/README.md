@@ -1,34 +1,101 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+![embrace community](https://lets.embrace.community/logos/embrace-earth-web.png)
 
-## Getting Started
+How can we best express the true values of community in the modern era of the web?
 
-First, run the development server:
+Today most popular community platforms offer a distorted expression of community that is more focused on revenue than the health and well-being of it’s users. Embrace is looking to change this.
+Instead of merely duplicating a Web3 version of these existing platforms, we wish to reconnect to the core principles of community and to start again with fresh eyes.
 
-```bash
-npm run dev
-# or
-yarn dev
+Embrace is not limited to any type of community, however the first steps are to build apps that empower Creators and enable them to build communities around their creations. As part of the Next Video Build Hackathon we have implemented 4 applications:
+
+1.  Social: Enabling communities to create or connect their Lens profile and create posts for their followers to view within their community space and throughout in the Lens ecosystem
+2.  Creations: Enabling creators to add their content (e.g videos) to be stored on IPFS, minted as NFTs and transcoded through LivePeer
+3.  Chat Server: The first stages of a Decentralised Chat Server, using XMTP for chat and Huddle for video calling
+4.  Live Stream: Start a stream through LiverPeer Studio, and share the link with your community on Lens
+
+# Next Video Build
+
+## Screenshots
+
+- Viewing all your communities / public communites
+- Creating a new Community space
+  - Select the Apps
+  - Main Community page
+- Joining a public community
+  - Click to join → loading state → you are a member
+- Social App
+  - Setup Lens account
+  - View published posts
+  - Create a post
+- List each app and the integrations used
+  - Include Logos i.e. LivePeer, Lens, XMTP, Polygon
+
+## Video Demo
+
+to do
+
+## Presentation & Design
+
+[Slides](https://docs.google.com/presentation/d/1S9ExAmx9alB77exgWNN5q_Pj4qTKXJ5-44fDco_qy-s)
+
+[Figma Design](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
+
+## Team
+
+<div style="display: flex; justify-content: space-between;">
+
+<span style="width: 30%;">
+Martin <martin@openskydevelopment.co.uk> (Founder)
+<img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" />
+<!-- ![martin](https://i.imgur.com/LIMblFg.jpg) -->
+</span>
+
+<span style="width: 30%;">
+Tobias <caruso33@web.de> (Co-Founder)
+
+<img src="https://i.imgur.com/MKspbN4.png" alt="tobias" />
+<!-- ![tobias](https://i.imgur.com/MKspbN4.png) -->
+</span>
+
+<span style="width: 30%;">
+Ben <info@bennisan.be> (Design)
+<img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" />
+<!-- ![ben](https://i.imgur.com/Vxj7mc3.png) -->
+</span>
+
+</div>
+## Bounties
+
+## Frontend
+
+Build using Next.Js, React, Redux, Tailwind, Ethers.js
+[Deployed Frontend](https://next-video.embrace.community)
+
+## Contracts
+
+### Polgyon Mumbai
+
+```shell
+EmbraceAccounts deployed to 0xb67c789B6DaFccEfda2e6B66c4c5c72f835E96DF
+EmbraceApps deployed to 0x79cf9C8De5C1c5F878366e14E4641aB2d43DA41D
+EmbraceSpaces deployed to 0x7B9C2684445a119060209a97eD4F443f5884F3eB
+EmbraceCreations deployed to 0x94137d87b89301D28FF1C653017fCc1baa4D1d3A
+EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Screenshots
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+![](https://i.imgur.com/KGBfKS2.png)
+![](https://i.imgur.com/CRrX5Em.png)
+![](https://i.imgur.com/hQu5DaA.png)
+![](https://i.imgur.com/H1T18X3.png)
+![](https://i.imgur.com/qqkSXG1.png)
+![](https://i.imgur.com/an4nRSr.png)
+![](https://i.imgur.com/3P2Ry2V.png)
+![](https://i.imgur.com/Wr4938O.png)
+![](https://i.imgur.com/rxOEwWN.png)
+![](https://i.imgur.com/OVGmlsI.png)
+![](https://i.imgur.com/5yZnGrn.png)
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+### Devs
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+`yarn` - install
