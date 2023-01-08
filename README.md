@@ -41,10 +41,28 @@ to do
 
 ## Team
 
-Martin <martin@openskydevelopment.co.uk> (Founder)
-Tobias <caruso33@web.de> (Co-Founder)
-Ben <info@bennisan.be> (Design)
+<div style="display: flex; justify-content: space-between;">
 
+<img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" style="width: 30%;" />
+Martin <martin@openskydevelopment.co.uk> (Founder)
+<!-- <span style="width: 30%;"> -->
+<!-- ![martin](https://i.imgur.com/LIMblFg.jpg) -->
+<!-- </span> -->
+
+<span style="width: 30%;">
+Tobias <caruso33@web.de> (Co-Founder)
+
+<img src="https://i.imgur.com/MKspbN4.png" alt="tobias" />
+<!-- ![tobias](https://i.imgur.com/MKspbN4.png) -->
+</span>
+
+<span style="width: 30%;">
+Ben <info@bennisan.be> (Design)
+<img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" />
+<!-- ![ben](https://i.imgur.com/Vxj7mc3.png) -->
+</span>
+
+</div>
 ## Bounties
 
 ## Frontend
@@ -54,12 +72,30 @@ Build using Next.Js, React, Redux, Tailwind, Ethers.js
 
 ## Contracts
 
-#### Polgyon Mumbai
+### Polgyon Mumbai
 
+```shell
+EmbraceAccounts deployed to 0xb67c789B6DaFccEfda2e6B66c4c5c72f835E96DF
+EmbraceApps deployed to 0x79cf9C8De5C1c5F878366e14E4641aB2d43DA41D
+EmbraceSpaces deployed to 0x7B9C2684445a119060209a97eD4F443f5884F3eB
+EmbraceCreations deployed to 0x94137d87b89301D28FF1C653017fCc1baa4D1d3A
+EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
 ```
-EmbraceApps deployed to:
-EmbraceSpaces deployed to:
-EmbraceAccounts deployed to:
 
+### Screenshots
 
-```
+![](https://i.imgur.com/KGBfKS2.png)
+![](https://i.imgur.com/CRrX5Em.png)
+![](https://i.imgur.com/hQu5DaA.png)
+![](https://i.imgur.com/H1T18X3.png)
+![](https://i.imgur.com/qqkSXG1.png)
+![](https://i.imgur.com/an4nRSr.png)
+![](https://i.imgur.com/3P2Ry2V.png)
+![](https://i.imgur.com/Wr4938O.png)
+![](https://i.imgur.com/rxOEwWN.png)
+![](https://i.imgur.com/OVGmlsI.png)
+![](https://i.imgur.com/5yZnGrn.png)
+
+### Devs
+
+`yarn` - install
