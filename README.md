@@ -42,23 +42,31 @@ to do
 ## Team
 
 <div style="display: flex; justify-content: space-between;">
+<div>
+Martin <martin@openskydevelopment.co.uk> (Founder)
+</div>
+<div>
+Tobias <caruso33@web.de> (Co-Founder)
+</div>
+<div>
+Ben <info@bennisan.be> (Design)
+</div>
+</div>
+
+<div style="display: flex; justify-content: space-between;">
 
 <img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" style="width: 30%;" />
-Martin <martin@openskydevelopment.co.uk> (Founder)
-<!-- <span style="width: 30%;"> -->
-<!-- ![martin](https://i.imgur.com/LIMblFg.jpg) -->
-<!-- </span> -->
-
 <span style="width: 30%;">
-Tobias <caruso33@web.de> (Co-Founder)
+</span>
 
-<img src="https://i.imgur.com/MKspbN4.png" alt="tobias" />
+<img src="https://i.imgur.com/MKspbN4.png" alt="tobias" style="width: 30%;" />
+<span style="width: 30%;">
+
 <!-- ![tobias](https://i.imgur.com/MKspbN4.png) -->
 </span>
 
-<span style="width: 30%;">
-Ben <info@bennisan.be> (Design)
-<img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" />
+<img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" style="width: 30%;" />
+<span >
 <!-- ![ben](https://i.imgur.com/Vxj7mc3.png) -->
 </span>
 
@@ -84,17 +92,30 @@ EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
 
 ### Screenshots
 
-![](https://i.imgur.com/KGBfKS2.png)
-![](https://i.imgur.com/CRrX5Em.png)
-![](https://i.imgur.com/hQu5DaA.png)
-![](https://i.imgur.com/H1T18X3.png)
-![](https://i.imgur.com/qqkSXG1.png)
-![](https://i.imgur.com/an4nRSr.png)
-![](https://i.imgur.com/3P2Ry2V.png)
-![](https://i.imgur.com/Wr4938O.png)
-![](https://i.imgur.com/rxOEwWN.png)
-![](https://i.imgur.com/OVGmlsI.png)
-![](https://i.imgur.com/5yZnGrn.png)
+<div>
+<img src="https://i.imgur.com/KGBfKS2.png" style="width: 45%;" />
+<img src="https://i.imgur.com/CRrX5Em.png" style="width: 45%;" />
+</div>
+
+<div>
+<img src="https://i.imgur.com/hQu5DaA.png" style="width: 45%;" />
+<img src="https://i.imgur.com/H1T18X3.png" style="width: 45%;" />
+</div>
+<div>
+<img src="https://i.imgur.com/qqkSXG1.png" style="width: 45%;" />
+<img src="https://i.imgur.com/an4nRSr.png" style="width: 45%;" />
+</div>
+<div>
+<img src="https://i.imgur.com/3P2Ry2V.png" style="width: 45%;" />
+<img src="https://i.imgur.com/Wr4938O.png" style="width: 45%;" />
+</div>
+<div>
+<img src="https://i.imgur.com/rxOEwWN.png" style="width: 45%;" />
+<img src="https://i.imgur.com/OVGmlsI.png" style="width: 45%;" />
+</div>
+<div>
+<img src="https://i.imgur.com/5yZnGrn.png" style="width: 45%;" />
+</div>
 
 ### Devs
 
