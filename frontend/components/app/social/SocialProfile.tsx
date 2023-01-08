@@ -162,6 +162,8 @@ export default function SocialProfile({
       });
 
       getDefaultProfile();
+
+      setPageState({ type: PageState.Publications, data: "" });
     } catch (e: any) {
       console.error(
         `An error occured selecting the default profile. Please try again: ${e.message}`,
