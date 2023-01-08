@@ -3,10 +3,7 @@
 /* tslint:disable */
 
 /* eslint-disable */
-import type * as interfacesSol from "./Interfaces.sol";
 import type * as app from "./app";
-
-export type { interfacesSol };
 
 export type { app };
 export type { EmbraceAccounts } from "./EmbraceAccounts";
