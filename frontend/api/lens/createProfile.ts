@@ -3,7 +3,7 @@ import { apolloClient } from "../../lib/ApolloClient";
 import {
   CreateProfileMutation,
   CreateProfileRequest,
-  RelayerResult,
+  RelayErrorReasons,
 } from "../../types/lens-generated";
 
 export async function createProfile(request: CreateProfileRequest) {
@@ -16,25 +16,27 @@ export async function createProfile(request: CreateProfileRequest) {
     context: { clientName: "lensAuth" },
   });
 
-  const createdProfile = result.data?.createProfile;
+  const createdProfile:
+    | {
+        __typename: "RelayError";
+        reason: RelayErrorReasons;
+      }
+    | {
+        __typename: "RelayerResult";
+        txHash: any;
+      }
+    | undefined = result.data?.createProfile;
 
-  return createdProfile as RelayerResult | undefined;
+  return createdProfile;
 }
 
 const CREATE_PROFILE = gql`
-  mutation CreateProfile($request: CreateProfileRequest!) # $handle: Handle!
-  # $profilePictureUri: Url
-  # $followNFTURI: FollowModuleParams
-  # $followModule: Url
-  {
+  mutation CreateProfile(
+    $request: CreateProfileRequest! # $handle: Handle! # $profilePictureUri: Url # $followNFTURI: FollowModuleParams # $followModule: Url
+  ) {
     createProfile(
-      request: $request # {
-    ) # handle: $handle
-    # profilePictureUri: $profilePictureUri
-    # followNFTURI: $followNFTURI
-    # followModule: $followModule
-    # }
-    {
+      request: $request # { # handle: $handle # profilePictureUri: $profilePictureUri # followNFTURI: $followNFTURI # followModule: $followModule # }
+    ) {
       ... on RelayerResult {
         txHash
       }

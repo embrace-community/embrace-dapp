@@ -39,8 +39,6 @@ const lensAuthLink = new ApolloLink((operation, forward) => {
     throw Error(`No access token available`);
   }
 
-  console.log("jwt token:", token);
-
   // Use the setContext method to set the HTTP headers.
   operation.setContext({
     headers: {
@@ -53,8 +51,6 @@ const lensAuthLink = new ApolloLink((operation, forward) => {
 });
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
-  console.log(window.ethereum);
-
   if (graphQLErrors)
     graphQLErrors.forEach(async ({ message, locations, path, extensions }) => {
       if (extensions?.code === "UNAUTHENTICATED") {
@@ -113,10 +109,16 @@ export default async function lensAuthenticationIfNeeded(
 
     const isAccessTokenExpired = new Date(jwt?.exp * 1e3) < new Date();
 
-    if (isAccessTokenExpired) justRefreshToken = true;
+    if (
+      isAccessTokenExpired &&
+      localStorage.getItem(LocalStorageKey.LensRefreshToken)
+    ) {
+      justRefreshToken = true;
+      console.log("Reauthenticating on lens");
+    }
   }
 
-  if (!lensAccessKey) {
+  if (!lensAccessKey || justRefreshToken) {
     const authentication = await lensAuthentication({
       address,
       signMessageAsync,

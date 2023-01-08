@@ -6,7 +6,6 @@ export default function RenderCurrentApp({
   space,
   accountMembership,
 }) {
-  console.log("Current app:", currentApp);
   const Component = appMappings[currentApp].component;
 
   if (!Component) {

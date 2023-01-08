@@ -1,7 +1,6 @@
-import Link from "next/link";
-import Icons from "./Icons";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Nav() {
   return (

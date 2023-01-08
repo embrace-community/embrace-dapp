@@ -1,26 +1,10 @@
 import "easymde/dist/easymde.min.css";
-import { ethers } from "ethers";
 import { Router } from "next/router";
 import { ReactElement, useCallback, useEffect, useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import {
-  Address,
-  useAccount,
-  useNetwork,
-  useSignMessage,
-  useSwitchNetwork,
-} from "wagmi";
-import { createPost } from "../../../api/lens/createPost";
-import { deleteProfile } from "../../../api/lens/deleteProfile";
+import { useAccount, useSignMessage } from "wagmi";
 import useGetDefaultProfile from "../../../hooks/lens/useGetDefaultProfile";
 import useGetPublications from "../../../hooks/lens/useGetPublications";
-import useLensContracts from "../../../hooks/lens/useLensContracts";
 import { useAppContract } from "../../../hooks/useEmbraceContracts";
-import { useSigner } from "wagmi";
-import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
-import { removeProperty } from "../../../lib/web3storage/object";
-import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
-import { Profile, PublicationMainFocus } from "../../../types/lens-generated";
 import { SpaceSocial } from "../../../types/social";
 import { Space } from "../../../types/space";
 import SocialProfile from "./SocialProfile";
@@ -30,8 +14,6 @@ export enum PageState {
   Publications = "publications",
   Profile = "profile",
 }
-
-const postInitialState = { title: "", content: "", coverImage: "" };
 
 export default function Social({
   query,
@@ -43,42 +25,15 @@ export default function Social({
   const { appSocialsContract } = useAppContract();
   const { address } = useAccount();
 
-  const { chain } = useNetwork();
-  const {
-    chains,
-    error,
-    isLoading: switchLoading,
-    pendingChainId,
-    switchNetwork,
-  } = useSwitchNetwork();
-
-  const { signMessageAsync } = useSignMessage();
-
   const [pageState, setPageState] = useState({
     type: PageState.Publications,
     data: "",
   });
 
-  // profile management
-  const [lensWallet, setLensWallet] = useState("");
-  const [lensProfile, setLensProfile] = useState("");
-
-  // const [currentPage, setCurrentPage] = useState(1);
-  const [profileName, setProfileName] = useState("");
-  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
-
-  // publication management
-  const [writePost, setWritePost] = useState(false);
-  const [post, setPost] = useState(postInitialState);
-  const [postError, setPostError] = useState({
-    title: false,
-    content: false,
-    erc20EncryptToken: false,
-  });
-  const [isLoading, setIsLoading] = useState(false);
-
   // general
   const [socialDetails, setSocialDetails] = useState<SpaceSocial>();
+
+  const noLensSetup = socialDetails && !socialDetails.lensDefaultProfileId;
 
   const getSocials = useCallback(() => {
     appSocialsContract
@@ -95,36 +50,27 @@ export default function Social({
     getSocials();
   }, [getSocials]);
 
-  const isLensPublisher =
-    socialDetails?.lensWallet && address === socialDetails?.lensWallet;
+  useEffect(() => {
+    // founder has to setup profile first
+    if (
+      address === space.founder &&
+      noLensSetup &&
+      pageState.type === PageState.Publications
+    ) {
+      setPageState({ type: PageState.Profile, data: "" });
+    }
+  }, [address, noLensSetup, pageState.type, socialDetails, space.founder]);
 
-  // we're assuming for now that the publisher of the space has set
-  // a default lens profile which he uses for publishing
-  const { defaultProfile } = useGetDefaultProfile({ ethereumAddress: address });
-  console.log("defaultProfile", defaultProfile);
+  const {
+    defaultProfile,
+    initialLoaded: initLoadedDefaultProfile,
+    getDefaultProfile,
+  } = useGetDefaultProfile({ ethereumAddress: address });
 
-  const { getPublications, publications } = useGetPublications({
+  const { publications, getPublications } = useGetPublications({
     profileId: socialDetails?.lensDefaultProfileId,
     // limit: 10,
   });
-
-  async function onDeleteLensProfile() {
-    if (!selectedProfile) return;
-
-    try {
-      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
-      deleteProfile({ profileId: selectedProfile.id });
-    } catch (e: any) {
-      console.error(
-        `An error occured deleting the profile. Please try again: ${e.message}`,
-      );
-    }
-  }
-
-  // publish new metadata if user has a new default Profile
-  // useEffect(() => {
-  // if(space.loadedMetadata && )
-  // }, []);
 
   function showContent() {
     let content: ReactElement | null = null;
@@ -134,15 +80,12 @@ export default function Social({
         content = (
           <SocialPublications
             {...{
-              isLensPublisher,
-              setWritePost,
-              writePost,
+              socialDetails,
               setPageState,
               space,
-              post,
-              setPost,
               publications,
               defaultProfile,
+              getPublications,
             }}
           />
         );
@@ -152,21 +95,13 @@ export default function Social({
         content = (
           <SocialProfile
             {...{
-              isLensPublisher,
               setPageState,
               space,
               socialDetails,
-              lensWallet,
-              setLensWallet,
-              lensProfile,
-              setLensProfile,
               defaultProfile,
-              setProfileName,
-              profileName,
-              selectedProfile,
-              setSelectedProfile,
-              onDeleteLensProfile,
+              initLoadedDefaultProfile,
               getSocials,
+              getDefaultProfile,
             }}
           />
         );

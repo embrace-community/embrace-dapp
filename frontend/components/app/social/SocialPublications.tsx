@@ -1,65 +1,55 @@
-// Lenster approach
-import dynamic from "next/dynamic";
-import { useState } from "react";
-import { v4 as uuidv4 } from "uuid";
-import {
-  Address,
-  useAccount,
-  useContractWrite,
-  useSignMessage,
-  useSignTypedData,
-} from "wagmi";
-import { signTypedData } from "@wagmi/core";
-import { PageState } from ".";
-import { createPost } from "../../../api/lens/createPost";
-import lensAuthenticationIfNeeded from "../../../lib/ApolloClient";
-import saveToIpfs from "../../../lib/web3storage/saveToIpfs";
-import {
-  CreatePublicPostRequest,
-  Publication,
-  PublicationMainFocus,
-} from "../../../types/lens-generated";
-import Button from "../../Button";
 import {
   Cog8ToothIcon,
   PencilSquareIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import Image from "next/image";
-import { ReactMarkdown } from "react-markdown/lib/react-markdown";
-import { format } from "date-fns";
-import { getFileUri } from "../../../lib/web3storage/getIpfsJsonContent";
 import {
   createReactClient,
   LivepeerConfig,
   Player,
   studioProvider,
 } from "@livepeer/react";
-import { splitSignature } from "ethers/lib/utils.js";
+import { format } from "date-fns";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { useState } from "react";
+import { ReactMarkdown } from "react-markdown/lib/react-markdown";
+import { useAccount, useSignMessage, useSignTypedData } from "wagmi";
+import { PageState } from ".";
 import useLensContracts from "../../../hooks/lens/useLensContracts";
-import { pollUntilIndexed } from "../../../api/lens/hasTransactionBeenIndexed";
-import LensHubJsonAbi from "../../../data/abis/lens/lens-hub-contract-abi.json"; // TODO: IS THIS CORRECT ABI?
-import { lensHubContractAddress, livepeerApiKey } from "../../../lib/envs";
+import useTimeout from "../../../hooks/useTimeout";
+import { livepeerApiKey } from "../../../lib/envs";
+import { getFileUri } from "../../../lib/web3storage/getIpfsJsonContent";
+import { Publication } from "../../../types/lens-generated";
+import Button from "../../Button";
+import Modal from "../../Modal";
+import Notification from "../../Notification";
+import Spinner from "../../Spinner";
+import { saveToIpfsAndCreatePost } from "./post_utils";
 
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
 });
 
+const postInitialState = { title: "", content: "", coverImage: "" };
+
 export default function SocialPublications({
-  isLensPublisher,
-  setWritePost,
-  writePost,
+  socialDetails,
   setPageState,
   space,
-  post,
-  setPost,
   publications,
   defaultProfile,
+  getPublications,
 }) {
   const { address } = useAccount();
-  const [isLoading, setIsloading] = useState(false);
   const { signMessageAsync } = useSignMessage();
   const { lensHubContract } = useLensContracts();
+
+  const [writePost, setWritePost] = useState(false);
+  const [post, setPost] = useState(postInitialState);
+
+  const [isLoading, setIsloading] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const livepeerClient = createReactClient({
     provider: studioProvider({
@@ -67,141 +57,16 @@ export default function SocialPublications({
     }),
   });
 
-  const { signTypedDataAsync, isLoading: typedDataLoading } = useSignTypedData({
+  const { signTypedDataAsync } = useSignTypedData({
     onError: (error) => {
       console.log(error);
     },
   });
 
-  const { error, write } = useContractWrite({
-    address: lensHubContractAddress,
-    abi: LensHubJsonAbi, //LensHubProxy,
-    functionName: "postWithSig",
-    mode: "recklesslyUnprepared",
-    onSuccess: ({ hash }) => {
-      alert("Success! Your post is being published. ");
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
+  useTimeout(!!success, 8_000, () => setSuccess(""));
 
-  const omit = (object: Record<string, any>, name: string) => {
-    delete object[name];
-    return object;
-  };
-
-  function getSignature(typedData) {
-    console.log("create post: typedData", typedData);
-
-    // Strip typename from PostWithSig object?
-    // const mappedTypes = typedData.types.PostWithSig.map((type) => {
-    //   return omit(type, "__typename");
-    // });
-
-    const formattedTypedData = {
-      domain: omit(typedData.domain, "__typename"),
-      // types: { PostWithSig: mappedTypes },
-      types: omit(typedData.types, "__typename"),
-      value: omit(typedData.value, "__typename"),
-    };
-    console.log("create post: getSignature", formattedTypedData);
-    return formattedTypedData;
-  }
-
-  const typedDataGenerator = async (generatedData: any) => {
-    const { id, typedData } = generatedData;
-    const {
-      profileId,
-      contentURI,
-      collectModule,
-      collectModuleInitData,
-      referenceModule,
-      referenceModuleInitData,
-      deadline,
-    } = typedData.value;
-
-    const signature = await signTypedDataAsync(getSignature(typedData));
-    // const signature = await signTypedDataAsync(typedData);
-    const { v, r, s } = splitSignature(signature);
-    const sig = { v, r, s, deadline };
-    const inputStruct = {
-      profileId,
-      contentURI,
-      collectModule,
-      collectModuleInitData,
-      referenceModule,
-      referenceModuleInitData,
-      sig,
-    };
-
-    return write?.({ recklesslySetUnpreparedArgs: [inputStruct] });
-  };
-
-  // Lens post example: // https://github.com/lens-protocol/api-examples/blob/master/src/publications/post.ts
-  async function saveToIpfsAndCreatePost() {
-    if (!post.title || !post.content) {
-      return;
-    }
-
-    let ipfsResult: string;
-
-    try {
-      setIsloading(true);
-
-      ipfsResult = (await saveToIpfs(
-        {
-          version: "2.0.0",
-          mainContentFocus: PublicationMainFocus.TextOnly,
-          metadata_id: uuidv4(),
-          description: post.content,
-          locale: "en-US",
-          content: post.content,
-          external_url: null,
-          image: null,
-          imageMimeType: null,
-          name: post.title,
-          attributes: [],
-          tags: [],
-          appId: "embrace_community",
-        },
-        post.title,
-      )) as string;
-
-      console.log("create post: ipfs result", ipfsResult);
-    } catch (err: any) {
-      setIsloading(false);
-      console.error(
-        `An error occurred saving post data to IPFS, ${err.message}`,
-      );
-      return;
-    }
-
-    try {
-      // hard coded to make the code example clear
-      console.log("create post: defaultProfile?.id", defaultProfile?.id);
-      const createPostRequest: CreatePublicPostRequest = {
-        profileId: defaultProfile?.id,
-        contentURI: `ipfs://${ipfsResult}`,
-        collectModule: {
-          freeCollectModule: { followerOnly: true },
-        },
-        referenceModule: {
-          followerOnlyReferenceModule: false,
-        },
-      };
-
-      await lensAuthenticationIfNeeded(address as Address, signMessageAsync);
-
-      const result = await createPost(createPostRequest);
-
-      await typedDataGenerator(result);
-    } catch (err: any) {
-      console.error(`An error occurred creating the post on lens`, err);
-    } finally {
-      setIsloading(false);
-    }
-  }
+  const isLensPublisher =
+    socialDetails?.lensWallet && address === socialDetails?.lensWallet;
 
   return (
     <LivepeerConfig client={livepeerClient}>
@@ -210,15 +75,9 @@ export default function SocialPublications({
           // TODO: Had to use button instead og Button component due to inability to override default styles
           <button
             className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold p-2 flex flex-row items-center"
-            onClick={() => {
-              setWritePost(!writePost);
-            }}
+            onClick={() => setWritePost(!writePost)}
           >
-            {writePost ? (
-              <XMarkIcon width={24} />
-            ) : (
-              <PencilSquareIcon width={24} />
-            )}
+            <PencilSquareIcon width={24} />
           </button>
         )}
 
@@ -226,49 +85,96 @@ export default function SocialPublications({
           // TODO: Had to use button instead og Button component due to inability to override default styles
           <button
             className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold p-2 flex flex-row items-center"
-            onClick={() => {
-              setPageState({ type: PageState.Profile, data: "" });
-            }}
+            onClick={() => setPageState({ type: PageState.Profile, data: "" })}
           >
             <Cog8ToothIcon width={24} />
           </button>
         )}
       </div>
 
-      {isLensPublisher && writePost && (
-        <div className="mt-4">
-          <input
-            type="text"
-            value={post.title}
-            onChange={(e) => setPost({ ...post, title: e.target.value })}
-            placeholder="Post title"
-            className="my-3 w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
-          />
-
-          <SimpleMDE
-            placeholder="What's on your mind?"
-            value={post.content}
-            onChange={(value: string) => setPost({ ...post, content: value })}
-          />
-        </div>
+      {success && (
+        <Notification>
+          <span className="block">Transaction successful!</span>
+          <span className="block mt-4 text-sm">
+            It might take quite some time to get the post metadata pinned.
+            Please be patient a bit.
+          </span>
+          <div className="mt-4 flex">
+            <button
+              type="button"
+              className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            >
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href={`https://mumbai.polygonscan.com/tx/${success}`}
+              >
+                View on Polyscan
+              </a>
+            </button>
+          </div>
+        </Notification>
       )}
 
-      {isLensPublisher && writePost && (
-        <Button
-          additionalClassName="p-2 float-right"
-          buttonProps={{
-            onClick: saveToIpfsAndCreatePost,
-            disabled: !post.content || !isLensPublisher,
-          }}
-        >
-          Publish
-        </Button>
-      )}
+      <Modal
+        showModal={writePost}
+        setShowModal={setWritePost}
+        title={<div>Create Post</div>}
+        body={
+          <div>
+            <input
+              type="text"
+              value={post.title}
+              onChange={(e) => setPost({ ...post, title: e.target.value })}
+              placeholder="Post title"
+              className="my-3 w-full rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 sm:text-sm"
+            />
+
+            <SimpleMDE
+              placeholder="What's on your mind?"
+              value={post.content}
+              onChange={(value: string) => setPost({ ...post, content: value })}
+            />
+          </div>
+        }
+        footer={
+          <Button
+            additionalClassName="p-2 float-right"
+            buttonProps={{
+              onClick: async () => {
+                await saveToIpfsAndCreatePost({
+                  post,
+                  setIsloading,
+                  defaultProfile,
+                  address,
+                  signMessageAsync,
+                  signTypedDataAsync,
+                  lensHubContract,
+                  setSuccess,
+                });
+
+                getPublications();
+                setWritePost(false)
+              },
+              disabled: !post.content || !isLensPublisher,
+            }}
+          >
+            {isLoading ? <Spinner /> : "Publish"}
+          </Button>
+        }
+      ></Modal>
 
       <div className="flex justify-center mt-8">
         <div className="gap-4 w-1/2">
-          {publications?.items?.length === 0 && (
-            <h1 className="w-full text-center text-lg">No posts exist...</h1>
+          {isLensPublisher && !socialDetails?.lensDefaultProfileId && (
+            <h2 className="w-full text-center text-lg">
+              No profile has been setup yet. Please navigate to settings page.
+            </h2>
+          )}
+
+          {(publications?.items?.length === 0 ||
+            (!isLensPublisher && !socialDetails?.lensDefaultProfileId)) && (
+            <h2 className="w-full text-center text-lg">No posts exist...</h2>
           )}
 
           {publications?.items?.map((publication: Publication) => {
@@ -277,7 +183,7 @@ export default function SocialPublications({
                 key={publication.id}
                 className=" rounded-lg border-gray-400 border-2 mt-2 p-4 mb-4 cursor-default shadow-xl"
               >
-                <div className="flex">
+                <div className="flex items-center">
                   <Image
                     className="h-10 w-10 rounded-full"
                     src={space.loadedMetadata?.image}
@@ -290,13 +196,19 @@ export default function SocialPublications({
                     {publication?.createdAt &&
                       format(new Date(publication.createdAt), "MMM d")}
                   </p>
+
+                  <p className="text-md font-bold ml-4">
+                    {publication?.metadata?.name}
+                  </p>
                 </div>
+
                 <div className="flex-1 ml-4 mt-4">
-                  <p className="truncate text-sm text-gray-900 mb-2">
+                  <div className="truncate text-sm text-gray-900 mb-2">
                     <ReactMarkdown>
                       {publication.metadata.content}
                     </ReactMarkdown>
-                  </p>
+                  </div>
+
                   {publication?.metadata?.media?.map((media, index) => {
                     return media?.original?.mimeType?.startsWith("image") ? (
                       <div className="rounded-lg mb-2">
