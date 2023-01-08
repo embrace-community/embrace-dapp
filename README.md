@@ -48,7 +48,7 @@ Ben <info@bennisan.be> (Design)
 
 ## Frontend
 
-Build using Next.Js, React, Redux, Tailwind, Ethers.js
+Build using Next.Js, React, Redux, Tailwind, Ethers.js  
 [Deployed Frontend](https://next-video.embrace.community)
 
 ## Contracts
