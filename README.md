@@ -31,8 +31,6 @@ Embrace is not limited to any type of community, however the first steps are to 
 
 ## Team
 
-
-
 <div style="display: flex; justify-content: space-between;">
 <img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" style="height: 200px;" />
 <img src="https://i.imgur.com/MKspbN4.png" alt="tobias" style="height: 200px;" />
@@ -40,18 +38,11 @@ Embrace is not limited to any type of community, however the first steps are to 
 <img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" style="height: 200px;" />
 </div>
 
-<div style="display: flex; justify-content: space-between;">
-
-<span style="display: inline-block; width: 33%;">
 Martin <martin@openskydevelopment.co.uk> (Founder)
-</span>
-<span style="display: inline-block; width: 33%;">
+
 Tobias <caruso33@web.de> (Co-Founder)
-</span>
-<span style="display: inline-block; width: 32%;">
+
 Ben <info@bennisan.be> (Design)
-</span>
-</div>
 
 ## Bounties
 
