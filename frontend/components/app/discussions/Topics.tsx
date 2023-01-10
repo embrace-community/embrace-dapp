@@ -50,7 +50,7 @@ export default function Topics({ spaceId }) {
         <div>
           <ul>
             {data.discussionTopicIndex.edges
-              .filter((edge: any) => edge.node.spaceId === spaceId)
+              // .filter((edge: any) => edge.node.spaceId === spaceId)
               .map((edge: any) => (
                 <TopicItem
                   key={edge.node.id}

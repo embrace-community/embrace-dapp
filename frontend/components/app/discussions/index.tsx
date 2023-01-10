@@ -1,6 +1,7 @@
 import { Router } from "next/router";
 import { useEffect, useState } from "react";
 import { Space } from "../../../types/space";
+import NewTopic from "./NewTopic";
 import Topics from "./Topics";
 
 export default function Discussions({
@@ -31,7 +32,14 @@ export default function Discussions({
         </button>
       )}
 
-      {newTopic && <>New Topic</>}
+      <Topics spaceId={space.id} />
+
+      {newTopic && (
+        <>
+          New Topic
+          <NewTopic />
+        </>
+      )}
 
       {topicId && <>Topic ID = {topicId}</>}
 
