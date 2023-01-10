@@ -12,7 +12,8 @@ import PeerVideoAudioElem from "./PeerVideoAudioElem";
 import classNames from "classnames";
 import HuddleClient from "../../../lib/huddle01-client/HuddleClient/HuddleClient";
 import useEmbraceContracts from "../../../hooks/useEmbraceContracts";
-import { useSigner } from "wagmi";
+import { useSigner, useProvider } from "wagmi";
+import Image from "next/image";
 
 const ChatNotification = ({ notification }) => {
   if (notification.endsWith("VIDEO_CALL_STARTED")) {
@@ -49,6 +50,49 @@ const Chatmsg = ({ msg }) => {
   );
 };
 
+const EnsAvatar = ({ address }) => {
+  const provider = useProvider();
+  const [ens, setEns] = useState("");
+  const [avatar, setAvatar] = useState("");
+
+  useEffect(() => {
+    if (!address) return;
+
+    const fetchEns = async () => {
+      const lookup = await provider.lookupAddress(address);
+
+      if (lookup) {
+        setEns(lookup);
+        const avatar = await provider.getAvatar(address);
+        if (avatar) setAvatar(avatar);
+      } else {
+        setEns(
+          address.substring(0, 6) +
+            "..." +
+            address.substring(address.length - 6, address.length),
+        );
+      }
+    };
+
+    fetchEns();
+  }, [address, provider]);
+
+  return (
+    <div className="flex">
+      {avatar && (
+        <Image
+          className="h-5 w-5 rounded-full mr-1"
+          src={avatar}
+          alt="Avatar"
+          height={20}
+          width={20}
+        />
+      )}
+      {ens}
+    </div>
+  );
+};
+
 export default function Chat({
   query,
   space,
@@ -71,6 +115,7 @@ export default function Chat({
   const { huddle, HuddleClientProvider } = useHuddle(query.handle as string);
   const hasInitialized = useRef(false);
   const { data: signer } = useSigner();
+
   const { xmtpClient } = useAppSelector((state: RootState) => state.core);
   const videoRef = useRef<HTMLVideoElement>(null);
   const huddlePeers = useRef({});
@@ -84,6 +129,7 @@ export default function Chat({
     const getSpaceMembers = async () => {
       try {
         const members = await spacesContract.getSpaceMembers(space.id);
+
         setSpaceMembers(members);
       } catch (err: any) {
         console.log("Error getting space members", err);
@@ -287,6 +333,24 @@ export default function Chat({
   const changeChannel = (channel: string) => {
     setChannel(channel);
     setChatMessages(null);
+  };
+
+  const lookupAddress = async (address: string) => {
+    try {
+      const ens = await provider.lookupAddress(address);
+
+      if (ens) {
+        return ens;
+      }
+
+      return (
+        address.substring(0, 6) +
+        "..." +
+        address.substring(address.length - 6, address.length)
+      );
+    } catch (err: any) {
+      console.log("Error looking up address", err);
+    }
   };
 
   console.log("chat index.tsx", query, space);
@@ -582,11 +646,7 @@ export default function Chat({
                     key={`i-${member}`}
                   >
                     {/* Only get the first 6 and last 6 characters */}
-                    <div>
-                      {member.substring(0, 6) +
-                        "..." +
-                        member.substring(member.length - 6, member.length)}
-                    </div>
+                    <EnsAvatar address={member} />
                   </div>
                 );
               })}
@@ -594,47 +654,5 @@ export default function Chat({
         </div>
       </div>
     </div>
-
-    // <div className="w-full flex flex-1 h-full flex-row">
-    //     <div className={showLeftMenu?"transition-all w-[360px]  pl-[6.8vw] pt-10":"transition-all w-[0px]"}>
-    //       <ul>
-    //         {jimmmysroomsofwonderandmystery.map((room,i)=> {
-    //           return (<li className="py-[5px]">{room}</li>)
-    //         })}
-    //       </ul>
-    //     </div>
-    //     <div className="flex-1 flex flex-col items-start justify-start">
-    //       <div className="grow w-full overflow-y-scroll">
-    //           <div className="grow">
-    //         {jimmmyswordsofwisdomandguidance.map((msgcontent,i)=> {
-    //             return (<Chatmsg msgcontent={msgcontent}  />)
-    //           })}
-    //       </div>
-    //       </div>
-    //       <div className="w-full pb-20">
-    //       <input
-    //         type="text"
-    //         name="name"
-    //         id="name"
-    //         className="w-[90%] block bg-transparent text-embrace-dark rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-    //         placeholder="your message"
-    //       />
-    //       </div>
-    //     </div>
-    //     <div className={showRightMenu?"transition-all w-[290px] pl-10 pt-10":"transition-all w-[0px]"}>
-    //       <button
-    //         className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
-    //       >
-    //         <Icons.Video className="mr-2"/>
-    //         channel video call
-    //       </button>
-    //       <button
-    //         className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4"
-    //       >
-    //         <Icons.Audio className="mr-2"/>
-    //         channel audio call
-    //       </button>
-    //     </div>
-    // </div>
   );
 }
