@@ -82,7 +82,7 @@ _Using XMTP for chat and Huddle for video calls_
 <img src="https://lets.embrace.community/screenshots/chat-2.png" style="width: 45%;" />
 </div>
 
-#### Live Streaming App
+### Live Streaming App
 
 _Live Streaming through WebRTC and Livepeer.js + Livepeer Studio_
 
