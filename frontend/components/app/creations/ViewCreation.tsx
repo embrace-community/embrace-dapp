@@ -198,7 +198,7 @@ export default function ViewCreation({
         /> */}
             {
               <>
-                <div className="w-2/3 justify-center p-2">
+                <div className="w-full md:w-2/3 justify-center p-2">
                   <Player
                     title={metadataStore.cidData[creation.tokenURI]?.name}
                     src={

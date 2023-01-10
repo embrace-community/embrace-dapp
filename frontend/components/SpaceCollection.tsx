@@ -96,6 +96,12 @@ export default function SpaceCollection({
         {metadataLoaded &&
           collection?.map((collectionItem, i) => {
             const handleString: string = collectionItem.handle;
+            // capitalize first letter of handle and replace - with space
+            const handleStringCapitalized = handleString
+              .charAt(0)
+              .toUpperCase()
+              .concat(handleString.slice(1))
+              .replace("-", " ");
 
             return (
               <Link
@@ -127,7 +133,7 @@ export default function SpaceCollection({
                     </div>
                   )} */}
                   <p className="text-embrace-dark font-semibold">
-                    {handleString}
+                    {handleStringCapitalized}
                     {/* {jsonMetadata?.[i]?.name || handleString} */}
                   </p>
                 </div>

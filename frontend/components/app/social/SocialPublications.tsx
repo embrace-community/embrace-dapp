@@ -154,7 +154,7 @@ export default function SocialPublications({
                 });
 
                 getPublications();
-                setWritePost(false)
+                setWritePost(false);
               },
               disabled: !post.content || !isLensPublisher,
             }}
@@ -165,7 +165,7 @@ export default function SocialPublications({
       ></Modal>
 
       <div className="flex justify-center mt-8">
-        <div className="gap-4 w-1/2">
+        <div className="gap-4 w-full md:w-1/2">
           {isLensPublisher && !socialDetails?.lensDefaultProfileId && (
             <h2 className="w-full text-center text-lg">
               No profile has been setup yet. Please navigate to settings page.
@@ -174,7 +174,9 @@ export default function SocialPublications({
 
           {(publications?.items?.length === 0 ||
             (!isLensPublisher && !socialDetails?.lensDefaultProfileId)) && (
-            <h2 className="w-full text-center text-lg">No posts exist...</h2>
+            <></>
+            // <h2 className="w-full text-center text-lg">No posts exist...</h2>
+            // Hidden for now, as we don't want to flash this message when loading
           )}
 
           {publications?.items?.map((publication: Publication) => {
@@ -225,7 +227,7 @@ export default function SocialPublications({
                         />
                       </div>
                     ) : media?.original?.mimeType?.startsWith("video") ? (
-                      <div className="h-[450px] rounded-lg mb-2">
+                      <div className="max-h-[450px] rounded-lg mb-2">
                         <Player
                           key={`media${index}`}
                           src={media?.original?.url}
