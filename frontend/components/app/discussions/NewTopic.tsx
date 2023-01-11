@@ -3,27 +3,8 @@ import { gql, useMutation } from "@apollo/client";
 import { useAccount } from "wagmi";
 import { useContext, useState } from "react";
 import { CeramicContext } from "../../../lib/CeramicContext";
-import DiscussionTopic from "./TopicItem";
 import { authenticationWithCeramic } from "../../../hooks/useAuthenticateCeramic";
 import Button from "../../Button";
-
-// We get all the topics and then filter on the frontend as
-// ComposeDB does not support filtering at this time
-const DISCUSSION_TOPIC_QUERY = gql`
-  query {
-    discussionTopicIndex(first: 100) {
-      edges {
-        node {
-          id
-          spaceId
-          title
-          address
-          content
-        }
-      }
-    }
-  }
-`;
 
 const DISCUSSION_TOPIC_MUTATION = gql`
   mutation CreateNewDiscussionTopic($i: CreateDiscussionTopicInput!) {
@@ -39,7 +20,7 @@ const DISCUSSION_TOPIC_MUTATION = gql`
   }
 `;
 
-export default function NewTopic() {
+export default function NewTopic({ spaceId }) {
   const threeId = new ThreeIdConnect();
   const composeDbClient = useContext(CeramicContext);
 
@@ -64,6 +45,13 @@ export default function NewTopic() {
         composeDbClient,
       );
 
+      console.log("createNewDiscussionTopic", {
+        title,
+        content,
+        address: account.address,
+        spaceId: 99999,
+      });
+
       discussionTopicMutation({
         variables: {
           i: {
@@ -71,7 +59,7 @@ export default function NewTopic() {
               title,
               content,
               address: account.address,
-              // spaceId,
+              spaceId: 99999,
             },
           },
         },
@@ -83,6 +71,14 @@ export default function NewTopic() {
 
   return (
     <>
+      <button
+        className="inline-flex items-center rounded-full border-violet-600 border-2 bg-transparent py-2 px-10 text-violet-600 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30 mt-4"
+        onClick={() => {
+          createNewDiscussionTopic();
+        }}
+      >
+        hello
+      </button>
       <Button
         buttonProps={{
           onClick: () => {

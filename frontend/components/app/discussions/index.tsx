@@ -32,12 +32,10 @@ export default function Discussions({
         </button>
       )}
 
-      <Topics spaceId={space.id} />
-
       {newTopic && (
         <>
           New Topic
-          <NewTopic />
+          <NewTopic spaceId={space.id} />
         </>
       )}
 
