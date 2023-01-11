@@ -8,13 +8,31 @@ import { Router } from "next/router";
 import { livepeerApiKey } from "../../../lib/envs";
 import { Space } from "../../../types/space";
 import Spinner from "../../Spinner";
-import NewTopic from "./NewTopic";
 import Topics from "./Topics";
 import TopicView from "./TopicView";
 import Button from "../../Button";
 import Modal from "../../Modal";
 import dynamic from "next/dynamic";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { ThreeIdConnect } from "@3id/connect";
+import { CeramicContext } from "../../../lib/CeramicContext";
+import { gql, useMutation } from "@apollo/client";
+import { authenticationWithCeramic } from "../../../hooks/useAuthenticateCeramic";
+import { useAccount } from "wagmi";
+
+const DISCUSSION_TOPIC_MUTATION = gql`
+  mutation CreateNewDiscussionTopic($i: CreateDiscussionTopicInput!) {
+    createDiscussionTopic(input: $i) {
+      document {
+        id
+        title
+        content
+        address
+        spaceId
+      }
+    }
+  }
+`;
 
 const topicInitialState = { title: "", content: "" };
 
@@ -30,10 +48,15 @@ export default function Discussions({
   space: Space;
 }) {
   const topicId = query.id as string;
+  const threeId = new ThreeIdConnect();
+  const composeDbClient = useContext(CeramicContext);
+  const account = useAccount();
+  // const spaceId = space.id;
+  const spaceId = 998;
 
   const [writeTopic, setWriteTopic] = useState(false);
   const [topic, setTopic] = useState(topicInitialState);
-  const [isLoading, setIsloading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const livepeerClient = createReactClient({
     provider: studioProvider({
@@ -41,25 +64,64 @@ export default function Discussions({
     }),
   });
 
-  // if (topicId === "new")
-  //   return (
-  //     <>
-  //       New Topic
-  //       {/* <NewTopic spaceId={space.id} /> */}
-  //       <NewTopic spaceId={999} />
-  //     </>
-  //   );
+  const [discussionTopicMutation] = useMutation(DISCUSSION_TOPIC_MUTATION, {
+    onCompleted: (data) => {
+      alert("saved discussion topic");
+    },
+    onError: (error) => {
+      console.log("error", error);
+    },
+  });
 
   if (topicId)
     return (
       <>
         <LivepeerConfig client={livepeerClient}>
           <div className="w-full">
-            <TopicView spaceId={998} topicId={topicId} handle={space.handle} />
+            <TopicView
+              spaceId={spaceId}
+              topicId={topicId}
+              handle={space.handle}
+            />
           </div>
         </LivepeerConfig>
       </>
     );
+
+  const createNewDiscussionTopic = async () => {
+    try {
+      setIsLoading(true);
+      await authenticationWithCeramic(
+        window.ethereum,
+        threeId,
+        composeDbClient,
+      );
+
+      console.log("createNewDiscussionTopic", {
+        title: topic.title,
+        content: topic.content,
+        address: account.address,
+        spaceId,
+      });
+
+      discussionTopicMutation({
+        variables: {
+          i: {
+            content: {
+              title: topic.title,
+              content: topic.content,
+              address: account.address,
+              spaceId,
+            },
+          },
+        },
+      });
+    } catch (e: any) {
+      console.error(`Error ${e.message}`);
+    }
+
+    setIsLoading(false);
+  };
 
   return (
     <div className="w-full">
@@ -98,7 +160,8 @@ export default function Discussions({
             additionalClassName="p-2 float-right"
             buttonProps={{
               onClick: async () => {
-                setWriteTopic(false);
+                // setWriteTopic(false);
+                createNewDiscussionTopic();
               },
             }}
           >
@@ -109,7 +172,7 @@ export default function Discussions({
 
       <LivepeerConfig client={livepeerClient}>
         {/* <Topics spaceId={space.id} handle={space.handle} /> */}
-        <Topics spaceId={998} handle={space.handle} />
+        <Topics spaceId={spaceId} handle={space.handle} />
       </LivepeerConfig>
     </div>
   );
