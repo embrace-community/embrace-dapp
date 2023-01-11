@@ -14,6 +14,8 @@ import HuddleClient from "../../../lib/huddle01-client/HuddleClient/HuddleClient
 import useEmbraceContracts from "../../../hooks/useEmbraceContracts";
 import { useSigner, useProvider } from "wagmi";
 import Image from "next/image";
+import { deployedChainId } from "../../../lib/envs";
+import EnsAvatar from "../../EnsAvatar";
 
 const ChatNotification = ({ notification }) => {
   if (notification.endsWith("VIDEO_CALL_STARTED")) {
@@ -31,10 +33,9 @@ const Chatmsg = ({ msg }) => {
   return (
     <div className="my-2 w-full mb-6">
       <div className="flex flex-row w-full items-center justify-start mb-2">
-        <div className="w-[20px] h-[20px] bg-slate-200 rounded-[10px]"></div>
-        <p className="font-semibold text-[12px] opacity-50 ml-3">
-          {msg ? msg.sender.name : ""}
-          <span className="font-normal ml-4">
+        <p className="flex font-semibold text-[12px] ml-3 ">
+          {msg ? <EnsAvatar address={msg.sender.name} /> : null}
+          <span className="flex font-normal ml-4 opacity-70">
             {msg ? format(msg.sent, "dd/MM/yyyy") : ""}
           </span>
         </p>
@@ -46,49 +47,6 @@ const Chatmsg = ({ msg }) => {
           {msg ? msg.content : ""}
         </p>
       )}
-    </div>
-  );
-};
-
-const EnsAvatar = ({ address }) => {
-  const provider = useProvider();
-  const [ens, setEns] = useState("");
-  const [avatar, setAvatar] = useState("");
-
-  useEffect(() => {
-    if (!address) return;
-
-    const fetchEns = async () => {
-      const lookup = await provider.lookupAddress(address);
-
-      if (lookup) {
-        setEns(lookup);
-        const avatar = await provider.getAvatar(address);
-        if (avatar) setAvatar(avatar);
-      } else {
-        setEns(
-          address.substring(0, 6) +
-            "..." +
-            address.substring(address.length - 6, address.length),
-        );
-      }
-    };
-
-    fetchEns();
-  }, [address, provider]);
-
-  return (
-    <div className="flex">
-      {avatar && (
-        <Image
-          className="h-5 w-5 rounded-full mr-1"
-          src={avatar}
-          alt="Avatar"
-          height={20}
-          width={20}
-        />
-      )}
-      {ens}
     </div>
   );
 };
@@ -333,24 +291,6 @@ export default function Chat({
   const changeChannel = (channel: string) => {
     setChannel(channel);
     setChatMessages(null);
-  };
-
-  const lookupAddress = async (address: string) => {
-    try {
-      const ens = await provider.lookupAddress(address);
-
-      if (ens) {
-        return ens;
-      }
-
-      return (
-        address.substring(0, 6) +
-        "..." +
-        address.substring(address.length - 6, address.length)
-      );
-    } catch (err: any) {
-      console.log("Error looking up address", err);
-    }
   };
 
   console.log("chat index.tsx", query, space);
@@ -645,7 +585,6 @@ export default function Chat({
                     className="flex flex-row items-center"
                     key={`i-${member}`}
                   >
-                    {/* Only get the first 6 and last 6 characters */}
                     <EnsAvatar address={member} />
                   </div>
                 );

@@ -108,7 +108,8 @@ export const appMappings = {
       "Decentralised marketplace for your community to buy and sell goods and services. Accept payments in crypto or fiat.",
     tags: ["commerce"],
   },
-  [EmbraceApps.DISCUSSIONS]: {
+  // [EmbraceApps.DISCUSSIONS]: {
+  [3]: {
     title: "Discussions",
     route: "discussions",
     component: Discussions,

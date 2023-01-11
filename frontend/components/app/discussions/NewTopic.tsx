@@ -71,14 +71,6 @@ export default function NewTopic({ spaceId }) {
 
   return (
     <>
-      <button
-        className="inline-flex items-center rounded-full border-violet-600 border-2 bg-transparent py-2 px-10 text-violet-600 shadow-sm focus:outline-none focus:ring-none font-semibold disabled:opacity-30 mt-4"
-        onClick={() => {
-          createNewDiscussionTopic();
-        }}
-      >
-        hello
-      </button>
       <Button
         buttonProps={{
           onClick: () => {

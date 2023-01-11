@@ -17,13 +17,14 @@ const DISCUSSION_TOPIC_QUERY = gql`
           title
           address
           content
+          createdAt
         }
       }
     }
   }
 `;
 
-export default function Topics({ spaceId }) {
+export default function Topics({ spaceId, handle }) {
   const threeId = new ThreeIdConnect();
   const composeDbClient = useContext(CeramicContext);
 
@@ -31,9 +32,7 @@ export default function Topics({ spaceId }) {
 
   const { data, loading, error } = useQuery(DISCUSSION_TOPIC_QUERY, {
     onCompleted: (data) => {
-      data = data.discussionTopicIndex.edges.filter(
-        (edge: any) => edge.node.spaceId === spaceId,
-      );
+      console.log("discussionTopicIndex", data);
     },
     onError: (error) => {
       console.log("error", error);
@@ -47,21 +46,24 @@ export default function Topics({ spaceId }) {
       {error && <div>Error check daemon...</div>}
 
       {data && (
-        <div>
-          <ul>
+        <div className="flex justify-center mt-8">
+          <div className="gap-4 w-full md:w-1/2">
             {data.discussionTopicIndex.edges
-              // .filter((edge: any) => edge.node.spaceId === spaceId)
+              .filter((edge: any) => edge.node.spaceId === spaceId)
               .map((edge: any) => (
                 <TopicItem
                   key={edge.node.id}
+                  includeContent={false}
+                  handle={handle}
                   id={edge.node.id}
                   spaceId={edge.node.spaceId}
                   address={edge.node.address}
                   title={edge.node.title}
                   content={edge.node.content}
+                  createdAt={edge.node.createdAt}
                 />
               ))}
-          </ul>
+          </div>
         </div>
       )}
     </>
