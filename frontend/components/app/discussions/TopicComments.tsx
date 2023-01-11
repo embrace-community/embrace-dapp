@@ -101,7 +101,7 @@ export default function TopicComments() {
       >
         Create Comment
       </button>
-      {error && <div>Error check daemon...</div>}
+      {error && <div>Error connecting to remote Ceramic daemon...</div>}
       {data && (
         <div>
           <ul>

@@ -43,7 +43,7 @@ export default function Topics({ spaceId, handle }) {
   return (
     <>
       {loading && <div>Loading...</div>}
-      {error && <div>Error check daemon...</div>}
+      {error && <div>Error connecting to remote Ceramic daemon...</div>}
 
       {data && (
         <div className="flex justify-center mt-8">

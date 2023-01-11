@@ -51,7 +51,7 @@ export default function TopicView({ spaceId, topicId, handle }) {
   return (
     <>
       {loading && <div>Loading...</div>}
-      {error && <div>Error check daemon...</div>}
+      {error && <div>Error connecting to remote Ceramic daemon...</div>}
 
       {data && (
         <>
