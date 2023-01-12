@@ -77,13 +77,13 @@ _We have made use of ENS in 5 places within our app. Please see these screenshot
 ### XMTP Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/xmtp.png" style="height: 100px;" />
+<img src="https://lets.embrace.community/logos/xmtp.png" style="height: 50px;" />
 </div>
 
 ### Huddle Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/huddle.png" style="height: 100px;" />
+<img src="https://lets.embrace.community/logos/huddle.png" style="height: 50px;" />
 </div>
 
 ### Ceramic Challenge
