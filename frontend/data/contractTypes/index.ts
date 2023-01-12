@@ -3,7 +3,6 @@
 /* tslint:disable */
 
 /* eslint-disable */
-
 import type * as app from "./app";
 
 export type { app };

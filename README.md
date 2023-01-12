@@ -168,7 +168,7 @@ _Using IPFS for media storage and Livepeer.js + Livepeer Studio for transcoding_
 <img src="https://lets.embrace.community/screenshots/creations-4.png" style="width: 45%;" />
 </div>
 
-### Chat Server
+### Chat Server App
 
 _Using XMTP for chat and Huddle for video calls_
 
@@ -186,11 +186,29 @@ _Live Streaming through WebRTC and Livepeer.js + Livepeer Studio_
 <img src="https://lets.embrace.community/screenshots/stream-2.png" style="width: 45%;" />
 </div>
 
+### Discussions App
+
+_Discussions App with topics saved through Ceramic and videos transcoded through Livepeer._
+
+<div>
+<img src="https://lets.embrace.community/screenshots/discussions-2.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/discussions-4.png" style="width: 45%;" />
+</div>
+
+<div>
+<img src="https://lets.embrace.community/screenshots/discussions-5.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/discussions-1.png" style="width: 45%;" />
+</div>
+
+<div>
+<img src="https://lets.embrace.community/screenshots/discussions-3.png" style="width: 45%;" />
+</div>
+
 ## Video Submission
 
 [Embrace dApp - stored on IPFS and transcoded through Livepeer](https://next-video.embrace.community/embrace/creations?collectionId=1&creationId=3)
 
-[Loom (Backup)](https://www.loom.com/share/7bd16ae371e44f709b2aa61d9b08f877)
+[Loom (Backup)](https://www.loom.com/share/632338dcde7b4483b4925ac2c665454b)
 
 ## Frontend
 
@@ -202,21 +220,21 @@ Build using Next.Js, React, Redux, Tailwind, Ethers.js
 ### Polgyon Mumbai
 
 ```shell
-EmbraceAccounts deployed to 0xb67c789B6DaFccEfda2e6B66c4c5c72f835E96DF
-EmbraceApps deployed to 0x79cf9C8De5C1c5F878366e14E4641aB2d43DA41D
-EmbraceSpaces deployed to 0x7B9C2684445a119060209a97eD4F443f5884F3eB
-EmbraceCreations deployed to 0x94137d87b89301D28FF1C653017fCc1baa4D1d3A
-EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
+EmbraceAccounts deployed to 0xda2FF59601995eEc05f63207DC39e40108c4c083
+EmbraceApps deployed to 0xeaDcb5201D6C4c029b2aa86F496Cc437ea3F2Fe1
+EmbraceSpaces deployed to 0x68778B3b14d10410e45736DF08f13E4690f2E65a
+EmbraceCreations deployed to 0xB3d3F26F0E3B8644e6e59a473CFB456a74Bc7932
+EmbraceSocial deployed to 0xBAA5F5081a484199b7e5Cc3412168cd9CD86248e
 ```
 
 ### Goerli
 
 ```shell
 EmbraceAccounts deployed to 0xAb350A088D4A5548f5EE941D32F2DAece19716Da
-EmbraceApps deployed to 0x977d14726A2efe00E83C0fE01B2d4893b7228587
+EmbraceApps deployed to 0x9cd0308a5026fA24A594D7088Df60e4e1aE54057
 EmbraceSpaces deployed to 0x30badBDd97B099Df36CB9f1C170f088453b4e5F6
 EmbraceCreations deployed to 0x3F7aBF527Aa791D5CAc54E0eE17F6CDa4a2C0075
-EmbraceSocials deployed to 0xE399049a9a6567Ae5153D508aeDa51f2770AaC1b
+EmbraceSocial deployed to 0xE399049a9a6567Ae5153D508aeDa51f2770AaC1b
 ```
 
 ## Presentation & Design
