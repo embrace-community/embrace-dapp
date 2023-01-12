@@ -152,6 +152,8 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
     }
   }
 
+  return;
+
   // CREATE SPACES
   const spaces = [
     "public",
