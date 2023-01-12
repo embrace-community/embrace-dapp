@@ -168,7 +168,7 @@ _Using IPFS for media storage and Livepeer.js + Livepeer Studio for transcoding_
 <img src="https://lets.embrace.community/screenshots/creations-4.png" style="width: 45%;" />
 </div>
 
-### Chat Server
+### Chat Server App
 
 _Using XMTP for chat and Huddle for video calls_
 
@@ -184,6 +184,24 @@ _Live Streaming through WebRTC and Livepeer.js + Livepeer Studio_
 <div>
 <img src="https://lets.embrace.community/screenshots/stream-1.png" style="width: 45%;" />
 <img src="https://lets.embrace.community/screenshots/stream-2.png" style="width: 45%;" />
+</div>
+
+### Discussions App
+
+_Discussions App with topics saved through Ceramic and videos transcoded through Livepeer._
+
+<div>
+<img src="https://lets.embrace.community/screenshots/discussions-2.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/discussions-4.png" style="width: 45%;" />
+</div>
+
+<div>
+<img src="https://lets.embrace.community/screenshots/discussions-5.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/discussions-3.png" style="width: 45%;" />
+</div>
+
+<div>
+<img src="https://lets.embrace.community/screenshots/discussions-1.png" style="width: 45%;" />
 </div>
 
 ## Video Submission
