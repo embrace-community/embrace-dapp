@@ -33,7 +33,7 @@ Ben <info@bennisan.be> (Design)
 ### Livepeer Challenge & Livepeer Best Design Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/livepeer.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/logos/livepeer.png" style="height: 50px;" />
 </div>
 
 _We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article). Please see the screenshots below and our video submission for further details._
@@ -41,7 +41,7 @@ _We have implemented a set of tools to enable Creators to mint NFTs for their cr
 ### Polygon: Most innovative video hack on polygon & Polygon: Best video or creator tool on Polygon
 
 <div>
-<img src="https://lets.embrace.community/logos/polygon.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/logos/polygon.png" style="height: 50px;" />
 </div>
 
 _We have deployed our contracts to Polygon Mumbai and plan to use Polygon as our primary blockchain for our app. We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article). Please see the screenshots below and our video submission for further details._
@@ -49,7 +49,7 @@ _We have deployed our contracts to Polygon Mumbai and plan to use Polygon as our
 ### Lens Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/lens.svg" style="height: 150px;" />
+<img src="https://lets.embrace.community/logos/lens.svg" style="height: 100px;" />
 </div>
 
 _We have developed 5 applications to enable Creators to build a community around their NFT creations, and the Lens / Social App is the first application members see whan accessing a community. We support the creation of Lens profiles, setting a default profile, linking a profile to our Social app, displaying Lens published posts, adding Lens posts. The Lens app can easily integrate with the other apps, such as sharing a Live Stream link or linking to a new NFT Creation. Please see screenshots of the Social App below, and our video submission._
