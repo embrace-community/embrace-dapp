@@ -40,12 +40,6 @@ _We are applying for 10 bounties for our work during the Next Video Build Hackat
 
 _We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article). In addition to this Creators can start a Livepeer transcoded Live Stream and share the video link with their community and wherever IPFS video media is consumed we are transcoding it through LivePeer studio (e.g. Social app, Creations app, Discussions app). Please see the screenshots below and our video submission for further details._
 
-_In terms of our design, please see our Figma links:_
-
-[Figma Clickthrough](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
-
-[Figma Design System](https://www.figma.com/file/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=169%3A1173&t=fsZHJ3zETYos4sEN-0)
-
 ### Polygon: Most innovative video hack on polygon & Polygon: Best video or creator tool on Polygon
 
 <div>
@@ -237,8 +231,6 @@ EmbraceCreations deployed to 0x3F7aBF527Aa791D5CAc54E0eE17F6CDa4a2C0075
 EmbraceSocial deployed to 0xE399049a9a6567Ae5153D508aeDa51f2770AaC1b
 ```
 
-## Presentation & Design
+## Presentation
 
 [Slides](https://docs.google.com/presentation/d/1Wtra-i2t8A_XgffPHdZIZhMDywYd47lk8Ju__mpCn_c/edit?usp=sharing)
-
-[Figma](https://www.figma.com/file/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=169%3A1173&t=fsZHJ3zETYos4sEN-0)
