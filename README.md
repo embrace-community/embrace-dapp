@@ -65,37 +65,37 @@ _The specific location for all Lens related React components is: **/frontend/com
 _We have made use of ENS in 5 places within our app. Please see these screenshots:_
 
 <div>
+<img src="https://lets.embrace.community/screenshots/ens-2.png" style="width: 45%;" />
 <img src="https://lets.embrace.community/screenshots/ens-1.png" style="width: 45%;" />
-<img src="https://lets.embrace.community/screenshots/ens-5.png" style="width: 45%;" />
 </div>
 
 <div>
-<img src="https://lets.embrace.community/screenshots/ens-2.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/ens-5.png" style="width: 45%;" />
 <img src="https://lets.embrace.community/screenshots/ens-3.png" style="width: 45%;" />
 </div>
 
 ### XMTP Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/xmtp.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/logos/xmtp.png" style="height: 100px;" />
 </div>
 
 ### Huddle Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/huddle.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/logos/huddle.png" style="height: 100px;" />
 </div>
 
 ### Ceramic Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/ceramic.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/logos/ceramic.png" style="height: 100px;" />
 </div>
 
 ### IPFS Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/ipfs.png" style="height: 150px;" />
+<img src="https://lets.embrace.community/logos/ipfs.png" style="height: 100px;" />
 </div>
 
 ## Screenshots
