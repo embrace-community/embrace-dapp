@@ -59,7 +59,7 @@ _The specific location for all Lens related React components is: **/frontend/com
 ### ENS Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/ens.png" style="height: 100px;" />
+<img src="https://lets.embrace.community/logos/ens.png" style="height: 30px;" />
 </div>
 
 _We have made use of ENS in 5 places within our app. Please see these screenshots:_
