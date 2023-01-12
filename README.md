@@ -201,7 +201,7 @@ _Discussions App with topics saved through Ceramic and videos transcoded through
 </div>
 
 <div>
-<img src="https://lets.embrace.community/screenshots/discussions-13png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/discussions-3.png" style="width: 45%;" />
 </div>
 
 ## Video Submission
