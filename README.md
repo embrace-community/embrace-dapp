@@ -7,10 +7,10 @@ Instead of merely duplicating a Web3 version of these existing platforms, we wis
 
 Embrace is not limited to any type of community, however the first steps are to build apps that empower Creators and enable them to build communities around their creations. As part of the Next Video Build Hackathon we have implemented 5 applications:
 
-1.  Social: Enabling communities to create or connect their Lens profile and create posts for their followers to view within their community space and throughout in the Lens ecosystem
-2.  Creations: Enabling creators to add their content (e.g videos) to be stored on IPFS, minted as NFTs and transcoded through LivePeer
-3.  Chat Server: The first stages of a Decentralised Chat Server, using XMTP for chat and Huddle for video calling
-4.  Live Stream: Start a stream through LiverPeer Studio, and share the link with your community on Lens
+1.  Social: Enabling communities to create a Lens profile, publish posts which can be viewed within their community & throughout the Lens ecosystem
+2.  Creations: Enabling creators to add their content (e.g videos) to be stored on IPFS, minted as NFTs & transcoded through LivePeer
+3.  Chat Server: The first stages of a Decentralised Chat Server, using XMTP for chat & Huddle for video calling
+4.  Live Stream: Start a stream through LiverPeer & share the link with your community on Lens
 5.  Discussions: A forum built using Ceramic
 
 ## Team
@@ -30,38 +30,59 @@ Ben <info@bennisan.be> (Design)
 
 ## Bounties
 
-List each bounty with logo and explain how we qualify - include screenshots for ENS
-
 ### Livepeer Challenge & Livepeer Best Design Challenge
 
 <div>
 <img src="https://lets.embrace.community/logos/livepeer.png" style="width: 45%;" />
 </div>
-_We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article).  Please see the screenshots below and our video submission for further details._
+
+_We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article). Please see the screenshots below and our video submission for further details._
 
 ### Polygon: Most innovative video hack on polygon & Polygon: Best video or creator tool on Polygon
 
 <div>
 <img src="https://lets.embrace.community/logos/polygon.png" style="width: 45%;" />
 </div>
-_We have deployed our contracts to Polygon Mumbai and plan to use Polygon as our primary blockchain for our app.  We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article).  Please see the screenshots below and our video submission for further details._
+
+_We have deployed our contracts to Polygon Mumbai and plan to use Polygon as our primary blockchain for our app. We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article). Please see the screenshots below and our video submission for further details._
 
 ### Lens Challenge
 
 <div>
 <img src="https://lets.embrace.community/logos/lens.svg" style="height: 150px;" />
 </div>
-_Although we have developed 5 applications to enable Creators to build a community around their NFT creations, the Lens / Social App is the first application member see whan accessing a community.  We support the creation of Lens profiles, setting a default profile, linking a profile to our Social app, displaying Lens published posts, adding Lens posts. Please see screenshots of the Social App below, and our video submission._
+
+_Although we have developed 5 applications to enable Creators to build a community around their NFT creations, the Lens / Social App is the first application member see whan accessing a community. We support the creation of Lens profiles, setting a default profile, linking a profile to our Social app, displaying Lens published posts, adding Lens posts. Please see screenshots of the Social App below, and our video submission._
 
 ### ENS Challenge
 
+<div>
+<img src="https://lets.embrace.community/logos/ens.png" style="width: 45%;" />
+</div>
+
 ### XMTP Challenge
+
+<div>
+<img src="https://lets.embrace.community/logos/xmtp.png" style="width: 45%;" />
+</div>
 
 ### Huddle Challenge
 
+<div>
+<img src="https://lets.embrace.community/logos/huddle.png" style="width: 45%;" />
+</div>
+
 ### Ceramic Challenge
 
+<div>
+<img src="https://lets.embrace.community/logos/ceramic.png" style="width: 45%;" />
+</div>
+
 ### IPFS Challenge
+
+<div>
+<img src="https://lets.embrace.community/logos/ipfs.png" style="height: 150px;" />
+</div>
 
 ## Screenshots
 
