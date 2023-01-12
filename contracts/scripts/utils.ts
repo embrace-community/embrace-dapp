@@ -59,7 +59,7 @@ function convertStringArrayToBytes32(array: string[]) {
 }
 
 const chainLinkAddressGoerli = "0x326c977e6efc84e512bb9c30f76e30c160ed06fb";
-const apps = [1, 2, 3, 4];
+const apps = [1, 2, 3, 4, 8];
 
 function getSpace(spaceType: any, handle: string, metadata: string) {
   if (spaceType == "public") {

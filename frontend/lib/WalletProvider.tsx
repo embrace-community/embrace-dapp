@@ -12,13 +12,14 @@ import { publicProvider } from "wagmi/providers/public";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { colors } from "./constants";
 import { infuraApiKey } from "./envs";
-import { polygonMumbai, localhost } from "wagmi/chains";
+import { polygonMumbai, localhost, goerli, mainnet } from "wagmi/chains";
 
 export default function WalletProvider({ children }: { children: ReactNode }) {
   const { chains, provider } = configureChains(
     [
       polygonMumbai,
-      // chain.goerli,
+      goerli,
+      // mainnet,
       ...(process.env.NODE_ENV === "development" ? [localhost] : []),
     ],
     [

@@ -3,26 +3,8 @@ import { gql, useMutation } from "@apollo/client";
 import { useAccount } from "wagmi";
 import { useContext, useState } from "react";
 import { CeramicContext } from "../../../lib/CeramicContext";
-import DiscussionTopic from "./TopicItem";
 import { authenticationWithCeramic } from "../../../hooks/useAuthenticateCeramic";
-
-// We get all the topics and then filter on the frontend as
-// ComposeDB does not support filtering at this time
-const DISCUSSION_TOPIC_QUERY = gql`
-  query {
-    discussionTopicIndex(first: 100) {
-      edges {
-        node {
-          id
-          spaceId
-          title
-          address
-          content
-        }
-      }
-    }
-  }
-`;
+import Button from "../../Button";
 
 const DISCUSSION_TOPIC_MUTATION = gql`
   mutation CreateNewDiscussionTopic($i: CreateDiscussionTopicInput!) {
@@ -38,12 +20,12 @@ const DISCUSSION_TOPIC_MUTATION = gql`
   }
 `;
 
-export default function Topics() {
+export default function NewTopic({ spaceId }) {
   const threeId = new ThreeIdConnect();
   const composeDbClient = useContext(CeramicContext);
 
-  const [title, setTitle] = useState("New Topic default title");
-  const [content, setContent] = useState("topic content");
+  const [title, setTitle] = useState("Let's discuss our next steps");
+  const [content, setContent] = useState("_Markdown content here_");
   const account = useAccount();
 
   const [discussionTopicMutation] = useMutation(DISCUSSION_TOPIC_MUTATION, {
@@ -63,6 +45,13 @@ export default function Topics() {
         composeDbClient,
       );
 
+      console.log("createNewDiscussionTopic", {
+        title,
+        content,
+        address: account.address,
+        spaceId: 99999,
+      });
+
       discussionTopicMutation({
         variables: {
           i: {
@@ -70,7 +59,7 @@ export default function Topics() {
               title,
               content,
               address: account.address,
-              // spaceId,
+              spaceId: 99999,
             },
           },
         },
@@ -80,5 +69,17 @@ export default function Topics() {
     }
   };
 
-  return <></>;
+  return (
+    <>
+      <Button
+        buttonProps={{
+          onClick: () => {
+            createNewDiscussionTopic();
+          },
+        }}
+      >
+        Create Topic
+      </Button>
+    </>
+  );
 }

@@ -12,7 +12,10 @@ import PeerVideoAudioElem from "./PeerVideoAudioElem";
 import classNames from "classnames";
 import HuddleClient from "../../../lib/huddle01-client/HuddleClient/HuddleClient";
 import useEmbraceContracts from "../../../hooks/useEmbraceContracts";
-import { useSigner } from "wagmi";
+import { useSigner, useProvider } from "wagmi";
+import Image from "next/image";
+import { deployedChainId } from "../../../lib/envs";
+import EnsAvatar from "../../EnsAvatar";
 
 const ChatNotification = ({ notification }) => {
   if (notification.endsWith("VIDEO_CALL_STARTED")) {
@@ -30,10 +33,9 @@ const Chatmsg = ({ msg }) => {
   return (
     <div className="my-2 w-full mb-6">
       <div className="flex flex-row w-full items-center justify-start mb-2">
-        <div className="w-[20px] h-[20px] bg-slate-200 rounded-[10px]"></div>
-        <p className="font-semibold text-[12px] opacity-50 ml-3">
-          {msg ? msg.sender.name : ""}
-          <span className="font-normal ml-4">
+        <p className="flex font-semibold text-[12px] ml-3 ">
+          {msg ? <EnsAvatar address={msg.sender.name} /> : null}
+          <span className="flex font-normal ml-4 opacity-70">
             {msg ? format(msg.sent, "dd/MM/yyyy") : ""}
           </span>
         </p>
@@ -71,6 +73,7 @@ export default function Chat({
   const { huddle, HuddleClientProvider } = useHuddle(query.handle as string);
   const hasInitialized = useRef(false);
   const { data: signer } = useSigner();
+
   const { xmtpClient } = useAppSelector((state: RootState) => state.core);
   const videoRef = useRef<HTMLVideoElement>(null);
   const huddlePeers = useRef({});
@@ -84,6 +87,7 @@ export default function Chat({
     const getSpaceMembers = async () => {
       try {
         const members = await spacesContract.getSpaceMembers(space.id);
+
         setSpaceMembers(members);
       } catch (err: any) {
         console.log("Error getting space members", err);
@@ -581,12 +585,7 @@ export default function Chat({
                     className="flex flex-row items-center"
                     key={`i-${member}`}
                   >
-                    {/* Only get the first 6 and last 6 characters */}
-                    <div>
-                      {member.substring(0, 6) +
-                        "..." +
-                        member.substring(member.length - 6, member.length)}
-                    </div>
+                    <EnsAvatar address={member} />
                   </div>
                 );
               })}
@@ -594,47 +593,5 @@ export default function Chat({
         </div>
       </div>
     </div>
-
-    // <div className="w-full flex flex-1 h-full flex-row">
-    //     <div className={showLeftMenu?"transition-all w-[360px]  pl-[6.8vw] pt-10":"transition-all w-[0px]"}>
-    //       <ul>
-    //         {jimmmysroomsofwonderandmystery.map((room,i)=> {
-    //           return (<li className="py-[5px]">{room}</li>)
-    //         })}
-    //       </ul>
-    //     </div>
-    //     <div className="flex-1 flex flex-col items-start justify-start">
-    //       <div className="grow w-full overflow-y-scroll">
-    //           <div className="grow">
-    //         {jimmmyswordsofwisdomandguidance.map((msgcontent,i)=> {
-    //             return (<Chatmsg msgcontent={msgcontent}  />)
-    //           })}
-    //       </div>
-    //       </div>
-    //       <div className="w-full pb-20">
-    //       <input
-    //         type="text"
-    //         name="name"
-    //         id="name"
-    //         className="w-[90%] block bg-transparent text-embrace-dark rounded-md border-embrace-dark border-opacity-20 shadow-sm focus:border-violet-600 focus:ring-violet-600 focus:bg-white sm:text-sm"
-    //         placeholder="your message"
-    //       />
-    //       </div>
-    //     </div>
-    //     <div className={showRightMenu?"transition-all w-[290px] pl-10 pt-10":"transition-all w-[0px]"}>
-    //       <button
-    //         className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center"
-    //       >
-    //         <Icons.Video className="mr-2"/>
-    //         channel video call
-    //       </button>
-    //       <button
-    //         className="rounded-full border-embrace-dark border-2 bg-transparent text-embrace-dark text-sm font-semibold py-2 pl-5 pr-6 flex flex-row items-center mt-4"
-    //       >
-    //         <Icons.Audio className="mr-2"/>
-    //         channel audio call
-    //       </button>
-    //     </div>
-    // </div>
   );
 }

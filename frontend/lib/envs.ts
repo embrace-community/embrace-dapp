@@ -82,6 +82,10 @@ if (!livepeerApiKey && isNoTestEnvironment)
 if (!huddleApiKey && isNoTestEnvironment)
   throw Error("Huddle API Key Env missing");
 
+// Ceramic
+const ceramicUri = process.env.NEXT_PUBLIC_CERAMIC_URI!;
+if (!ceramicUri && isNoTestEnvironment) throw Error("Ceramic Uri Env missing");
+
 export {
   appContractAddress,
   spacesContractAddress,
@@ -96,4 +100,5 @@ export {
   lensPeripheryContractAddress,
   livepeerApiKey,
   huddleApiKey,
+  ceramicUri,
 };

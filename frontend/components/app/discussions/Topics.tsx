@@ -1,9 +1,10 @@
 import { ThreeIdConnect } from "@3id/connect";
 import { gql, useQuery } from "@apollo/client";
 import { useAccount } from "wagmi";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { CeramicContext } from "../../../lib/CeramicContext";
 import TopicItem from "./TopicItem";
+import { ceramicUri } from "../../../lib/envs";
 
 // We get all the topics and then filter on the frontend as
 // ComposeDB does not support filtering at this time
@@ -17,13 +18,14 @@ const DISCUSSION_TOPIC_QUERY = gql`
           title
           address
           content
+          createdAt
         }
       }
     }
   }
 `;
 
-export default function Topics({ spaceId }) {
+export default function Topics({ spaceId, handle }) {
   const threeId = new ThreeIdConnect();
   const composeDbClient = useContext(CeramicContext);
 
@@ -31,9 +33,7 @@ export default function Topics({ spaceId }) {
 
   const { data, loading, error } = useQuery(DISCUSSION_TOPIC_QUERY, {
     onCompleted: (data) => {
-      data = data.discussionTopicIndex.edges.filter(
-        (edge: any) => edge.node.spaceId === spaceId,
-      );
+      console.log("discussionTopicIndex", data);
     },
     onError: (error) => {
       console.log("error", error);
@@ -44,24 +44,31 @@ export default function Topics({ spaceId }) {
   return (
     <>
       {loading && <div>Loading...</div>}
-      {error && <div>Error check daemon...</div>}
+      {error && (
+        <div>
+          Error connecting to remote Ceramic daemon on {ceramicUri}......
+        </div>
+      )}
 
       {data && (
-        <div>
-          <ul>
+        <div className="flex justify-center mt-8">
+          <div className="gap-4 w-full md:w-1/2">
             {data.discussionTopicIndex.edges
               .filter((edge: any) => edge.node.spaceId === spaceId)
               .map((edge: any) => (
                 <TopicItem
                   key={edge.node.id}
+                  includeContent={false}
+                  handle={handle}
                   id={edge.node.id}
                   spaceId={edge.node.spaceId}
                   address={edge.node.address}
                   title={edge.node.title}
                   content={edge.node.content}
+                  createdAt={edge.node.createdAt}
                 />
               ))}
-          </ul>
+          </div>
         </div>
       )}
     </>

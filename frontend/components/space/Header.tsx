@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import Image from "next/image";
 import { useState } from "react";
+import { useAccount } from "wagmi";
 import {
   MembershipGateToken,
   Access,
@@ -8,6 +9,7 @@ import {
   SpaceMembership,
   Space,
 } from "../../types/space";
+import EnsAvatar from "../EnsAvatar";
 import Spinner from "../Spinner";
 
 export default function Header({
@@ -33,6 +35,7 @@ export default function Header({
     MembershipGateToken[space?.membership?.gate?.token];
   const allowRequests = space?.membership?.allowRequests;
   const [aboutShow, toggleAboutShow] = useState<boolean>(false);
+  const { address } = useAccount();
 
   return (
     <div className="w-full flex flex-col pt-6 md:pl-[6.8vw]">
@@ -73,13 +76,7 @@ export default function Header({
 
                 {accountMembership?.isActive && (
                   <div className="flex flex-row">
-                    <Image
-                      className="h-5 w-5 rounded-full mr-3"
-                      src="https://api.multiavatar.com/Binx Bond.svg"
-                      alt="Avatar"
-                      height={20}
-                      width={20}
-                    />
+                    <EnsAvatar address={address} avatarOnly={true} />
                   </div>
                 )}
 
