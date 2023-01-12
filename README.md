@@ -70,7 +70,7 @@ _The specific location for all Lens related React components is: **/frontend/com
 <img src="https://lets.embrace.community/logos/ens.png" style="height: 50px;" />
 </div>
 
-_We have made use of ENS in 5 places within our app. The specific location for the ENS React component is: **/frontend/components/EnsAvatar.tsx.** Please see these screenshots:_
+_We have made use of ENS in 5 places within our app, however the ENS domains & avatars will only load when we use the Goerli network (where our contracts are also deployed). The specific location for the ENS React component is: **/frontend/components/EnsAvatar.tsx.** Please see below for the Goerli network screenshots:_
 
 <div>
 <img src="https://lets.embrace.community/screenshots/ens-2.png" style="width: 45%;" />
@@ -207,6 +207,16 @@ EmbraceApps deployed to 0x79cf9C8De5C1c5F878366e14E4641aB2d43DA41D
 EmbraceSpaces deployed to 0x7B9C2684445a119060209a97eD4F443f5884F3eB
 EmbraceCreations deployed to 0x94137d87b89301D28FF1C653017fCc1baa4D1d3A
 EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
+```
+
+### Goerli
+
+```shell
+EmbraceAccounts deployed to 0xAb350A088D4A5548f5EE941D32F2DAece19716Da
+EmbraceApps deployed to 0x977d14726A2efe00E83C0fE01B2d4893b7228587
+EmbraceSpaces deployed to 0x30badBDd97B099Df36CB9f1C170f088453b4e5F6
+EmbraceCreations deployed to 0x3F7aBF527Aa791D5CAc54E0eE17F6CDa4a2C0075
+EmbraceSocials deployed to 0xE399049a9a6567Ae5153D508aeDa51f2770AaC1b
 ```
 
 ## Presentation & Design
