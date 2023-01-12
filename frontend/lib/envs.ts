@@ -22,6 +22,16 @@ if (deployedChainIdEnv === "1337") {
     process.env.NEXT_PUBLIC_CREATIONS_CONTRACT_ADDRESS_LOCAL!;
   appSocialsContractAddress =
     process.env.NEXT_PUBLIC_SOCIALS_CONTRACT_ADDRESS_LOCAL!;
+} else if (deployedChainIdEnv === "5") {
+  appContractAddress = process.env.NEXT_PUBLIC_APPS_CONTRACT_ADDRESS_GOERLI!;
+  spacesContractAddress =
+    process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS_GOERLI!;
+  accountsContractAddress =
+    process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS_GOERLI!;
+  appCreationsContractAddress =
+    process.env.NEXT_PUBLIC_CREATIONS_CONTRACT_ADDRESS_GOERLI!;
+  appSocialsContractAddress =
+    process.env.NEXT_PUBLIC_SOCIALS_CONTRACT_ADDRESS_GOERLI!;
 }
 
 if (isNoTestEnvironment) {

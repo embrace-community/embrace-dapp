@@ -1,16 +1,17 @@
 ![embrace community](https://lets.embrace.community/logos/embrace-earth-web.png)
 
-**How can we best express the true values of community in the modern era of the web?**
+**How can we best express the values of community in the new era of the web?**
 
 Today social media platforms offer a distorted expression of community that is more focused on revenue than being aligned with the true values of community. Embrace is looking to change this.
 Instead of merely duplicating a Web3 version of these existing platforms, we wish to reconnect to the core principles of community and to start again with fresh eyes.
 
-Embrace is not limited to any type of community, however the first steps are to build apps that empower Creators and enable them to build communities around their creations. As part of the Next Video Build Hackathon we have implemented 4 applications:
+Embrace is not limited to any type of community, however the first steps are to build apps that empower Creators and enable them to build communities around their creations. As part of the Next Video Build Hackathon we have implemented 5 applications:
 
 1.  Social: Enabling communities to create or connect their Lens profile and create posts for their followers to view within their community space and throughout in the Lens ecosystem
 2.  Creations: Enabling creators to add their content (e.g videos) to be stored on IPFS, minted as NFTs and transcoded through LivePeer
 3.  Chat Server: The first stages of a Decentralised Chat Server, using XMTP for chat and Huddle for video calling
 4.  Live Stream: Start a stream through LiverPeer Studio, and share the link with your community on Lens
+5.  Discussions: A forum built using Ceramic
 
 ## Team
 
@@ -26,6 +27,19 @@ Martin <martin@openskydevelopment.co.uk> (Founder)
 Tobias <caruso33@web.de> (Co-Founder)
 
 Ben <info@bennisan.be> (Design)
+
+## Bounties
+
+List each bounty with logo and explain how we qualify - include screenshots for ENS
+
+Livepeer
+Polygon
+Lens
+ENS
+XMTP
+Huddle
+Ceramic
+IPFS
 
 ## Screenshots
 

@@ -213,9 +213,8 @@ export default function SocialPublications({
 
                   {publication?.metadata?.media?.map((media, index) => {
                     return media?.original?.mimeType?.startsWith("image") ? (
-                      <div className="rounded-lg mb-2">
+                      <div className="rounded-lg mb-2" key={`media${index}`}>
                         <Image
-                          key={`media${index}`}
                           src={getFileUri(
                             media?.original?.url.replaceAll("ipfs://", ""),
                           )}
@@ -227,9 +226,11 @@ export default function SocialPublications({
                         />
                       </div>
                     ) : media?.original?.mimeType?.startsWith("video") ? (
-                      <div className="max-h-[450px] rounded-lg mb-2">
+                      <div
+                        className="max-h-[450px] rounded-lg mb-2"
+                        key={`media${index}`}
+                      >
                         <Player
-                          key={`media${index}`}
                           src={media?.original?.url}
                           // title={name}
                           autoPlay={false}

@@ -7,11 +7,13 @@ const EnsAvatar = ({ address, avatarOnly = false }) => {
   const provider = useProvider();
   const [ens, setEns] = useState("");
   const [avatar, setAvatar] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    if (!address || ens) return;
+    if (!address || ens || loading) return;
 
     const fetchEns = async () => {
+      setLoading((previous) => true);
       const shortenedAddress =
         address.substring(0, 6) +
         "..." +
@@ -35,7 +37,7 @@ const EnsAvatar = ({ address, avatarOnly = false }) => {
     };
 
     fetchEns();
-  }, [address, ens, provider]);
+  }, [address, ens, provider, loading]);
 
   return (
     <span className="flex">
@@ -48,7 +50,13 @@ const EnsAvatar = ({ address, avatarOnly = false }) => {
           width={20}
         />
       ) : (
-        <span className="w-5 h-5 bg-slate-100 rounded-full mr-1"></span>
+        <Image
+          className="h-5 w-5 rounded-full mr-3"
+          src={`https://api.multiavatar.com/${address}.svg`}
+          alt="Avatar"
+          height={20}
+          width={20}
+        />
       )}
       {!avatarOnly ? <span className="mr-1">{ens}</span> : null}
     </span>
