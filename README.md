@@ -16,10 +16,10 @@ Embrace is not limited to any type of community, however the first steps are to 
 ## Team
 
 <div style="display: flex; justify-content: space-between;">
-<img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" style="height: 200px;" />
-<img src="https://i.imgur.com/MKspbN4.png" alt="tobias" style="height: 200px;" />
+<img src="https://lets.embrace.community/team/martin.jpeg" alt="martin" style="height: 200px;" />
+<img src="https://lets.embrace.community/team/tobias.png" alt="tobias" style="height: 200px;" />
 
-<img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" style="height: 200px;" />
+<img src="https://lets.embrace.community/team/ben.png" alt="ben" style="height: 200px;" />
 </div>
 
 Martin <martin@openskydevelopment.co.uk> (Founder)
@@ -30,59 +30,97 @@ Ben <info@bennisan.be> (Design)
 
 ## Bounties
 
+_We are applying for 10 bounties for our work during the Next Video Build Hackathon._
+
 ### Livepeer Challenge & Livepeer Best Design Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/livepeer.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/logos/livepeer.png" style="height: 50px;" />
 </div>
 
-_We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article). Please see the screenshots below and our video submission for further details._
+_We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article). In addition to this Creators can start a Livepeer transcoded Live Stream and share the video link with their community and wherever IPFS video media is consumed we are transcoding it through LivePeer studio (e.g. Social app, Creations app, Discussions app). Please see the screenshots below and our video submission for further details._
+
+_In terms of our design, please see our Figma links:_
+
+[Figma Clickthrough](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
+
+[Figma Design System](https://www.figma.com/file/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=169%3A1173&t=fsZHJ3zETYos4sEN-0)
 
 ### Polygon: Most innovative video hack on polygon & Polygon: Best video or creator tool on Polygon
 
 <div>
-<img src="https://lets.embrace.community/logos/polygon.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/logos/polygon.png" style="height: 50px;" />
 </div>
 
-_We have deployed our contracts to Polygon Mumbai and plan to use Polygon as our primary blockchain for our app. We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article). Please see the screenshots below and our video submission for further details._
+_We have deployed our contracts to Polygon Mumbai and plan to use Polygon as our primary blockchain for our app. We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article). Creators can share their content through Lens, start a Live Stream with their community & enable members to communicate through the Chat Server and video calling. Please see the screenshots below and our video submission for further details._
 
 ### Lens Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/lens.svg" style="height: 150px;" />
+<img src="https://lets.embrace.community/logos/lens.svg" style="height: 100px;" />
 </div>
 
-_Although we have developed 5 applications to enable Creators to build a community around their NFT creations, the Lens / Social App is the first application member see whan accessing a community. We support the creation of Lens profiles, setting a default profile, linking a profile to our Social app, displaying Lens published posts, adding Lens posts. Please see screenshots of the Social App below, and our video submission._
+_We have developed 5 applications to enable Creators to build a community around their NFT creations, and the Lens / Social App is the first application members see whan accessing a community. We support the creation of Lens profiles, setting a default profile, linking a profile to our Social app, displaying Lens published posts, adding Lens posts. The Lens app can easily integrate with the other apps, such as sharing a Live Stream link or linking to a new NFT Creation. Please see screenshots of the Social App below, and our video submission._
+
+_The specific location for all Lens related React components is: **/frontend/components/app/social/**_
 
 ### ENS Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/ens.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/logos/ens.png" style="height: 50px;" />
+</div>
+
+_We have made use of ENS in 5 places within our app, however the ENS domains & avatars will only load when we use the Goerli network (where our contracts are also deployed). The specific location for the ENS React component is: **/frontend/components/EnsAvatar.tsx.** Please see below for the Goerli network screenshots:_
+
+<div>
+<img src="https://lets.embrace.community/screenshots/ens-2.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/ens-1.png" style="width: 45%;" />
+</div>
+
+<div>
+<img src="https://lets.embrace.community/screenshots/ens-5.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/ens-3.png" style="width: 45%;" />
 </div>
 
 ### XMTP Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/xmtp.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/logos/xmtp.png" style="height: 50px;" />
 </div>
+
+_We have made use of XMTP for our Chat Server App and have written our own implementation of group messaging as this is not currently supported by XMTP._
+_The specific location for the XMTP code is: **/frontend/components/app/chat/** & **/frontend/hooks/useXmtp.ts**_
+_For more information please see the Chat Server screenshots below, along with our video submission._
 
 ### Huddle Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/huddle.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/logos/huddle.png" style="height: 50px;" />
 </div>
+
+_We have used the Huddle JS Client to create a Chat Server app that uses Huddle for video calls. The specific location for all Huddle related code is: **/frontend/components/app/chat/** & **/frontend/hooks/useHuddle.tsx**. We ran into some build errors using the JS SDK and so we copied over the code from the NPM repository and made the necessary changes to make it work within our Next.Js app. For more info about the video calling, please look at our Chat Server App screenshots and our video submission._
 
 ### Ceramic Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/ceramic.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/logos/ceramic.png" style="height: 100px;" />
 </div>
+
+_We have used Ceramic in our Discussions App which enables users to add new Discussion topics to Ceramic. When viewing a Discussion we parse any IPFS video and play it through the Livepeer.js player and Livepeer studio (Syntax is: VIDEO:[url]). For more information please look at the screenshots for the Discussions App below and also our video submission. The specific Ceramic related code can be found:_
+
+- [Ceramic Models / Schemas Repo](https://github.com/embrace-community/ceramic-models)
+- React components: **/frontend/components/app/discussions/**
+- Model Ids: **kjzl6hvfrbw6c5o8kixyadk5xegjd9obau04dcc31adirpedhq3c9xf6d6mjvi6** & **kjzl6hvfrbw6camlf39lcxw6vx4elhhbmn3wfowg2wi8nn9utu69qgyriifsif2**
+- TS code: **/frontend/lib/CeramicContext.ts** & **/frontend/lib/Runtime.ts**
 
 ### IPFS Challenge
 
 <div>
-<img src="https://lets.embrace.community/logos/ipfs.png" style="height: 150px;" />
+<img src="https://lets.embrace.community/logos/ipfs.png" style="height: 100px;" />
+<img src="https://lets.embrace.community/logos/web3storage.png" style="height: 100px;" />
 </div>
+
+_IPFS and Web3.Storage plays a significant role in the Embrace Community app as we use it to store all metadata related to communities & NFTs, along with any videos / images uploaded to the platform. For more info please watch our video submission._
 
 ## Screenshots
 
@@ -171,8 +209,18 @@ EmbraceCreations deployed to 0x94137d87b89301D28FF1C653017fCc1baa4D1d3A
 EmbraceSocials deployed to 0x9b7904bC7F024c238870d64520FD2B0385d78223
 ```
 
+### Goerli
+
+```shell
+EmbraceAccounts deployed to 0xAb350A088D4A5548f5EE941D32F2DAece19716Da
+EmbraceApps deployed to 0x977d14726A2efe00E83C0fE01B2d4893b7228587
+EmbraceSpaces deployed to 0x30badBDd97B099Df36CB9f1C170f088453b4e5F6
+EmbraceCreations deployed to 0x3F7aBF527Aa791D5CAc54E0eE17F6CDa4a2C0075
+EmbraceSocials deployed to 0xE399049a9a6567Ae5153D508aeDa51f2770AaC1b
+```
+
 ## Presentation & Design
 
 [Slides](https://docs.google.com/presentation/d/1Wtra-i2t8A_XgffPHdZIZhMDywYd47lk8Ju__mpCn_c/edit?usp=sharing)
 
-[Figma Design](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
+[Figma Clickthrough](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
