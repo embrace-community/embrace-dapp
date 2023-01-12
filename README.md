@@ -52,12 +52,30 @@ _We have deployed our contracts to Polygon Mumbai and plan to use Polygon as our
 <img src="https://lets.embrace.community/logos/lens.svg" style="height: 150px;" />
 </div>
 
-_Although we have developed 5 applications to enable Creators to build a community around their NFT creations, the Lens / Social App is the first application member see whan accessing a community. We support the creation of Lens profiles, setting a default profile, linking a profile to our Social app, displaying Lens published posts, adding Lens posts. Please see screenshots of the Social App below, and our video submission._
+_We have developed 5 applications to enable Creators to build a community around their NFT creations, and the Lens / Social App is the first application members see whan accessing a community. We support the creation of Lens profiles, setting a default profile, linking a profile to our Social app, displaying Lens published posts, adding Lens posts. The Lens app can easily integrate with the other apps, such as sharing a Live Stream link or linking to a new NFT Creation. Please see screenshots of the Social App below, and our video submission._
+
+_The specific location for all Lens related React components is: **/frontend/components/app/social/**_
 
 ### ENS Challenge
 
 <div>
 <img src="https://lets.embrace.community/logos/ens.png" style="width: 45%;" />
+</div>
+
+_We have made use of ENS in 5 places within our app. Please see these screenshots:_
+
+<div>
+<img src="https://lets.embrace.community/screenshots/ens-1.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/ens-2.png" style="width: 45%;" />
+</div>
+
+<div>
+<img src="https://lets.embrace.community/screenshots/ens-3.png" style="width: 45%;" />
+<img src="https://lets.embrace.community/screenshots/ens-4.png" style="width: 45%;" />
+</div>
+
+<div>
+<img src="https://lets.embrace.community/screenshots/ens-5.png" style="width: 45%;" />
 </div>
 
 ### XMTP Challenge
