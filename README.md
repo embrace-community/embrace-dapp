@@ -16,10 +16,10 @@ Embrace is not limited to any type of community, however the first steps are to 
 ## Team
 
 <div style="display: flex; justify-content: space-between;">
-<img src="https://i.imgur.com/LIMblFg.jpg" alt="martin" style="height: 200px;" />
-<img src="https://i.imgur.com/MKspbN4.png" alt="tobias" style="height: 200px;" />
+<img src="https://lets.embrace.community/team/martin.jpeg" alt="martin" style="height: 200px;" />
+<img src="https://lets.embrace.community/team/tobias.png" alt="tobias" style="height: 200px;" />
 
-<img src="https://i.imgur.com/Vxj7mc3.png" alt="ben" style="height: 200px;" />
+<img src="https://lets.embrace.community/team/ben.png" alt="ben" style="height: 200px;" />
 </div>
 
 Martin <martin@openskydevelopment.co.uk> (Founder)
@@ -84,13 +84,13 @@ _We have made use of ENS in 5 places within our app. The specific location for t
 
 ### XMTP Challenge
 
-_We have made use of XMTP for our Chat Server App and have written our own implementation of group messaging as this is not currently supported by XMTP._
-_The specific location for the XMTP code is: **/frontend/components/app/chat/** & **/frontend/hooks/useXmtp.ts**_
-_For more information please see the Chat Server screenshots below, along with our video submission._
-
 <div>
 <img src="https://lets.embrace.community/logos/xmtp.png" style="height: 50px;" />
 </div>
+
+_We have made use of XMTP for our Chat Server App and have written our own implementation of group messaging as this is not currently supported by XMTP._
+_The specific location for the XMTP code is: **/frontend/components/app/chat/** & **/frontend/hooks/useXmtp.ts**_
+_For more information please see the Chat Server screenshots below, along with our video submission._
 
 ### Huddle Challenge
 
@@ -98,7 +98,7 @@ _For more information please see the Chat Server screenshots below, along with o
 <img src="https://lets.embrace.community/logos/huddle.png" style="height: 50px;" />
 </div>
 
-_We have used the Huddle JS Client to create a React application that uses Huddle for video calls. The specific location for all Huddle related React components is: **/frontend/components/app/chat/** & **/frontend/hooks/useHuddle.tsx**. We ran into some build errors using the SDK and so we copied over the code from the NPM repository and made the necessary changes to make it work within our Next.Js app. For more info about the video calling, please look at our Chat Server App and our video submission._
+_We have used the Huddle JS Client to create a Chat Server app that uses Huddle for video calls. The specific location for all Huddle related code is: **/frontend/components/app/chat/** & **/frontend/hooks/useHuddle.tsx**. We ran into some build errors using the JS SDK and so we copied over the code from the NPM repository and made the necessary changes to make it work within our Next.Js app. For more info about the video calling, please look at our Chat Server App screenshots and our video submission._
 
 ### Ceramic Challenge
 
@@ -117,9 +117,10 @@ _We have used Ceramic in our Discussions App which enables users to add new Disc
 
 <div>
 <img src="https://lets.embrace.community/logos/ipfs.png" style="height: 100px;" />
+<img src="https://lets.embrace.community/logos/web3storage.png" style="height: 100px;" />
 </div>
 
-_IPFS and Web3.Storage plays a significant role in the Embrace Community app as we use it to store all metadata related to communities & NFTSs, along with any videos / images uploaded to the platform. For more info please watch our video submission._
+_IPFS and Web3.Storage plays a significant role in the Embrace Community app as we use it to store all metadata related to communities & NFTs, along with any videos / images uploaded to the platform. For more info please watch our video submission._
 
 ## Screenshots
 
