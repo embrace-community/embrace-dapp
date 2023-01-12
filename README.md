@@ -38,7 +38,7 @@ _We are applying for 10 bounties for our work during the Next Video Build Hackat
 <img src="https://lets.embrace.community/logos/livepeer.png" style="height: 50px;" />
 </div>
 
-_We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article). Please see the screenshots below and our video submission for further details._
+_We have implemented a set of tools to enable Creators to mint NFTs for their creations and build communities around their videos, with the plan to expand to all mediums (audio, image, article). In addition to this Creators can start a Livepeer transcoded Live Stream and share the video link with their community and wherever IPFS video media is consumed we are transcoding it through LivePeer studio (e.g. Social app, Creations app, Discussions app). Please see the screenshots below and our video submission for further details._
 
 ### Polygon: Most innovative video hack on polygon & Polygon: Best video or creator tool on Polygon
 
