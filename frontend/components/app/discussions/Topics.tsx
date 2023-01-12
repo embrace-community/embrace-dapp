@@ -1,9 +1,10 @@
 import { ThreeIdConnect } from "@3id/connect";
 import { gql, useQuery } from "@apollo/client";
 import { useAccount } from "wagmi";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { CeramicContext } from "../../../lib/CeramicContext";
 import TopicItem from "./TopicItem";
+import { ceramicUri } from "../../../lib/envs";
 
 // We get all the topics and then filter on the frontend as
 // ComposeDB does not support filtering at this time
@@ -43,7 +44,11 @@ export default function Topics({ spaceId, handle }) {
   return (
     <>
       {loading && <div>Loading...</div>}
-      {error && <div>Error connecting to remote Ceramic daemon...</div>}
+      {error && (
+        <div>
+          Error connecting to remote Ceramic daemon on {ceramicUri}......
+        </div>
+      )}
 
       {data && (
         <div className="flex justify-center mt-8">

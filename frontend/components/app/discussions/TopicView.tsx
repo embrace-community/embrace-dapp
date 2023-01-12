@@ -6,6 +6,7 @@ import { CeramicContext } from "../../../lib/CeramicContext";
 import TopicItem from "./TopicItem";
 import { ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { ceramicUri } from "../../../lib/envs";
 
 // We get all the topics and then filter on the frontend as
 // ComposeDB does not support filtering at this time
@@ -51,7 +52,12 @@ export default function TopicView({ spaceId, topicId, handle }) {
   return (
     <>
       {loading && <div>Loading...</div>}
-      {error && <div>Error connecting to remote Ceramic daemon...</div>}
+      {error && (
+        <div>
+          Error connecting to remote Ceramic daemon on {ceramicUri}... on{" "}
+          {ceramicUri}...
+        </div>
+      )}
 
       {data && (
         <>
