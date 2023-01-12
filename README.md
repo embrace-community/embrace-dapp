@@ -106,10 +106,10 @@ _We have used the Huddle JS Client to create a React application that uses Huddl
 <img src="https://lets.embrace.community/logos/ceramic.png" style="height: 100px;" />
 </div>
 
-_We have used Ceramic in our Discussions App which enables users to add new Discussion topics to Ceramic. The specific Ceramic related code can be found:_
+_We have used Ceramic in our Discussions App which enables users to add new Discussion topics to Ceramic. When viewing a Discussion we parse any IPFS video and play it through the Livepeer.js player and Livepeer studio (Syntax is: VIDEO:[url]). For more information please look at the screenshots for the Discussions App below and also our video submission. The specific Ceramic related code can be found:_
 
+- [Ceramic Models / Schemas Repo](https://github.com/embrace-community/ceramic-models)
 - React components: **/frontend/components/app/discussions/**
-- [Ceramic Models / Schemas etc](https://github.com/embrace-community/ceramic-models)
 - Model Ids: **kjzl6hvfrbw6c5o8kixyadk5xegjd9obau04dcc31adirpedhq3c9xf6d6mjvi6** & **kjzl6hvfrbw6camlf39lcxw6vx4elhhbmn3wfowg2wi8nn9utu69qgyriifsif2**
 - TS code: **/frontend/lib/CeramicContext.ts** & **/frontend/lib/Runtime.ts**
 
@@ -118,6 +118,8 @@ _We have used Ceramic in our Discussions App which enables users to add new Disc
 <div>
 <img src="https://lets.embrace.community/logos/ipfs.png" style="height: 100px;" />
 </div>
+
+_IPFS and Web3.Storage plays a significant role in the Embrace Community app as we use it to store all metadata related to communities & NFTSs, along with any videos / images uploaded to the platform. For more info please watch our video submission._
 
 ## Screenshots
 
