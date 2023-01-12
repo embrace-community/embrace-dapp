@@ -44,7 +44,7 @@ _In terms of our design, please see our Figma links:_
 
 [Figma Clickthrough](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
 
-[Figma Design System](...)
+[Figma Design System](https://www.figma.com/file/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=169%3A1173&t=fsZHJ3zETYos4sEN-0)
 
 ### Polygon: Most innovative video hack on polygon & Polygon: Best video or creator tool on Polygon
 
@@ -98,11 +98,20 @@ _For more information please see the Chat Server screenshots below, along with o
 <img src="https://lets.embrace.community/logos/huddle.png" style="height: 50px;" />
 </div>
 
+_We have used the Huddle JS Client to create a React application that uses Huddle for video calls. The specific location for all Huddle related React components is: **/frontend/components/app/chat/** & **/frontend/hooks/useHuddle.tsx**. We ran into some build errors using the SDK and so we copied over the code from the NPM repository and made the necessary changes to make it work within our Next.Js app. For more info about the video calling, please look at our Chat Server App and our video submission._
+
 ### Ceramic Challenge
 
 <div>
 <img src="https://lets.embrace.community/logos/ceramic.png" style="height: 100px;" />
 </div>
+
+_We have used Ceramic in our Discussions App which enables users to add new Discussion topics to Ceramic. The specific Ceramic related code can be found:_
+
+- React components: **/frontend/components/app/discussions/**
+- [Ceramic Models / Schemas etc](https://github.com/embrace-community/ceramic-models)
+- Model Ids: **kjzl6hvfrbw6c5o8kixyadk5xegjd9obau04dcc31adirpedhq3c9xf6d6mjvi6** & **kjzl6hvfrbw6camlf39lcxw6vx4elhhbmn3wfowg2wi8nn9utu69qgyriifsif2**
+- TS code: **/frontend/lib/CeramicContext.ts** & **/frontend/lib/Runtime.ts**
 
 ### IPFS Challenge
 
