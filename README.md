@@ -241,4 +241,4 @@ EmbraceSocial deployed to 0xE399049a9a6567Ae5153D508aeDa51f2770AaC1b
 
 [Slides](https://docs.google.com/presentation/d/1Wtra-i2t8A_XgffPHdZIZhMDywYd47lk8Ju__mpCn_c/edit?usp=sharing)
 
-[Figma Clickthrough](https://www.figma.com/proto/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=15%3A1107&scaling=scale-down-width&page-id=0%3A1&starting-point-node-id=9%3A646)
+[Figma](https://www.figma.com/file/sEmV82YmSN96KVMeIUcuh0/Embrace.community?node-id=169%3A1173&t=fsZHJ3zETYos4sEN-0)
