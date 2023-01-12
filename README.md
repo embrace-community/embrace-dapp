@@ -30,6 +30,8 @@ Ben <info@bennisan.be> (Design)
 
 ## Bounties
 
+_We are applying for 10 bounties for our work during the Next Video Build Hackathon._
+
 ### Livepeer Challenge & Livepeer Best Design Challenge
 
 <div>
@@ -75,6 +77,10 @@ _We have made use of ENS in 5 places within our app. The specific location for t
 </div>
 
 ### XMTP Challenge
+
+_We have made use of XMTP for our Chat Server App and have written our own implementation of group messaging as this is not currently supported by XMTP._
+_The specific location for the XMTP code is: **/frontend/components/app/chat/** & **/frontend/hooks/useXmtp.ts**_
+_For more information please see the Chat Server screenshots below, along with our video submission._
 
 <div>
 <img src="https://lets.embrace.community/logos/xmtp.png" style="height: 50px;" />
