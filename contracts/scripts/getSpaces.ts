@@ -2,25 +2,31 @@ import "dotenv/config";
 import { ethers } from "ethers";
 
 import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json";
+import { spacesContract } from "../envs";
 import { getSignerProvider, getWallet } from "./utils";
 
-async function main() {
-  const contractAddress = process.argv[2];
-  if (!contractAddress) {
-    throw new Error("Contract address needs to be specified.");
-  }
+// npx ts-node scripts/getSpaces
 
-  const network = process.argv[3] || "localhost";
+async function main() {
+  const network = process.argv[2] || "localhost";
 
   const wallet = getWallet();
 
   const { signer } = getSignerProvider(wallet, network);
 
-  const contract = new ethers.Contract(contractAddress, EmbraceSpaces.abi, signer);
+  console.log(`Using wallet ${wallet.address} on network ${network} to get spaces at ${spacesContract}...`);
+
+  const contract = new ethers.Contract(spacesContract, EmbraceSpaces.abi, signer);
 
   const spaces = await contract.getSpaces();
 
-  console.log(`Spaces found, there are currently ${spaces.length}, ${JSON.stringify(spaces)}`);
+  console.log(`Spaces found, there are currently ${spaces.length}`);
+
+  for (let index = 0; index < spaces.length; index++) {
+    console.log(`======Space Index #${index}======`);
+    console.log(spaces[index]);
+    console.log("\n");
+  }
 }
 
 main().catch((error) => {

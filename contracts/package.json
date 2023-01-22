@@ -13,15 +13,29 @@
     "compile": "cross-env TS_NODE_TRANSPILE_ONLY=true hardhat compile",
     "coverage": "hardhat coverage --solcoverjs ./.solcover.js --temp artifacts --testfiles \"test/**/*.ts\" && yarn typechain",
     "deploy": "yarn deploy:apps && yarn deploy:spaces && yarn deploy:accounts",
-    "deploy:cro:test": "yarn deploy:apps:cro:test && yarn deploy:spaces:cro:test && yarn deploy:accounts:cro:test",
-    "deploy:apps": "hardhat deploy:EmbraceApps --network localhost",
-    "deploy:apps:cro:test": "hardhat deploy:EmbraceApps --network cro_test",
-    "deploy:spaces": "hardhat deploy:EmbraceSpaces --network localhost",
-    "deploy:spaces:cro:test": "hardhat deploy:EmbraceSpaces --network cro_test",
-    "deploy:accounts": "hardhat deploy:EmbraceAccounts --network localhost",
-    "deploy:accounts:cro:test": "hardhat deploy:EmbraceAccounts --network cro_test",
+    "deploy:local": "yarn deploy:apps:local && yarn deploy:accounts:local",
+    "deploy:chain": "yarn deploy:apps:chain && yarn deploy:accounts:chain",
+    "deploy:apps:local": "hardhat deploy:EmbraceApps --network localhost",
+    "deploy:apps:chain": "source .env && hardhat deploy:EmbraceApps --network $HARDHAT_NETWORK",
+    "deploy:spaces:local": "hardhat deploy:EmbraceSpaces --accountsaddress {CONTRACT_ACCRESS_OF_ACCOUNTS} --network localhost",
+    "deploy:spaces:chain": "source .env && hardhat deploy:EmbraceSpaces --accountsaddress {CONTRACT_ACCRESS_OF_ACCOUNTS} --network $HARDHAT_NETWORK",
+    "deploy:accounts:local": "hardhat deploy:EmbraceAccounts --network localhost",
+    "deploy:accounts:chain": "source .env && hardhat deploy:EmbraceAccounts --network $HARDHAT_NETWORK",
+    "deploy:appSocials:local": "source .env && hardhat deploy:AppSocials --network localhost",
+    "deploy:appSocials:chain": "source .env && hardhat deploy:AppSocials --network $HARDHAT_NETWORK",
+    "cp:artifacts": "cp ./artifacts/contracts/EmbraceApps.sol/EmbraceApps.json ./artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json ./artifacts/contracts/EmbraceAccounts.sol/EmbraceAccounts.json ../frontend/data/contractArtifacts/",
+    "cp:appArtifacts": "cp ./artifacts/contracts/app/AppCreations.sol/AppCreations.json ./artifacts/contracts/app/AppCreationsCollection.sol/AppCreationsCollection.json ./artifacts/contracts/app/AppSocials.sol/AppSocials.json ../frontend/data/contractArtifacts/",
+    "cp:types": "cp ./types/contracts/*.ts ../frontend/data/contractTypes/",
+    "cp:appTypes": "cp ./types/contracts/app/*.ts ../frontend/data/contractTypes/app",
+    "deploy:all": "hh deploy:EmbraceAll --network localhost",
+    "deploy:oneStep": "hh compile && hh typechain && yarn deploy:all && yarn cp:artifacts && yarn cp:appArtifacts && yarn cp:types && yarn cp:appTypes",
+    "deploy:oneStepMumbai": "hh compile && hh typechain && hh deploy:EmbraceAll --network polygonMumbai && yarn cp:artifacts && yarn cp:appArtifacts && yarn cp:types && yarn cp:appTypes",
+    "deploy:oneStepGoerli": "hh compile && hh typechain && hh deploy:EmbraceAll --network goerli && yarn cp:artifacts && yarn cp:appArtifacts && yarn cp:types && yarn cp:appTypes",
     "getSpaces": "ts-node scripts/getSpaces.ts {CONTRACT_ADDRESS} {NETWORK?}",
     "createSpace": "ts-node scripts/createSpace.ts {CONTRACT_ADDRESS} {SPACE_HANDLE} {METADATA} {NETWORK?}",
+    "createApp": "ts-node scripts/createApp.ts {CONTRACT_ADDRESS} {APP_CODE} {APP_ADDRESS} {APP_METADATA} {NETWORK?}",
+    "updateAppMetadata": "ts-node scripts/updateAppMetadata.ts {CONTRACT_ADDRESS} {APP_INDEX} {APP_METADATA} {NETWORK?}",
+    "getApps": "ts-node scripts/getApps {CONTRACT_ADDRESS}",
     "lint": "yarn lint:sol && yarn lint:ts && yarn prettier:check",
     "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",
     "lint:ts": "eslint --config ./.eslintrc.yml --ignore-path ./.eslintignore --ext .js,.ts .",
@@ -79,7 +93,8 @@
     "ts-generator": "^0.1.1",
     "ts-node": "^10.9.1",
     "typechain": "^8.1.0",
-    "typescript": "^4.8.4"
+    "typescript": "^4.8.4",
+    "web3.storage": "^4.4.0"
   },
   "files": [
     "/contracts"
@@ -98,5 +113,8 @@
   "packageManager": "yarn@3.2.1",
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.8.0"
   }
 }

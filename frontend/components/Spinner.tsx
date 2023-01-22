@@ -1,9 +1,27 @@
-export default function Spinner() {
+import classNames from "classnames";
+
+export default function Spinner({ itemsCenter = true, widthHeight = 8 }) {
   return (
-    <div className="flex justify-center items-center h-full w-full">
+    <div
+      className={classNames({
+        "flex justify-center h-full w-full": true,
+        "items-center": itemsCenter,
+      })}
+    >
       <svg
         role="status"
-        className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+        // className="w-8 h-8 mr-2 text-gray-200 animate-spin dark:text-gray-600 fill-violet-600"
+        className={classNames({
+          "text-gray-200 animate-spin dark:text-gray-600 fill-violet-600":
+            true,
+          "w-4 h-4": widthHeight === 4,
+          "w-6 h-6": widthHeight === 6,
+          "w-8 h-8": widthHeight === 8,
+          "w-10 h-10": widthHeight === 10,
+          "w-12 h-12": widthHeight === 12,
+          "w-14 h-14": widthHeight === 14,
+          "w-16 h-16": widthHeight === 16,
+        })}
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

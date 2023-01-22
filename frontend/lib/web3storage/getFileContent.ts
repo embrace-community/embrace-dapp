@@ -1,23 +1,21 @@
-type GetFileContentOptions = {
-  file: File
-  method: "readAsText" | "readAsDataURL"
-}
-
-function getFileContent(file: File, method = "readAsText"): Promise<string> {
+function getFileContent(
+  file: any,
+  method: "readAsText" | "readAsDataURL" = "readAsText",
+): Promise<string> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader()
+    const reader = new FileReader();
 
     reader.onload = () => {
-      resolve(reader.result as string)
-    }
-    reader.onerror = reject
+      resolve(reader.result as string);
+    };
+    reader.onerror = reject;
 
     if (method === "readAsText") {
-      reader.readAsText(file)
+      reader.readAsText(file);
     } else if (method === "readAsDataURL") {
-      reader.readAsDataURL(file)
+      reader.readAsDataURL(file);
     }
-  })
+  });
 }
 
-export default getFileContent
+export default getFileContent;

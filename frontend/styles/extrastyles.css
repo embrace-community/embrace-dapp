@@ -1,22 +1,40 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+// Removed and updated the classes with tailwind equivalents
+/*
 .homelink {
-  width: 184px;
+  width: 184px; // w-[184px]
 }
-
 .extrastyles-specialpadding {
-  padding: 30px 0 10vh 6.8vw;
-}
-.extrastyles-specialpadding2 {
-  padding: 30px 0 0 6.8vw;
-}
-
-.extrastyles-collectionitem-img {
-  border-radius: 50%;
+  padding: 30px 0 10vh 6.8vw; // pt-8 pr-8 pb-28 pl-[6.8vw] - added right padding
 }
 
 .extrastyles-border-radius {
-  border-radius: 50%;
+  border-radius: 50%; // rounded-full
 }
-.extrastyles-negmarg  {
-  margin-bottom: -13px;
+.extrastyles-negmarg-avatar {
+  margin-bottom: 20px; // mb-5
 }
-textarea { resize: none; }
+
+.extrastyles-collectionitem-img {
+  border-radius: 50%; // rounded-full
+}
+
+.extrastyles-specialpadding2 {
+  padding: 30px 0 0 0; // pl-8
+}
+
+
+@media (min-width: 768px) {
+  .extrastyles-specialpadding2 {
+    padding: 30px 0 0 6.8vw;  // mb-5 md:-m-12 
+  }
+  .extrastyles-negmarg-avatar {
+    margin-bottom: -50px; // md:-m-12 
+  }
+}
+
+textarea {
+  resize: none; // resize-none
+}
+*/

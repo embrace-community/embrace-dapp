@@ -3,11 +3,11 @@ import type { RuntimeCompositeDefinition } from "@composedb/types";
 export const definition: RuntimeCompositeDefinition = {
   models: {
     DiscussionTopic: {
-      id: "kjzl6hvfrbw6c76kvqxy53q10bxymmyfzrjy2v4vb153eg8yz0r9vyyu6gfnvwg",
+      id: "kjzl6hvfrbw6c5o8kixyadk5xegjd9obau04dcc31adirpedhq3c9xf6d6mjvi6",
       accountRelation: { type: "list" },
     },
     DiscussionTopicComment: {
-      id: "kjzl6hvfrbw6c95thytuxisa92hyhzbnyoert80dz2m4j85eiq79iqer4c4jss1",
+      id: "kjzl6hvfrbw6camlf39lcxw6vx4elhhbmn3wfowg2wi8nn9utu69qgyriifsif2",
       accountRelation: { type: "list" },
     },
   },
@@ -22,6 +22,7 @@ export const definition: RuntimeCompositeDefinition = {
       address: { type: "string", required: true },
       content: { type: "string", required: true },
       spaceId: { type: "integer", required: true },
+      createdAt: { type: "string", required: true },
       litencryption: {
         type: "reference",
         refType: "object",
@@ -38,6 +39,7 @@ export const definition: RuntimeCompositeDefinition = {
       address: { type: "string", required: true },
       content: { type: "string", required: true },
       spaceId: { type: "integer", required: true },
+      createdAt: { type: "string", required: true },
       litencryption: {
         type: "reference",
         refType: "object",
@@ -51,7 +53,7 @@ export const definition: RuntimeCompositeDefinition = {
         relation: {
           source: "document",
           model:
-            "kjzl6hvfrbw6c76kvqxy53q10bxymmyfzrjy2v4vb153eg8yz0r9vyyu6gfnvwg",
+            "kjzl6hvfrbw6c5o8kixyadk5xegjd9obau04dcc31adirpedhq3c9xf6d6mjvi6",
           property: "discussionTopicId",
         },
       },

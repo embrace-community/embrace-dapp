@@ -1,10 +1,16 @@
 import "dotenv/config";
 import { ethers } from "ethers";
-import { formatBytes32String } from "ethers/lib/utils";
 
 import * as EmbraceSpaces from "../artifacts/contracts/EmbraceSpaces.sol/EmbraceSpaces.json";
-import { Visibility } from "./../test/types";
-import { getSignerProvider, getWallet } from "./utils";
+import { getSignerProvider, getSpace, getWallet } from "./utils";
+
+// COMMANDS TO CREATE SPACES WITH DIFFERING MEMBERSHIP TYPES
+// npx ts-node scripts/createSpace 0x275aF440EAe74c3d49b1ef87a05C848Ec6426ef8 public.open bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa goerli
+// npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 public.gated bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet public-gated
+// npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 private.closed bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet private-closed
+// npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 private.closed.reqs bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet private-closed-reqs
+// npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 private.gated bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet private-gated
+// npx ts-node scripts/createSpace 0x6A0Ab532FD514f7B575aC6aEfaD70f7b28fa1081 anon bafkreiafq3fhpjp2yyfo2qcb2mrabrj4kqbm2axbzowsf6qh5oczvwwfwa evmosTestnet anon
 
 async function main() {
   const contractAddress = process.argv[2];
@@ -23,13 +29,9 @@ async function main() {
   }
   const network = process.argv[5] || "localhost";
 
-  const space = {
-    handle,
-    visibility: Visibility.PUBLIC,
-    apps: [],
-    metadata,
-    passstring: "",
-  };
+  const spaceType = process.argv[6] || "public";
+
+  const space = getSpace(spaceType, handle, metadata);
 
   const wallet = getWallet();
 
@@ -37,16 +39,16 @@ async function main() {
 
   const contract = new ethers.Contract(contractAddress, EmbraceSpaces.abi, signer);
 
-  await contract.createSpace(
-    formatBytes32String(space.handle),
-    space.visibility,
-    space.apps,
-    space.metadata,
-    space.passstring,
-  );
+  console.log("space", space);
 
-  const spaces = await contract.getSpaces();
-  console.log(`Space created, there are currently ${spaces.length}, ${JSON.stringify(spaces[spaces.length - 1])}`);
+  if (space) {
+    await contract.createSpace(space.handle, space.visibility, space.membership, space.apps, space.metadata);
+
+    const spaces = await contract.getSpaces();
+    console.log(`Space created, there are currently ${spaces.length}, ${JSON.stringify(spaces[spaces.length - 1])}`);
+  } else {
+    console.log(`No space object`);
+  }
 }
 
 main().catch((error) => {

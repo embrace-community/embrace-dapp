@@ -1,0 +1,17 @@
+export enum EmbraceApps {
+  SOCIAL = 1,
+  CREATIONS = 2,
+  CHAT_SERVER = 3,
+  LIVE_STREAMING = 4,
+  COURSES = 5,
+  PAGES = 6,
+  MARKETPLACE = 7,
+  DISCUSSIONS = 8,
+  GOVERNANCE = 9,
+  CONTRIBUTIONS = 10,
+  FUNDRAISING = 11,
+  EVENTS = 12,
+  CALENDAR = 13,
+  FILE_SHARE = 14,
+  TASKS = 15,
+}

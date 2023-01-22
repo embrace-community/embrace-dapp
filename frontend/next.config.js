@@ -1,26 +1,31 @@
 /** @type {import('next').NextConfig} */
-// const nextConfig = {
-//   reactStrictMode: true,
-//   swcMinify: true,
-// }
-
-// module.exports = nextConfig
-
-/**
- * NOTE: This config is only required within this monorepo.
- * Nextjs does not transpile web3modal packages imported from monorepo and throws an error.
- */
-
-const nextTranspileModules = require("next-transpile-modules")
-
-const withTranspileModules = nextTranspileModules([
-  "@web3modal/react",
-  "@web3modal/ethereum",
-])
-
-const nextConfig = withTranspileModules({
+const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
-})
+  images: {
+    unoptimized: true, // Temp as some images are not loading on next-video domain
+    dangerouslyAllowSVG: true, // Temp as SVGs are not loading
+    domains: ["localhost"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.ipfs.w3s.link",
+      },
+      {
+        protocol: "https",
+        hostname: "**api.multiavatar.com**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com**",
+      },
+    ],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback.fs = false;
+    }
+    return config;
+  },
+};
 
-module.exports = nextConfig
+module.exports = nextConfig;

@@ -1,170 +1,161 @@
-import { useContractRead, useSigner } from "wagmi";
-import { BigNumber, Contract, Signer } from "ethers";
+import { BigNumber } from "ethers";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { Address, useAccount, useContractRead } from "wagmi";
+import { useSigner } from "wagmi";
 import AppLayout from "../components/AppLayout";
 import SpaceCollection from "../components/SpaceCollection";
 import Spinner from "../components/Spinner";
-import EmbraceSpaces from "../data/contractArtifacts/EmbraceSpaces.json";
-import EmbraceAccounts from "../data/contractArtifacts/EmbraceAccounts.json";
-import { EmbraceSpace, Visibility } from "../utils/types";
+import EmbraceSpacesJson from "../data/contractArtifacts/EmbraceSpaces.json";
+import { EmbraceSpaces } from "../data/contractTypes";
+import useEmbraceContracts from "../hooks/useEmbraceContracts";
+import { spacesContractAddress } from "../lib/envs";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import {
+  setCommunitySpaces,
+  setLoaded,
+  setYourSpaces,
+} from "../store/slices/space";
+import { RootState } from "../store/store";
+import { Space } from "../types/space";
+import { SpaceUtil } from "../types/space-type-utils";
+import Button from "../components/Button";
+import { PlusCircleIcon, PlusIcon } from "@heroicons/react/24/outline";
 
 export default function HomePage() {
-  const { data: signer, isLoading: isSignerLoading } = useSigner();
+  const spacesStore = useAppSelector((state: RootState) => state.spaces);
+  const dispatch = useAppDispatch();
 
-  const [spaceIdsUserIsMember, setSpaceIdsUserIsMember] = useState<number[]>(
-    []
-  );
-  const [accountSpaces, setAccountSpaces] = useState<number[]>([]);
-  const [accountsContract, setAccountsContract] = useState<Contract>();
-  const [yourSpacesLoading, setYourSpacesLoading] = useState<boolean>(true);
+  const [allSpaces, setAllSpaces] = useState<Space[]>([]);
+
+  const { data: signer, isLoading: isSignerLoading } = useSigner();
+  const { address: accountAddress } = useAccount();
+  const { accountsContract } = useEmbraceContracts();
 
   // Wagmi hook to load all community spaces
-  const {
-    data: spaces,
-    error: _spacesError,
-    isLoading: isSpacesLoading,
-  } = useContractRead({
-    address: process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-    abi: EmbraceSpaces.abi,
+  const { data: contractSpaces, isLoading: isSpacesLoading } = useContractRead({
+    address: spacesContractAddress as Address,
+    abi: EmbraceSpacesJson.abi,
     functionName: "getSpaces",
     args: [],
   });
 
-  // If no account is connected, then this will stop loading to display the public spaces
+  // This will load all spaces from the contract
   useEffect(() => {
-    if (!isSignerLoading && !signer) {
-      setYourSpacesLoading(false);
-    }
-  }, [signer, isSignerLoading]);
-
-  // Once the signer is loaded, initialize the accounts contract
-  useEffect(() => {
-    if (!isSignerLoading) {
-      const accountsContract = new Contract(
-        process.env.NEXT_PUBLIC_ACCOUNTS_CONTRACT_ADDRESS!,
-        EmbraceAccounts.abi,
-        signer as Signer
+    if (!isSpacesLoading && !spacesStore.loaded && contractSpaces) {
+      const spaces = (contractSpaces as EmbraceSpaces.SpaceStructOutput[]).map(
+        (contractSpace) => SpaceUtil.from_dto(contractSpace),
       );
 
-      setAccountsContract(accountsContract);
+      console.log("spaces", spaces);
+
+      setAllSpaces(spaces);
+      dispatch(setLoaded(true));
     }
-  }, [signer, isSignerLoading]);
+  }, [spacesStore.loaded, contractSpaces, isSpacesLoading, dispatch]);
 
-  // Once accounts contract initialized, set the your spaces array if signer is connected
+  // Once accounts contract initialized, set the user's spaces
   useEffect((): void => {
-    if (!accountsContract || isSignerLoading || !signer) return;
+    if (isSignerLoading || !signer || !spacesStore.loaded) return;
 
-    async function getAccountSpaces(MyContract): Promise<void> {
+    async function getAccountSpaces(): Promise<void> {
+      if (!accountsContract) return;
+
       try {
-        const address = await signer?.getAddress();
-
         // Gets spaces for the current account in account contract
-        const response = await MyContract.getSpaces(address);
-        if (response.length > 0) {
+        const response = await accountsContract.getSpaces(accountAddress);
+
+        if (response.length && allSpaces.length) {
           const spaceIds = response.map((spaceId) =>
-            BigNumber.from(spaceId).toNumber()
+            BigNumber.from(spaceId).toNumber(),
           );
 
-          setAccountSpaces(spaceIds);
+          if (spaceIds) {
+            const yourSpaces = allSpaces?.filter((space) =>
+              spaceIds.includes(space.id),
+            );
+
+            dispatch(setYourSpaces(yourSpaces));
+          }
+
+          const communitySpaces = allSpaces?.filter((space) => {
+            return !spaceIds?.includes(space.id);
+          });
+
+          dispatch(setCommunitySpaces(communitySpaces));
+          dispatch(setLoaded(true));
+        } else if (allSpaces.length) {
+          dispatch(setCommunitySpaces(allSpaces));
+          dispatch(setLoaded(true));
         }
       } catch (err) {
         console.log("getAccountSpaces", err);
-      } finally {
-        setYourSpacesLoading(false);
       }
     }
 
-    getAccountSpaces(accountsContract);
-  }, [accountsContract, signer, isSignerLoading]);
+    getAccountSpaces();
+  }, [
+    accountAddress,
+    accountsContract,
+    allSpaces,
+    dispatch,
+    isSignerLoading,
+    signer,
+    spacesStore.loaded,
+  ]);
 
-  // Only run if there is a signer and the account spaces are loaded
+  /// BUG: With useSigner, there is a time on initial load when !isSignerLoading && !signer even when there is a signer
+  // To get round this we get the accountAddress to see if this is also empty
   useEffect(() => {
-    const getYourSpaces = async () => {
-      if (!spaces) return [];
-
-      if (signer) {
-        const spaceIdsIsMember: number[] = [];
-
-        for (let i in spaces) {
-          const space = spaces[i] as EmbraceSpace;
-          const spaceIndex = BigNumber.from(space.index).toNumber();
-
-          if (accountSpaces.includes(spaceIndex)) {
-            spaceIdsIsMember.push(spaceIndex);
-          }
-
-          setSpaceIdsUserIsMember(spaceIdsIsMember);
-          setYourSpacesLoading(false);
-        }
-      }
-    };
-
-    getYourSpaces();
-  }, [spaces, signer, accountSpaces]);
-
-  const yourSpaces = useMemo(() => {
-    if (!spaces) return [];
-
-    return (spaces as EmbraceSpace[]).filter((_, i) => {
-      if (!Array.isArray(spaceIdsUserIsMember)) return false;
-      let spaceId: number = spaces[i].index.toNumber();
-
-      return spaceIdsUserIsMember?.includes(spaceId);
-    });
-  }, [spaces, spaceIdsUserIsMember]);
-
-  const allSpaces = useMemo(() => {
-    if (!spaces) return [];
-
-    return (spaces as EmbraceSpace[]).filter((_, i) => {
-      if (!Array.isArray(spaceIdsUserIsMember)) return false;
-      let spaceId: number = spaces[i].index.toNumber();
-
-      return !spaceIdsUserIsMember?.includes(spaceId);
-    });
-  }, [spaces, spaceIdsUserIsMember]);
+    if (
+      !isSignerLoading &&
+      !signer &&
+      !accountAddress &&
+      spacesStore.loaded &&
+      allSpaces.length
+    ) {
+      dispatch(setCommunitySpaces(allSpaces));
+      dispatch(setLoaded(true));
+    }
+  }, [
+    signer,
+    isSignerLoading,
+    accountAddress,
+    dispatch,
+    allSpaces,
+    spacesStore.loaded,
+  ]);
 
   return (
     <div className="min-h-screen">
       <AppLayout title="Home">
-        <div className="extrastyles-specialpadding">
+        <div className="w-full pt-8 pr-8 pb-28 pl-[6.8vw]">
           {signer && (
-            <Link href="/create">
-              <button
-                type="button"
-                className="
-                inline-flex
-                items-center
-                rounded-full
-                border-violet-500
-                border-2
-                bg-transparent
-                py-4
-                px-12
-                text-violet-500
-                shadow-sm
-                focus:outline-none
-                focus:ring-none
-                mb-11
-                font-semibold
-                text-xl
-                mt-5"
-              >
-                + new space
-              </button>
-            </Link>
+            <div className="flex items-center justify-center md:justify-start">
+              <Link href="/create">
+                <Button additionalClassName="inline-flex items-center py-4 px-8 mb-11 font-semibold text-xl mt-5">
+                  <PlusIcon width={24} className="mr-2" /> new community
+                </Button>
+              </Link>
+            </div>
           )}
 
-          {(isSpacesLoading || yourSpacesLoading) && <Spinner />}
+          {(isSpacesLoading || !spacesStore.loaded) && <Spinner />}
 
-          {!isSpacesLoading && !yourSpacesLoading && (
+          {!isSpacesLoading && spacesStore.loaded && (
             <>
-              {signer && (
-                <SpaceCollection title="your spaces" collection={yourSpaces} />
+              {signer && spacesStore.yourSpaces.length > 0 && (
+                <SpaceCollection
+                  title="your communities"
+                  collection={spacesStore.yourSpaces}
+                />
               )}
-
-              <SpaceCollection title="public spaces" collection={allSpaces} />
+              {spacesStore.communitySpaces.length > 0 && (
+                <SpaceCollection
+                  title="public communities"
+                  collection={spacesStore.communitySpaces}
+                />
+              )}
             </>
           )}
         </div>

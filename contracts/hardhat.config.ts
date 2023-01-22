@@ -21,28 +21,22 @@ if (!infuraApiKey) {
   throw new Error("Please set your INFURA_API_KEY in a .env file");
 }
 
-const privateKey = process.env.PRIVATE_KEY;
-
 const chainIds = {
   goerli: 5,
   hardhat: 1337,
   mainnet: 1,
-  cro_test: 338,
-  cro_main: 25,
+  polygonMumbai: 80001,
 };
 
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
   let jsonRpcUrl: string;
-  switch (chain) {
-    case "cro_main":
-      jsonRpcUrl = "https://evm.cronos.org/";
-      break;
-    case "cro_test":
-      jsonRpcUrl = "https://evm-t3.cronos.org/";
-      break;
-    default:
-      jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
+  let chainName: string = chain;
+
+  if (chain === "polygonMumbai") {
+    chainName = "polygon-mumbai";
   }
+
+  jsonRpcUrl = "https://" + chainName + ".infura.io/v3/" + infuraApiKey;
   return {
     accounts: {
       count: 10,
@@ -58,8 +52,6 @@ const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   etherscan: {
     apiKey: {
-      cro_test: process.env.ETHERSCAN_API_KEY || "",
-      cro_main: process.env.ETHERSCAN_API_KEY || "",
       goerli: process.env.ETHERSCAN_API_KEY || "",
       mainnet: process.env.ETHERSCAN_API_KEY || "",
     },
@@ -75,8 +67,7 @@ const config: HardhatUserConfig = {
       accounts: { mnemonic },
       chainId: chainIds.hardhat,
     },
-    cro_test: getChainConfig("cro_test"),
-    cro_main: getChainConfig("cro_main"),
+    polygonMumbai: getChainConfig("polygonMumbai"),
     goerli: getChainConfig("goerli"),
     mainnet: getChainConfig("mainnet"),
   },

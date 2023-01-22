@@ -1,302 +1,239 @@
-import { BigNumber, Contract, ethers, Signer } from "ethers";
+import { BigNumber } from "ethers";
 import { useRouter } from "next/router";
-import { useContext, useEffect, useState } from "react";
-import { useSigner } from "wagmi";
-import Discussion from "../../components/app/discussion";
-import DiscussionTopicComments from "../../components/app/discussion/DiscussionTopicComments";
-import DiscussionTopics from "../../components/app/discussion/DiscussionTopics";
+import { useCallback, useEffect, useState } from "react";
+import { useAccount, useSigner } from "wagmi";
 import AppLayout from "../../components/AppLayout";
-import embraceSpacesContract from "../../data/contractArtifacts/EmbraceSpaces.json";
+import Apps from "../../components/space/Apps";
+import Header from "../../components/space/Header";
 import Spinner from "../../components/Spinner";
-import getIpfsJsonContent from "../../lib/web3storage/getIpfsJsonContent";
+import { EmbraceSpaces } from "../../data/contractTypes";
+import useEmbraceContracts from "../../hooks/useEmbraceContracts";
+import {
+  getFileUri,
+  getIpfsJsonContent,
+} from "../../lib/web3storage/getIpfsJsonContent";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { getSpaceById, moveJoinedToYourSpaces } from "../../store/slices/space";
+import { Space, SpaceMembership, SpaceMetadata } from "../../types/space";
+import { SpaceUtil } from "../../types/space-type-utils";
 
 export default function SpaceViewPage() {
-  const [spaceData, setSpaceData] = useState<any>(null);
-  const [metadataLoaded, setMetadataLoaded] = useState<any>(false);
-  const [contract, setContract] = useState<Contract>();
-  const [memberCount, setMemberCount] = useState<number | null>(null);
-  const [memberCountLoaded, setMemberCountLoaded] = useState<boolean>(false);
+  // TODO: Signer not loading when directly viewing a space page
+  const { spacesContract } = useEmbraceContracts();
 
-  const [openTab, setOpenTab] = useState(1);
-  const { data: signer, isLoading: isSignerLoading } = useSigner();
+  const [spaceData, setSpaceData] = useState<Space | null>(null);
+  const [metadataLoaded, setMetadataLoaded] = useState<boolean>(false);
+
+  const [isFounder, setIsFounder] = useState<boolean>(false);
+  const [membershipInfoLoaded, setMembershipInfoLoaded] =
+    useState<boolean>(false);
+  const [accountMembership, setAccountMembership] = useState<SpaceMembership>();
+  const [joinSpaceLoading, setJoinSpaceLoading] = useState<boolean>(false);
+  const getSpaceByIdSelector = useAppSelector(getSpaceById);
+  const dispatch = useAppDispatch();
+
   const router = useRouter();
   const routerIsReady = router.isReady;
+  const { address } = useAccount();
 
-  // Once router is ready and signer is loaded then initialize the contract
-  useEffect(() => {
-    if (!routerIsReady || isSignerLoading) return;
-
-    const contract = new Contract(
-      process.env.NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS!,
-      embraceSpacesContract.abi,
-      (signer as Signer) ||
-        new ethers.providers.Web3Provider((window as any).ethereum)
-    );
-
-    setContract(contract);
-  }, [routerIsReady, signer, isSignerLoading]);
-
-  // Once contract is initialized then get the space Id from the router handle
+  // Once contract is initialized then get the space Id from the router handle and load the space data
   useEffect((): void => {
-    if (!contract || !routerIsReady || spaceData) return;
+    if (!routerIsReady || spaceData || !spacesContract) return;
 
-    const handleBytes32 = ethers.utils.formatBytes32String(
-      router.query.handle as string
-    );
+    // Check to see if the spaceId can be found in the store
+    // This will only work when routing inside the NextJs app
+    // I.e. from the homepage, or from create page
+    if (router.query.spaceId) {
+      const spaceId = Number(router.query.spaceId as string);
+      const space = getSpaceByIdSelector(spaceId);
 
-    async function getSpace(MyContract: Contract): Promise<void> {
-      try {
-        const space = await MyContract.getSpaceFromHandle(handleBytes32);
-
-        if (space) {
-          setSpaceData(space);
-        }
-      } catch (err) {
+      // If it can then set the space data and prevent looking up the space data from the contract
+      if (space) {
+        setSpaceData(space);
+        setIsFounder(space.founder === address);
         console.log(
-          "getSpaceId",
-          err,
-          contract,
-          router.query.handle,
-          handleBytes32
+          `space found in store. Founder=${space.founder} connectedAddress=${address}`,
         );
+        return;
       }
     }
 
-    getSpace(contract);
-  }, [contract]);
+    // Space Id not found in store, so load it from the contract
+    const handle = router.query.handle as string;
 
-  useEffect(() => {
-    if (!spaceData) return;
+    async function getSpace(): Promise<void> {
+      try {
+        const space: EmbraceSpaces.SpaceStructOutput =
+          await spacesContract?.getSpaceFromHandle(handle);
 
-    async function loadSpaceMetadata() {
-      if (metadataLoaded) return;
-
-      const metadata = await getIpfsJsonContent(
-        spaceData.metadata,
-        "readAsText"
-      );
-
-      if (metadata?.image) {
-        metadata.image = (await getIpfsJsonContent(
-          metadata.image,
-          "readAsDataURL"
-        )) as string;
+        if (space) {
+          setSpaceData(SpaceUtil.from_dto(space));
+          setIsFounder(space.founder === address);
+        }
+      } catch (err: any) {
+        // Space handle doesn't exist - redirect to home page
+        router.push("/");
+        console.error(`An error occured getting the space data ${err.message}`);
       }
+    }
 
-      // Update the spaceData object with the loaded metadata
-      const spaceDataObj = { ...spaceData, metadata };
+    getSpace();
+  }, [
+    address,
+    getSpaceByIdSelector,
+    router,
+    router.query.handle,
+    router.query.spaceId,
+    routerIsReady,
+    spaceData,
+    spacesContract,
+  ]);
 
-      setSpaceData(spaceDataObj);
-      setMetadataLoaded(true);
+  // Once space data is loaded then get the space metadata
+  useEffect(() => {
+    async function loadSpaceMetadata() {
+      if (!spaceData || metadataLoaded) return;
+
+      // if metadata is an object then it's already loaded so no need to fetch from ipfs
+      if (!spaceData?.loadedMetadata && spaceData?.metadata) {
+        const metadata = (await getIpfsJsonContent(
+          spaceData.metadata,
+        )) as SpaceMetadata;
+
+        if (metadata?.image) {
+          metadata.image = getFileUri(metadata.image);
+        }
+
+        setSpaceData({ ...spaceData, loadedMetadata: metadata });
+        setMetadataLoaded(true);
+      }
     }
 
     loadSpaceMetadata();
   }, [spaceData, metadataLoaded]);
 
+  // Get the member information for the connected address and the members count
   useEffect(() => {
-    if (!metadataLoaded) return;
+    async function getMembershipInfo(): Promise<void> {
+      if (!spacesContract || !spaceData?.id || !address || membershipInfoLoaded)
+        return;
 
-    async function getMemberCount() {
-      if (contract) {
-        const spaceId = BigNumber.from(spaceData.index).toNumber();
-        const memberCount = await contract.getMemberCount(spaceId);
+      const spaceId = BigNumber.from(spaceData.id!).toNumber();
 
-        const memberCountNumber = BigNumber.from(memberCount).toNumber();
+      const _accountMembership = await spacesContract?.getSpaceMember(
+        spaceId,
+        address,
+      );
 
-        setMemberCount(memberCountNumber);
-        setMemberCountLoaded(true);
-      }
+      setAccountMembership(_accountMembership);
+      setMembershipInfoLoaded(true);
     }
 
-    getMemberCount();
-  }, [spaceData, metadataLoaded]);
+    getMembershipInfo();
+  }, [spacesContract, spaceData?.id, membershipInfoLoaded, address]);
 
-  const jimmystabs = [
-    {
-      label: "discussion",
-      appnumber: 1,
-    },
-    {
-      label: "proposals",
-      appnumber: 2,
-    },
-    {
-      label: "chat",
-      appnumber: 3,
-    },
-    {
-      label: "members",
-      appnumber: 4,
-    },
-  ];
+  useEffect(() => {
+    async function getMembershipCount(): Promise<void> {
+      if (!spacesContract || !spaceData?.id || spaceData?.memberCount) return;
 
-  const jimmysdummies = [
-    {
-      id: 1,
-      title: "Sed suscipit, nulla id tempus dapibus?",
-      descr:
-        "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-      poster: "0x405B353dff19b63C3c2C851f832C006d68b4Cc63",
-    },
-    {
-      id: 2,
-      title: "Sed suscipit, nulla id tempus dapibus?",
-      descr:
-        "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-      poster: "0x405B353dff19b63C3c2C851f832C006d68b4Cc63",
-    },
-    {
-      id: 3,
-      title: "Sed suscipit, nulla id tempus dapibus?",
-      descr:
-        "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-      poster: "0x405B353dff19b63C3c2C851f832C006d68b4Cc63",
-    },
-    {
-      id: 4,
-      title: "Sed suscipit, nulla id tempus dapibus?",
-      descr:
-        "Lonsectetur adipiscing elit. Sed suscipit, nulla id tempus dapibus? Opu Sed suscipit, nulla id tem ipsum dolor sit amet, corem...",
-      poster: "0x405B353dff19b63C3c2C851f832C006d68b4Cc63",
-    },
-  ];
+      const spaceId = BigNumber.from(spaceData.id!).toNumber();
+      const memberCount = await spacesContract?.getMemberCount(spaceId);
+      const memberCountNumber = BigNumber.from(memberCount).toNumber();
+
+      setSpaceData((previous): Space => {
+        return {
+          ...previous,
+          memberCount: memberCountNumber,
+        } as Space;
+      });
+    }
+
+    getMembershipCount();
+  }, [spacesContract, spaceData?.id, spaceData?.memberCount]);
+
+  const joinSpace = async () => {
+    if (!spacesContract || !spaceData) return;
+
+    const spaceId = BigNumber.from(spaceData.id).toNumber();
+
+    try {
+      setJoinSpaceLoading(true);
+      const tx = await spacesContract.joinSpace(spaceId);
+      await tx.wait();
+
+      setAccountMembership({
+        isActive: true,
+        isAdmin: false,
+        isRequest: false,
+      });
+
+      setSpaceData((previous): Space => {
+        return {
+          ...previous,
+          memberCount: spaceData?.memberCount! + 1,
+        } as Space;
+      });
+
+      setJoinSpaceLoading(false);
+
+      // If spaces store has any community spaces then find it and move to yourSpaces
+      dispatch(moveJoinedToYourSpaces(spaceId));
+    } catch (err) {
+      console.log("joinSpace", err);
+      setJoinSpaceLoading(false);
+    }
+  };
+
+  const requestJoinSpace = async () => {
+    if (!spacesContract || !spaceData) return;
+
+    const spaceId = BigNumber.from(spaceData.id).toNumber();
+
+    try {
+      setJoinSpaceLoading(true);
+      const tx = await spacesContract.requestJoin(spaceId, {
+        gasLimit: 1000000, // For some reason errors if this is not set - cannot estimate gas
+      });
+      await tx.wait();
+
+      setAccountMembership({
+        isActive: false,
+        isAdmin: false,
+        isRequest: true,
+      });
+
+      setJoinSpaceLoading(false);
+    } catch (err) {
+      console.log("requestJoin", err);
+      setJoinSpaceLoading(false);
+    }
+  };
 
   return (
     <>
-      <AppLayout title={spaceData?.metadata?.name}>
-        {spaceData && metadataLoaded && memberCountLoaded ? (
+      <AppLayout title={spaceData?.loadedMetadata?.name}>
+        {spaceData?.loadedMetadata ? (
           <>
-            <div className="w-full flex flex-col justify-start text-embracedark extrastyles-specialpadding2">
-              <div className="w-full flex flex-row justify-start items-end border-b-2 border-embracedark border-opacity-5 mb-12">
-                <img
-                  className="w-28 h-28 extrastyles-border-radius extrastyles-negmarg"
-                  src={spaceData?.metadata?.image}
-                />
-                <div className="mb-6 ml-7">
-                  <h1 className="font-semibold text-2xl">
-                    {spaceData?.metadata?.name}
-                  </h1>
-                  <div className="w-full flex flex-row mt-1 text-sm">
-                    <p className="text-embracedark text-opacity-50 mx-3  mt-4px">
-                      {memberCount} Members
-                    </p>
-                  </div>
-                  <div className="w-full flex flex-row mt-1 text-sm">
-                    <p className="text-embracedark text-opacity-50 mx-3  mt-4px">
-                      {spaceData?.metadata?.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex">
-              <div className="w-full">
-                <ul
-                  className="flex mb-0 list-none flex-row extrastyles-specialpadding2"
-                  role="tablist"
-                >
-                  {jimmystabs.map((app) => {
-                    return (
-                      <li
-                        className="-mb-px last:mr-0 text-center"
-                        key={app.appnumber}
-                      >
-                        <a
-                          className={
-                            "text-sm mr-12 py-3 block leading-normal " +
-                            (openTab === app.appnumber
-                              ? "border-b-4 border-violet-500 font-semibold"
-                              : "font-normal")
-                          }
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setOpenTab(app.appnumber);
-                          }}
-                          data-toggle="tab"
-                          href={"#link" + app.appnumber}
-                          role="tablist"
-                        >
-                          {app.label}
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-                <div className="relative flex flex-col min-w-0 break-words bg-white w-full">
-                  <div className="tab-content tab-space">
-                    <div
-                      className={openTab === 1 ? "block" : "hidden"}
-                      id="link1"
-                    >
-                      <div className="flex flex-col w-full pl-32 pt-14 justify-start items-start">
-                        <button
-                          className="
-                        rounded-full
-                        border-violet-500
-                        border-2
-                        bg-transparent
-                        py-4
-                        px-12
-                        text-violet-500
-                        shadow-sm
-                        focus:outline-none
-                        focus:ring-none
-                        mb-7
-                        font-semibold
-                        text-xl"
-                        >
-                          + new topic
-                        </button>
-                        {jimmysdummies.map((topic) => {
-                          return (
-                            <div
-                              className="w-full border-b-2 border-embracedark border-opacity-5 pb-7 mt-5 text-embracedark"
-                              key={topic.id}
-                            >
-                              <h2 className="text-xl font-semibold">
-                                {topic.title}
-                              </h2>
-                              <p className="text-sm font-normal mt-1">
-                                {topic.descr}
-                              </p>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    <div
-                      className={openTab === 2 ? "block" : "hidden"}
-                      id="link2"
-                    >
-                      <div className="flex flex-col w-full pl-32 pt-14 justify-start items-start">
-                        {/* <p>
-                          <DiscussionTopics />
-                        </p>
-
-                        <p>
-                          <DiscussionTopicComments />
-                        </p> */}
-                      </div>
-                    </div>
-                    <div
-                      className={openTab === 3 ? "block" : "hidden"}
-                      id="link3"
-                    >
-                      <p></p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Header
+              space={spaceData}
+              isFounder={isFounder}
+              accountMembership={accountMembership}
+              membershipInfoLoaded={membershipInfoLoaded}
+              joinSpace={joinSpace}
+              requestJoinSpace={requestJoinSpace}
+              joinSpaceLoading={joinSpaceLoading}
+            />
+            <Apps
+              space={spaceData}
+              query={router.query}
+              accountMembership={accountMembership}
+            />
           </>
         ) : (
-          <div className="p-10">
+          <div className="w-full justify-center p-10">
             <Spinner />
           </div>
         )}
-
-        {/* <Discussion /> */}
       </AppLayout>
     </>
   );
