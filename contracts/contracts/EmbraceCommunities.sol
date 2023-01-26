@@ -96,8 +96,8 @@ contract EmbraceCommunities is ERC721Enumerable, ERC721URIStorage {
 
         handleToId[_handleBytes] = newCommunityId;
 
-        // SAVE COMMUNITY DATA TO TABLELAND
-        // CommunityId, Name, Handle, Image, Founder
+        // Save community metadata to Tableland
+        // CommunityId, Handle, Name, Description, Image, Founder
 
         // Add space to founder's account
         accountsContract.addSpace(msg.sender, newCommunityId);
