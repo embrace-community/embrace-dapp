@@ -141,7 +141,7 @@ contract EmbraceSpaces {
         string memory _handle,
         Visibility _visibility,
         Membership memory _membership,
-        uint128[] memory _apps, // BUG: These should be the appIds not the appIndexes
+        uint128[] memory _apps,
         string memory _metadata
     ) public returns (uint256) {
         bytes32 _handleBytes = keccak256(bytes(_handle));
