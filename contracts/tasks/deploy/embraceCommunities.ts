@@ -9,16 +9,17 @@ import type { EmbraceCommunities__factory } from "../../types/factories/contract
 task("deploy:EmbraceCommunities")
   .addParam("accountsaddress")
   .setAction(async function (_taskArguments: TaskArguments, { ethers }) {
-    // const signers: SignerWithAddress[] = await ethers.getSigners();
-    // const deployer: SignerWithAddress = signers[0];
-    const wallet = new ethers.Wallet(process.env.TABLELAND_DEV_OWNER_PK ?? "");
-    const { signer: deployer } = getSignerProvider(wallet, "localhost");
+    const signers: SignerWithAddress[] = await ethers.getSigners();
+    const deployer: SignerWithAddress = signers[0];
+    // const wallet = new ethers.Wallet(process.env.TABLELAND_DEV_OWNER_PK ?? "");
+    // const { signer: deployer } = getSignerProvider(wallet, "localhost");
 
     const embraceCommunitiesFactory: EmbraceCommunities__factory = <EmbraceCommunities__factory>(
       await ethers.getContractFactory("EmbraceCommunities")
     );
 
-    const tablelandRegistryAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3";
+    // const tablelandRegistryAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3"; // Local Dev
+    const tablelandRegistryAddress = "0x4b48841d4b32C4650E4ABc117A03FE8B51f38F68"; // Mumbai
 
     const embraceCommunities: EmbraceCommunities = <EmbraceCommunities>(
       await embraceCommunitiesFactory
@@ -28,6 +29,6 @@ task("deploy:EmbraceCommunities")
     await embraceCommunities.deployed();
     console.log("embraceCommunities deployed to: ", embraceCommunities.address);
 
-    // await embraceCommunities.createCommunitiesTable();
-    // console.log("embraceCommunities.createCommunititesTable() executed");
+    const tableName = await embraceCommunities.getTableName();
+    console.log("tableName: ", tableName);
   });

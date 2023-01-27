@@ -95,6 +95,10 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
         console.log("Created communities table: %s %s", communitiesTableId, communitiesTableName);
     }
 
+    function getTableName() public view returns (string memory) {
+        return communitiesTableName;
+    }
+
     function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
         return this.onERC721Received.selector;
     }
