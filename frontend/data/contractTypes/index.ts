@@ -3,9 +3,14 @@
 /* tslint:disable */
 
 /* eslint-disable */
+import type * as interfacesSol from "./Interfaces.sol";
 import type * as app from "./app";
+
+export type { interfacesSol };
 
 export type { app };
 export type { EmbraceAccounts } from "./EmbraceAccounts";
 export type { EmbraceApps } from "./EmbraceApps";
+export type { EmbraceCommunities } from "./EmbraceCommunities";
+export type { EmbraceCommunity } from "./EmbraceCommunity";
 export type { EmbraceSpaces } from "./EmbraceSpaces";

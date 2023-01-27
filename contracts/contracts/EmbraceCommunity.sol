@@ -18,37 +18,43 @@ contract EmbraceCommunity is ERC721Enumerable, ERC721URIStorage, AccessControl {
     struct TokenData {
         uint256 tokenId;
         string tokenURI;
-        address owner;
+        address member;
     }
 
     EmbraceCommunities embraceCommunitiesContract;
 
+    uint256 public communityId;
     string public handle;
     Visibility public visibility;
     Membership public membership;
     uint128[] public apps;
 
     constructor(
-        address _embraceCommunitiesContract,
-        uint256 communityId,
         string memory _name,
-        string memory _symbol
+        string memory _symbol,
+        address _embraceCommunitiesContract,
+        uint256 _communityId
     ) ERC721(_name, _symbol) {
         _setBaseURI("ipfs://");
         embraceCommunitiesContract = EmbraceCommunities(_embraceCommunitiesContract);
+        communityId = _communityId;
 
         _memberTokenId.increment(); // First memberTokenId is 1
     }
 
-    function setCommunityData(CommunityData memory _communityData) public {
+    function setCommunityData(CommunityContractData memory _communityData) public {
         handle = _communityData.handle;
         visibility = _communityData.visibility;
         membership = _communityData.membership;
         apps = _communityData.apps;
     }
 
+    function getCommunityData() public view returns (CommunityContractData memory) {
+        return CommunityContractData({ handle: handle, visibility: visibility, membership: membership, apps: apps });
+    }
+
     // Mint is essentially creating a new member
-    function mint(string memory _tokenURI) public {
+    function mint() public {
         uint256 newMemberTokenId = _memberTokenId.current();
 
         _mint(msg.sender, newMemberTokenId);
@@ -58,7 +64,7 @@ contract EmbraceCommunity is ERC721Enumerable, ERC721URIStorage, AccessControl {
         return super.tokenURI(tokenId);
     }
 
-    function getAllTokens() public view returns (uint256[] memory) {
+    function getAllMembers() public view returns (uint256[] memory) {
         uint256[] memory tokens = new uint256[](totalSupply());
         for (uint256 i = 0; i < totalSupply(); i++) {
             tokens[i] = tokenByIndex(i);
@@ -66,13 +72,13 @@ contract EmbraceCommunity is ERC721Enumerable, ERC721URIStorage, AccessControl {
         return tokens;
     }
 
-    function getAllTokensData() public view returns (TokenData[] memory) {
+    function getAllMembersData() public view returns (TokenData[] memory) {
         TokenData[] memory tokenData = new TokenData[](totalSupply());
         for (uint256 i = 0; i < totalSupply(); i++) {
             tokenData[i] = TokenData({
                 tokenId: tokenByIndex(i),
                 tokenURI: tokenURI(tokenByIndex(i)),
-                owner: ownerOf(tokenByIndex(i))
+                member: ownerOf(tokenByIndex(i))
             });
         }
         return tokenData;
@@ -105,7 +111,7 @@ contract EmbraceCommunity is ERC721Enumerable, ERC721URIStorage, AccessControl {
 
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(ERC721, ERC721Enumerable) returns (bool) {
+    ) public view virtual override(AccessControl, ERC721, ERC721Enumerable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

@@ -793,6 +793,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ethersproject/providers@npm:5.7.2":
+  version: 5.7.2
+  resolution: "@ethersproject/providers@npm:5.7.2"
+  dependencies:
+    "@ethersproject/abstract-provider": ^5.7.0
+    "@ethersproject/abstract-signer": ^5.7.0
+    "@ethersproject/address": ^5.7.0
+    "@ethersproject/base64": ^5.7.0
+    "@ethersproject/basex": ^5.7.0
+    "@ethersproject/bignumber": ^5.7.0
+    "@ethersproject/bytes": ^5.7.0
+    "@ethersproject/constants": ^5.7.0
+    "@ethersproject/hash": ^5.7.0
+    "@ethersproject/logger": ^5.7.0
+    "@ethersproject/networks": ^5.7.0
+    "@ethersproject/properties": ^5.7.0
+    "@ethersproject/random": ^5.7.0
+    "@ethersproject/rlp": ^5.7.0
+    "@ethersproject/sha2": ^5.7.0
+    "@ethersproject/strings": ^5.7.0
+    "@ethersproject/transactions": ^5.7.0
+    "@ethersproject/web": ^5.7.0
+    bech32: 1.1.4
+    ws: 7.4.6
+  checksum: 1754c731a5ca6782ae9677f4a9cd8b6246c4ef21a966c9a01b133750f3c578431ec43ec254e699969c4a0f87e84463ded50f96b415600aabd37d2056aee58c19
+  languageName: node
+  linkType: hard
+
 "@ethersproject/random@npm:5.7.0, @ethersproject/random@npm:^5.7.0":
   version: 5.7.0
   resolution: "@ethersproject/random@npm:5.7.0"
@@ -1566,6 +1594,8 @@ __metadata:
     "@nomiclabs/hardhat-ethers": ^2.2.0
     "@nomiclabs/hardhat-etherscan": ^3.1.1
     "@openzeppelin/contracts": ^4.8.0
+    "@tableland/evm": ^4.0.0
+    "@tableland/local": ^1.0.0-pre.1
     "@trivago/prettier-plugin-sort-imports": ^3.3.0
     "@typechain/ethers-v5": ^10.1.0
     "@typechain/hardhat": ^6.1.3
@@ -1794,6 +1824,55 @@ __metadata:
   dependencies:
     antlr4ts: ^0.5.0-alpha.4
   checksum: 9a27eb961c22a3b8732bd9782ce3b7912e67b2e2183acada552116dd0bbe637c33265177ab3db9610063da48aa57299d67afdeb0616450b631a0e3da865c4e88
+  languageName: node
+  linkType: hard
+
+"@tableland/evm@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "@tableland/evm@npm:4.0.0"
+  checksum: 419119f2747e7212abf93fe8882963c58a97cf750ab9eb1e98f88720879a73432643fe0ea39a0b196b9d1d6503072e63b6e0f73cdcbf42806d66c11ebb1bceae
+  languageName: node
+  linkType: hard
+
+"@tableland/local@npm:^1.0.0-pre.1":
+  version: 1.0.0-pre.2
+  resolution: "@tableland/local@npm:1.0.0-pre.2"
+  dependencies:
+    "@tableland/sdk": ^4.0.0-pre.5
+    "@tableland/validator": ^1.0.0
+    cross-spawn: ^7.0.3
+    enquirer: ^2.3.6
+    ethers: ^5.7.2
+    shelljs: ^0.8.5
+    yargs: ^17.5.1
+  bin:
+    local-tableland: dist/esm/up.js
+  checksum: 0c73c9fe0a4f71def8234aba920ab781f8b9a86ebb95fcf3c66eb3ef4c0fd13ed495fe09eeb9ceff2cbd820aafbe32e60170dcd04ca929cbbade10ec7219486a
+  languageName: node
+  linkType: hard
+
+"@tableland/sdk@npm:^4.0.0-pre.5":
+  version: 4.0.0-pre.6
+  resolution: "@tableland/sdk@npm:4.0.0-pre.6"
+  dependencies:
+    "@tableland/evm": ^4.0.0
+    "@tableland/sqlparser": ^1.0.3
+    ethers: ^5.7.2
+  checksum: a576d8175e3421fcc96c86b394d81ed5db771ca7e3f6b868ce9d070e8c599bbb2fe7742f43cc389cff1fb0245473ffa47b95fedcddfc28387d8ae54534c95b3c
+  languageName: node
+  linkType: hard
+
+"@tableland/sqlparser@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@tableland/sqlparser@npm:1.0.3"
+  checksum: fbc768734825c997661dd92964bc9d16aaa7f1a3f106d83e03f46a655548ec2200051072c8b0ae082beaab449f79637634b780213a55ba200049d108c4179b04
+  languageName: node
+  linkType: hard
+
+"@tableland/validator@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@tableland/validator@npm:1.0.0"
+  checksum: 6007f926a7fd6a6fa7a5a4bf9b6ae747d79c4199eeffd7fc539cf880db0c0b71273a4d18f08363e789910f915aac0f5be117e8d29bd7b70da2d2c8d1faeca30d
   languageName: node
   linkType: hard
 
@@ -4496,7 +4575,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enquirer@npm:^2.3.0, enquirer@npm:^2.3.5":
+"enquirer@npm:^2.3.0, enquirer@npm:^2.3.5, enquirer@npm:^2.3.6":
   version: 2.3.6
   resolution: "enquirer@npm:2.3.6"
   dependencies:
@@ -5309,6 +5388,44 @@ __metadata:
     "@ethersproject/web": 5.7.1
     "@ethersproject/wordlists": 5.7.0
   checksum: 7a61b7a105c41f9fec327887414f1950dc27bfa2d12fe29a068419eaaa3d415e6a12275685c87f700abd88c3b639ae79c09a2f90edea1e69edc8126cb0dce708
+  languageName: node
+  linkType: hard
+
+"ethers@npm:^5.7.2":
+  version: 5.7.2
+  resolution: "ethers@npm:5.7.2"
+  dependencies:
+    "@ethersproject/abi": 5.7.0
+    "@ethersproject/abstract-provider": 5.7.0
+    "@ethersproject/abstract-signer": 5.7.0
+    "@ethersproject/address": 5.7.0
+    "@ethersproject/base64": 5.7.0
+    "@ethersproject/basex": 5.7.0
+    "@ethersproject/bignumber": 5.7.0
+    "@ethersproject/bytes": 5.7.0
+    "@ethersproject/constants": 5.7.0
+    "@ethersproject/contracts": 5.7.0
+    "@ethersproject/hash": 5.7.0
+    "@ethersproject/hdnode": 5.7.0
+    "@ethersproject/json-wallets": 5.7.0
+    "@ethersproject/keccak256": 5.7.0
+    "@ethersproject/logger": 5.7.0
+    "@ethersproject/networks": 5.7.1
+    "@ethersproject/pbkdf2": 5.7.0
+    "@ethersproject/properties": 5.7.0
+    "@ethersproject/providers": 5.7.2
+    "@ethersproject/random": 5.7.0
+    "@ethersproject/rlp": 5.7.0
+    "@ethersproject/sha2": 5.7.0
+    "@ethersproject/signing-key": 5.7.0
+    "@ethersproject/solidity": 5.7.0
+    "@ethersproject/strings": 5.7.0
+    "@ethersproject/transactions": 5.7.0
+    "@ethersproject/units": 5.7.0
+    "@ethersproject/wallet": 5.7.0
+    "@ethersproject/web": 5.7.1
+    "@ethersproject/wordlists": 5.7.0
+  checksum: b7c08cf3e257185a7946117dbbf764433b7ba0e77c27298dec6088b3bc871aff711462b0621930c56880ff0a7ceb8b1d3a361ffa259f93377b48e34107f62553
   languageName: node
   linkType: hard
 
@@ -12221,7 +12338,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yargs-parser@npm:^21.0.0":
+"yargs-parser@npm:^21.0.0, yargs-parser@npm:^21.1.1":
   version: 21.1.1
   resolution: "yargs-parser@npm:21.1.1"
   checksum: ed2d96a616a9e3e1cc7d204c62ecc61f7aaab633dcbfab2c6df50f7f87b393993fe6640d017759fe112d0cb1e0119f2b4150a87305cc873fd90831c6a58ccf1c
@@ -12296,6 +12413,21 @@ __metadata:
     y18n: ^5.0.5
     yargs-parser: ^21.0.0
   checksum: 604bdb4a6395a870540d2f3fea083c8e28441f12da8fd05b172b1e68480f00ed73d76be4a05fac19de9bf55ec7729b41e81cf555cccaed700aa192e4fff64872
+  languageName: node
+  linkType: hard
+
+"yargs@npm:^17.5.1":
+  version: 17.6.2
+  resolution: "yargs@npm:17.6.2"
+  dependencies:
+    cliui: ^8.0.1
+    escalade: ^3.1.1
+    get-caller-file: ^2.0.5
+    require-directory: ^2.1.1
+    string-width: ^4.2.3
+    y18n: ^5.0.5
+    yargs-parser: ^21.1.1
+  checksum: 47da1b0d854fa16d45a3ded57b716b013b2179022352a5f7467409da5a04a1eef5b3b3d97a2dfc13e8bbe5f2ffc0afe3bc6a4a72f8254e60f5a4bd7947138643
   languageName: node
   linkType: hard
 
