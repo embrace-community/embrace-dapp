@@ -18,7 +18,7 @@ async function main() {
 
   const contract = new ethers.Contract(contractAddress, EmbraceCommunities.abi, signer);
 
-  const communitiesTable = await contract.createCommunititesTable();
+  const communitiesTable = await contract.createCommunitiesTable();
 
   console.log(`Create Communities table ${contract.communitiesTableName}`);
 }
