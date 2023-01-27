@@ -1,0 +1,62 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "ITablelandController",
+  "sourceName": "@tableland/evm/contracts/ITablelandController.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        }
+      ],
+      "name": "getPolicy",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "allowInsert",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "allowUpdate",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "allowDelete",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "whereClause",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "withCheck",
+              "type": "string"
+            },
+            {
+              "internalType": "string[]",
+              "name": "updatableColumns",
+              "type": "string[]"
+            }
+          ],
+          "internalType": "struct ITablelandController.Policy",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

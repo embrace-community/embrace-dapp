@@ -24,19 +24,20 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
 } from "ethers";
 
-export type CommunityDataStruct = {
+export type CommunityContractDataStruct = {
   handle: PromiseOrValue<string>;
   visibility: PromiseOrValue<BigNumberish>;
   membership: PromiseOrValue<BigNumberish>;
   apps: PromiseOrValue<BigNumberish>[];
 };
 
-export type CommunityDataStructOutput = [
+export type CommunityContractDataStructOutput = [
   string,
   number,
   number,
@@ -50,28 +51,18 @@ export type CommunityDataStructOutput = [
 
 export declare namespace EmbraceCommunities {
   export type CommunityMetaDataStruct = {
+    handle: PromiseOrValue<string>;
     name: PromiseOrValue<string>;
     description: PromiseOrValue<string>;
     image: PromiseOrValue<string>;
   };
 
-  export type CommunityMetaDataStructOutput = [string, string, string] & {
-    name: string;
-    description: string;
-    image: string;
-  };
-
-  export type TokenDataStruct = {
-    tokenId: PromiseOrValue<BigNumberish>;
-    tokenURI: PromiseOrValue<string>;
-    owner: PromiseOrValue<string>;
-  };
-
-  export type TokenDataStructOutput = [BigNumber, string, string] & {
-    tokenId: BigNumber;
-    tokenURI: string;
-    owner: string;
-  };
+  export type CommunityMetaDataStructOutput = [
+    string,
+    string,
+    string,
+    string
+  ] & { handle: string; name: string; description: string; image: string };
 }
 
 export interface EmbraceCommunitiesInterface extends utils.Interface {
@@ -79,25 +70,28 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "communities(uint256)": FunctionFragment;
-    "createCommunity(string,(string,uint8,uint8,uint128[]),string,(string,string,string))": FunctionFragment;
+    "communitiesTableId()": FunctionFragment;
+    "communitiesTableName()": FunctionFragment;
+    "communitiesTablePrefix()": FunctionFragment;
+    "createCommunitiesTable()": FunctionFragment;
+    "createCommunity(string,(string,uint8,uint8,uint128[]),(string,string,string,string))": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
-    "getCommunities()": FunctionFragment;
-    "getCommunitiesData()": FunctionFragment;
-    "handleToCommunity(string)": FunctionFragment;
+    "handleToCommunityContract(string)": FunctionFragment;
     "handleToId(bytes32)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "name()": FunctionFragment;
+    "onERC721Received(address,address,uint256,bytes)": FunctionFragment;
+    "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
+    "renounceOwnership()": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
-    "tokenByIndex(uint256)": FunctionFragment;
-    "tokenOfOwnerByIndex(address,uint256)": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
-    "totalSupply()": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
+    "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
@@ -105,25 +99,28 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
       | "approve"
       | "balanceOf"
       | "communities"
+      | "communitiesTableId"
+      | "communitiesTableName"
+      | "communitiesTablePrefix"
+      | "createCommunitiesTable"
       | "createCommunity"
       | "getApproved"
-      | "getCommunities"
-      | "getCommunitiesData"
-      | "handleToCommunity"
+      | "handleToCommunityContract"
       | "handleToId"
       | "isApprovedForAll"
       | "name"
+      | "onERC721Received"
+      | "owner"
       | "ownerOf"
+      | "renounceOwnership"
       | "safeTransferFrom(address,address,uint256)"
       | "safeTransferFrom(address,address,uint256,bytes)"
       | "setApprovalForAll"
       | "supportsInterface"
       | "symbol"
-      | "tokenByIndex"
-      | "tokenOfOwnerByIndex"
       | "tokenURI"
-      | "totalSupply"
       | "transferFrom"
+      | "transferOwnership"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -139,11 +136,26 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "communitiesTableId",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "communitiesTableName",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "communitiesTablePrefix",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "createCommunitiesTable",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "createCommunity",
     values: [
       PromiseOrValue<string>,
-      CommunityDataStruct,
-      PromiseOrValue<string>,
+      CommunityContractDataStruct,
       EmbraceCommunities.CommunityMetaDataStruct
     ]
   ): string;
@@ -152,15 +164,7 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getCommunities",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getCommunitiesData",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "handleToCommunity",
+    functionFragment: "handleToCommunityContract",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -173,8 +177,22 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "onERC721Received",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
     functionFragment: "ownerOf",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "safeTransferFrom(address,address,uint256)",
@@ -203,20 +221,8 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "tokenByIndex",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenOfOwnerByIndex",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "tokenURI",
     values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "transferFrom",
@@ -226,11 +232,31 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [PromiseOrValue<string>]
+  ): string;
 
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "communities",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "communitiesTableId",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "communitiesTableName",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "communitiesTablePrefix",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "createCommunitiesTable",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -242,15 +268,7 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getCommunities",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getCommunitiesData",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "handleToCommunity",
+    functionFragment: "handleToCommunityContract",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "handleToId", data: BytesLike): Result;
@@ -259,7 +277,16 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "onERC721Received",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "safeTransferFrom(address,address,uint256)",
     data: BytesLike
@@ -277,32 +304,26 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenByIndex",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenOfOwnerByIndex",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "totalSupply",
+    functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "transferFrom",
+    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
+    "OwnershipTransferred(address,address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
@@ -329,6 +350,18 @@ export type ApprovalForAllEvent = TypedEvent<
 >;
 
 export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
+
+export interface OwnershipTransferredEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferredEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferredEventObject
+>;
+
+export type OwnershipTransferredEventFilter =
+  TypedEventFilter<OwnershipTransferredEvent>;
 
 export interface TransferEventObject {
   from: string;
@@ -391,10 +424,19 @@ export interface EmbraceCommunities extends BaseContract {
       }
     >;
 
+    communitiesTableId(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    communitiesTableName(overrides?: CallOverrides): Promise<[string]>;
+
+    communitiesTablePrefix(overrides?: CallOverrides): Promise<[string]>;
+
+    createCommunitiesTable(
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     createCommunity(
       _handle: PromiseOrValue<string>,
-      _communityData: CommunityDataStruct,
-      _tokenURI: PromiseOrValue<string>,
+      _communityData: CommunityContractDataStruct,
       _communityMetaData: EmbraceCommunities.CommunityMetaDataStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -404,16 +446,10 @@ export interface EmbraceCommunities extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    getCommunities(overrides?: CallOverrides): Promise<[BigNumber[]]>;
-
-    getCommunitiesData(
-      overrides?: CallOverrides
-    ): Promise<[EmbraceCommunities.TokenDataStructOutput[]]>;
-
-    handleToCommunity(
+    handleToCommunityContract(
       _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[CommunityDataStructOutput]>;
+    ): Promise<[string] & { communityContractAddress: string }>;
 
     handleToId(
       arg0: PromiseOrValue<BytesLike>,
@@ -428,10 +464,24 @@ export interface EmbraceCommunities extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<[string]>;
 
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<[string]>;
+
     ownerOf(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: PromiseOrValue<string>,
@@ -461,28 +511,20 @@ export interface EmbraceCommunities extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
-    tokenByIndex(
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    tokenOfOwnerByIndex(
-      owner: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     tokenURI(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     transferFrom(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -509,10 +551,19 @@ export interface EmbraceCommunities extends BaseContract {
     }
   >;
 
+  communitiesTableId(overrides?: CallOverrides): Promise<BigNumber>;
+
+  communitiesTableName(overrides?: CallOverrides): Promise<string>;
+
+  communitiesTablePrefix(overrides?: CallOverrides): Promise<string>;
+
+  createCommunitiesTable(
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   createCommunity(
     _handle: PromiseOrValue<string>,
-    _communityData: CommunityDataStruct,
-    _tokenURI: PromiseOrValue<string>,
+    _communityData: CommunityContractDataStruct,
     _communityMetaData: EmbraceCommunities.CommunityMetaDataStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -522,16 +573,10 @@ export interface EmbraceCommunities extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  getCommunities(overrides?: CallOverrides): Promise<BigNumber[]>;
-
-  getCommunitiesData(
-    overrides?: CallOverrides
-  ): Promise<EmbraceCommunities.TokenDataStructOutput[]>;
-
-  handleToCommunity(
+  handleToCommunityContract(
     _handle: PromiseOrValue<string>,
     overrides?: CallOverrides
-  ): Promise<CommunityDataStructOutput>;
+  ): Promise<string>;
 
   handleToId(
     arg0: PromiseOrValue<BytesLike>,
@@ -546,10 +591,24 @@ export interface EmbraceCommunities extends BaseContract {
 
   name(overrides?: CallOverrides): Promise<string>;
 
+  onERC721Received(
+    arg0: PromiseOrValue<string>,
+    arg1: PromiseOrValue<string>,
+    arg2: PromiseOrValue<BigNumberish>,
+    arg3: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  owner(overrides?: CallOverrides): Promise<string>;
+
   ownerOf(
     tokenId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  renounceOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   "safeTransferFrom(address,address,uint256)"(
     from: PromiseOrValue<string>,
@@ -579,28 +638,20 @@ export interface EmbraceCommunities extends BaseContract {
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
-  tokenByIndex(
-    index: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  tokenOfOwnerByIndex(
-    owner: PromiseOrValue<string>,
-    index: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   tokenURI(
     tokenId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
 
-  totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
   transferFrom(
     from: PromiseOrValue<string>,
     to: PromiseOrValue<string>,
     tokenId: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  transferOwnership(
+    newOwner: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -627,10 +678,17 @@ export interface EmbraceCommunities extends BaseContract {
       }
     >;
 
+    communitiesTableId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    communitiesTableName(overrides?: CallOverrides): Promise<string>;
+
+    communitiesTablePrefix(overrides?: CallOverrides): Promise<string>;
+
+    createCommunitiesTable(overrides?: CallOverrides): Promise<void>;
+
     createCommunity(
       _handle: PromiseOrValue<string>,
-      _communityData: CommunityDataStruct,
-      _tokenURI: PromiseOrValue<string>,
+      _communityData: CommunityContractDataStruct,
       _communityMetaData: EmbraceCommunities.CommunityMetaDataStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -640,16 +698,10 @@ export interface EmbraceCommunities extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    getCommunities(overrides?: CallOverrides): Promise<BigNumber[]>;
-
-    getCommunitiesData(
-      overrides?: CallOverrides
-    ): Promise<EmbraceCommunities.TokenDataStructOutput[]>;
-
-    handleToCommunity(
+    handleToCommunityContract(
       _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<CommunityDataStructOutput>;
+    ): Promise<string>;
 
     handleToId(
       arg0: PromiseOrValue<BytesLike>,
@@ -664,10 +716,22 @@ export interface EmbraceCommunities extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<string>;
 
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    owner(overrides?: CallOverrides): Promise<string>;
+
     ownerOf(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: PromiseOrValue<string>,
@@ -697,28 +761,20 @@ export interface EmbraceCommunities extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
-    tokenByIndex(
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tokenOfOwnerByIndex(
-      owner: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     tokenURI(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
 
-    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
     transferFrom(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -745,6 +801,15 @@ export interface EmbraceCommunities extends BaseContract {
       operator?: PromiseOrValue<string> | null,
       approved?: null
     ): ApprovalForAllEventFilter;
+
+    "OwnershipTransferred(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
+    OwnershipTransferred(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferredEventFilter;
 
     "Transfer(address,address,uint256)"(
       from?: PromiseOrValue<string> | null,
@@ -775,10 +840,19 @@ export interface EmbraceCommunities extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    communitiesTableId(overrides?: CallOverrides): Promise<BigNumber>;
+
+    communitiesTableName(overrides?: CallOverrides): Promise<BigNumber>;
+
+    communitiesTablePrefix(overrides?: CallOverrides): Promise<BigNumber>;
+
+    createCommunitiesTable(
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     createCommunity(
       _handle: PromiseOrValue<string>,
-      _communityData: CommunityDataStruct,
-      _tokenURI: PromiseOrValue<string>,
+      _communityData: CommunityContractDataStruct,
       _communityMetaData: EmbraceCommunities.CommunityMetaDataStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -788,11 +862,7 @@ export interface EmbraceCommunities extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getCommunities(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getCommunitiesData(overrides?: CallOverrides): Promise<BigNumber>;
-
-    handleToCommunity(
+    handleToCommunityContract(
       _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -810,9 +880,23 @@ export interface EmbraceCommunities extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    owner(overrides?: CallOverrides): Promise<BigNumber>;
+
     ownerOf(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -843,28 +927,20 @@ export interface EmbraceCommunities extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
-    tokenByIndex(
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tokenOfOwnerByIndex(
-      owner: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     tokenURI(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
-
     transferFrom(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -886,10 +962,25 @@ export interface EmbraceCommunities extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    communitiesTableId(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    communitiesTableName(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    communitiesTablePrefix(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    createCommunitiesTable(
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     createCommunity(
       _handle: PromiseOrValue<string>,
-      _communityData: CommunityDataStruct,
-      _tokenURI: PromiseOrValue<string>,
+      _communityData: CommunityContractDataStruct,
       _communityMetaData: EmbraceCommunities.CommunityMetaDataStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
@@ -899,13 +990,7 @@ export interface EmbraceCommunities extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getCommunities(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getCommunitiesData(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    handleToCommunity(
+    handleToCommunityContract(
       _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -923,9 +1008,23 @@ export interface EmbraceCommunities extends BaseContract {
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     ownerOf(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    renounceOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -956,28 +1055,20 @@ export interface EmbraceCommunities extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    tokenByIndex(
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    tokenOfOwnerByIndex(
-      owner: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     tokenURI(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     transferFrom(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    transferOwnership(
+      newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

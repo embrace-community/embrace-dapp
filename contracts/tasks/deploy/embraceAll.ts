@@ -42,7 +42,7 @@ task("deploy:EmbraceAll").setAction(async function (_taskArguments: TaskArgument
     await ethers.getContractFactory("EmbraceSpaces")
   );
   const embraceSpaces: EmbraceSpaces = <EmbraceSpaces>(
-    await embraceSpacesFactory.connect(deployer).deploy(embraceAccounts.address, embraceApps.address)
+    await embraceSpacesFactory.connect(deployer).deploy(embraceAccounts.address)
   );
   await embraceSpaces.deployed();
   console.log(`NEXT_PUBLIC_SPACES_CONTRACT_ADDRESS="${embraceSpaces.address}"`);

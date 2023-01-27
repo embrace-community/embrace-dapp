@@ -29,14 +29,14 @@ import type {
   utils,
 } from "ethers";
 
-export type CommunityDataStruct = {
+export type CommunityContractDataStruct = {
   handle: PromiseOrValue<string>;
   visibility: PromiseOrValue<BigNumberish>;
   membership: PromiseOrValue<BigNumberish>;
   apps: PromiseOrValue<BigNumberish>[];
 };
 
-export type CommunityDataStructOutput = [
+export type CommunityContractDataStructOutput = [
   string,
   number,
   number,
@@ -52,13 +52,13 @@ export declare namespace EmbraceCommunity {
   export type TokenDataStruct = {
     tokenId: PromiseOrValue<BigNumberish>;
     tokenURI: PromiseOrValue<string>;
-    owner: PromiseOrValue<string>;
+    member: PromiseOrValue<string>;
   };
 
   export type TokenDataStructOutput = [BigNumber, string, string] & {
     tokenId: BigNumber;
     tokenURI: string;
-    owner: string;
+    member: string;
   };
 }
 
@@ -69,8 +69,8 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     "apps(uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "communityId()": FunctionFragment;
-    "getAllTokens()": FunctionFragment;
-    "getAllTokensData()": FunctionFragment;
+    "getAllMembers()": FunctionFragment;
+    "getAllMembersData()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "getCommunityData()": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
@@ -79,7 +79,7 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     "hasRole(bytes32,address)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "membership()": FunctionFragment;
-    "mint(string)": FunctionFragment;
+    "mint()": FunctionFragment;
     "name()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
@@ -105,8 +105,8 @@ export interface EmbraceCommunityInterface extends utils.Interface {
       | "apps"
       | "balanceOf"
       | "communityId"
-      | "getAllTokens"
-      | "getAllTokensData"
+      | "getAllMembers"
+      | "getAllMembersData"
       | "getApproved"
       | "getCommunityData"
       | "getRoleAdmin"
@@ -155,11 +155,11 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAllTokens",
+    functionFragment: "getAllMembers",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAllTokensData",
+    functionFragment: "getAllMembersData",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -191,10 +191,7 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     functionFragment: "membership",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "mint",
-    values: [PromiseOrValue<string>]
-  ): string;
+  encodeFunctionData(functionFragment: "mint", values?: undefined): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "ownerOf",
@@ -231,7 +228,7 @@ export interface EmbraceCommunityInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setCommunityData",
-    values: [CommunityDataStruct]
+    values: [CommunityContractDataStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "supportsInterface",
@@ -279,11 +276,11 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAllTokens",
+    functionFragment: "getAllMembers",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAllTokensData",
+    functionFragment: "getAllMembersData",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -491,9 +488,9 @@ export interface EmbraceCommunity extends BaseContract {
 
     communityId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getAllTokens(overrides?: CallOverrides): Promise<[BigNumber[]]>;
+    getAllMembers(overrides?: CallOverrides): Promise<[BigNumber[]]>;
 
-    getAllTokensData(
+    getAllMembersData(
       overrides?: CallOverrides
     ): Promise<[EmbraceCommunity.TokenDataStructOutput[]]>;
 
@@ -504,7 +501,7 @@ export interface EmbraceCommunity extends BaseContract {
 
     getCommunityData(
       overrides?: CallOverrides
-    ): Promise<[CommunityDataStructOutput]>;
+    ): Promise<[CommunityContractDataStructOutput]>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
@@ -534,7 +531,6 @@ export interface EmbraceCommunity extends BaseContract {
     membership(overrides?: CallOverrides): Promise<[number]>;
 
     mint(
-      _tokenURI: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -579,7 +575,7 @@ export interface EmbraceCommunity extends BaseContract {
     ): Promise<ContractTransaction>;
 
     setCommunityData(
-      _communityData: CommunityDataStruct,
+      _communityData: CommunityContractDataStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -638,9 +634,9 @@ export interface EmbraceCommunity extends BaseContract {
 
   communityId(overrides?: CallOverrides): Promise<BigNumber>;
 
-  getAllTokens(overrides?: CallOverrides): Promise<BigNumber[]>;
+  getAllMembers(overrides?: CallOverrides): Promise<BigNumber[]>;
 
-  getAllTokensData(
+  getAllMembersData(
     overrides?: CallOverrides
   ): Promise<EmbraceCommunity.TokenDataStructOutput[]>;
 
@@ -651,7 +647,7 @@ export interface EmbraceCommunity extends BaseContract {
 
   getCommunityData(
     overrides?: CallOverrides
-  ): Promise<CommunityDataStructOutput>;
+  ): Promise<CommunityContractDataStructOutput>;
 
   getRoleAdmin(
     role: PromiseOrValue<BytesLike>,
@@ -681,7 +677,6 @@ export interface EmbraceCommunity extends BaseContract {
   membership(overrides?: CallOverrides): Promise<number>;
 
   mint(
-    _tokenURI: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -726,7 +721,7 @@ export interface EmbraceCommunity extends BaseContract {
   ): Promise<ContractTransaction>;
 
   setCommunityData(
-    _communityData: CommunityDataStruct,
+    _communityData: CommunityContractDataStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -785,9 +780,9 @@ export interface EmbraceCommunity extends BaseContract {
 
     communityId(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAllTokens(overrides?: CallOverrides): Promise<BigNumber[]>;
+    getAllMembers(overrides?: CallOverrides): Promise<BigNumber[]>;
 
-    getAllTokensData(
+    getAllMembersData(
       overrides?: CallOverrides
     ): Promise<EmbraceCommunity.TokenDataStructOutput[]>;
 
@@ -798,7 +793,7 @@ export interface EmbraceCommunity extends BaseContract {
 
     getCommunityData(
       overrides?: CallOverrides
-    ): Promise<CommunityDataStructOutput>;
+    ): Promise<CommunityContractDataStructOutput>;
 
     getRoleAdmin(
       role: PromiseOrValue<BytesLike>,
@@ -827,10 +822,7 @@ export interface EmbraceCommunity extends BaseContract {
 
     membership(overrides?: CallOverrides): Promise<number>;
 
-    mint(
-      _tokenURI: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
+    mint(overrides?: CallOverrides): Promise<void>;
 
     name(overrides?: CallOverrides): Promise<string>;
 
@@ -873,7 +865,7 @@ export interface EmbraceCommunity extends BaseContract {
     ): Promise<void>;
 
     setCommunityData(
-      _communityData: CommunityDataStruct,
+      _communityData: CommunityContractDataStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1001,9 +993,9 @@ export interface EmbraceCommunity extends BaseContract {
 
     communityId(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAllTokens(overrides?: CallOverrides): Promise<BigNumber>;
+    getAllMembers(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAllTokensData(overrides?: CallOverrides): Promise<BigNumber>;
+    getAllMembersData(overrides?: CallOverrides): Promise<BigNumber>;
 
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1040,7 +1032,6 @@ export interface EmbraceCommunity extends BaseContract {
     membership(overrides?: CallOverrides): Promise<BigNumber>;
 
     mint(
-      _tokenURI: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1085,7 +1076,7 @@ export interface EmbraceCommunity extends BaseContract {
     ): Promise<BigNumber>;
 
     setCommunityData(
-      _communityData: CommunityDataStruct,
+      _communityData: CommunityContractDataStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1147,9 +1138,9 @@ export interface EmbraceCommunity extends BaseContract {
 
     communityId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getAllTokens(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getAllMembers(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getAllTokensData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    getAllMembersData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1186,7 +1177,6 @@ export interface EmbraceCommunity extends BaseContract {
     membership(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     mint(
-      _tokenURI: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -1231,7 +1221,7 @@ export interface EmbraceCommunity extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     setCommunityData(
-      _communityData: CommunityDataStruct,
+      _communityData: CommunityContractDataStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

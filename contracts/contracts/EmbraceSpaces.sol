@@ -81,7 +81,6 @@ contract EmbraceSpaces {
     Space[] public spaces;
 
     EmbraceAccounts accountsContract;
-    EmbraceApps appsContract;
 
     // Mapping to store member addresses
     mapping(uint256 => mapping(address => Member)) public spaceMembers;
@@ -102,9 +101,8 @@ contract EmbraceSpaces {
         _;
     }
 
-    constructor(address _accountsContractAddress, address _appsContractAddress) {
+    constructor(address _accountsContractAddress) {
         accountsContract = EmbraceAccounts(_accountsContractAddress);
-        appsContract = EmbraceApps(_appsContractAddress);
 
         _spaceIdCounter.increment(); // So we start at 1
     }

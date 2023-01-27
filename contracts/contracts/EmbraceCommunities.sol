@@ -1,21 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.17;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 import "@tableland/evm/contracts/ITablelandTables.sol";
-import "hardhat/console.sol";
+import "@tableland/evm/contracts/utils/SQLHelpers.sol";
 import "./EmbraceAccounts.sol";
-import "./EmbraceApps.sol";
 import "./EmbraceCommunity.sol";
 import "./Types.sol";
 
 // Stores all the communities created with the reference to the ERC721 Community contract
-contract EmbraceCommunities is ERC721Enumerable, ERC721URIStorage, ERC721Holder, Ownable {
+contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _communityId;
 
@@ -53,18 +50,20 @@ contract EmbraceCommunities is ERC721Enumerable, ERC721URIStorage, ERC721Holder,
     string public communitiesTablePrefix = "embrace_communities";
 
     EmbraceAccounts accountsContract;
-    EmbraceApps appsContract;
 
     constructor(
         string memory _name,
         string memory _symbol,
         address _accountsContractAddress,
-        address _appsContractAddress,
         address _tablelandRegistryAddress // 0x5fbdb2315678afecb367f032d93f642f64180aa3
     ) ERC721(_name, _symbol) {
         // Pass the `TablelandTables` deployed smart contract address
         _tableland = ITablelandTables(_tablelandRegistryAddress);
-        string memory _tokenQuery = "SELECT+communityId%2C+metadata+FROM+communitiesTableName+WHERE+communityId+%3D+";
+        string memory _tokenQuery = string.concat(
+            "SELECT+communityId%2C+metadata+FROM+",
+            communitiesTableName,
+            "+WHERE+communityId+%3D+"
+        );
 
         if (block.chainid == 1137) {
             _setBaseURI(string.concat("http://localhost:8080/query?unwrap=true&extract=true&s=", _tokenQuery));
@@ -75,36 +74,25 @@ contract EmbraceCommunities is ERC721Enumerable, ERC721URIStorage, ERC721Holder,
         }
 
         // Create tableland table
-        createCommunititesTable();
+        createCommunitiesTable();
 
         accountsContract = EmbraceAccounts(_accountsContractAddress);
-        appsContract = EmbraceApps(_appsContractAddress);
 
         _communityId.increment(); // First communityId is 1
     }
 
-    function createCommunititesTable() public payable {
-        uint256 _tableId = _tableland.createTable(
+    function createCommunitiesTable() public payable {
+        communitiesTableId = _tableland.createTable(
             address(this),
-            string.concat(
-                "CREATE TABLE ",
-                communitiesTablePrefix,
-                "_",
-                Strings.toString(block.chainid),
-                " (communityId integer primary key, metadata text, indexed integer);"
+            SQLHelpers.toCreateFromSchema(
+                "communityId integer primary key, metadata text, indexed integer",
+                communitiesTablePrefix
             )
         );
 
-        string memory _tableName = string.concat(
-            communitiesTablePrefix,
-            "_",
-            Strings.toString(block.chainid),
-            "_",
-            Strings.toString(_tableId)
-        );
+        communitiesTableName = SQLHelpers.toNameFromId(communitiesTablePrefix, communitiesTableId);
 
-        communitiesTableName = _tableName;
-        communitiesTableId = _tableId;
+        console.log("Created communities table: %s %s", communitiesTableId, communitiesTableName);
     }
 
     function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
@@ -184,7 +172,7 @@ contract EmbraceCommunities is ERC721Enumerable, ERC721URIStorage, ERC721Holder,
         return newCommunityId;
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
+    function tokenURI(uint256 tokenId) public view virtual override(ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
@@ -203,30 +191,30 @@ contract EmbraceCommunities is ERC721Enumerable, ERC721URIStorage, ERC721Holder,
         return community.contractAddress;
     }
 
-    // gets all the community NFTs i.e. all the communities
-    function getCommunities() public view returns (uint256[] memory) {
-        uint256[] memory tokens = new uint256[](totalSupply());
-        for (uint256 i = 0; i < totalSupply(); i++) {
-            tokens[i] = tokenByIndex(i);
-        }
-        return tokens;
-    }
+    // // gets all the community NFTs i.e. all the communities
+    // function getCommunities() public view returns (uint256[] memory) {
+    //     uint256[] memory tokens = new uint256[](totalSupply());
+    //     for (uint256 i = 0; i < totalSupply(); i++) {
+    //         tokens[i] = tokenByIndex(i);
+    //     }
+    //     return tokens;
+    // }
 
-    // gets all the community NFTs i.e. all the communities with more data
-    function getCommunitiesData() public view returns (TokenData[] memory) {
-        TokenData[] memory tokenData = new TokenData[](totalSupply());
-        for (uint256 i = 0; i < totalSupply(); i++) {
-            tokenData[i] = TokenData({
-                tokenId: tokenByIndex(i),
-                tokenURI: tokenURI(tokenByIndex(i)),
-                founder: ownerOf(tokenByIndex(i)),
-                communityContractData: EmbraceCommunity(communities[i].contractAddress).getCommunityData()
-            });
-        }
-        return tokenData;
-    }
+    // // gets all the community NFTs i.e. all the communities with more data
+    // function getCommunitiesData() public view returns (TokenData[] memory) {
+    //     TokenData[] memory tokenData = new TokenData[](totalSupply());
+    //     for (uint256 i = 0; i < totalSupply(); i++) {
+    //         tokenData[i] = TokenData({
+    //             tokenId: tokenByIndex(i),
+    //             tokenURI: tokenURI(tokenByIndex(i)),
+    //             founder: ownerOf(tokenByIndex(i)),
+    //             communityContractData: EmbraceCommunity(communities[i].contractAddress).getCommunityData()
+    //         });
+    //     }
+    //     return tokenData;
+    // }
 
-    function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721URIStorage) {
+    function _burn(uint256 tokenId) internal virtual override(ERC721URIStorage) {
         super._burn(tokenId);
     }
 
@@ -247,13 +235,11 @@ contract EmbraceCommunities is ERC721Enumerable, ERC721URIStorage, ERC721Holder,
         address to,
         uint256 tokenId /* firstTokenId */,
         uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Enumerable) {
+    ) internal virtual override(ERC721) {
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override(ERC721, ERC721Enumerable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

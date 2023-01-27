@@ -16,5 +16,4 @@ struct CommunityContractData {
     Visibility visibility;
     Membership membership;
     uint128[] apps;
-    address founder;
 }

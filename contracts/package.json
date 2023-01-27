@@ -31,6 +31,7 @@
     "deploy:oneStep": "hh compile && hh typechain && yarn deploy:all && yarn cp:artifacts && yarn cp:appArtifacts && yarn cp:types && yarn cp:appTypes",
     "deploy:oneStepMumbai": "hh compile && hh typechain && hh deploy:EmbraceAll --network polygonMumbai && yarn cp:artifacts && yarn cp:appArtifacts && yarn cp:types && yarn cp:appTypes",
     "deploy:oneStepGoerli": "hh compile && hh typechain && hh deploy:EmbraceAll --network goerli && yarn cp:artifacts && yarn cp:appArtifacts && yarn cp:types && yarn cp:appTypes",
+    "deploy:communities": "hh compile && hh typechain && hh deploy:EmbraceCommunities --network localhost --accountsaddress 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
     "getSpaces": "ts-node scripts/getSpaces.ts {CONTRACT_ADDRESS} {NETWORK?}",
     "createSpace": "ts-node scripts/createSpace.ts {CONTRACT_ADDRESS} {SPACE_HANDLE} {METADATA} {NETWORK?}",
     "createApp": "ts-node scripts/createApp.ts {CONTRACT_ADDRESS} {APP_CODE} {APP_ADDRESS} {APP_METADATA} {NETWORK?}",
