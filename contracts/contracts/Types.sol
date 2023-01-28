@@ -46,3 +46,11 @@ struct CommunityContractData {
     Membership membership;
     uint128[] apps;
 }
+
+// Currently saved to IPFS but will be saved to Tableland
+struct CommunityMetaData {
+    string handle;
+    string name;
+    string description;
+    string image;
+}

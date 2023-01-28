@@ -9,7 +9,7 @@ import { getSignerProvider, getWallet } from "./utils";
 async function main() {
   const handle = process.argv[2] || "embrace";
 
-  const contractAddress = process.argv[3] || "0xdeAE08cA7ac43e4515115BDD435b0109C3Be52c8";
+  const contractAddress = process.argv[3] || "0xe20e68B46a180AfbaAbFc319aCD0b8960197599d";
 
   const network = process.argv[4] || "polygonMumbai";
   // const network = process.argv[4] || "localhost";
@@ -20,13 +20,9 @@ async function main() {
   // const wallet = new ethers.Wallet(process.env.TABLELAND_DEV_OWNER_PK ?? "");
   // const { signer } = getSignerProvider(wallet, "localhost");
 
-  /*
-    INSERT INTO embrace_communities_80001_5407 (id, metadata, indexed) VALUES (1,'{"handle": "embrace", "name": "Embrace", "description": "Embrace is a community of people who are passionate about the future of the web3 ecosystem.", "image": "https://bafkreifpwbuljas66omawzeqv2ivry2lmxyslcfucwqhgltzk7ob2xudum.ipfs.w3s.link/"}',1);
-  */
+  const embraceCommunitiesContract = new ethers.Contract(contractAddress, EmbraceCommunities.abi, signer);
 
-  const contract = new ethers.Contract(contractAddress, EmbraceCommunities.abi, signer);
-
-  const tx = await contract.createCommunity(
+  const tx = await embraceCommunitiesContract.createCommunity(
     handle,
     {
       handle,
@@ -45,7 +41,7 @@ async function main() {
     },
   );
 
-  console.log(`Creating Community...${tx.hash}`);
+  console.log(`Community being created...`);
 }
 
 main().catch((error) => {
