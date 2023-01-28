@@ -18,6 +18,8 @@ task("deploy:EmbraceCommunities")
       await ethers.getContractFactory("EmbraceCommunities")
     );
 
+    // Accounts address - Local Tableland - 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9
+
     // const tablelandRegistryAddress = "0x5fbdb2315678afecb367f032d93f642f64180aa3"; // Local Dev
     const tablelandRegistryAddress = "0x4b48841d4b32C4650E4ABc117A03FE8B51f38F68"; // Mumbai
 

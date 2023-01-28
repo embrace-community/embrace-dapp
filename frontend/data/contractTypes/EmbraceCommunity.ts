@@ -48,20 +48,6 @@ export type CommunityContractDataStructOutput = [
   apps: BigNumber[];
 };
 
-export declare namespace EmbraceCommunity {
-  export type TokenDataStruct = {
-    tokenId: PromiseOrValue<BigNumberish>;
-    tokenURI: PromiseOrValue<string>;
-    member: PromiseOrValue<string>;
-  };
-
-  export type TokenDataStructOutput = [BigNumber, string, string] & {
-    tokenId: BigNumber;
-    tokenURI: string;
-    member: string;
-  };
-}
-
 export interface EmbraceCommunityInterface extends utils.Interface {
   functions: {
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
@@ -69,8 +55,6 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     "apps(uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "communityId()": FunctionFragment;
-    "getAllMembers()": FunctionFragment;
-    "getAllMembersData()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "getCommunityData()": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
@@ -90,10 +74,7 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     "setCommunityData((string,uint8,uint8,uint128[]))": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
-    "tokenByIndex(uint256)": FunctionFragment;
-    "tokenOfOwnerByIndex(address,uint256)": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
-    "totalSupply()": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
     "visibility()": FunctionFragment;
   };
@@ -105,8 +86,6 @@ export interface EmbraceCommunityInterface extends utils.Interface {
       | "apps"
       | "balanceOf"
       | "communityId"
-      | "getAllMembers"
-      | "getAllMembersData"
       | "getApproved"
       | "getCommunityData"
       | "getRoleAdmin"
@@ -126,10 +105,7 @@ export interface EmbraceCommunityInterface extends utils.Interface {
       | "setCommunityData"
       | "supportsInterface"
       | "symbol"
-      | "tokenByIndex"
-      | "tokenOfOwnerByIndex"
       | "tokenURI"
-      | "totalSupply"
       | "transferFrom"
       | "visibility"
   ): FunctionFragment;
@@ -152,14 +128,6 @@ export interface EmbraceCommunityInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "communityId",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAllMembers",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAllMembersData",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -236,20 +204,8 @@ export interface EmbraceCommunityInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "tokenByIndex",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "tokenOfOwnerByIndex",
-    values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "tokenURI",
     values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalSupply",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "transferFrom",
@@ -273,14 +229,6 @@ export interface EmbraceCommunityInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "communityId",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAllMembers",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAllMembersData",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -332,19 +280,7 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenByIndex",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenOfOwnerByIndex",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "totalSupply",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
     data: BytesLike
@@ -488,12 +424,6 @@ export interface EmbraceCommunity extends BaseContract {
 
     communityId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    getAllMembers(overrides?: CallOverrides): Promise<[BigNumber[]]>;
-
-    getAllMembersData(
-      overrides?: CallOverrides
-    ): Promise<[EmbraceCommunity.TokenDataStructOutput[]]>;
-
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -586,23 +516,10 @@ export interface EmbraceCommunity extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
 
-    tokenByIndex(
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
-    tokenOfOwnerByIndex(
-      owner: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     tokenURI(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transferFrom(
       from: PromiseOrValue<string>,
@@ -633,12 +550,6 @@ export interface EmbraceCommunity extends BaseContract {
   ): Promise<BigNumber>;
 
   communityId(overrides?: CallOverrides): Promise<BigNumber>;
-
-  getAllMembers(overrides?: CallOverrides): Promise<BigNumber[]>;
-
-  getAllMembersData(
-    overrides?: CallOverrides
-  ): Promise<EmbraceCommunity.TokenDataStructOutput[]>;
 
   getApproved(
     tokenId: PromiseOrValue<BigNumberish>,
@@ -732,23 +643,10 @@ export interface EmbraceCommunity extends BaseContract {
 
   symbol(overrides?: CallOverrides): Promise<string>;
 
-  tokenByIndex(
-    index: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
-  tokenOfOwnerByIndex(
-    owner: PromiseOrValue<string>,
-    index: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   tokenURI(
     tokenId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
-
-  totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   transferFrom(
     from: PromiseOrValue<string>,
@@ -779,12 +677,6 @@ export interface EmbraceCommunity extends BaseContract {
     ): Promise<BigNumber>;
 
     communityId(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getAllMembers(overrides?: CallOverrides): Promise<BigNumber[]>;
-
-    getAllMembersData(
-      overrides?: CallOverrides
-    ): Promise<EmbraceCommunity.TokenDataStructOutput[]>;
 
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -876,23 +768,10 @@ export interface EmbraceCommunity extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<string>;
 
-    tokenByIndex(
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tokenOfOwnerByIndex(
-      owner: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     tokenURI(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferFrom(
       from: PromiseOrValue<string>,
@@ -993,10 +872,6 @@ export interface EmbraceCommunity extends BaseContract {
 
     communityId(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getAllMembers(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getAllMembersData(overrides?: CallOverrides): Promise<BigNumber>;
-
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1087,23 +962,10 @@ export interface EmbraceCommunity extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
 
-    tokenByIndex(
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    tokenOfOwnerByIndex(
-      owner: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     tokenURI(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferFrom(
       from: PromiseOrValue<string>,
@@ -1137,10 +999,6 @@ export interface EmbraceCommunity extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     communityId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getAllMembers(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getAllMembersData(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1232,23 +1090,10 @@ export interface EmbraceCommunity extends BaseContract {
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    tokenByIndex(
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    tokenOfOwnerByIndex(
-      owner: PromiseOrValue<string>,
-      index: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     tokenURI(
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferFrom(
       from: PromiseOrValue<string>,

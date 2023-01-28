@@ -7,20 +7,19 @@ import { getSignerProvider, getWallet } from "./utils";
 // npx ts-node scripts/getCommunitiesData
 
 async function main() {
-  const contractAddress = "0x322813fd9a801c5507c9de605d63cea4f2ce6c44";
+  const contractAddress = process.argv[2] || "0x8301A8aa4C8Fc2C440A10f374bABdbecDe222737";
 
-  const network = process.argv[2] || "localhost";
+  const network = process.argv[3] || "polygonMumbai";
 
-  // Table land owner Private Key
-  const wallet = new ethers.Wallet(process.env.TABLELAND_DEV_OWNER_PK ?? "");
+  const wallet = getWallet();
 
   const { signer } = getSignerProvider(wallet, network);
 
   const contract = new ethers.Contract(contractAddress, EmbraceCommunities.abi, signer);
 
-  const communitiesTable = await contract.createCommunitiesTable();
+  const communityId = await contract.getCommunities();
 
-  console.log(`Create Communities table ${contract.communitiesTableName}`);
+  console.log(`Communities:`, communityId);
 }
 
 main().catch((error) => {

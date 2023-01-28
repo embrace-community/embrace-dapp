@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.17;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -9,7 +8,8 @@ import "hardhat/console.sol";
 import "./EmbraceCommunities.sol";
 import "./Types.sol";
 
-contract EmbraceCommunity is ERC721Enumerable, ERC721URIStorage, AccessControl {
+// TODO Setup AccessControls - Admin role, Default Admin role assigned to Founder
+contract EmbraceCommunity is ERC721URIStorage, AccessControl {
     using Counters for Counters.Counter;
     Counters.Counter private _memberTokenId;
 
@@ -35,9 +35,13 @@ contract EmbraceCommunity is ERC721Enumerable, ERC721URIStorage, AccessControl {
         address _embraceCommunitiesContract,
         uint256 _communityId
     ) ERC721(_name, _symbol) {
-        _setBaseURI("ipfs://");
+        _setBaseURI("ipfs://"); // TODO: Set uri
         embraceCommunitiesContract = EmbraceCommunities(_embraceCommunitiesContract);
         communityId = _communityId;
+
+        // TODO: Create Members table
+
+        // TODO: Create Key Value store
 
         _memberTokenId.increment(); // First memberTokenId is 1
     }
@@ -54,37 +58,18 @@ contract EmbraceCommunity is ERC721Enumerable, ERC721URIStorage, AccessControl {
     }
 
     // Mint is essentially creating a new member
+    // TODO: Insert member info to tableland table
     function mint() public {
         uint256 newMemberTokenId = _memberTokenId.current();
 
         _mint(msg.sender, newMemberTokenId);
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override(ERC721, ERC721URIStorage) returns (string memory) {
+    function tokenURI(uint256 tokenId) public view virtual override(ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
-    function getAllMembers() public view returns (uint256[] memory) {
-        uint256[] memory tokens = new uint256[](totalSupply());
-        for (uint256 i = 0; i < totalSupply(); i++) {
-            tokens[i] = tokenByIndex(i);
-        }
-        return tokens;
-    }
-
-    function getAllMembersData() public view returns (TokenData[] memory) {
-        TokenData[] memory tokenData = new TokenData[](totalSupply());
-        for (uint256 i = 0; i < totalSupply(); i++) {
-            tokenData[i] = TokenData({
-                tokenId: tokenByIndex(i),
-                tokenURI: tokenURI(tokenByIndex(i)),
-                member: ownerOf(tokenByIndex(i))
-            });
-        }
-        return tokenData;
-    }
-
-    function _burn(uint256 tokenId) internal virtual override(ERC721, ERC721URIStorage) {
+    function _burn(uint256 tokenId) internal virtual override(ERC721URIStorage) {
         super._burn(tokenId);
     }
 
@@ -105,13 +90,11 @@ contract EmbraceCommunity is ERC721Enumerable, ERC721URIStorage, AccessControl {
         address to,
         uint256 tokenId /* firstTokenId */,
         uint256 batchSize
-    ) internal virtual override(ERC721, ERC721Enumerable) {
+    ) internal virtual override(ERC721) {
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual override(AccessControl, ERC721, ERC721Enumerable) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(AccessControl, ERC721) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

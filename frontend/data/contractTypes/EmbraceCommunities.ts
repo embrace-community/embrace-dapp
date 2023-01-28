@@ -24,7 +24,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -63,6 +62,18 @@ export declare namespace EmbraceCommunities {
     string,
     string
   ] & { handle: string; name: string; description: string; image: string };
+
+  export type CommunityStruct = {
+    id: PromiseOrValue<BigNumberish>;
+    contractAddress: PromiseOrValue<string>;
+    handle: PromiseOrValue<string>;
+  };
+
+  export type CommunityStructOutput = [BigNumber, string, string] & {
+    id: BigNumber;
+    contractAddress: string;
+    handle: string;
+  };
 }
 
 export interface EmbraceCommunitiesInterface extends utils.Interface {
@@ -76,7 +87,9 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
     "createCommunitiesTable()": FunctionFragment;
     "createCommunity(string,(string,uint8,uint8,uint128[]),(string,string,string,string))": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
-    "handleToCommunityContract(string)": FunctionFragment;
+    "getCommunities()": FunctionFragment;
+    "getTableName()": FunctionFragment;
+    "handleToCommunity(string)": FunctionFragment;
     "handleToId(bytes32)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "name()": FunctionFragment;
@@ -105,7 +118,9 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
       | "createCommunitiesTable"
       | "createCommunity"
       | "getApproved"
-      | "handleToCommunityContract"
+      | "getCommunities"
+      | "getTableName"
+      | "handleToCommunity"
       | "handleToId"
       | "isApprovedForAll"
       | "name"
@@ -164,7 +179,15 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "handleToCommunityContract",
+    functionFragment: "getCommunities",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTableName",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "handleToCommunity",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
@@ -268,7 +291,15 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "handleToCommunityContract",
+    functionFragment: "getCommunities",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTableName",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "handleToCommunity",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "handleToId", data: BytesLike): Result;
@@ -431,7 +462,7 @@ export interface EmbraceCommunities extends BaseContract {
     communitiesTablePrefix(overrides?: CallOverrides): Promise<[string]>;
 
     createCommunitiesTable(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     createCommunity(
@@ -446,10 +477,20 @@ export interface EmbraceCommunities extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    handleToCommunityContract(
+    getCommunities(
+      overrides?: CallOverrides
+    ): Promise<[EmbraceCommunities.CommunityStructOutput[]]>;
+
+    getTableName(overrides?: CallOverrides): Promise<[string]>;
+
+    handleToCommunity(
       _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[string] & { communityContractAddress: string }>;
+    ): Promise<
+      [EmbraceCommunities.CommunityStructOutput] & {
+        _community: EmbraceCommunities.CommunityStructOutput;
+      }
+    >;
 
     handleToId(
       arg0: PromiseOrValue<BytesLike>,
@@ -558,7 +599,7 @@ export interface EmbraceCommunities extends BaseContract {
   communitiesTablePrefix(overrides?: CallOverrides): Promise<string>;
 
   createCommunitiesTable(
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   createCommunity(
@@ -573,10 +614,16 @@ export interface EmbraceCommunities extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  handleToCommunityContract(
+  getCommunities(
+    overrides?: CallOverrides
+  ): Promise<EmbraceCommunities.CommunityStructOutput[]>;
+
+  getTableName(overrides?: CallOverrides): Promise<string>;
+
+  handleToCommunity(
     _handle: PromiseOrValue<string>,
     overrides?: CallOverrides
-  ): Promise<string>;
+  ): Promise<EmbraceCommunities.CommunityStructOutput>;
 
   handleToId(
     arg0: PromiseOrValue<BytesLike>,
@@ -698,10 +745,16 @@ export interface EmbraceCommunities extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    handleToCommunityContract(
+    getCommunities(
+      overrides?: CallOverrides
+    ): Promise<EmbraceCommunities.CommunityStructOutput[]>;
+
+    getTableName(overrides?: CallOverrides): Promise<string>;
+
+    handleToCommunity(
       _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<EmbraceCommunities.CommunityStructOutput>;
 
     handleToId(
       arg0: PromiseOrValue<BytesLike>,
@@ -847,7 +900,7 @@ export interface EmbraceCommunities extends BaseContract {
     communitiesTablePrefix(overrides?: CallOverrides): Promise<BigNumber>;
 
     createCommunitiesTable(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     createCommunity(
@@ -862,7 +915,11 @@ export interface EmbraceCommunities extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    handleToCommunityContract(
+    getCommunities(overrides?: CallOverrides): Promise<BigNumber>;
+
+    getTableName(overrides?: CallOverrides): Promise<BigNumber>;
+
+    handleToCommunity(
       _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -975,7 +1032,7 @@ export interface EmbraceCommunities extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     createCommunitiesTable(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     createCommunity(
@@ -990,7 +1047,11 @@ export interface EmbraceCommunities extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    handleToCommunityContract(
+    getCommunities(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    getTableName(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    handleToCommunity(
       _handle: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
