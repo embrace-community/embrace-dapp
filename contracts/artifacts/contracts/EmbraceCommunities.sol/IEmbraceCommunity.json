@@ -1,0 +1,87 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IEmbraceCommunity",
+  "sourceName": "contracts/EmbraceCommunities.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_symbol",
+          "type": "string"
+        },
+        {
+          "internalType": "address",
+          "name": "_tablelandRegistryAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_communityId",
+          "type": "uint256"
+        }
+      ],
+      "name": "initialize",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_communitiesContractAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setCommunitiesContractAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "handle",
+              "type": "string"
+            },
+            {
+              "internalType": "enum Visibility",
+              "name": "visibility",
+              "type": "uint8"
+            },
+            {
+              "internalType": "enum Membership",
+              "name": "membership",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint128[]",
+              "name": "apps",
+              "type": "uint128[]"
+            }
+          ],
+          "internalType": "struct CommunityContractData",
+          "name": "_communityData",
+          "type": "tuple"
+        }
+      ],
+      "name": "setCommunityData",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

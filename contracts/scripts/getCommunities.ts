@@ -7,7 +7,8 @@ import { getSignerProvider, getWallet } from "./utils";
 // npx ts-node scripts/getCommunitiesData
 
 async function main() {
-  const contractAddress = process.argv[2] || "0x8301A8aa4C8Fc2C440A10f374bABdbecDe222737";
+  const contractAddress = process.argv[2];
+  if (!contractAddress) throw new Error("No contract address provided.");
 
   const network = process.argv[3] || "polygonMumbai";
 

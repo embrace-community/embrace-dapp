@@ -1,18 +1,39 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.17;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-// import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
+// import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
+import "@tableland/evm/contracts/ITablelandTables.sol";
+import "@tableland/evm/contracts/utils/SQLHelpers.sol";
 import "hardhat/console.sol";
-import "./EmbraceCommunities.sol";
-import "./CommunityTableMethods.sol";
 import "./Types.sol";
 
+interface IEmbraceCommunities {
+    function ownerOf(uint256 _tokenId) external view returns (address);
+}
+
 // TODO Setup AccessControls - Admin role, Default Admin role assigned to Founder
-contract EmbraceCommunity is ERC721URIStorage /*AccessControl,*/, CommunityTableMethods {
-    using Counters for Counters.Counter;
-    Counters.Counter private _memberTokenId;
+contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeable, AccessControlUpgradeable {
+    using CountersUpgradeable for CountersUpgradeable.Counter;
+    CountersUpgradeable.Counter private memberTokenId;
+
+    error ErrorTableExists(string tableName);
+    error ErrorMemberExists(address member);
+
+    struct Table {
+        uint256 id;
+        string name;
+    }
+
+    string private tablePrefix;
+
+    ITablelandTables private tableland;
+
+    Table public memberTable;
+    Table public keyValueTable;
 
     string private baseUri;
 
@@ -22,39 +43,83 @@ contract EmbraceCommunity is ERC721URIStorage /*AccessControl,*/, CommunityTable
         address member;
     }
 
-    EmbraceCommunities embraceCommunitiesContract;
-
     uint256 private communityId;
     string private handle;
     Visibility private visibility;
     Membership private membership;
     uint128[] private apps;
 
-    constructor(
+    mapping(address => uint256) public memberToTokenId;
+
+    IEmbraceCommunities private communitiesContract;
+
+    function initialize(
         string memory _name,
         string memory _symbol,
-        address _embraceCommunitiesContract,
         address _tablelandRegistryAddress,
         uint256 _communityId
-    ) ERC721(_name, _symbol) CommunityTableMethods(_tablelandRegistryAddress) {
-        embraceCommunitiesContract = EmbraceCommunities(_embraceCommunitiesContract);
+    ) public initializer {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
+        __ERC721_init(_name, _symbol);
         communityId = _communityId;
 
-        setPrefix(string.concat("embrace_community_", Strings.toString(communityId)));
+        tableland = ITablelandTables(_tablelandRegistryAddress);
 
-        _memberTokenId.increment(); // First memberTokenId is 1
+        tablePrefix = string.concat("embrace_community_", Strings.toString(communityId));
 
         // Create the community member table
         createMemberTable();
 
         // Set Member NFT token URI
         // TODO: Consider using ERC721Metadata format
-        string memory _tokenQuery = string.concat("SELECT+id%2C+createdDate+FROM+", memberTable.name, "+WHERE+id+%3D+");
+        string memory _tokenQuery = string.concat("SELECT+*+FROM+", memberTable.name, "+WHERE+id+%3D+");
 
         _setBaseURI(string.concat("https://testnets.tableland.network/query?unwrap=true&s=", _tokenQuery));
 
         // Create Community Key Value store
         createKeyValueTable();
+    }
+
+    function createMemberTable() public {
+        if (memberTable.id != 0) {
+            revert ErrorTableExists(memberTable.name);
+        }
+
+        string memory memberPrefix = string.concat(tablePrefix, "_member");
+
+        memberTable.id = tableland.createTable(
+            address(this),
+            SQLHelpers.toCreateFromSchema("id INTEGER PRIMARY KEY, account TEXT", memberPrefix)
+        );
+
+        memberTable.name = SQLHelpers.toNameFromId(memberPrefix, memberTable.id);
+    }
+
+    function createKeyValueTable() public {
+        if (keyValueTable.id != 0) {
+            revert ErrorTableExists(keyValueTable.name);
+        }
+
+        string memory keyValuePrefix = string.concat(tablePrefix, "_key_value");
+
+        keyValueTable.id = tableland.createTable(
+            address(this),
+            SQLHelpers.toCreateFromSchema("k TEXT PRIMARY KEY, v TEXT", keyValuePrefix)
+        );
+
+        keyValueTable.name = SQLHelpers.toNameFromId(keyValuePrefix, keyValueTable.id);
+    }
+
+    function insertMember(uint256 _memberId) public {
+        // Prepare SQL
+        string memory memberIdString = Strings.toString(_memberId);
+        // string memory accountString = Strings.toHexString(msg.sender); // TODO: Costly
+
+        string memory sql = string.concat("INSERT INTO ", memberTable.name, " (id) VALUES (", memberIdString, ");");
+
+        // Run Query
+        tableland.runSQL(address(this), memberTable.id, sql);
     }
 
     function setCommunityData(CommunityContractData memory _communityData) public {
@@ -79,16 +144,29 @@ contract EmbraceCommunity is ERC721URIStorage /*AccessControl,*/, CommunityTable
     // Mint is essentially creating a new member
     // Add permissions i.e. should only be possible if the community is open & public
     function join() public {
-        uint256 newMemberTokenId = _memberTokenId.current();
+        if (memberToTokenId[msg.sender] != 0 || getFounder() == msg.sender) {
+            revert ErrorMemberExists(msg.sender);
+        }
+
+        memberTokenId.increment();
+        uint256 newMemberTokenId = memberTokenId.current();
 
         _mint(msg.sender, newMemberTokenId);
-
         insertMember(newMemberTokenId);
-
-        _memberTokenId.increment();
+        memberToTokenId[msg.sender] = newMemberTokenId;
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override(ERC721URIStorage) returns (string memory) {
+    function setCommunitiesContractAddress(address _address) public {
+        communitiesContract = IEmbraceCommunities(_address);
+    }
+
+    function getFounder() public view returns (address) {
+        return communitiesContract.ownerOf(communityId);
+    }
+
+    function tokenURI(
+        uint256 tokenId
+    ) public view virtual override(ERC721URIStorageUpgradeable) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
@@ -96,7 +174,17 @@ contract EmbraceCommunity is ERC721URIStorage /*AccessControl,*/, CommunityTable
         baseUri = _uri;
     }
 
-    function _baseURI() internal view virtual override(ERC721) returns (string memory) {
+    function _baseURI() internal view virtual override returns (string memory) {
         return baseUri;
+    }
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ERC721Upgradeable, AccessControlUpgradeable) returns (bool) {
+        return super.supportsInterface(interfaceId);
+    }
+
+    function totalSupply() public view returns (uint256) {
+        return memberTokenId.current();
     }
 }

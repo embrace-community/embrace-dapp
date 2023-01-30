@@ -2,30 +2,58 @@
 pragma solidity >=0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-// import "@openzeppelin/contracts/access/Ownable.sol";
-import "./CommunitiesTableMethods.sol";
-import "./EmbraceAccounts.sol"; // TODO Swap with Interface
-import "./EmbraceCommunity.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+import "@tableland/evm/contracts/ITablelandTables.sol";
+import "@tableland/evm/contracts/utils/SQLHelpers.sol";
+import "hardhat/console.sol";
+import "./Types.sol";
+
+interface IEmbraceCommunity {
+    function initialize(
+        string memory _name,
+        string memory _symbol,
+        address _tablelandRegistryAddress,
+        uint256 _communityId
+    ) external;
+
+    function setCommunityData(CommunityContractData memory _communityData) external;
+
+    function setCommunitiesContractAddress(address _communitiesContractAddress) external;
+}
+
+interface IEmbraceAccounts {
+    function addSpace(address _account, uint256 _spaceId) external;
+}
 
 // Stores all the communities created with the reference to the ERC721 Community contract
-contract EmbraceCommunities is ERC721URIStorage, ERC721Holder /*Ownable,*/, CommunitiesTableMethods {
+contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private communityId;
 
     error ErrorHandleExists(string handle);
+    error ErrorTableExists(string tableName);
 
-    address private tablelandRegistryAddress;
+    struct Table {
+        uint256 id;
+        string name;
+    }
+
+    string private tablePrefix = "embrace_communities";
+
+    ITablelandTables private tableland;
+
+    Table public communitiesTable;
+
+    address immutable tablelandRegistryAddress;
+    address immutable embraceCommunityAddress;
 
     string private baseUri;
 
     mapping(bytes32 => uint256) public handleToId;
-
-    struct TokenData {
-        uint256 tokenId;
-        string tokenURI;
-        address founder;
-        CommunityContractData communityContractData;
-    }
 
     struct Community {
         uint256 id;
@@ -35,15 +63,20 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder /*Ownable,*/, Comm
 
     Community[] private communities;
 
-    EmbraceAccounts accountsContract;
+    IEmbraceAccounts immutable accountsContract;
 
     constructor(
         string memory _name,
         string memory _symbol,
         address _accountsContractAddress,
+        address _embraceCommunityAddress,
         address _tablelandRegistryAddress // Localhost: 0x5fbdb2315678afecb367f032d93f642f64180aa3 / Mumbai: 0x4b48841d4b32C4650E4ABc117A03FE8B51f38F68
-    ) ERC721(_name, _symbol) CommunitiesTableMethods(_tablelandRegistryAddress, "embrace_communities") {
+    ) ERC721(_name, _symbol) {
         tablelandRegistryAddress = _tablelandRegistryAddress;
+        embraceCommunityAddress = _embraceCommunityAddress;
+
+        tableland = ITablelandTables(_tablelandRegistryAddress);
+        accountsContract = IEmbraceAccounts(_accountsContractAddress);
 
         // Create tableland table
         createCommunitiesTable();
@@ -52,10 +85,6 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder /*Ownable,*/, Comm
         string memory _tokenQuery = string.concat("SELECT+metadata+FROM+", communitiesTable.name, "+WHERE+id+%3D+");
 
         _setBaseURI(string.concat("https://testnets.tableland.network/query?unwrap=true&extract=true&s=", _tokenQuery));
-
-        accountsContract = EmbraceAccounts(_accountsContractAddress);
-
-        communityId.increment(); // First communityId is 1
     }
 
     function getTableName() public view returns (string memory) {
@@ -76,6 +105,8 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder /*Ownable,*/, Comm
             revert ErrorHandleExists(_handle);
         }
 
+        communityId.increment();
+
         uint256 newCommunityId = communityId.current();
 
         // Stage 1 - save community in this contract
@@ -85,21 +116,20 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder /*Ownable,*/, Comm
         // b) Save community data to global communities table in Tableland
         insertCommunity(newCommunityId, _communityMetaData);
 
-        // Stage 2 - deploy new ERC721 Community contract specific to this community
-        EmbraceCommunity newCommunity = new EmbraceCommunity(
-            "EMB_COMM_NFT_NAME", // TODO: Change to community name / let UI determine this?
-            "EMB_COMM_NFT_SYMBOL",
-            address(this),
+        // Stage 2 - clone ERC721 Community contract specific to this community - cheaper than deploying new contract
+        address embraceCommunityClone = Clones.clone(embraceCommunityAddress);
+        IEmbraceCommunity(embraceCommunityClone).initialize(
+            string.concat("EMBRACE_COMM_0.12 ", Strings.toString(newCommunityId)), // TODO: Change to community name / let UI determine this?
+            string.concat("EMB_COMM_0.12 ", Strings.toString(newCommunityId)),
             tablelandRegistryAddress,
             newCommunityId
         );
-
-        // Set community contract data
-        newCommunity.setCommunityData(_communityData);
+        IEmbraceCommunity(embraceCommunityClone).setCommunityData(_communityData);
+        IEmbraceCommunity(embraceCommunityClone).setCommunitiesContractAddress(address(this));
 
         Community memory community = Community({
             id: newCommunityId,
-            contractAddress: address(newCommunity),
+            contractAddress: embraceCommunityClone,
             handle: _handle
         });
 
@@ -108,15 +138,57 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder /*Ownable,*/, Comm
         handleToId[_handleBytes] = newCommunityId;
 
         // Add space to founder's account
-        // accountsContract.addSpace(msg.sender, newCommunityId);
+        accountsContract.addSpace(msg.sender, newCommunityId);
 
         // emit SpaceCreated(spaceId, msg.sender);
 
         console.log("Community Created: %s", newCommunityId);
 
-        communityId.increment(); // For next communityId
-
         return newCommunityId;
+    }
+
+    function createCommunitiesTable() public {
+        if (communitiesTable.id != 0) {
+            revert ErrorTableExists(communitiesTable.name);
+        }
+        communitiesTable.id = tableland.createTable(
+            address(this),
+            // 0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC,
+            SQLHelpers.toCreateFromSchema("id integer primary key, metadata text, indexed integer", tablePrefix)
+        );
+        communitiesTable.name = SQLHelpers.toNameFromId(tablePrefix, communitiesTable.id);
+    }
+
+    function insertCommunity(uint256 newCommunityId, CommunityMetaData memory _communityMetaData) public {
+        // Prepare SQL
+        string memory newCommunityIdString = Strings.toString(newCommunityId);
+        string memory metadataString = string.concat(
+            '{"handle": "',
+            _communityMetaData.handle,
+            '", "name": "',
+            _communityMetaData.name,
+            '", "description": "',
+            _communityMetaData.description,
+            '", "image": "',
+            _communityMetaData.image,
+            '"}'
+        );
+        string memory indexedString = Strings.toString(1);
+
+        string memory sql = string.concat(
+            "INSERT INTO ",
+            communitiesTable.name,
+            " (id, metadata, indexed) VALUES (",
+            newCommunityIdString,
+            ",'",
+            metadataString,
+            "',",
+            indexedString,
+            ");"
+        );
+
+        // Run Query
+        tableland.runSQL(address(this), communitiesTable.id, sql);
     }
 
     function tokenURI(uint256 tokenId) public view virtual override(ERC721URIStorage) returns (string memory) {
@@ -148,5 +220,9 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder /*Ownable,*/, Comm
 
     function _baseURI() internal view virtual override(ERC721) returns (string memory) {
         return baseUri;
+    }
+
+    function totalSupply() public view returns (uint256) {
+        return communityId.current();
     }
 }

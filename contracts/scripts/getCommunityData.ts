@@ -8,18 +8,15 @@ import { getSignerProvider, getWallet } from "./utils";
 // npx ts-node scripts/getCommunitiesData
 
 async function main() {
-  const handle = process.argv[2] || "embrace";
+  const contractAddress = process.argv[2];
+  if (!contractAddress) throw new Error("No contract address provided.");
 
-  const contractAddress = process.argv[3] || "0xe20e68B46a180AfbaAbFc319aCD0b8960197599d";
+  const network = process.argv[3] || "polygonMumbai";
 
-  const network = process.argv[4] || "polygonMumbai";
-  // const network = process.argv[4] || "localhost";
+  const handle = process.argv[4] || "embrace";
 
   const wallet = getWallet();
   const { signer } = getSignerProvider(wallet, network);
-
-  // const wallet = new ethers.Wallet(process.env.TABLELAND_DEV_OWNER_PK ?? "");
-  // const { signer } = getSignerProvider(wallet, "localhost");
 
   const embraceCommunitiesContract = new ethers.Contract(contractAddress, EmbraceCommunities.abi, signer);
 
@@ -35,9 +32,12 @@ async function main() {
     const tables = await embraceCommunityContract.getTables();
     const contractData = await embraceCommunityContract.getCommunityData();
 
+    const founder = await embraceCommunityContract.getFounder();
+
     console.log(`Token URI:`, tokenURI);
     console.log(`Tables:`, tables);
     console.log(`Contract Data:`, contractData);
+    console.log(`Founder:`, founder);
   }
 }
 

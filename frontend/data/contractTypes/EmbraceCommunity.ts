@@ -48,22 +48,37 @@ export type CommunityContractDataStructOutput = [
   apps: BigNumber[];
 };
 
+export declare namespace EmbraceCommunity {
+  export type TableStruct = {
+    id: PromiseOrValue<BigNumberish>;
+    name: PromiseOrValue<string>;
+  };
+
+  export type TableStructOutput = [BigNumber, string] & {
+    id: BigNumber;
+    name: string;
+  };
+}
+
 export interface EmbraceCommunityInterface extends utils.Interface {
   functions: {
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
-    "apps(uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
-    "communityId()": FunctionFragment;
+    "createKeyValueTable()": FunctionFragment;
+    "createMemberTable()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "getCommunityData()": FunctionFragment;
     "getRoleAdmin(bytes32)": FunctionFragment;
+    "getTables()": FunctionFragment;
     "grantRole(bytes32,address)": FunctionFragment;
-    "handle()": FunctionFragment;
     "hasRole(bytes32,address)": FunctionFragment;
+    "initialize(string,string,address,uint256)": FunctionFragment;
+    "insertMember(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
-    "membership()": FunctionFragment;
-    "mint()": FunctionFragment;
+    "join()": FunctionFragment;
+    "keyValueTable()": FunctionFragment;
+    "memberTable()": FunctionFragment;
     "name()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
@@ -76,25 +91,27 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     "symbol()": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "visibility()": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
       | "DEFAULT_ADMIN_ROLE"
       | "approve"
-      | "apps"
       | "balanceOf"
-      | "communityId"
+      | "createKeyValueTable"
+      | "createMemberTable"
       | "getApproved"
       | "getCommunityData"
       | "getRoleAdmin"
+      | "getTables"
       | "grantRole"
-      | "handle"
       | "hasRole"
+      | "initialize"
+      | "insertMember"
       | "isApprovedForAll"
-      | "membership"
-      | "mint"
+      | "join"
+      | "keyValueTable"
+      | "memberTable"
       | "name"
       | "ownerOf"
       | "renounceRole"
@@ -107,7 +124,6 @@ export interface EmbraceCommunityInterface extends utils.Interface {
       | "symbol"
       | "tokenURI"
       | "transferFrom"
-      | "visibility"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -119,15 +135,15 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     values: [PromiseOrValue<string>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "apps",
-    values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "balanceOf",
     values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
-    functionFragment: "communityId",
+    functionFragment: "createKeyValueTable",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "createMemberTable",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -142,24 +158,41 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     functionFragment: "getRoleAdmin",
     values: [PromiseOrValue<BytesLike>]
   ): string;
+  encodeFunctionData(functionFragment: "getTables", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "grantRole",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
-  encodeFunctionData(functionFragment: "handle", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "hasRole",
     values: [PromiseOrValue<BytesLike>, PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
+    functionFragment: "initialize",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "insertMember",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "isApprovedForAll",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
   ): string;
+  encodeFunctionData(functionFragment: "join", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "membership",
+    functionFragment: "keyValueTable",
     values?: undefined
   ): string;
-  encodeFunctionData(functionFragment: "mint", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "memberTable",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "ownerOf",
@@ -215,20 +248,19 @@ export interface EmbraceCommunityInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>
     ]
   ): string;
-  encodeFunctionData(
-    functionFragment: "visibility",
-    values?: undefined
-  ): string;
 
   decodeFunctionResult(
     functionFragment: "DEFAULT_ADMIN_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "apps", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "communityId",
+    functionFragment: "createKeyValueTable",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "createMemberTable",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -243,15 +275,27 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     functionFragment: "getRoleAdmin",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getTables", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "handle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "insertMember",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "isApprovedForAll",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "membership", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "join", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "keyValueTable",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "memberTable",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
   decodeFunctionResult(
@@ -285,11 +329,11 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     functionFragment: "transferFrom",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "visibility", data: BytesLike): Result;
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
+    "Initialized(uint8)": EventFragment;
     "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
     "RoleGranted(bytes32,address,address)": EventFragment;
     "RoleRevoked(bytes32,address,address)": EventFragment;
@@ -298,6 +342,7 @@ export interface EmbraceCommunityInterface extends utils.Interface {
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Initialized"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
@@ -327,6 +372,13 @@ export type ApprovalForAllEvent = TypedEvent<
 >;
 
 export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
+
+export interface InitializedEventObject {
+  version: number;
+}
+export type InitializedEvent = TypedEvent<[number], InitializedEventObject>;
+
+export type InitializedEventFilter = TypedEventFilter<InitializedEvent>;
 
 export interface RoleAdminChangedEventObject {
   role: string;
@@ -412,17 +464,18 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    apps(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<[BigNumber]>;
-
     balanceOf(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
-    communityId(overrides?: CallOverrides): Promise<[BigNumber]>;
+    createKeyValueTable(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    createMemberTable(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -438,13 +491,15 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    getTables(
+      overrides?: CallOverrides
+    ): Promise<[EmbraceCommunity.TableStructOutput[]]>;
+
     grantRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    handle(overrides?: CallOverrides): Promise<[string]>;
 
     hasRole(
       role: PromiseOrValue<BytesLike>,
@@ -452,17 +507,36 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    initialize(
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
+      _tablelandRegistryAddress: PromiseOrValue<string>,
+      _communityId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    insertMember(
+      _memberId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     isApprovedForAll(
       owner: PromiseOrValue<string>,
       operator: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    membership(overrides?: CallOverrides): Promise<[number]>;
-
-    mint(
+    join(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    keyValueTable(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, string] & { id: BigNumber; name: string }>;
+
+    memberTable(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, string] & { id: BigNumber; name: string }>;
 
     name(overrides?: CallOverrides): Promise<[string]>;
 
@@ -527,8 +601,6 @@ export interface EmbraceCommunity extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
-
-    visibility(overrides?: CallOverrides): Promise<[number]>;
   };
 
   DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
@@ -539,17 +611,18 @@ export interface EmbraceCommunity extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  apps(
-    arg0: PromiseOrValue<BigNumberish>,
-    overrides?: CallOverrides
-  ): Promise<BigNumber>;
-
   balanceOf(
     owner: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
-  communityId(overrides?: CallOverrides): Promise<BigNumber>;
+  createKeyValueTable(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  createMemberTable(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   getApproved(
     tokenId: PromiseOrValue<BigNumberish>,
@@ -565,13 +638,15 @@ export interface EmbraceCommunity extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  getTables(
+    overrides?: CallOverrides
+  ): Promise<EmbraceCommunity.TableStructOutput[]>;
+
   grantRole(
     role: PromiseOrValue<BytesLike>,
     account: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
-
-  handle(overrides?: CallOverrides): Promise<string>;
 
   hasRole(
     role: PromiseOrValue<BytesLike>,
@@ -579,17 +654,36 @@ export interface EmbraceCommunity extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  initialize(
+    _name: PromiseOrValue<string>,
+    _symbol: PromiseOrValue<string>,
+    _tablelandRegistryAddress: PromiseOrValue<string>,
+    _communityId: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  insertMember(
+    _memberId: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   isApprovedForAll(
     owner: PromiseOrValue<string>,
     operator: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  membership(overrides?: CallOverrides): Promise<number>;
-
-  mint(
+  join(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  keyValueTable(
+    overrides?: CallOverrides
+  ): Promise<[BigNumber, string] & { id: BigNumber; name: string }>;
+
+  memberTable(
+    overrides?: CallOverrides
+  ): Promise<[BigNumber, string] & { id: BigNumber; name: string }>;
 
   name(overrides?: CallOverrides): Promise<string>;
 
@@ -655,8 +749,6 @@ export interface EmbraceCommunity extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  visibility(overrides?: CallOverrides): Promise<number>;
-
   callStatic: {
     DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
 
@@ -666,17 +758,14 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    apps(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     balanceOf(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    communityId(overrides?: CallOverrides): Promise<BigNumber>;
+    createKeyValueTable(overrides?: CallOverrides): Promise<void>;
+
+    createMemberTable(overrides?: CallOverrides): Promise<void>;
 
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -692,13 +781,15 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    getTables(
+      overrides?: CallOverrides
+    ): Promise<EmbraceCommunity.TableStructOutput[]>;
+
     grantRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    handle(overrides?: CallOverrides): Promise<string>;
 
     hasRole(
       role: PromiseOrValue<BytesLike>,
@@ -706,15 +797,34 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    initialize(
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
+      _tablelandRegistryAddress: PromiseOrValue<string>,
+      _communityId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    insertMember(
+      _memberId: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     isApprovedForAll(
       owner: PromiseOrValue<string>,
       operator: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    membership(overrides?: CallOverrides): Promise<number>;
+    join(overrides?: CallOverrides): Promise<void>;
 
-    mint(overrides?: CallOverrides): Promise<void>;
+    keyValueTable(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, string] & { id: BigNumber; name: string }>;
+
+    memberTable(
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, string] & { id: BigNumber; name: string }>;
 
     name(overrides?: CallOverrides): Promise<string>;
 
@@ -779,8 +889,6 @@ export interface EmbraceCommunity extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    visibility(overrides?: CallOverrides): Promise<number>;
   };
 
   filters: {
@@ -805,6 +913,9 @@ export interface EmbraceCommunity extends BaseContract {
       operator?: PromiseOrValue<string> | null,
       approved?: null
     ): ApprovalForAllEventFilter;
+
+    "Initialized(uint8)"(version?: null): InitializedEventFilter;
+    Initialized(version?: null): InitializedEventFilter;
 
     "RoleAdminChanged(bytes32,bytes32,bytes32)"(
       role?: PromiseOrValue<BytesLike> | null,
@@ -860,17 +971,18 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    apps(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     balanceOf(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    communityId(overrides?: CallOverrides): Promise<BigNumber>;
+    createKeyValueTable(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    createMemberTable(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -884,18 +996,31 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getTables(overrides?: CallOverrides): Promise<BigNumber>;
+
     grantRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    handle(overrides?: CallOverrides): Promise<BigNumber>;
-
     hasRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    initialize(
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
+      _tablelandRegistryAddress: PromiseOrValue<string>,
+      _communityId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    insertMember(
+      _memberId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     isApprovedForAll(
@@ -904,11 +1029,13 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    membership(overrides?: CallOverrides): Promise<BigNumber>;
-
-    mint(
+    join(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    keyValueTable(overrides?: CallOverrides): Promise<BigNumber>;
+
+    memberTable(overrides?: CallOverrides): Promise<BigNumber>;
 
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -973,8 +1100,6 @@ export interface EmbraceCommunity extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
-
-    visibility(overrides?: CallOverrides): Promise<BigNumber>;
   };
 
   populateTransaction: {
@@ -988,17 +1113,18 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    apps(
-      arg0: PromiseOrValue<BigNumberish>,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     balanceOf(
       owner: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    communityId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    createKeyValueTable(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    createMemberTable(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     getApproved(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1012,18 +1138,31 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getTables(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     grantRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    handle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     hasRole(
       role: PromiseOrValue<BytesLike>,
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    initialize(
+      _name: PromiseOrValue<string>,
+      _symbol: PromiseOrValue<string>,
+      _tablelandRegistryAddress: PromiseOrValue<string>,
+      _communityId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    insertMember(
+      _memberId: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     isApprovedForAll(
@@ -1032,11 +1171,13 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    membership(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    mint(
+    join(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    keyValueTable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    memberTable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1101,7 +1242,5 @@ export interface EmbraceCommunity extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
-
-    visibility(overrides?: CallOverrides): Promise<PopulatedTransaction>;
   };
 }

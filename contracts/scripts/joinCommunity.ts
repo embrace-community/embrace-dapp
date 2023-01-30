@@ -5,21 +5,23 @@ import * as EmbraceCommunities from "../artifacts/contracts/EmbraceCommunities.s
 import * as EmbraceCommunity from "../artifacts/contracts/EmbraceCommunity.sol/EmbraceCommunity.json";
 import { getSignerProvider, getWallet } from "./utils";
 
-// npx ts-node scripts/getCommunitiesData
+// npx ts-node scripts/joinCommunity
 
 async function main() {
-  const handle = process.argv[2] || "embrace";
+  const contractAddress = process.argv[2];
+  if (!contractAddress) throw new Error("No contract address provided.");
 
-  const contractAddress = process.argv[3] || "0xe20e68B46a180AfbaAbFc319aCD0b8960197599d";
+  const network = process.argv[3] || "polygonMumbai";
 
-  const network = process.argv[4] || "polygonMumbai";
-  // const network = process.argv[4] || "localhost";
+  const handle = process.argv[4] || "embrace";
 
-  const wallet = getWallet();
+  let wallet = getWallet();
+
+  if (network === "localhost") {
+    wallet = new ethers.Wallet(process.env.TABLELAND_DEV_OWNER_PK ?? "");
+  }
+
   const { signer } = getSignerProvider(wallet, network);
-
-  // const wallet = new ethers.Wallet(process.env.TABLELAND_DEV_OWNER_PK ?? "");
-  // const { signer } = getSignerProvider(wallet, "localhost");
 
   const embraceCommunitiesContract = new ethers.Contract(contractAddress, EmbraceCommunities.abi, signer);
 
@@ -30,10 +32,21 @@ async function main() {
   if (community.id) {
     const tokenURI = await embraceCommunitiesContract.tokenURI(community.id);
 
+    console.log(`Communities Token URI:`, tokenURI);
+
     const embraceCommunityContract = new ethers.Contract(community.contractAddress, EmbraceCommunity.abi, signer);
 
-    await embraceCommunityContract.join();
+    const tx = await embraceCommunityContract.join();
+    console.log("Joining community");
+
+    await tx.wait();
+
     console.log("Joined community");
+
+    //const memberId = await embraceCommunityContract.memberToTokenId[wallet.address];
+    const memberTokenURI = await embraceCommunityContract.tokenURI(1);
+
+    console.log(`Member Token URI 1:`, memberTokenURI);
   }
 }
 
