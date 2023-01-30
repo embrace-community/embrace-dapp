@@ -119,8 +119,8 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
         // Stage 2 - clone ERC721 Community contract specific to this community - cheaper than deploying new contract
         address embraceCommunityClone = Clones.clone(embraceCommunityAddress);
         IEmbraceCommunity(embraceCommunityClone).initialize(
-            string.concat("EMBRACE_COMM_0.12 ", Strings.toString(newCommunityId)), // TODO: Change to community name / let UI determine this?
-            string.concat("EMB_COMM_0.12 ", Strings.toString(newCommunityId)),
+            string.concat("EMBRACE_COMM_0.13 ", Strings.toString(newCommunityId)), // TODO: Change to community name / let UI determine this?
+            string.concat("EMB_COMM_0.13 ", Strings.toString(newCommunityId)),
             tablelandRegistryAddress,
             newCommunityId
         );
@@ -142,7 +142,7 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
 
         // emit SpaceCreated(spaceId, msg.sender);
 
-        console.log("Community Created: %s", newCommunityId);
+        console.log("Community Created: %s %s", newCommunityId, block.chainid);
 
         return newCommunityId;
     }
@@ -186,6 +186,11 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
             indexedString,
             ");"
         );
+
+        if (block.chainid == 31337) {
+            console.log("Inserting Community: %s", sql);
+            return;
+        }
 
         // Run Query
         tableland.runSQL(address(this), communitiesTable.id, sql);

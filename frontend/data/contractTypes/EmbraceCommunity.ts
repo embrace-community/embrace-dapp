@@ -79,7 +79,9 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     "join()": FunctionFragment;
     "keyValueTable()": FunctionFragment;
     "memberTable()": FunctionFragment;
+    "memberToTokenId(address)": FunctionFragment;
     "name()": FunctionFragment;
+    "onERC721Received(address,address,uint256,bytes)": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
     "renounceRole(bytes32,address)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
@@ -90,6 +92,7 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
+    "totalSupply()": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
   };
 
@@ -112,7 +115,9 @@ export interface EmbraceCommunityInterface extends utils.Interface {
       | "join"
       | "keyValueTable"
       | "memberTable"
+      | "memberToTokenId"
       | "name"
+      | "onERC721Received"
       | "ownerOf"
       | "renounceRole"
       | "revokeRole"
@@ -123,6 +128,7 @@ export interface EmbraceCommunityInterface extends utils.Interface {
       | "supportsInterface"
       | "symbol"
       | "tokenURI"
+      | "totalSupply"
       | "transferFrom"
   ): FunctionFragment;
 
@@ -193,7 +199,20 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     functionFragment: "memberTable",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "memberToTokenId",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "onERC721Received",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
   encodeFunctionData(
     functionFragment: "ownerOf",
     values: [PromiseOrValue<BigNumberish>]
@@ -239,6 +258,10 @@ export interface EmbraceCommunityInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "tokenURI",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalSupply",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "transferFrom",
@@ -296,7 +319,15 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     functionFragment: "memberTable",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "memberToTokenId",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "onERC721Received",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceRole",
@@ -325,6 +356,10 @@ export interface EmbraceCommunityInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "tokenURI", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "totalSupply",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "transferFrom",
     data: BytesLike
@@ -538,7 +573,20 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, string] & { id: BigNumber; name: string }>;
 
+    memberToTokenId(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     name(overrides?: CallOverrides): Promise<[string]>;
+
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     ownerOf(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -594,6 +642,8 @@ export interface EmbraceCommunity extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transferFrom(
       from: PromiseOrValue<string>,
@@ -685,7 +735,20 @@ export interface EmbraceCommunity extends BaseContract {
     overrides?: CallOverrides
   ): Promise<[BigNumber, string] & { id: BigNumber; name: string }>;
 
+  memberToTokenId(
+    arg0: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   name(overrides?: CallOverrides): Promise<string>;
+
+  onERC721Received(
+    arg0: PromiseOrValue<string>,
+    arg1: PromiseOrValue<string>,
+    arg2: PromiseOrValue<BigNumberish>,
+    arg3: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   ownerOf(
     tokenId: PromiseOrValue<BigNumberish>,
@@ -741,6 +804,8 @@ export interface EmbraceCommunity extends BaseContract {
     tokenId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   transferFrom(
     from: PromiseOrValue<string>,
@@ -826,7 +891,20 @@ export interface EmbraceCommunity extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber, string] & { id: BigNumber; name: string }>;
 
+    memberToTokenId(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<string>;
+
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     ownerOf(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -882,6 +960,8 @@ export interface EmbraceCommunity extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferFrom(
       from: PromiseOrValue<string>,
@@ -1037,7 +1117,20 @@ export interface EmbraceCommunity extends BaseContract {
 
     memberTable(overrides?: CallOverrides): Promise<BigNumber>;
 
+    memberToTokenId(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<BigNumber>;
+
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     ownerOf(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1093,6 +1186,8 @@ export interface EmbraceCommunity extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferFrom(
       from: PromiseOrValue<string>,
@@ -1179,7 +1274,20 @@ export interface EmbraceCommunity extends BaseContract {
 
     memberTable(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    memberToTokenId(
+      arg0: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    onERC721Received(
+      arg0: PromiseOrValue<string>,
+      arg1: PromiseOrValue<string>,
+      arg2: PromiseOrValue<BigNumberish>,
+      arg3: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     ownerOf(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1235,6 +1343,8 @@ export interface EmbraceCommunity extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferFrom(
       from: PromiseOrValue<string>,

@@ -14,10 +14,13 @@ async function main() {
 
   const handle = process.argv[4] || "embrace";
 
-  let wallet = getWallet();
+  let wallet;
 
   if (network === "localhost") {
     wallet = new ethers.Wallet(process.env.TABLELAND_DEV_OWNER_PK ?? "");
+    console.log(`Using address ${wallet.address}`);
+  } else {
+    wallet = getWallet();
   }
 
   const { signer } = getSignerProvider(wallet, network);

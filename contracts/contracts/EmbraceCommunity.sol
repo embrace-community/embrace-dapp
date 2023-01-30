@@ -22,6 +22,10 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
 
     error ErrorTableExists(string tableName);
     error ErrorMemberExists(address member);
+    error ErrorMemberDoesNotExist(address member);
+    error ErrorAlreadyAdmin(address member);
+    error ErrorNotAdmin(address member);
+    error ErrorNotFounder(address member);
 
     struct Table {
         uint256 id;
@@ -53,13 +57,32 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
 
     IEmbraceCommunities private communitiesContract;
 
+    enum KeyValueEncryption {
+        None,
+        Founder,
+        Admin,
+        Member,
+        Account
+    }
+
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
+    // TODO: Where to use this?
+    modifier onlyFounder() {
+        if (getFounder() != msg.sender) {
+            revert ErrorNotFounder(msg.sender);
+        }
+        _;
+    }
+
     function initialize(
         string memory _name,
         string memory _symbol,
         address _tablelandRegistryAddress,
         uint256 _communityId
     ) public initializer {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(DEFAULT_ADMIN_ROLE, address(this)); // TODO: Can we dynamically grant admin role to the current founder
+        _grantRole(ADMIN_ROLE, msg.sender); // Founder of the community
 
         __ERC721_init(_name, _symbol);
         communityId = _communityId;
@@ -81,7 +104,7 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
         createKeyValueTable();
     }
 
-    function createMemberTable() public {
+    function createMemberTable() public onlyFounder {
         if (memberTable.id != 0) {
             revert ErrorTableExists(memberTable.name);
         }
@@ -90,22 +113,26 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
 
         memberTable.id = tableland.createTable(
             address(this),
-            SQLHelpers.toCreateFromSchema("id INTEGER PRIMARY KEY, account TEXT", memberPrefix)
+            SQLHelpers.toCreateFromSchema("id INTEGER PRIMARY KEY, account TEXT, dateCreated TEXT", memberPrefix)
         );
 
         memberTable.name = SQLHelpers.toNameFromId(memberPrefix, memberTable.id);
     }
 
-    function createKeyValueTable() public {
+    function createKeyValueTable() public onlyFounder {
         if (keyValueTable.id != 0) {
             revert ErrorTableExists(keyValueTable.name);
         }
 
         string memory keyValuePrefix = string.concat(tablePrefix, "_key_value");
 
+        // TODO: Encryption = 0 = NONE, 1 = FOUNDER, 2 = ADMIN, 3 = MEMBER, 4 = ACCOUNT (that added key)
         keyValueTable.id = tableland.createTable(
             address(this),
-            SQLHelpers.toCreateFromSchema("k TEXT PRIMARY KEY, v TEXT", keyValuePrefix)
+            SQLHelpers.toCreateFromSchema(
+                "k TEXT PRIMARY KEY, v TEXT, account TEXT, encryption INTEGER, dateCreated TEXT",
+                keyValuePrefix
+            )
         );
 
         keyValueTable.name = SQLHelpers.toNameFromId(keyValuePrefix, keyValueTable.id);
@@ -114,13 +141,116 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
     function insertMember(uint256 _memberId) public {
         // Prepare SQL
         string memory memberIdString = Strings.toString(_memberId);
-        // string memory accountString = Strings.toHexString(msg.sender); // TODO: Costly
+        string memory accountString = Strings.toHexString(msg.sender); // TODO: Costly - is account address needed?
+        string memory dateCreatedString = Strings.toString(block.timestamp);
 
-        string memory sql = string.concat("INSERT INTO ", memberTable.name, " (id) VALUES (", memberIdString, ");");
+        string memory sql = string.concat(
+            "INSERT INTO ",
+            memberTable.name,
+            " (id, account, dateCreated) VALUES (",
+            memberIdString,
+            ", '",
+            accountString,
+            "', '",
+            dateCreatedString,
+            "');"
+        );
 
+        if (block.chainid == 31337) {
+            console.log("Inserting member: %s", sql);
+            return;
+        }
         // Run Query
         tableland.runSQL(address(this), memberTable.id, sql);
     }
+
+    function saveKeyValue(
+        string calldata _key,
+        string calldata _value,
+        KeyValueEncryption _encryption
+    ) public onlyRole(ADMIN_ROLE) {
+        // Prepare SQL
+        string memory accountString = Strings.toHexString(msg.sender); // TODO: Costly - is account address needed?
+        string memory dateCreatedString = Strings.toString(block.timestamp);
+        string memory encryptionString = Strings.toString(uint256(_encryption));
+
+        string memory sql = string.concat(
+            "INSERT INTO ",
+            keyValueTable.name,
+            " (k, v, account, dateCreated, encryption) VALUES ('",
+            _key,
+            "', '",
+            _value,
+            "', '",
+            accountString,
+            "', ",
+            encryptionString,
+            ", '",
+            dateCreatedString,
+            "');"
+        );
+
+        if (block.chainid == 31337) {
+            console.log("Inserting member: %s", sql);
+            return;
+        }
+        // Run Query
+        tableland.runSQL(address(this), memberTable.id, sql);
+    }
+
+    function grantAdminRole(address _account) public onlyRole(ADMIN_ROLE) {
+        if (memberToTokenId[msg.sender] == 0) {
+            revert ErrorMemberDoesNotExist(msg.sender);
+        }
+
+        if (hasRole(ADMIN_ROLE, msg.sender)) {
+            revert ErrorAlreadyAdmin(msg.sender);
+        }
+
+        grantRole(ADMIN_ROLE, _account);
+    }
+
+    function revokeAdminRole(address _account) public onlyFounder {
+        if (memberToTokenId[msg.sender] == 0) {
+            revert ErrorMemberDoesNotExist(msg.sender);
+        }
+
+        if (!hasRole(ADMIN_ROLE, msg.sender)) {
+            revert ErrorNotAdmin(msg.sender);
+        }
+
+        revokeRole(ADMIN_ROLE, _account);
+    }
+
+    // function updateKeyValue(string calldata _key, string calldata _value, KeyValueEncryption _encryption) public {
+    //     // Prepare SQL
+    //     string memory accountString = Strings.toHexString(msg.sender); // TODO: Costly - is account address needed?
+    //     string memory dateCreatedString = Strings.toString(block.timestamp);
+    //     string memory encryptionString = Strings.toString(uint256(_encryption));
+
+    //     string memory sql = string.concat(
+    //         "INSERT INTO ",
+    //         keyValueTable.name,
+    //         " (k, v, account, dateCreated, encryption) VALUES ('",
+    //         _key,
+    //         "', '",
+    //         _value,
+    //         "', '",
+    //         accountString,
+    //         "', ",
+    //         encryptionString,
+    //         ", '",
+    //         dateCreatedString,
+    //         "');"
+    //     );
+
+    //     if (block.chainid == 31337) {
+    //         console.log("Inserting member: %s", sql);
+    //         return;
+    //     }
+    //     // Run Query
+    //     tableland.runSQL(address(this), memberTable.id, sql);
+    // }
 
     function setCommunityData(CommunityContractData memory _communityData) public {
         handle = _communityData.handle;

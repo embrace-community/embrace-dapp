@@ -15,7 +15,7 @@ async function main() {
 
   const handle = process.argv[4] || "embrace";
 
-  let wallet = getWallet();
+  let wallet = getWallet(1);
 
   if (network === "localhost") {
     wallet = new ethers.Wallet(process.env.TABLELAND_DEV_OWNER_PK ?? "");
