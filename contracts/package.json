@@ -120,7 +120,7 @@
     "@openzeppelin/contracts": "^4.8.0",
     "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "@tableland/evm": "^4.0.0",
-    "@tableland/local": "^1.0.0-pre.1",
+    "@tableland/local": "^1.0.0-pre.3",
     "hardhat-gas-report": "^1.1.15"
   }
 }

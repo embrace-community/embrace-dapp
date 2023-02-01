@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 
 import * as EmbraceCommunities from "../artifacts/contracts/EmbraceCommunities.sol/EmbraceCommunities.json";
 import * as EmbraceCommunity from "../artifacts/contracts/EmbraceCommunity.sol/EmbraceCommunity.json";
@@ -39,14 +39,14 @@ async function main() {
     const tx = await embraceCommunityContract.join();
     console.log("Joining community");
 
-    await tx.wait();
+    const result = await tx.wait();
 
     console.log("Joined community");
 
-    //const memberId = await embraceCommunityContract.memberToTokenId[wallet.address];
-    const memberTokenURI = await embraceCommunityContract.tokenURI(1);
+    const memberId = await embraceCommunityContract.getMemberTokenId(wallet.address);
+    const memberTokenURI = await embraceCommunityContract.tokenURI(BigNumber.from(memberId));
 
-    console.log(`Member Token URI 1:`, memberTokenURI);
+    console.log(`Member Token URI:`, memberTokenURI);
   }
 }
 

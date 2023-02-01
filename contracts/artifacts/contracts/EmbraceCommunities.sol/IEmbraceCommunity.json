@@ -17,6 +17,16 @@
         },
         {
           "internalType": "address",
+          "name": "_founderAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_communitiesContractAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
           "name": "_tablelandRegistryAddress",
           "type": "address"
         },
@@ -24,6 +34,62 @@
           "internalType": "uint256",
           "name": "_communityId",
           "type": "uint256"
+        },
+        {
+          "components": [
+            {
+              "internalType": "string",
+              "name": "handle",
+              "type": "string"
+            },
+            {
+              "internalType": "enum Visibility",
+              "name": "visibility",
+              "type": "uint8"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "enum Access",
+                  "name": "access",
+                  "type": "uint8"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "enum MembershipGateToken",
+                      "name": "tokenType",
+                      "type": "uint8"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "tokenId",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct MembershipGate",
+                  "name": "gate",
+                  "type": "tuple"
+                }
+              ],
+              "internalType": "struct Membership",
+              "name": "membership",
+              "type": "tuple"
+            },
+            {
+              "internalType": "uint128[]",
+              "name": "apps",
+              "type": "uint128[]"
+            }
+          ],
+          "internalType": "struct CommunityContractData",
+          "name": "_communityData",
+          "type": "tuple"
         }
       ],
       "name": "initialize",
@@ -59,9 +125,38 @@
               "type": "uint8"
             },
             {
-              "internalType": "enum Membership",
+              "components": [
+                {
+                  "internalType": "enum Access",
+                  "name": "access",
+                  "type": "uint8"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "enum MembershipGateToken",
+                      "name": "tokenType",
+                      "type": "uint8"
+                    },
+                    {
+                      "internalType": "address",
+                      "name": "tokenAddress",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "tokenId",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct MembershipGate",
+                  "name": "gate",
+                  "type": "tuple"
+                }
+              ],
+              "internalType": "struct Membership",
               "name": "membership",
-              "type": "uint8"
+              "type": "tuple"
             },
             {
               "internalType": "uint128[]",

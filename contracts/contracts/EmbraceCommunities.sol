@@ -16,8 +16,11 @@ interface IEmbraceCommunity {
     function initialize(
         string memory _name,
         string memory _symbol,
+        address _founderAddress,
+        address _communitiesContractAddress,
         address _tablelandRegistryAddress,
-        uint256 _communityId
+        uint256 _communityId,
+        CommunityContractData memory _communityData
     ) external;
 
     function setCommunityData(CommunityContractData memory _communityData) external;
@@ -97,7 +100,7 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
 
     function createCommunity(
         string memory _handle,
-        CommunityContractData memory _communityData,
+        CommunityContractData memory _communityContractData,
         CommunityMetaData memory _communityMetaData
     ) public returns (uint256) {
         bytes32 _handleBytes = keccak256(bytes(_handle));
@@ -121,15 +124,17 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
         IEmbraceCommunity(embraceCommunityClone).initialize(
             string.concat("EMBRACE_COMM_0.13 ", Strings.toString(newCommunityId)), // TODO: Change to community name / let UI determine this?
             string.concat("EMB_COMM_0.13 ", Strings.toString(newCommunityId)),
+            msg.sender,
+            address(this),
             tablelandRegistryAddress,
-            newCommunityId
+            newCommunityId,
+            _communityContractData
         );
-        IEmbraceCommunity(embraceCommunityClone).setCommunityData(_communityData);
-        IEmbraceCommunity(embraceCommunityClone).setCommunitiesContractAddress(address(this));
 
         Community memory community = Community({
             id: newCommunityId,
             contractAddress: embraceCommunityClone,
+            // contractAddress: address(0),
             handle: _handle
         });
 
@@ -147,16 +152,17 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
         return newCommunityId;
     }
 
-    function createCommunitiesTable() public {
+    function createCommunitiesTable() private {
         if (communitiesTable.id != 0) {
             revert ErrorTableExists(communitiesTable.name);
         }
         communitiesTable.id = tableland.createTable(
             address(this),
-            // 0xCa8454AFbC91cFfe20E726725beB264AE5Bb52FC,
             SQLHelpers.toCreateFromSchema("id integer primary key, metadata text, indexed integer", tablePrefix)
         );
         communitiesTable.name = SQLHelpers.toNameFromId(tablePrefix, communitiesTable.id);
+
+        console.log("Created table: %s", communitiesTable.name);
     }
 
     function insertCommunity(uint256 newCommunityId, CommunityMetaData memory _communityMetaData) public {
@@ -175,16 +181,11 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
         );
         string memory indexedString = Strings.toString(1);
 
-        string memory sql = string.concat(
-            "INSERT INTO ",
-            communitiesTable.name,
-            " (id, metadata, indexed) VALUES (",
-            newCommunityIdString,
-            ",'",
-            metadataString,
-            "',",
-            indexedString,
-            ");"
+        string memory sql = SQLHelpers.toInsert(
+            tablePrefix,
+            communitiesTable.id,
+            "id, metadata, indexed",
+            string.concat(newCommunityIdString, ",", SQLHelpers.quote(metadataString), ",", indexedString)
         );
 
         if (block.chainid == 31337) {

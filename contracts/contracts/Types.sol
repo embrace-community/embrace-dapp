@@ -2,43 +2,39 @@
 pragma solidity >=0.8.17;
 
 enum Visibility {
-    Public,
-    Private
+    LISTED,
+    UNLISTED
+    // ,ANONYMOUS - Unlisted + all metadata is encrypted unless you are a member | founder
 }
 
-enum Membership {
-    Open,
-    Closed
+enum Access {
+    OPEN, // Anyone can join
+    GATED, // Anyone can join if they meet the requirements
+    CLOSED // Invite only
+    // ,PASSWORD // Anyone can join if they have the password
 }
 
-/*
-    enum Access {
-        OPEN, // Public only
-        GATED, // Public or Private
-        CLOSED // Private and all Anonymous
-    }
+enum MembershipGateToken {
+    NONE,
+    ERC20,
+    ERC721,
+    ERC1155
+}
 
-    enum MembershipGateToken {
-        NONE,
-        ERC20,
-        ERC721,
-        ERC1155
-    }
+struct MembershipGate {
+    // uint256 chainId;
+    MembershipGateToken tokenType;
+    address tokenAddress;
+    uint256 tokenId; // For ERC1155 only
+}
 
-    struct MembershipGate {
-        // uint256 chainId;
-        MembershipGateToken token;
-        address tokenAddress;
-    }
-
-    struct Membership {
-        Access access;
-        MembershipGate gate;
-        // Only relevant if space is Private and MemberType is Closed
-        // If true allow requests to join / if false only Admin's can add members
-        bool allowRequests;
-    }
-*/
+struct Membership {
+    Access access;
+    MembershipGate gate;
+    // Only relevant if Access is Closed
+    // If true allow requests to join / if false only Admin's can add members
+    // bool allowRequests;
+}
 
 struct CommunityContractData {
     string handle;

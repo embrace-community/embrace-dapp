@@ -26,18 +26,18 @@ async function main() {
 
   if (community.id) {
     const tokenURI = await embraceCommunitiesContract.tokenURI(community.id);
+    console.log(`Token URI:`, tokenURI);
 
     const embraceCommunityContract = new ethers.Contract(community.contractAddress, EmbraceCommunity.abi, signer);
 
-    const tables = await embraceCommunityContract.getTables();
     const contractData = await embraceCommunityContract.getCommunityData();
+    console.log(`Contract Data:`, contractData);
 
     const founder = await embraceCommunityContract.getFounder();
-
-    console.log(`Token URI:`, tokenURI);
-    console.log(`Tables:`, tables);
-    console.log(`Contract Data:`, contractData);
     console.log(`Founder:`, founder);
+
+    const tables = await embraceCommunityContract.getTables();
+    console.log(`Tables:`, tables);
   }
 }
 
