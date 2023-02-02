@@ -5,12 +5,10 @@ import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
-import "@tableland/evm/contracts/ITablelandTables.sol";
-import "@tableland/evm/contracts/utils/SQLHelpers.sol";
 import "hardhat/console.sol";
 import "./Types.sol";
+import "./TablelandCommunities.sol";
 
 interface IEmbraceCommunity {
     function initialize(
@@ -33,25 +31,13 @@ interface IEmbraceAccounts {
 }
 
 // Stores all the communities created with the reference to the ERC721 Community contract
-contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
+contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, TablelandCommunities {
     using Counters for Counters.Counter;
     Counters.Counter private communityId;
+    Counters.Counter private burnCount; // Number of times a NFT has been burned / community closed
 
-    error ErrorHandleExists(string handle);
-    error ErrorTableExists(string tableName);
+    error ErrorNotCommunityOwner(uint256 communityId, address account);
 
-    struct Table {
-        uint256 id;
-        string name;
-    }
-
-    string private tablePrefix = "embrace_communities";
-
-    ITablelandTables private tableland;
-
-    Table public communitiesTable;
-
-    address immutable tablelandRegistryAddress;
     address immutable embraceCommunityAddress;
 
     string private baseUri;
@@ -67,35 +53,29 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
     Community[] private communities;
 
     IEmbraceAccounts immutable accountsContract;
+    address immutable tablelandRegistryAddress;
+
+    modifier onlyFounder(uint256 _communityId) {
+        if (ownerOf(_communityId) != msg.sender) {
+            revert ErrorNotCommunityOwner(_communityId, msg.sender);
+        }
+        _;
+    }
 
     constructor(
         string memory _name,
         string memory _symbol,
         address _accountsContractAddress,
         address _embraceCommunityAddress,
-        address _tablelandRegistryAddress // Localhost: 0x5fbdb2315678afecb367f032d93f642f64180aa3 / Mumbai: 0x4b48841d4b32C4650E4ABc117A03FE8B51f38F68
-    ) ERC721(_name, _symbol) {
+        address _tablelandRegistryAddress
+    ) ERC721(_name, _symbol) TablelandCommunities(_tablelandRegistryAddress) {
         tablelandRegistryAddress = _tablelandRegistryAddress;
-        embraceCommunityAddress = _embraceCommunityAddress;
 
-        tableland = ITablelandTables(_tablelandRegistryAddress);
+        embraceCommunityAddress = _embraceCommunityAddress;
         accountsContract = IEmbraceAccounts(_accountsContractAddress);
 
-        // Create tableland table
-        createCommunitiesTable();
-
         // TODO: Consider using ERC721Metadata format
-        string memory _tokenQuery = string.concat("SELECT+metadata+FROM+", communitiesTable.name, "+WHERE+id+%3D+");
-
-        _setBaseURI(string.concat("https://testnets.tableland.network/query?unwrap=true&extract=true&s=", _tokenQuery));
-    }
-
-    function getTableName() public view returns (string memory) {
-        return communitiesTable.name;
-    }
-
-    function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
-        return this.onERC721Received.selector;
+        _setBaseURI(_getTablelandBaseURI());
     }
 
     function createCommunity(
@@ -111,13 +91,6 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
         communityId.increment();
 
         uint256 newCommunityId = communityId.current();
-
-        // Stage 1 - save community in this contract
-        // a) Mint NFT for community
-        _mint(msg.sender, newCommunityId);
-
-        // b) Save community data to global communities table in Tableland
-        insertCommunity(newCommunityId, _communityMetaData);
 
         // Stage 2 - clone ERC721 Community contract specific to this community - cheaper than deploying new contract
         address embraceCommunityClone = Clones.clone(embraceCommunityAddress);
@@ -145,60 +118,16 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
         // Add space to founder's account
         accountsContract.addSpace(msg.sender, newCommunityId);
 
-        // emit SpaceCreated(spaceId, msg.sender);
+        // Stage 1 - save community in this contract
+        // a) Mint NFT for community
+        _mint(msg.sender, newCommunityId);
+
+        // Currently uses TableLand - could just be an Event for the Graph - new CommunityCreated event with metadata CID
+        _insertCommunity(newCommunityId, _communityMetaData);
 
         console.log("Community Created: %s %s", newCommunityId, block.chainid);
 
         return newCommunityId;
-    }
-
-    function createCommunitiesTable() private {
-        if (communitiesTable.id != 0) {
-            revert ErrorTableExists(communitiesTable.name);
-        }
-        communitiesTable.id = tableland.createTable(
-            address(this),
-            SQLHelpers.toCreateFromSchema("id integer primary key, metadata text, indexed integer", tablePrefix)
-        );
-        communitiesTable.name = SQLHelpers.toNameFromId(tablePrefix, communitiesTable.id);
-
-        console.log("Created table: %s", communitiesTable.name);
-    }
-
-    function insertCommunity(uint256 newCommunityId, CommunityMetaData memory _communityMetaData) public {
-        // Prepare SQL
-        string memory newCommunityIdString = Strings.toString(newCommunityId);
-        string memory metadataString = string.concat(
-            '{"handle": "',
-            _communityMetaData.handle,
-            '", "name": "',
-            _communityMetaData.name,
-            '", "description": "',
-            _communityMetaData.description,
-            '", "image": "',
-            _communityMetaData.image,
-            '"}'
-        );
-        string memory indexedString = Strings.toString(1);
-
-        string memory sql = SQLHelpers.toInsert(
-            tablePrefix,
-            communitiesTable.id,
-            "id, metadata, indexed",
-            string.concat(newCommunityIdString, ",", SQLHelpers.quote(metadataString), ",", indexedString)
-        );
-
-        if (block.chainid == 31337) {
-            console.log("Inserting Community: %s", sql);
-            return;
-        }
-
-        // Run Query
-        tableland.runSQL(address(this), communitiesTable.id, sql);
-    }
-
-    function tokenURI(uint256 tokenId) public view virtual override(ERC721URIStorage) returns (string memory) {
-        return super.tokenURI(tokenId);
     }
 
     // Process From UI: 1. Get community contract address from community handle
@@ -216,8 +145,33 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
         return community;
     }
 
+    function tokenURI(uint256 tokenId) public view virtual override(ERC721URIStorage) returns (string memory) {
+        return super.tokenURI(tokenId);
+    }
+
     function getCommunities() public view returns (Community[] memory) {
         return communities;
+    }
+
+    function getTableName() public view returns (string memory) {
+        return communitiesTable.name;
+    }
+
+    function totalSupply() public view returns (uint256) {
+        return communityId.current();
+    }
+
+    function totalCommunities() public view returns (uint256) {
+        return communityId.current() - burnCount.current();
+    }
+
+    function close(uint256 _communityId) public onlyFounder(_communityId) {
+        _burn(_communityId);
+        burnCount.increment();
+    }
+
+    function onERC721Received(address, address, uint256, bytes memory) public virtual override returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 
     function _setBaseURI(string memory _uri) internal {
@@ -226,9 +180,5 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, Ownable {
 
     function _baseURI() internal view virtual override(ERC721) returns (string memory) {
         return baseUri;
-    }
-
-    function totalSupply() public view returns (uint256) {
-        return communityId.current();
     }
 }

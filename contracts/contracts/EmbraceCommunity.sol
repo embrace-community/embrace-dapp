@@ -15,6 +15,7 @@ interface IEmbraceCommunities {
 contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeable, TablelandCommunity {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     CountersUpgradeable.Counter private memberTokenId;
+    CountersUpgradeable.Counter private burnCount; // Number of times a members NFT has been burned / left the community
 
     error ErrorMemberExists(address member);
     error ErrorMemberDoesNotExist(address member);
@@ -25,6 +26,8 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
     error ErrorNotGatedAccess(address account);
     error ErrorGatedRequirementsNotMet(address account);
     error ErrorCannotRemoveFounderAdmin(address account);
+    error ErrorNotMember(address account);
+    error ErrorFounderCannotLeave(address account);
 
     // NFT related
     string private baseUri;
@@ -215,7 +218,17 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
 
     function totalMembers() public view returns (uint256) {
         // Total members should be the total supply minus the burned tokens
-        return memberTokenId.current();
+        return memberTokenId.current() - burnCount.current();
+    }
+
+    // Member can decide to leave
+    function leave() public {
+        _removeMember(msg.sender);
+    }
+
+    // Admin can remove members
+    function removeMember(address _memberAddress) public onlyAdmin {
+        _removeMember(_memberAddress);
     }
 
     // PRIVATE / INTERNAL METHODS
@@ -245,5 +258,15 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
     // Will be more complex if we want to check a contract on a different chain
     function _meetsGateRequirements(address _account) private view returns (bool) {
         return true;
+    }
+
+    function _removeMember(address _account) private {
+        uint256 tokenId = memberToTokenId[_account];
+        if (tokenId == 0) revert ErrorNotMember(_account);
+        if (_account == getFounder()) revert ErrorFounderCannotLeave(_account);
+
+        _burn(tokenId);
+        burnCount.increment();
+        delete memberToTokenId[_account];
     }
 }
