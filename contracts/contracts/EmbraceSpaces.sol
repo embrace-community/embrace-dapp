@@ -81,7 +81,6 @@ contract EmbraceSpaces {
     Space[] public spaces;
 
     EmbraceAccounts accountsContract;
-    EmbraceApps appsContract;
 
     // Mapping to store member addresses
     mapping(uint256 => mapping(address => Member)) public spaceMembers;
@@ -102,9 +101,8 @@ contract EmbraceSpaces {
         _;
     }
 
-    constructor(address _accountsContractAddress, address _appsContractAddress) {
+    constructor(address _accountsContractAddress) {
         accountsContract = EmbraceAccounts(_accountsContractAddress);
-        appsContract = EmbraceApps(_appsContractAddress);
 
         _spaceIdCounter.increment(); // So we start at 1
     }
@@ -141,7 +139,7 @@ contract EmbraceSpaces {
         string memory _handle,
         Visibility _visibility,
         Membership memory _membership,
-        uint128[] memory _apps, // BUG: These should be the appIds not the appIndexes
+        uint128[] memory _apps,
         string memory _metadata
     ) public returns (uint256) {
         bytes32 _handleBytes = keccak256(bytes(_handle));

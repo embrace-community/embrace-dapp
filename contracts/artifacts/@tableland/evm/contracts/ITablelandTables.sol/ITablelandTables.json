@@ -1,0 +1,304 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "ITablelandTables",
+  "sourceName": "@tableland/evm/contracts/ITablelandTables.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "querySize",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxQuerySize",
+          "type": "uint256"
+        }
+      ],
+      "name": "MaxQuerySizeExceeded",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "Unauthorized",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tableId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "statement",
+          "type": "string"
+        }
+      ],
+      "name": "CreateTable",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isOwner",
+          "type": "bool"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tableId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "statement",
+          "type": "string"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "allowInsert",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "allowUpdate",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "allowDelete",
+              "type": "bool"
+            },
+            {
+              "internalType": "string",
+              "name": "whereClause",
+              "type": "string"
+            },
+            {
+              "internalType": "string",
+              "name": "withCheck",
+              "type": "string"
+            },
+            {
+              "internalType": "string[]",
+              "name": "updatableColumns",
+              "type": "string[]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct ITablelandController.Policy",
+          "name": "policy",
+          "type": "tuple"
+        }
+      ],
+      "name": "RunSQL",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tableId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "controller",
+          "type": "address"
+        }
+      ],
+      "name": "SetController",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tableId",
+          "type": "uint256"
+        }
+      ],
+      "name": "TransferTable",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "statement",
+          "type": "string"
+        }
+      ],
+      "name": "createTable",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tableId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getController",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tableId",
+          "type": "uint256"
+        }
+      ],
+      "name": "lockController",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tableId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "statement",
+          "type": "string"
+        }
+      ],
+      "name": "runSQL",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "baseURI",
+          "type": "string"
+        }
+      ],
+      "name": "setBaseURI",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "caller",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tableId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "controller",
+          "type": "address"
+        }
+      ],
+      "name": "setController",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "unpause",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

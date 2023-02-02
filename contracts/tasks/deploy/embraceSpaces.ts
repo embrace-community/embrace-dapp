@@ -2,8 +2,8 @@ import type { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { task } from "hardhat/config";
 import type { TaskArguments } from "hardhat/types";
 
-import type { EmbraceSpaces } from "../../types/EmbraceSpaces";
-import type { EmbraceSpaces__factory } from "../../types/factories/EmbraceSpaces__factory";
+import type { EmbraceSpaces } from "../../types/contracts/EmbraceSpaces";
+import type { EmbraceSpaces__factory } from "../../types/factories/contracts/EmbraceSpaces__factory";
 
 task("deploy:EmbraceSpaces")
   .addParam("accountsaddress")

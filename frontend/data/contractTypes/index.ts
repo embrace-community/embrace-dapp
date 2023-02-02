@@ -3,9 +3,13 @@
 /* tslint:disable */
 
 /* eslint-disable */
+
 import type * as app from "./app";
 
 export type { app };
 export type { EmbraceAccounts } from "./EmbraceAccounts";
 export type { EmbraceApps } from "./EmbraceApps";
 export type { EmbraceSpaces } from "./EmbraceSpaces";
+export type { EmbraceCommunities } from "./EmbraceCommunities";
+export type { EmbraceCommunity } from "./EmbraceCommunity";
+export type { TablelandCommunity } from "./TablelandCommunity";

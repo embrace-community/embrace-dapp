@@ -1371,6 +1371,26 @@
   dependencies:
     tslib "^2.4.0"
 
+"@tableland/evm@^4.0.0-pre.3":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@tableland/evm/-/evm-4.0.0.tgz#b1337043ff0ae6cd752c2a62ed3eeb9844d5e3df"
+  integrity sha512-HftJLfg2x2R/f6l6PasrQ73Za071+2T6vmJV+p5PwPtXjlb5Pl+V7rtNWAIZgWE8cQY14lWUyhzw4P/+rrEcGA==
+
+"@tableland/sdk@4.0.0-pre.4":
+  version "4.0.0-pre.4"
+  resolved "https://registry.yarnpkg.com/@tableland/sdk/-/sdk-4.0.0-pre.4.tgz#1adcf939c0cce7904ee3023b9054f5f604a588b9"
+  integrity sha512-X+ABuuDKQZkPjA1N81pPv1pQmN1J8kSMmv8wk2+aikW7oMNf37IrJ0c9sektlhLP4WEkNK0WFzjJxIVP8/OLrA==
+  dependencies:
+    "@tableland/evm" "^4.0.0-pre.3"
+    "@tableland/sqlparser" "^1.0.0"
+    camelize-ts "^2.2.0"
+    ethers "^5.7.2"
+
+"@tableland/sqlparser@^1.0.0":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@tableland/sqlparser/-/sqlparser-1.0.3.tgz#1ab093f448cd3a963d784520be06652c057eb98e"
+  integrity sha512-UlxhHleOfY7bi73rUg0GLgyNcQ28MIOwydOfgiHdfGoqs4vnlDI1W6N0vEDVvpPWy8gPkZlaJI+UFVY0doTcsA==
+
 "@tailwindcss/aspect-ratio@^0.4.2":
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/@tailwindcss/aspect-ratio/-/aspect-ratio-0.4.2.tgz#9ffd52fee8e3c8b20623ff0dcb29e5c21fb0a9ba"
@@ -2363,6 +2383,11 @@ acorn@^8.8.0:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.8.1.tgz#0a3f9cbecc4ec3bea6f0a80b66ae8dd2da250b73"
   integrity sha512-7zFpHzhnqYKrkYdUjF1HI1bzd0VygEGX8lFk4k5zVMqHEoES+P+7TKI+EvLO9WVMJ8eekdO0aDEK044xTXwPPA==
 
+add@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/add/-/add-2.0.6.tgz#248f0a9f6e5a528ef2295dbeec30532130ae2235"
+  integrity sha512-j5QzrmsokwWWp6kUcJQySpbG+xfOBqqKnup3OIk1pz+kB/80SLorZ9V8zHFLO92Lcd+hbvq8bT+zOGoPkmBV0Q==
+
 aes-js@3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/aes-js/-/aes-js-3.0.0.tgz#e21df10ad6c2053295bcbb8dab40b09dbea87e4d"
@@ -2998,6 +3023,11 @@ camelcase@^5.0.0, camelcase@^5.3.1:
   version "5.3.1"
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
   integrity sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==
+
+camelize-ts@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/camelize-ts/-/camelize-ts-2.2.0.tgz#29f4e81c4b1a4554e59de4f9f5fa770a47b5211f"
+  integrity sha512-6jMy83qFmNrJIMQXXU6Bi7VVkyl/nBVvoxcVsGRDA6R01pPZpnO/LaIcx6dijJjHbBA2G0uHY4Irk7LeA274NQ==
 
 caniuse-lite@^1.0.30001400, caniuse-lite@^1.0.30001406, caniuse-lite@^1.0.30001426:
   version "1.0.30001434"
@@ -8702,6 +8732,11 @@ yargs@^15.3.1:
     which-module "^2.0.0"
     y18n "^4.0.0"
     yargs-parser "^18.1.2"
+
+yarn@^1.22.19:
+  version "1.22.19"
+  resolved "https://registry.yarnpkg.com/yarn/-/yarn-1.22.19.tgz#4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447"
+  integrity sha512-/0V5q0WbslqnwP91tirOvldvYISzaqhClxzyUKXYxs07yUILIs5jx/k6CFe8bvKSkds5w+eiOqta39Wk3WxdcQ==
 
 yocto-queue@^0.1.0:
   version "0.1.0"
