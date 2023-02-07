@@ -10,8 +10,8 @@ enum Visibility {
 enum Access {
     OPEN, // Anyone can join
     GATED, // Anyone can join if they meet the requirements
-    CLOSED // Invite only
-    // ,PASSWORD // Anyone can join if they have the password
+    CLOSED, // Invite only
+    PASSWORD // Anyone can join if they have the password
 }
 
 enum MembershipGateToken {
@@ -36,17 +36,10 @@ struct Membership {
     // bool allowRequests;
 }
 
-struct CommunityContractData {
+struct CommunityData {
     string handle;
     Visibility visibility;
     Membership membership;
     uint128[] apps;
-}
-
-// Currently saved to IPFS but will be saved to Tableland
-struct CommunityMetaData {
-    string handle;
-    string name;
-    string description;
-    string image;
+    string metadata;
 }

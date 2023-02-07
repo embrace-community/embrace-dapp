@@ -7,36 +7,18 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
-import "./Types.sol";
-import "./TablelandCommunities.sol";
+import "./Interfaces.sol";
 
-interface IEmbraceCommunity {
-    function initialize(
-        string memory _name,
-        string memory _symbol,
-        address _founderAddress,
-        address _communitiesContractAddress,
-        address _tablelandRegistryAddress,
-        uint256 _communityId,
-        CommunityContractData memory _communityData
-    ) external;
-
-    function setCommunityData(CommunityContractData memory _communityData) external;
-
-    function setCommunitiesContractAddress(address _communitiesContractAddress) external;
-}
-
-interface IEmbraceAccounts {
-    function addSpace(address _account, uint256 _spaceId) external;
-}
+error ErrorHandleExists(string handle);
+error ErrorNotCommunityOwner(uint256 communityId, address account);
 
 // Stores all the communities created with the reference to the ERC721 Community contract
-contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, TablelandCommunities {
+contract EmbraceCommunities is ERC721URIStorage, ERC721Holder {
     using Counters for Counters.Counter;
     Counters.Counter private communityId;
     Counters.Counter private burnCount; // Number of times a NFT has been burned / community closed
 
-    error ErrorNotCommunityOwner(uint256 communityId, address account);
+    event CommunityCreated(uint256 communityId, Visibility visibility, Access access, string communityMetaData);
 
     address immutable embraceCommunityAddress;
 
@@ -53,7 +35,6 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, TablelandCommunit
     Community[] private communities;
 
     IEmbraceAccounts immutable accountsContract;
-    address immutable tablelandRegistryAddress;
 
     modifier onlyFounder(uint256 _communityId) {
         if (ownerOf(_communityId) != msg.sender) {
@@ -66,23 +47,15 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, TablelandCommunit
         string memory _name,
         string memory _symbol,
         address _accountsContractAddress,
-        address _embraceCommunityAddress,
-        address _tablelandRegistryAddress
-    ) ERC721(_name, _symbol) TablelandCommunities(_tablelandRegistryAddress) {
-        tablelandRegistryAddress = _tablelandRegistryAddress;
-
+        address _embraceCommunityAddress
+    ) ERC721(_name, _symbol) {
         embraceCommunityAddress = _embraceCommunityAddress;
         accountsContract = IEmbraceAccounts(_accountsContractAddress);
 
-        // TODO: Consider using ERC721Metadata format
-        _setBaseURI(_getTablelandBaseURI());
+        _setBaseURI("ipfs://");
     }
 
-    function createCommunity(
-        string memory _handle,
-        CommunityContractData memory _communityContractData,
-        CommunityMetaData memory _communityMetaData
-    ) public returns (uint256) {
+    function createCommunity(string calldata _handle, CommunityData memory _communityData) public returns (uint256) {
         bytes32 _handleBytes = keccak256(bytes(_handle));
         if (handleToId[_handleBytes] != 0) {
             revert ErrorHandleExists(_handle);
@@ -99,9 +72,8 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, TablelandCommunit
             string.concat("EMB_COMM_0.13 ", Strings.toString(newCommunityId)),
             msg.sender,
             address(this),
-            tablelandRegistryAddress,
             newCommunityId,
-            _communityContractData
+            _communityData
         );
 
         Community memory community = Community({
@@ -122,8 +94,16 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, TablelandCommunit
         // a) Mint NFT for community
         _mint(msg.sender, newCommunityId);
 
-        // Currently uses TableLand - could just be an Event for the Graph - new CommunityCreated event with metadata CID
-        _insertCommunity(newCommunityId, _communityMetaData);
+        // So that CID is appended to the baseURI
+        _setTokenURI(newCommunityId, _communityData.metadata);
+
+        // Event for The Graph
+        emit CommunityCreated(
+            newCommunityId,
+            _communityData.visibility, // Listed / Unlisted
+            _communityData.membership.access, // Open, Closed, Gated
+            _communityData.metadata // IPFS CID
+        );
 
         console.log("Community Created: %s %s", newCommunityId, block.chainid);
 
@@ -145,16 +125,23 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder, TablelandCommunit
         return community;
     }
 
+    function updateCommunity(
+        uint256 _communityId,
+        CommunityData memory _CommunityData
+    ) public onlyFounder(_communityId) {
+        Community memory community = communities[_communityId - 1];
+
+        IEmbraceCommunity(community.contractAddress).setCommunityData(_CommunityData);
+
+        _setTokenURI(_communityId, _CommunityData.metadata);
+    }
+
     function tokenURI(uint256 tokenId) public view virtual override(ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
 
     function getCommunities() public view returns (Community[] memory) {
         return communities;
-    }
-
-    function getTableName() public view returns (string memory) {
-        return communitiesTable.name;
     }
 
     function totalSupply() public view returns (uint256) {

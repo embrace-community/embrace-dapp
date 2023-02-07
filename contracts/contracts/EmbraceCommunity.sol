@@ -5,29 +5,29 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URISto
 import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "hardhat/console.sol";
-import "./Types.sol";
-import "./TablelandCommunity.sol";
+import "./Interfaces.sol";
 
-interface IEmbraceCommunities {
-    function ownerOf(uint256 _tokenId) external view returns (address);
-}
+error ErrorMemberExists(address member);
+error ErrorMemberDoesNotExist(address member);
+error ErrorAlreadyAdmin(address member);
+error ErrorNotAdmin(address member);
+error ErrorNotFounder(address member);
+error ErrorNotOpenAccess(address account);
+error ErrorNotGatedAccess(address account);
+error ErrorGatedRequirementsNotMet(address account);
+error ErrorCannotRemoveFounderAdmin(address account);
+error ErrorNotMember(address account);
+error ErrorFounderCannotLeave(address account);
 
-contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeable, TablelandCommunity {
+contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeable {
     using CountersUpgradeable for CountersUpgradeable.Counter;
     CountersUpgradeable.Counter private memberTokenId;
     CountersUpgradeable.Counter private burnCount; // Number of times a members NFT has been burned / left the community
 
-    error ErrorMemberExists(address member);
-    error ErrorMemberDoesNotExist(address member);
-    error ErrorAlreadyAdmin(address member);
-    error ErrorNotAdmin(address member);
-    error ErrorNotFounder(address member);
-    error ErrorNotOpenAccess(address account);
-    error ErrorNotGatedAccess(address account);
-    error ErrorGatedRequirementsNotMet(address account);
-    error ErrorCannotRemoveFounderAdmin(address account);
-    error ErrorNotMember(address account);
-    error ErrorFounderCannotLeave(address account);
+    event MemberAdded(uint256 communityId, uint256 tokenId, address member);
+    event MemberRemoved(uint256 communityId, uint256 tokenId, address member);
+    event AdminAdded(uint256 communityId, address member);
+    event AdminRemoved(uint256 communityId, address member);
 
     // NFT related
     string private baseUri;
@@ -42,6 +42,7 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
     Visibility private visibility;
     Membership private membership;
     uint128[] private apps;
+    string private metadata;
 
     // Required to access the global contract to find the owner / founder of the community
     IEmbraceCommunities private communitiesContractAddress;
@@ -81,24 +82,22 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
         string memory _symbol,
         address _founderAddress,
         address _communitiesContractAddress,
-        address _tablelandRegistryAddress,
         uint256 _communityId,
-        CommunityContractData memory _communityContractData
+        CommunityData memory _communityData
     ) public initializer {
         __ERC721_init(_name, _symbol);
-        __TablelandCommunity_init(_tablelandRegistryAddress, _communityId);
         communitiesContractAddress = IEmbraceCommunities(_communitiesContractAddress);
         communityId = _communityId;
 
         // Set Member NFT token URI - currently Tableland
-        _setBaseURI(_getTablelandBaseURI());
+        _setBaseURI("ipfs://");
 
         // Set Community contract data
-        _setCommunityContractData(_communityContractData);
+        _setCommunityData(_communityData);
 
         // Add Founder as first member
-        _addMember(_founderAddress);
-        admins[_founderAddress] = true;
+        _memberAdd(_founderAddress);
+        _adminAdd(_founderAddress);
     }
 
     // SETTER FUNCTIONS
@@ -106,7 +105,7 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
         if (membership.access != Access.OPEN) revert ErrorNotOpenAccess(msg.sender);
         if (memberToTokenId[msg.sender] != 0) revert ErrorMemberExists(msg.sender);
 
-        _addMember(msg.sender);
+        _memberAdd(msg.sender);
     }
 
     function joinGated() public {
@@ -114,56 +113,48 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
         if (memberToTokenId[msg.sender] != 0) revert ErrorMemberExists(msg.sender);
         if (!_meetsGateRequirements(msg.sender)) revert ErrorGatedRequirementsNotMet(msg.sender);
 
-        _addMember(msg.sender);
+        _memberAdd(msg.sender);
     }
 
     // Admin can add members
-    function addMember(address _memberAddress, bool _isAdmin) public onlyAdmin {
+    function memberAdd(address _memberAddress, bool _isAdmin) public onlyAdmin {
         if (memberToTokenId[_memberAddress] != 0) {
             revert ErrorMemberExists(_memberAddress);
         }
 
-        _addMember(_memberAddress);
+        _memberAdd(_memberAddress);
 
+        // Sets the member as an admin if true
         if (_isAdmin) {
-            admins[_memberAddress] = true;
+            _adminAdd(_memberAddress);
         }
     }
 
     // Can be used to change the community contract data
-    function setCommunityContractData(CommunityContractData memory _communityData) public onlyAdmin {
-        _setCommunityContractData(_communityData);
+    function setCommunityData(CommunityData memory _communityData) public onlyAdmin {
+        _setCommunityData(_communityData);
     }
 
-    // Can be used to change the community meta data - should this be on global community contract or in community contract?
-    function setCommunityMetaData(CommunityMetaData memory _communityMetaData) public onlyAdmin {}
-
-    function grantAdminRole(address _account) public memberExists(_account) onlyAdmin {
-        if (admins[_account]) {
-            revert ErrorAlreadyAdmin(_account);
-        }
-
-        admins[_account] = true;
+    function adminAdd(address _account) public memberExists(_account) onlyAdmin {
+        _adminAdd(_account);
     }
 
-    function revokeAdminRole(address _account) public memberExists(_account) onlyAdmin {
+    function adminRemove(address _account) public memberExists(_account) onlyAdmin {
         if (!admins[_account]) revert ErrorNotAdmin(_account);
         if (_account == getFounder()) revert ErrorCannotRemoveFounderAdmin(msg.sender);
 
         admins[_account] = false;
+
+        emit AdminRemoved(communityId, _account);
     }
 
     function setBaseURI(string memory _uri) public onlyFounder {
         baseUri = _uri;
     }
 
-    // Tableland insert query
-    function insertKeyValue(
-        string calldata _key,
-        string calldata _value,
-        KeyValueEncryption _encryptionType
-    ) public onlyAdmin {
-        _insertKeyValue(_key, _value, _encryptionType);
+    // Instead trigger en event
+    function insertKeyValue(string calldata _key, string calldata _value) public onlyAdmin {
+        // _insertKeyValue(_key, _value);
     }
 
     // GETTER FUNCTIONS
@@ -175,16 +166,15 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
         return admins[msg.sender] || isFounder();
     }
 
-    function getCommunityData() public view returns (CommunityContractData memory) {
-        return CommunityContractData({ handle: handle, visibility: visibility, membership: membership, apps: apps });
-    }
-
-    function getTables() public view returns (Table[] memory) {
-        Table[] memory _tables = new Table[](2);
-        _tables[uint256(TableType.MEMBERS)] = tables[MEMBERS_TABLE];
-        _tables[uint256(TableType.KEYVALUE)] = tables[KEY_VALUE_TABLE];
-
-        return _tables;
+    function getCommunityData() public view returns (CommunityData memory) {
+        return
+            CommunityData({
+                handle: handle,
+                visibility: visibility,
+                membership: membership,
+                apps: apps,
+                metadata: metadata
+            });
     }
 
     function getMemberStatus(address _address) public view returns (MemberStatus memory) {
@@ -223,33 +213,36 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
 
     // Member can decide to leave
     function leave() public {
-        _removeMember(msg.sender);
+        _memberRemove(msg.sender);
     }
 
     // Admin can remove members
     function removeMember(address _memberAddress) public onlyAdmin {
-        _removeMember(_memberAddress);
+        _memberRemove(_memberAddress);
     }
 
     // PRIVATE / INTERNAL METHODS
-    function _addMember(address _memberAddress) private {
+    function _memberAdd(address _memberAddress) private {
         memberTokenId.increment();
         uint256 newMemberTokenId = memberTokenId.current();
 
         _mint(_memberAddress, newMemberTokenId);
-        _insertMember(newMemberTokenId, _memberAddress);
+
         memberToTokenId[_memberAddress] = newMemberTokenId;
+
+        emit MemberAdded(communityId, newMemberTokenId, _memberAddress);
     }
 
     function _setBaseURI(string memory _uri) internal {
         baseUri = _uri;
     }
 
-    function _setCommunityContractData(CommunityContractData memory _communityData) private {
+    function _setCommunityData(CommunityData memory _communityData) private {
         handle = _communityData.handle;
         visibility = _communityData.visibility;
         membership = _communityData.membership;
         apps = _communityData.apps;
+        metadata = _communityData.metadata;
     }
 
     // TODO: Check whether account has a token
@@ -260,7 +253,7 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
         return true;
     }
 
-    function _removeMember(address _account) private {
+    function _memberRemove(address _account) private {
         uint256 tokenId = memberToTokenId[_account];
         if (tokenId == 0) revert ErrorNotMember(_account);
         if (_account == getFounder()) revert ErrorFounderCannotLeave(_account);
@@ -268,5 +261,13 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
         _burn(tokenId);
         burnCount.increment();
         delete memberToTokenId[_account];
+
+        emit MemberRemoved(communityId, tokenId, _account);
+    }
+
+    function _adminAdd(address _account) internal {
+        admins[_account] = true;
+
+        emit AdminAdded(communityId, _account);
     }
 }
