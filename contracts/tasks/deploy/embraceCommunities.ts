@@ -26,6 +26,7 @@ task("deploy:EmbraceCommunities")
     await embraceCommunity.deployed();
     console.log("embraceCommunity Clone contract deployed to: ", embraceCommunity.address);
 
+    // Step 2: Deploy main EmbraceCommunities contract
     const embraceCommunitiesFactory: EmbraceCommunities__factory = <EmbraceCommunities__factory>(
       await ethers.getContractFactory("EmbraceCommunities")
     );

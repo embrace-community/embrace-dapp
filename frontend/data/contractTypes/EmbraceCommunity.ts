@@ -41,20 +41,11 @@ export type MembershipGateStructOutput = [number, string, BigNumber] & {
   tokenId: BigNumber;
 };
 
-export type MembershipStruct = {
-  access: PromiseOrValue<BigNumberish>;
-  gate: MembershipGateStruct;
-};
-
-export type MembershipStructOutput = [number, MembershipGateStructOutput] & {
-  access: number;
-  gate: MembershipGateStructOutput;
-};
-
 export type CommunityDataStruct = {
   handle: PromiseOrValue<string>;
   visibility: PromiseOrValue<BigNumberish>;
-  membership: MembershipStruct;
+  access: PromiseOrValue<BigNumberish>;
+  membershipGate: MembershipGateStruct;
   apps: PromiseOrValue<BigNumberish>[];
   metadata: PromiseOrValue<string>;
 };
@@ -62,13 +53,15 @@ export type CommunityDataStruct = {
 export type CommunityDataStructOutput = [
   string,
   number,
-  MembershipStructOutput,
+  number,
+  MembershipGateStructOutput,
   BigNumber[],
   string
 ] & {
   handle: string;
   visibility: number;
-  membership: MembershipStructOutput;
+  access: number;
+  membershipGate: MembershipGateStructOutput;
   apps: BigNumber[];
   metadata: string;
 };
@@ -98,7 +91,7 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     "getFounder()": FunctionFragment;
     "getMemberStatus(address)": FunctionFragment;
     "getMemberTokenId(address)": FunctionFragment;
-    "initialize(string,string,address,address,uint256,(string,uint8,(uint8,(uint8,address,uint256)),uint128[],string))": FunctionFragment;
+    "initialize(string,string,address,address,uint256,(string,uint8,uint8,(uint8,address,uint256),uint128[],string))": FunctionFragment;
     "insertKeyValue(string,string)": FunctionFragment;
     "isAdmin()": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
@@ -116,7 +109,7 @@ export interface EmbraceCommunityInterface extends utils.Interface {
     "safeTransferFrom(address,address,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setBaseURI(string)": FunctionFragment;
-    "setCommunityData((string,uint8,(uint8,(uint8,address,uint256)),uint128[],string))": FunctionFragment;
+    "setCommunityData((string,uint8,uint8,(uint8,address,uint256),uint128[],string))": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;

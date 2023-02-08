@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "hardhat/console.sol";
-import "./Interfaces.sol";
+import "../libraries/Interfaces.sol";
 
 error ErrorHandleExists(string handle);
 error ErrorNotCommunityOwner(uint256 communityId, address account);
@@ -55,11 +55,13 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder {
         _setBaseURI("ipfs://");
     }
 
-    function createCommunity(string calldata _handle, CommunityData memory _communityData) public returns (uint256) {
+    function createCommunity(string calldata _handle, CommunityData calldata _communityData) public returns (uint256) {
         bytes32 _handleBytes = keccak256(bytes(_handle));
         if (handleToId[_handleBytes] != 0) {
             revert ErrorHandleExists(_handle);
         }
+
+        console.log("Creating community with handle: %s", _handle);
 
         communityId.increment();
 
@@ -75,6 +77,8 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder {
             newCommunityId,
             _communityData
         );
+
+        console.log("New community address", embraceCommunityClone);
 
         Community memory community = Community({
             id: newCommunityId,

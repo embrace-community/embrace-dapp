@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URISto
 import "@openzeppelin/contracts-upgradeable/token/ERC721/utils/ERC721HolderUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 import "hardhat/console.sol";
-import "./Interfaces.sol";
+import "../libraries/Interfaces.sol";
 
 error ErrorMemberExists(address member);
 error ErrorMemberDoesNotExist(address member);
@@ -90,6 +90,8 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
         __ERC721_init(_name, _symbol);
         communitiesContractAddress = IEmbraceCommunities(_communitiesContractAddress);
         communityId = _communityId;
+
+        console.log("Community contract 1", _communitiesContractAddress);
 
         // Set Member NFT token URI - currently Tableland
         _setBaseURI("ipfs://");

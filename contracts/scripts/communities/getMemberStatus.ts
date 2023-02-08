@@ -11,11 +11,11 @@ async function main() {
   const contractAddress = process.argv[2];
   if (!contractAddress) throw new Error("No contract address provided.");
 
-  const network = process.argv[3] || "polygonMumbai";
+  const network = process.argv[3] || "localhost";
 
   const handle = process.argv[4] || "embrace";
 
-  const wallet = getWallet(1);
+  const wallet = getWallet(3);
   const { signer } = getSignerProvider(wallet, network);
 
   const embraceCommunitiesContract = new ethers.Contract(contractAddress, EmbraceCommunities.abi, signer);

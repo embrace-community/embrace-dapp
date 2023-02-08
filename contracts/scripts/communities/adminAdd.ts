@@ -11,15 +11,11 @@ async function main() {
   const contractAddress = process.argv[2];
   if (!contractAddress) throw new Error("No contract address provided.");
 
-  const network = process.argv[3] || "polygonMumbai";
+  const network = process.argv[3] || "localhost";
 
   const handle = process.argv[4] || "embrace";
 
-  let wallet = getWallet(0);
-
-  if (network === "localhost") {
-    wallet = new ethers.Wallet(process.env.TABLELAND_DEV_OWNER_PK ?? "");
-  }
+  const wallet = getWallet();
   const { signer } = getSignerProvider(wallet, network);
 
   const embraceCommunitiesContract = new ethers.Contract(contractAddress, EmbraceCommunities.abi, signer);
@@ -34,7 +30,8 @@ async function main() {
 
     const embraceCommunityContract = new ethers.Contract(community.contractAddress, EmbraceCommunity.abi, signer);
 
-    const tx = await embraceCommunityContract.adminAdd("0x725acc62323480e9565fbbfac8573908e4eef883");
+    const tx = await embraceCommunityContract.memberAdd("0x725acc62323480e9565fbbfac8573908e4eef883", true);
+    // const tx2 = await embraceCommunityContract.adminAdd("0x725acc62323480e9565fbbfac8573908e4eef883");
     console.log(`Granting Admin Role`);
 
     await tx.wait();

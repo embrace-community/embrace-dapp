@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.17;
 
-import { IEmbraceSpaces } from "../Interfaces.sol";
+import { IEmbraceSpaces } from "../../libraries/Interfaces.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -118,19 +118,15 @@ contract AppCreationsCollection is ERC721Enumerable, ERC721URIStorage, IEmbraceS
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256 tokenId, /* firstTokenId */
+        uint256 tokenId /* firstTokenId */,
         uint256 batchSize
     ) internal virtual override(ERC721, ERC721Enumerable) {
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC721, ERC721Enumerable)
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ERC721, ERC721Enumerable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 }

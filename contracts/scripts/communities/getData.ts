@@ -1,9 +1,9 @@
 import "dotenv/config";
 import { ethers } from "ethers";
 
-import * as EmbraceCommunities from "../artifacts/contracts/EmbraceCommunities.sol/EmbraceCommunities.json";
-import * as EmbraceCommunity from "../artifacts/contracts/EmbraceCommunity.sol/EmbraceCommunity.json";
-import { getSignerProvider, getWallet } from "./utils";
+import * as EmbraceCommunities from "../../artifacts/contracts/EmbraceCommunities.sol/EmbraceCommunities.json";
+import * as EmbraceCommunity from "../../artifacts/contracts/EmbraceCommunity.sol/EmbraceCommunity.json";
+import { getSignerProvider, getWallet } from "../utils";
 
 // npx ts-node scripts/getCommunitiesData
 
@@ -11,7 +11,7 @@ async function main() {
   const contractAddress = process.argv[2];
   if (!contractAddress) throw new Error("No contract address provided.");
 
-  const network = process.argv[3] || "polygonMumbai";
+  const network = process.argv[3] || "localhost";
 
   const handle = process.argv[4] || "embrace";
 
@@ -35,9 +35,6 @@ async function main() {
 
     const founder = await embraceCommunityContract.getFounder();
     console.log(`Founder:`, founder);
-
-    const tables = await embraceCommunityContract.getTables();
-    console.log(`Tables:`, tables);
   }
 }
 

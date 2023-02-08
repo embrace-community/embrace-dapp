@@ -41,20 +41,11 @@ export type MembershipGateStructOutput = [number, string, BigNumber] & {
   tokenId: BigNumber;
 };
 
-export type MembershipStruct = {
-  access: PromiseOrValue<BigNumberish>;
-  gate: MembershipGateStruct;
-};
-
-export type MembershipStructOutput = [number, MembershipGateStructOutput] & {
-  access: number;
-  gate: MembershipGateStructOutput;
-};
-
 export type CommunityDataStruct = {
   handle: PromiseOrValue<string>;
   visibility: PromiseOrValue<BigNumberish>;
-  membership: MembershipStruct;
+  access: PromiseOrValue<BigNumberish>;
+  membershipGate: MembershipGateStruct;
   apps: PromiseOrValue<BigNumberish>[];
   metadata: PromiseOrValue<string>;
 };
@@ -62,13 +53,15 @@ export type CommunityDataStruct = {
 export type CommunityDataStructOutput = [
   string,
   number,
-  MembershipStructOutput,
+  number,
+  MembershipGateStructOutput,
   BigNumber[],
   string
 ] & {
   handle: string;
   visibility: number;
-  membership: MembershipStructOutput;
+  access: number;
+  membershipGate: MembershipGateStructOutput;
   apps: BigNumber[];
   metadata: string;
 };
@@ -92,7 +85,7 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "close(uint256)": FunctionFragment;
-    "createCommunity(string,(string,uint8,(uint8,(uint8,address,uint256)),uint128[],string))": FunctionFragment;
+    "createCommunity(string,(string,uint8,uint8,(uint8,address,uint256),uint128[],string))": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "getCommunities()": FunctionFragment;
     "handleToCommunity(string)": FunctionFragment;
@@ -110,7 +103,7 @@ export interface EmbraceCommunitiesInterface extends utils.Interface {
     "totalCommunities()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
-    "updateCommunity(uint256,(string,uint8,(uint8,(uint8,address,uint256)),uint128[],string))": FunctionFragment;
+    "updateCommunity(uint256,(string,uint8,uint8,(uint8,address,uint256),uint128[],string))": FunctionFragment;
   };
 
   getFunction(
