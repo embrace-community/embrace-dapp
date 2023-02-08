@@ -39,10 +39,12 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
     // Community Data related
     uint256 private communityId;
     string private handle;
-    Visibility private visibility;
-    Membership private membership;
-    uint128[] private apps;
+    uint128[] private apps; // TODO: Is apps needed?
     string private metadata;
+    Visibility private visibility;
+    Access private access;
+    MembershipGate private membershipGate;
+    // bool private allowRequests;
 
     // Required to access the global contract to find the owner / founder of the community
     IEmbraceCommunities private communitiesContractAddress;
@@ -102,14 +104,14 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
 
     // SETTER FUNCTIONS
     function join() public {
-        if (membership.access != Access.OPEN) revert ErrorNotOpenAccess(msg.sender);
+        if (access != Access.OPEN) revert ErrorNotOpenAccess(msg.sender);
         if (memberToTokenId[msg.sender] != 0) revert ErrorMemberExists(msg.sender);
 
         _memberAdd(msg.sender);
     }
 
     function joinGated() public {
-        if (membership.access != Access.GATED) revert ErrorNotGatedAccess(msg.sender);
+        if (access != Access.GATED) revert ErrorNotGatedAccess(msg.sender);
         if (memberToTokenId[msg.sender] != 0) revert ErrorMemberExists(msg.sender);
         if (!_meetsGateRequirements(msg.sender)) revert ErrorGatedRequirementsNotMet(msg.sender);
 
@@ -170,10 +172,11 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
         return
             CommunityData({
                 handle: handle,
-                visibility: visibility,
-                membership: membership,
                 apps: apps,
-                metadata: metadata
+                metadata: metadata,
+                visibility: visibility,
+                access: access,
+                membershipGate: membershipGate
             });
     }
 
@@ -239,10 +242,11 @@ contract EmbraceCommunity is ERC721URIStorageUpgradeable, ERC721HolderUpgradeabl
 
     function _setCommunityData(CommunityData memory _communityData) private {
         handle = _communityData.handle;
-        visibility = _communityData.visibility;
-        membership = _communityData.membership;
         apps = _communityData.apps;
         metadata = _communityData.metadata;
+        access = _communityData.access;
+        visibility = _communityData.visibility;
+        membershipGate = _communityData.membershipGate;
     }
 
     // TODO: Check whether account has a token

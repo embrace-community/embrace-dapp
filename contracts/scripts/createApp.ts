@@ -1,8 +1,8 @@
 import "dotenv/config";
 import { ethers } from "ethers";
 
-import * as EmbraceApps from "../artifacts/contracts/EmbraceApps.sol/EmbraceApps.json";
-import { getSignerProvider, getWallet } from "./utils";
+import * as EmbraceApps from "../../artifacts/contracts/EmbraceApps.sol/EmbraceApps.json";
+import { getSignerProvider, getWallet } from "../utils";
 
 // COMMANDS TO CREATE APPS
 // npx ts-node scripts/createApp 0xE300bF5B76671A5C702F9E48B8e5e91cE8C8C282 CHAT 0xE300bF5B76671A5C702F9E48B8e5e91cE8C8C282 metadata polygonMumbai

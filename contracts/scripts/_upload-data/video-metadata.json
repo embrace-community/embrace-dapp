@@ -1,0 +1,18 @@
+{
+    "name": "My first video upload",
+    "description": "This is my first video upload",
+    "animation_url": "ipfs://bafybeiakvuexrmi2bhpiqbjyu4jplmwlltfpbgm6ca4oylf3uiud5vgnoi",
+    "youtube_url": "youtube url",
+    "external_url": "embrace url",
+    "image": "ipfs://bafybeicc5lqbzhh3dtycfs3k6lizx2vlr3drof2kcv7p73zykuhga4xk24",
+    "attributes": {
+        "tags": [
+            "first",
+            "video"
+        ],
+      "video": "ipfs://bafybeiakvuexrmi2bhpiqbjyu4jplmwlltfpbgm6ca4oylf3uiud5vgnoi"
+    },
+    "type": "video",
+    "mediaType": "video/mp4",
+    "mediaContent": ""
+}

@@ -28,18 +28,19 @@ struct MembershipGate {
     uint256 tokenId; // For ERC1155 only
 }
 
-struct Membership {
-    Access access;
-    MembershipGate gate;
-    // Only relevant if Access is Closed
-    // If true allow requests to join / if false only Admin's can add members
-    // bool allowRequests;
-}
+// struct Membership {
+//     Access access;
+//     MembershipGate gate;
+//     // Only relevant if Access is Closed
+//     // If true allow requests to join / if false only Admin's can add members
+//     // bool allowRequests;
+// }
 
 struct CommunityData {
     string handle;
     Visibility visibility;
-    Membership membership;
+    Access access;
+    MembershipGate membershipGate;
     uint128[] apps;
     string metadata;
 }

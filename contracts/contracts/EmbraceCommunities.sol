@@ -101,7 +101,7 @@ contract EmbraceCommunities is ERC721URIStorage, ERC721Holder {
         emit CommunityCreated(
             newCommunityId,
             _communityData.visibility, // Listed / Unlisted
-            _communityData.membership.access, // Open, Closed, Gated
+            _communityData.access, // Open, Closed, Gated
             _communityData.metadata // IPFS CID
         );
 
