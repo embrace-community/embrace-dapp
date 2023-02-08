@@ -94,7 +94,7 @@ const config: HardhatUserConfig = {
         runs: 1,
         // details: { yul: false },
       },
-      viaIR: false, // Helps with sizing of contracts for now
+      viaIR: true, // Helps with sizing of contracts for now
     },
   },
   contractSizer: {
