@@ -5,7 +5,7 @@ import * as EmbraceCommunities from "../../artifacts/contracts/EmbraceCommunitie
 import * as EmbraceCommunity from "../../artifacts/contracts/EmbraceCommunity.sol/EmbraceCommunity.json";
 import { getSignerProvider, getWallet } from "../utils";
 
-// npx ts-node scripts/getCommunitiesData
+// npx ts-node scripts/communities/getMemberStatus
 
 async function main() {
   const contractAddress = process.argv[2];

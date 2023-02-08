@@ -34,7 +34,7 @@ async function main() {
 
     const embraceCommunityContract = new ethers.Contract(community.contractAddress, EmbraceCommunity.abi, signer);
 
-    const tx = await embraceCommunityContract.grantAdminRole("0x725acc62323480e9565fbbfac8573908e4eef883");
+    const tx = await embraceCommunityContract.adminAdd("0x725acc62323480e9565fbbfac8573908e4eef883");
     console.log(`Granting Admin Role`);
 
     await tx.wait();
