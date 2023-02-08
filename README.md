@@ -18,15 +18,11 @@ Embrace is not limited to any type of community, however the first steps are to 
 <div style="display: flex; justify-content: space-between;">
 <img src="https://lets.embrace.community/team/martin.jpeg" alt="martin" style="height: 200px;" />
 <img src="https://lets.embrace.community/team/tobias.png" alt="tobias" style="height: 200px;" />
-
-<img src="https://lets.embrace.community/team/ben.png" alt="ben" style="height: 200px;" />
 </div>
 
 Martin <martin@openskydevelopment.co.uk> (Founder)
 
 Tobias <caruso33@web.de> (Co-Founder)
-
-Ben <info@bennisan.be> (Design)
 
 ## Bounties
 
