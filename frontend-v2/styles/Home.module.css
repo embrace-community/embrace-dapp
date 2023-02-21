@@ -1,6 +1,6 @@
-.container {
+/* .container {
   padding: 0 2rem;
-}
+} */
 
 .main {
   min-height: 100vh;
@@ -92,6 +92,24 @@
   margin: 0;
   font-size: 1.2rem;
   line-height: 1.5;
+}
+
+.div1 {
+  grid-area: 1 / 1 / 7 / 2;
+  background-color: #0d76fc;
+}
+.div2 {
+  grid-area: 1 / 2 / 2 / 7;
+  background-color: red;
+}
+.div3 {
+  grid-area: 6 / 2 / 7 / 7;
+  /* height: 100px; */
+  background-color: #2f2f2f;
+}
+.div4 {
+  grid-area: 2 / 2 / 6 / 7;
+  background-color: gray;
 }
 
 @media (max-width: 600px) {
