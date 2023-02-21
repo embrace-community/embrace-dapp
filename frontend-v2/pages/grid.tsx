@@ -22,22 +22,22 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {/* Work on getting the search bar and account in a single flex div? */}
-      <div className="fixed z-0 h-16 w-full flex items-center p-3 bg-slate-200">
-        <div className="grow text-center"> search bar </div>
-      </div>
+      <div className="fixed z-0 h-16 w-full flex flex-row items-center p-3 bg-slate-200 ">
+        <div className="basis-1/3">
+          <div className="md:hidden h-14 w-14 bg-slate-50 rounded-full"></div>
+        </div>
+        <div className="basis-1/3 text-center">search bar</div>
 
-      <div className="fixed right-0 z-0 h-16 w-36 flex items-center p-3 bg-slate-200">
-        <div className="grow text-center"> account </div>
+        <div className="basis-1/3 text-end mr-4"> account </div>
       </div>
 
       {/* Main content including side nav */}
-      <div className="w-full h-screen flex">
-        <div className="w-44 p-3 bg-slate-500 z-10 flex flex-col text-center">
-          <div className="h-12 w-12 mx-auto p-3 bg-slate-50 rounded-full mb-8"></div>
+      <div className="flex w-full h-screen">
+        <div className="hidden md:flex flex-col w-44 p-3 bg-slate-500 z-10  text-center">
+          <div className="h-16 w-16 mx-auto p-3 bg-slate-50 rounded-full mb-8"></div>
           <div className="py-4 border-t-2 opacity-70"></div>
-          <div className="h-12 w-12 mx-auto p-3 bg-slate-50 rounded-full mb-4"></div>
-          <div className="h-12 w-12 mx-auto p-3 bg-slate-50 rounded-full mb-4"></div>
+          <div className="h-16 w-16 mx-auto p-3 bg-slate-50 rounded-full mb-4"></div>
+          <div className="h-16 w-16 mx-auto p-3 bg-slate-50 rounded-full mb-4"></div>
 
           <div className="grow"></div>
 
@@ -312,8 +312,16 @@ const Home: NextPage = () => {
         </div>
       </div>
 
+      {/* Mobile Navigation*/}
+      <div className="md:hidden flex flex-row fixed bottom-0 z-0 h-16 w-full items-center text-center p-3 bg-slate-100">
+        <div className="basis-1/4"> Option 1 </div>
+        <div className="basis-1/4"> Option 2 </div>
+        <div className="basis-1/4"> Option 3 </div>
+        <div className="basis-1/4"> Option 4 </div>
+      </div>
+
       {/* Footer - if required */}
-      <div className="fixed bottom-0 z-0 h-8 w-full flex items-center p-3 bg-slate-100">
+      <div className="hidden md:flex flex-row fixed bottom-0 z-0 h-8 w-full  items-center p-3 bg-slate-100">
         <div className="grow text-center"> footer </div>
       </div>
     </div>
